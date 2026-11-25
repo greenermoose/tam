@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/design/index.html">Design and philosophy</a> / Systems programming philosophy and language choices</p></nav>
 
-
-<p>This page explains why Tamlinux chooses standard <a href="glossary/c/c11.html">C11</a> for its core terminal utilities and shared libraries instead of languages like Rust, Go, or C++, and how AI agents help distill ideas from open source projects into fast, self-contained native programs.</p>
+<p>Language choice affects binary size, dependencies, startup and how easily a program can be inspected by people and automated tools.</p>
 <h2>Before this</h2><p><a href="programming/c/c11.html">The C11 programming language and portable systems code</a> · <a href="tamlinux/design/philosophy.html">Philosophy: Free Software, Open Standards, and Efficiency</a></p>
 
 <section data-level="novice">
@@ -44,73 +43,42 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspect binary footprints, library dependencies, and startup latency</h2>
-<p><strong>Goal:</strong> you will be able to inspect executable section sizes using <code>size</code>, view shared library dependencies with <code>ldd</code>, and verify the minimal runtime footprint of native C11 utilities.</p>
+<h2>Compare two binary footprints</h2>
+<p><strong>Goal:</strong> read a fixed size report for a Tamlinux utility and a small reference program</p>
 
-
-<p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). The inspection commands run in <a href="glossary/u/user-space.html">user space</a> and do not modify any system configuration.</p>
-
-<aside class="first-time">
-<p><strong>New to this?</strong> Every compiled program links against system libraries and consumes memory when launched. Using <code>size</code> and <code>ldd</code> reveals the physical resource footprint of native C programs compared to programs carrying heavy language runtimes.</p>
-</aside>
-
-<h3>Worked example: inspect native binary size and shared libraries</h3>
-
-<pre class="session" data-risk="read-only">
-$ size /usr/bin/tam
-   text    data     bss     dec     hex filename
- 294266    3656     336  298258   48d12 /usr/bin/tam
-$ ldd /usr/bin/tam
-    linux-vdso.so.1 (0x00007f966f5a8000)
-    libz.so.1 => /usr/lib/libz.so.1 (0x00007f966f514000)
-    libncursesw.so.6 => /usr/lib/libncursesw.so.6 (0x00007f966f4a3000)
-    libc.so.6 => /usr/lib/libc.so.6 (0x00007f966f200000)
-    /lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 (0x00007f966f5aa000)
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-11-12.</p>
-
+<tam-sandbox
+  title="Try it: compare sample sizes"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Print the sample utility size table">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="size /usr/bin/tam" goal="true" hint="The teaching numbers are a sample, not a measurement of your machine.">
+    <out>   text	   data	    bss	    dec	    hex	filename
+ 245678	   4820	   9120	 259618	   3f582	/usr/bin/tam</out>
+  </tam-cmd>
+  <tam-cmd match="size /usr/bin/true" hint="Compare the text column first, then think about dependencies and startup.">
+    <out>   text	   data	    bss	    dec	    hex	filename
+  14236	    712	   1040	   15988	    3e74	/usr/bin/true</out>
+  </tam-cmd>
+  <tam-init>Two fixed size rows make the footprint comparison concrete.</tam-init>
+   <tam-hint after="1">The teaching numbers are a sample, not a measurement of your machine.</tam-hint>
+  <tam-hint after="2">Compare the text column first, then think about dependencies and startup.</tam-hint>
+  <tam-fallback>Type size /usr/bin/tam, or type help.</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>size /usr/bin/tam</code> reports the memory sections of the binary: text (executable code instructions), data (initialized variables), and bss (uninitialized variables). The entire program is under 300 kilobytes.</li>
-<li><code>ldd /usr/bin/tam</code> lists the shared libraries required at runtime. The command links only against <code>libz</code> (decompression), <code>libncursesw</code> (terminal capabilities), and the standard C library (<code>libc.so.6</code>).</li>
-<li>Because there is no language runtime, interpreter, or garbage collector thread, the kernel loads and executes the binary in under two milliseconds.</li>
-</ol>
-
+<p>The text column reports compiled code size for two fixed examples. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. Size alone does not settle a language choice: startup, dependencies and maintainability matter too.</p>
 <h3>Try it</h3>
-<p>Check the size and shared libraries of another native Tamlinux tool, such as <code>tam-launch-journal</code> or a core utility:</p>
-
-<pre class="session" data-risk="read-only">
-$ size /usr/bin/true
-   text    data     bss     dec     hex filename
-  24787    1648     168   26603    67eb /usr/bin/true
-</pre>
-
-<p>Observe how small and direct native compiled programs are compared to multi-megabyte managed binaries.</p>
-
+<p>Predict which row has the larger text section before running the second rule.</p>
 <h3>If it goes wrong</h3>
-<dl>
-<dt><code>ldd: command not found</code></dt>
-<dd>The dynamic linker utility is part of the standard <a href="glossary/g/gnu.html">GNU</a> C Library package (<code>glibc</code>). Ensure standard system development tools are installed.</dd>
-<dt><code>not a dynamic executable</code></dt>
-<dd>The binary was linked statically, meaning all necessary library routines are bundled directly into the executable file itself.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> core utilities avoid language runtimes and heavy dependencies. While desktop automation uses Python 3 and desktop widgets use <a href="glossary/q/quickshell.html">Quickshell</a> with <a href="glossary/q/qml.html">QML</a>, systems utilities (such as <code>tam</code>, <code>tam-launch-journal</code>, and <code>libtam</code>) are implemented in standard C11. When inspiration is drawn from open source projects written in Go, Rust, or Python, AI assistants extract the algorithmic ideas and re-implement them in C11 rather than importing external language ecosystems.</p>
-</aside>
-
+<p>If a real utility uses a specialized library, record the exception as a design decision rather than treating it as a failure.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Why do native C11 programs start in milliseconds compared to programs written in Go or Python?</i></summary>
-<p>C11 programs compile directly to native machine code and link only against the standard C library, requiring no interpreter initialization, virtual machine startup, or garbage collection runtime threads before execution begins.</p>
-</details>
-<details class="q">
-<summary><i>What tool can you use to inspect which dynamic shared libraries an executable links against?</i></summary>
-<p>The <code>ldd</code> utility prints the shared objects required by each program or library specified on the command line.</p>
-</details>
+<details class="q"><summary><i>Does a smaller text section prove a program starts faster?</i></summary><p>No. Startup also depends on loading, initialization and runtime work.</p></details>
 </section>
 </section>
 
@@ -158,19 +126,6 @@ $ size /usr/bin/true
 <tr><td><strong>Strict compiler flags and runtime sanitizers</strong></td><td>Tamlinux compiles all C code with <code>-std=c11 -Wall -Wextra -Wpedantic</code> to catch suspicious constructs at build time. During development and testing, code is built with <a href="programming/c/sanitizers.html">AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan)</a> to catch buffer overflows, memory leaks, and use-after-free conditions before software is released.</td></tr>
 </table>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q open">
-<summary>Why doesn't Tamlinux use Rust for its core terminal utilities despite Rust's built-in memory safety?</summary>
-<p>While Rust guarantees compile-time memory safety, its heavy toolchain (~1.5 GB), deep transitive crate dependencies (Cargo sprawl), and long compilation times conflict with Tamlinux's goals of anti-bloat, 20-year source longevity, and emergency self-reliance on minimal rescue media. Tamlinux reduces memory-safety risks in C11 through pedantic compiler flags, libtam bounds-checked primitives, AddressSanitizer (ASan) in testing, and static assertions. These measures do not guarantee memory safety.</p>
-</details>
-<details class="q">
-<summary><i>How does the libtam library support C11 development in Tamlinux?</i></summary>
-<p>It provides standard, reusable systems primitives &mdash; such as dynamic strings, hash maps, JSON parsing, and atomic file updates &mdash; that the standard C library omits, preventing individual utilities from reinventing low-level data structures while keeping binary sizes small.</p>
-</details>
-</section>
-
 <h3>Sources</h3>
 <ul>
 <li>ISO/IEC 9899:2011 &mdash; Information technology &mdash; Programming languages &mdash; C.</li>
@@ -180,6 +135,7 @@ $ size /usr/bin/true
 
 <h3>Improve it</h3>
 <p>Contribute language guidelines, tool reviews, and systems programming improvements in the public <a href="tamlinux/development/tam.html">tam</a> command repository.</p>
+<p><strong>Further reading in this topic:</strong> <a href="terminal/shell/index.html">The Shell and Streams</a> · <a href="glossary/u/user-space.html">user space</a> · <a href="glossary/g/gnu.html">GNU</a> · <a href="glossary/q/quickshell.html">Quickshell</a> · <a href="glossary/q/qml.html">QML</a>.</p>
 </section>
 
 <h2>Next</h2><p><a href="programming/c/c11.html">The C11 programming language</a> &mdash; ISO C11 standard, compiler flags, and portable systems code.</p>

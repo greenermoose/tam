@@ -15,7 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Transport layer</p></nav>
 
-<p>The transport layer is the part of the network stack that carries data between programs on different machines, usually by adding port numbers and choosing how delivery should behave.</p>
+<p>The transport layer delivers data between programs on different hosts using ports and protocols such as TCP and UDP, each with a different delivery promise.</p>
 
 <section data-level="novice">
 <h2>What the transport layer does</h2>
@@ -27,36 +27,52 @@
 </section>
 
 <section data-level="learner">
-<h2>See transport-layer endpoints</h2>
-<p><strong>Goal:</strong> Identify TCP and UDP sockets and understand what port numbers mean.</p>
-<p><strong>Before you start:</strong> Read <a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ss -tan
-$ ss -uan
-</pre>
-<p><code>ss -tan</code> shows TCP sockets; <code>ss -uan</code> shows UDP sockets. The local and peer address:port pairs identify endpoints.</p>
-
+<h2>Compare TCP and UDP endpoints</h2>
+<p><strong>Goal:</strong> read sample socket records and tell which transport each one uses.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: two transports"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the UDP record in the sample transport table">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">tcp: LISTEN 0.0.0.0:22
+tcp: ESTABLISHED 192.0.2.26:37764 -&gt; 192.0.2.20:443
+udp: UNCONN 127.0.0.53:53
+udp: UNCONN 0.0.0.0:5353</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep udp clues.txt" goal="true" hint="Try grep udp clues.txt to see datagram endpoints.">
+      <out>udp: UNCONN 127.0.0.53:53</out>
+      <out>udp: UNCONN 0.0.0.0:5353</out>
+    </tam-cmd>
+    <tam-cmd match="grep tcp clues.txt" hint="TCP has listeners and established connections.">
+      <out>tcp: LISTEN 0.0.0.0:22</out>
+      <out>tcp: ESTABLISHED 192.0.2.26:37764 -&gt; 192.0.2.20:443</out>
+    </tam-cmd>
+    <tam-cmd match="ss -tan" hint="Sample TCP socket output.">
+      <out>State     Local Address:Port   Peer Address:Port</out>
+      <out>LISTEN    0.0.0.0:22         0.0.0.0:*</out>
+    </tam-cmd>
+  <tam-init>Sample endpoints: TCP listeners and connections, UDP unconnected sockets.</tam-init>
+  <tam-hint after="1">Try grep udp clues.txt to see datagram endpoints.</tam-hint>
+  <tam-hint after="2">Now try grep tcp clues.txt for stream endpoints.</tam-hint>
+  <tam-fallback>Try grep tcp clues.txt, grep udp clues.txt or ss -tan (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<p>TCP and UDP are the two common transport protocols. <a href="glossary/t/tcp.html">TCP</a> provides a reliable, ordered byte stream. <a href="glossary/u/udp.html">UDP</a> sends independent datagrams with less overhead and no built-in delivery guarantee. Both use ports so multiple programs can share one IP address.</p>
-
+<p>TCP records can be listening or established because the protocol sets up a connection. UDP records appear as unconnected sockets because datagrams are sent without that setup. These are sample lines, not live socket state.</p>
 <h3>Try it</h3>
-<p>Run <code>ss -tlnp</code> with appropriate permissions to see listening TCP ports. Compare with <code>ss -ulnp</code> for UDP listeners.</p>
-
+<p>Use <code>cat clues.txt</code> to compare all four records. Predict which transport a DNS question usually uses: UDP for a small question, with TCP available for larger replies.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>A port is not listening</dt>
-<dd>The service may not be running, or it may be listening on a different address or interface.</dd>
-<dt>Connection refused</dt>
-<dd>The machine was reachable, but no program accepted the transport connection on that port.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>Why does the transport layer need ports if IP already has addresses?</i></summary>
-<p>An IP address identifies a host or interface, but many programs can use the network at the same time. Ports let the transport layer multiplex and demultiplex data to the correct program.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What does a port number identify?</i></summary><p>A program or service endpoint on one host, within a particular transport protocol.</p></details>
 </section>
 </section>
 
@@ -75,9 +91,7 @@ $ ss -uan
 <p>The transport layer demultiplexes incoming packets to sockets using the 5-tuple: source IP, source port, destination IP, destination port, and protocol. TCP adds sequence numbers, acknowledgements, flow control, and congestion control. UDP provides a minimal header with ports, length, and checksum. <a href="glossary/q/quic.html">QUIC</a> builds reliable, encrypted transport features in user space over UDP.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ ss -ti state established
-</pre>
+
 <p>TCP info exposes round-trip time, congestion window, retransmissions, and other transport state useful for diagnosing performance.</p>
 
 <h3>Edge cases</h3>
@@ -87,17 +101,18 @@ $ ss -ti state established
 <li><strong>Head-of-line blocking:</strong> TCP's ordered stream can delay later bytes when an earlier segment is lost; some applications avoid this with UDP/QUIC.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary><i>When is UDP a better fit than TCP?</i></summary>
-<p>UDP fits when an application can tolerate or handle loss, needs low overhead, or manages its own timing/retransmission semantics, such as DNS, real-time media, or QUIC-based protocols.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <p><cite data-ref="rfc9293"><a href="bibliography/rfc9293.html">RFC 9293</a></cite> for TCP, <cite data-ref="rfc768"><a href="bibliography/rfc768.html">RFC 768</a></cite> for UDP, <a href="man:ss(8)">ss(8)</a>.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a></li>
+</ul>
+
+
 
 <h2>Where next</h2>
 <ul>

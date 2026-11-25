@@ -36,14 +36,19 @@
 <pre>event --&gt; save state --&gt; short handler --&gt; deferred work --&gt; restore or reschedule
 </pre>
 <p>The kernel saves the registers of the interrupted task and runs the driver's handler for that interrupt source. A handler must be quick: while it runs, other work on that CPU is delayed. Anything that can wait is marked for later, in a softirq or a threaded handler. Once the urgent part is done, the kernel either restores the interrupted task or, if the scheduler decides another task should run, performs a <a href="glossary/c/context-switch.html">context switch</a>.</p>
-<h3>Worked example: follow one key press</h3>
-<ol>
-<li>You press a key. The keyboard controller raises an <a href="glossary/i/irq.html">IRQ</a>.</li>
-<li>The CPU saves enough state to return later and enters the kernel's interrupt handler.</li>
-<li>The keyboard driver reads the key code and places it in a queue for the session's input system.</li>
-<li>The handler exits. The kernel may run deferred work, then returns to the task that was interrupted—or switches to another runnable task.</li>
-</ol>
-<p>The program waiting for input later reads the queued key code. It never ran the handler itself; the kernel did.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Find a device interrupt counter in a sample table"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Find a device interrupt counter in a sample table">
+  <tam-cmd match="grep i8042 /proc/interrupts" goal="true">
+    <out>  1: 12 0 i8042</out>
+  </tam-cmd>
+  <tam-init>Try: grep i8042 /proc/interrupts</tam-init>
+  <tam-hint after="1">The left number is the interrupt line; following columns count per CPU.</tam-hint>
+  <tam-hint after="2">Counters increase as devices raise interrupts.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <p>The handler did only the work that had to happen immediately: acknowledge the device and record the key. The rest of the path—delivering input, redrawing a window—can happen in ordinary process context, where waiting is allowed.</p>
 <h3>Try it</h3>

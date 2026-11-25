@@ -17,7 +17,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> / <a href="hardware/diagnostics/index.html">Hardware diagnostics</a> / Hardware diagnostics: troubleshooting cables and communication boards</p></nav>
 
 
-<p>This how-to guide explains how to troubleshoot faulty computer cables, communication buses, and interface boards &mdash; moving from visual physical inspection and operating system enumeration to multimeter bench testing, hardware loopback plugs, oscilloscope signal integrity probing, and board-level component repair.</p>
+<p>Hardware problems can come from a cable, connector, device or board. Start with safe visual checks, then use software and test tools to narrow the fault.</p>
 <h2>Before this</h2><p><a href="hardware/signals/cables-and-signaling.html">Transmission media: electrical cables, optical fiber, and wireless waves</a> · <a href="networking/communication-protocols.html">Communication protocols, framing, and data rates</a> · <a href="hardware/signals/error-detection-and-correction.html">Error detection, correction, and channel reliability</a></p>
 <p>When a server console stops responding, a network link drops packets, or an industrial sensor goes offline, the fault may lie anywhere from a loosened thumb screw or broken copper core to a blown electrostatic discharge (<a href="glossary/e/esd.html">ESD</a>) protection diode or an incorrect baud rate setting. By approaching hardware problems systematically &mdash; eliminating physical defects first, testing electrical continuity and voltage levels with bench instruments, and diagnosing signal waveforms with oscilloscopes &mdash; you can pinpoint the exact failure point and repair equipment instead of discarding it.</p>
 
@@ -46,16 +46,27 @@
 <aside class="first-time">
 <p><strong>New to this?</strong> Before touching any diagnostic software or command-line tools, always look at the physical hardware with your eyes and touch it with your hands. Ensure connectors are firmly pushed in until they click or their thumb screws are tightened down. A cable that looks plugged in from across the room may actually be resting 2 millimeters out of its socket.</p>
 </aside>
-<h3>Worked example: verify hardware detection in Linux</h3>
+<h3>Explore: verify hardware detection in Linux</h3>
 <p>When you plug a USB-to-serial adapter, an <a href="glossary/e/ethernet.html">Ethernet</a> cable, or a serial board into a Tamlinux computer, the kernel immediately enumerates the device on the bus. Check the kernel ring buffer using <code>dmesg</code>:</p>
 
-<pre class="session" data-risk="read-only">
-$ dmesg | grep -E -i "tty|serial|uart|16550" | tail -4
-[    0.912401] printk: console [tty0] enabled
+<tam-sandbox
+  title="Try it: verify hardware detection in Linux"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Verify hardware detection in Linux">
+  <tam-cmd match="dmesg | grep -E -i &quot;tty|serial|uart|16550&quot; | tail -4" goal="true" hint="Look for the value that answers the task.">
+    <out>[    0.912401] printk: console [tty0] enabled
 [    1.428910] serial8250: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
 [   42.109823] usb 1-1.2: ch341-uart converter now attached to ttyUSB0
-[   42.109980] usbcore: registered new interface driver ch341
-</pre>
+[   42.109980] usbcore: registered new interface driver ch341</out>
+  </tam-cmd>
+  <tam-init>Try: dmesg | grep -E -i "tty|serial|uart|16550" | tail -4</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try dmesg | grep -E -i "tty|serial|uart|16550" | tail -4 (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
 <p>Analyzing the kernel output:</p>
 <ol>
@@ -65,14 +76,25 @@ $ dmesg | grep -E -i "tty|serial|uart|16550" | tail -4
 <h3>Try it</h3>
 <p>List all active serial communication device nodes currently created in <code>/dev</code>:</p>
 
-<pre class="session" data-risk="read-only">
-$ ls -l /dev/ttyS* /dev/ttyUSB* /dev/ttyACM* 2&gt;/dev/null | head -5
-crw-rw---- 1 root dialout 4, 64 Nov  1 14:00 /dev/ttyS0
+<tam-sandbox
+  title="Try it: Explore ls output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore ls output">
+  <tam-cmd match="ls -l /dev/ttyS* /dev/ttyUSB* /dev/ttyACM* 2&gt;/dev/null | head -5" goal="true" hint="Look for the value that answers the task.">
+    <out>crw-rw---- 1 root dialout 4, 64 Nov  1 14:00 /dev/ttyS0
 crw-rw---- 1 root dialout 4, 65 Nov  1 14:00 /dev/ttyS1
 crw-rw---- 1 root dialout 4, 66 Nov  1 14:00 /dev/ttyS2
 crw-rw---- 1 root dialout 4, 67 Nov  1 14:00 /dev/ttyS3
-crw-rw---- 1 root dialout 188, 0 Nov  1 14:15 /dev/ttyUSB0
-</pre>
+crw-rw---- 1 root dialout 188, 0 Nov  1 14:15 /dev/ttyUSB0</out>
+  </tam-cmd>
+  <tam-init>Try: ls -l /dev/ttyS* /dev/ttyUSB* /dev/ttyACM* 2&gt;/dev/null | head -5</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try ls -l /dev/ttyS* /dev/ttyUSB* /dev/ttyACM* 2&gt;/dev/null | head -5 (or type help).</tam-fallback>
+</tam-sandbox>
+
 <h3>If it goes wrong</h3>
 <p>If you plug in a USB-to-serial cable and <code>dmesg</code> shows zero output, or if opening <code>/dev/ttyUSB0</code> fails with an error:</p>
 <ul>

@@ -15,98 +15,98 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Factoring algorithms</p></nav>
 
-<p>A factoring algorithm breaks an integer into factors that multiply back to the original number. Factoring small numbers is easy; factoring very large integers is much harder, and that difficulty has shaped modern cryptography.</p>
+<p>Factoring breaks a number into smaller numbers that multiply back to it. Small cases are easy, but huge numbers make the task slow enough to protect messages.</p>
 
 <section data-level="novice">
 <h2>What factoring means</h2>
-<p>To factor 12, you can write <code>12 = 2 * 2 * 3</code>. For small numbers, you can try dividing by 2, 3, 4, and so on. For very large numbers, trying every possible divisor takes far too long.</p>
+<p>A factor divides a number exactly. Factoring finds the factors, so <code>21 = 3 &times; 7</code> and <code>8051 = 83 &times; 97</code>. Each side multiplies back to the original value.</p>
 <h3>Why it matters</h3>
-<p>Some cryptosystems, especially classic <a href="glossary/r/rsa.html">RSA</a>, rely on the practical difficulty of factoring large numbers. If someone could factor the large modulus quickly, they could break keys that depend on that hardness assumption.</p>
+<p>Some security systems rely on a lopsided task: multiplying two large primes is quick, but recovering them from the product is slow. That difference is the basis of <a href="glossary/r/rsa.html">RSA</a>.</p>
 <h3>How to think about it</h3>
-<p>Multiplication is like mixing paint: easy to do. Factoring is like looking at the mixed paint and figuring out the exact original colors and amounts. For big, carefully chosen numbers, that reverse problem is hard.</p>
+<p>Think of arranging tiles into equal rows. With twelve tiles you can try two rows of six, three of four, and so on. With a huge pile, trying every possible row count takes a long time.</p>
 <h3>New words</h3>
 <dl>
-<dt><a href="glossary/f/factoring-algorithm.html">Factoring algorithm</a></dt>
-<dd>An algorithm that finds integer factors of a number.</dd>
-<dt>Prime number</dt>
-<dd>A whole number greater than 1 whose only positive factors are 1 and itself.</dd>
-<dt>Modulus</dt>
-<dd>A number used as the base of modular arithmetic; in RSA, the product of large primes.</dd>
+<dt><dfn><a href="glossary/f/factoring-algorithm.html">Factoring algorithm</a></dfn></dt><dd>A method for finding factors of an integer.</dd>
+<dt>Prime</dt><dd>A whole number greater than one with no factors except one and itself.</dd>
 </dl>
 </section>
 
 <section data-level="learner">
-<h2>From trial division to smarter methods</h2>
-<p><strong>Goal:</strong> understand why naive factoring fails at scale and what kinds of ideas improve it.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ python3 - &lt;&lt;'PY'
-n = 8051
-f = []
-d = 2
-while d*d <= n:
-    while n % d == 0:
-        f.append(d); n //= d
-    d += 1 if d == 2 else 2
-if n > 1: f.append(n)
-print(f)
-PY
-[83, 97]
-</pre>
-<p>Trial division works well here because 8051 is small. For a 2048-bit RSA modulus, trial division is hopeless.</p>
+<h2>Try division and see the search grow</h2>
+<p><strong>Goal:</strong> find the hidden factor pair in a sample search table and explain why large numbers are harder.</p>
+<tam-sandbox
+  title="Try it: uncover a factor pair"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Show the factor pair for 8051">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="trial.txt" size="96">3 x 7 = 21
+83 x 97 = 8051
+73 x 137 = 10001</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat trial.txt" hint="Each row is a result from a trial-division search. Narrow to 8051.">
+      <out>3 x 7 = 21</out>
+      <out>83 x 97 = 8051</out>
+      <out>73 x 137 = 10001</out>
+    </tam-cmd>
+    <tam-cmd match="grep 8051 trial.txt" goal="true" hint="Correct: trial division had to reach 83 before finding a divisor.">
+      <out>83 x 97 = 8051</out>
+    </tam-cmd>
+  <tam-init>Try: cat trial.txt, then grep 8051 trial.txt</tam-init>
+  <tam-hint after="1">Type grep 8051 trial.txt to isolate one product.</tam-hint>
+  <tam-fallback>Try cat trial.txt, or grep 8051 trial.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
 <h3>What just happened</h3>
-<ol>
-<li>Trial division tested possible divisors up to the square root.</li>
-<li>It found factors 83 and 97.</li>
-<li>The same method scales badly: the number of candidates grows explosively with the size of the integer.</li>
-</ol>
-<h3>Better ideas</h3>
-<table>
-<tr><th>Method</th><th>Idea</th><th>Typical use</th></tr>
-<tr><td>Trial division</td><td>Test divisors directly</td><td>Very small factors</td></tr>
-<tr><td>Pollard's rho</td><td>Use pseudorandom sequences and gcd collisions</td><td>Medium-size factors</td></tr>
-<tr><td>Pollard's p-1</td><td>Exploit smoothness of p-1</td><td>Special prime factors</td></tr>
-<tr><td>Quadratic sieve</td><td>Find congruences of squares</td><td>Large integers, smaller than GNFS range</td></tr>
-<tr><td>GNFS</td><td>Number field sieve over algebraic structures</td><td>Very large general integers (RSA records)</td></tr>
-</table>
+<p>Simple trial division tests candidate divisors up to the square root of the target. For 8051 it reaches 83; for a number with hundreds of digits, the list of candidates is far too long. The table is sample output from a factor search, not a live calculation on your machine.</p>
+<h3>Try it</h3>
+<p>Run <code>grep 21 trial.txt</code>. The first pair appears almost immediately. Compare that with the number of checks needed before 83 appears.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>grep returns nothing.</dt><dd>Check the exact spelling: grep 8051 trial.txt. The file contains short sample rows, not computed factors.</dd>
+<dt>I expected a calculator.</dt><dd>The sandbox is exploring a search table. Real factoring tools are not simulated here.</dd>
+</dl>
 <section class="quiz">
 <h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>Why is multiplying two large primes easy but factoring their product hard?</i></summary>
-<p>Multiplication has efficient algorithms with predictable cost. Factoring requires finding hidden structure in the product; known general algorithms for very large integers are far more expensive, though not proven impossible in all models.</p>
+<summary><i>Why is multiplying factors easier than factoring their product?</i></summary>
+<p>Multiplication follows a direct procedure. Factoring may require testing many candidates before one divides exactly, and that search grows quickly.</p>
+</details>
+<details class="q">
+<summary><i>Does a fast factorisation of 8051 make RSA unsafe?</i></summary>
+<p>No. RSA security relies on numbers far larger than this example. Small factors are easy to find; the hard cases are enormous.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: hardness, algorithms, and cryptographic impact</h2>
+<h2>Reference: methods and growth</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Algorithm</th><th>Rough character</th><th>Notes</th></tr>
-<tr><td>Trial division</td><td>Exponential in input bit length</td><td>Simple; useful only for small factors</td></tr>
-<tr><td>Pollard rho</td><td>Heuristic, good for modest factors</td><td>Uses Floyd cycle finding / Brent variant</td></tr>
-<tr><td>ECM</td><td>Finds factors with elliptic curves</td><td>Excellent for medium factors inside large composites</td></tr>
-<tr><td>QS / GNFS</td><td>Subexponential for large integers</td><td>GNFS is the best known classical general-purpose method for large RSA-like numbers</td></tr>
-<tr><td>Shor's algorithm</td><td>Polynomial-time on a fault-tolerant quantum computer</td><td>Threatens RSA/ECC assumptions if large-scale quantum computers arrive</td></tr>
+<tr><th>Method</th><th>Idea</th><th>Typical use</th></tr>
+<tr><td>Trial division</td><td>Test divisors up to sqrt(n)</td><td>Small integers, teaching</td></tr>
+<tr><td>Pollard rho</td><td>Find collisions modulo n</td><td>Medium factors</td></tr>
+<tr><td>Quadratic sieve</td><td>Build congruences of squares</td><td>Larger general integers</td></tr>
+<tr><td><a href="https://en.wikipedia.org/wiki/General_number_field_sieve">General number field sieve</a></td><td>Work in number fields</td><td>Best known general method for very large n</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Modern factoring methods look for mathematical relations rather than testing all divisors. For example, if <code>a^2 ≡ b^2 (mod n)</code> and <code>a !≡ ±b (mod n)</code>, then <code>gcd(a-b, n)</code> may reveal a nontrivial factor. Sieving methods build many such relations efficiently.</p>
-<h3>Edge cases</h3>
+<p>Trial division is roughly O(sqrt(n)) divisions. Modern methods exploit structure: smoothness, congruences and lattice-like relations rather than brute force. Their runtimes use specialized notation such as L-notation, not simple polynomials.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li>Special-form numbers can be easier than general numbers; algorithm choice depends on structure.</li>
-<li>"Hard to factor" is a practical/classical statement for large enough random semiprimes; it is not the same as a mathematical proof of impossibility.</li>
-<li>RSA security also depends on key generation, padding, side channels, and protocol use - not factoring alone.</li>
-<li>Post-quantum cryptography addresses the quantum threat by using different hard problems.</li>
+<li>Even numbers and small primes should be stripped before heavier methods.</li>
+<li>Perfect powers and repeated factors change the search strategy.</li>
+<li>Probabilistic methods need confirmation that reported factors multiply back to n.</li>
+<li>Constant factors and implementation quality matter more here than in small examples.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why does factoring matter even if you never implement a factoring algorithm?</summary>
-<p>Because it explains a security assumption behind widely used systems. Understanding the assumption helps you judge key sizes, migration to post-quantum cryptography, and why "just make the number bigger" works only until algorithms or hardware change the cost curve.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p><a href="https://en.wikipedia.org/wiki/Integer_factorization">Integer factorization</a>, <a href="https://en.wikipedia.org/wiki/General_number_field_sieve">General number field sieve</a>, and <a href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)">RSA</a>; see also NIST post-quantum cryptography guidance for migration context.</p>
+<p><a href="https://en.wikipedia.org/wiki/Integer_factorization">Integer factorization</a>; <a href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)">RSA</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="algorithms/llm-algorithms.html">Algorithms behind large language models</a>, <a href="security/cryptography/index.html">Cryptography</a>, <a href="paths/algorithms.html">Important algorithms for modern computing</a>.</p>
 </section>
 
 <h2>Where next</h2>

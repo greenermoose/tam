@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/setup/index.html">Network setup</a> / Name resolution</p></nav>
 
-<p>Name resolution turns a name people remember, such as <code>example.com</code>, into the address a network actually uses.</p>
-<h2>Before this</h2><p><a href="networking/setup/gateways-and-routing.html">Gateways and routing</a> explains the address that the resolver's answer is used to reach.</p>
+<p>Name resolution turns a host name into an address. A local resolver may answer from cache or ask DNS servers, following delegation until it finds the zone that knows.</p>
 
 <section data-level="novice">
 <h2>A phone book that asks other phone books</h2>
@@ -52,95 +51,56 @@ example.com
 </section>
 
 <section data-level="learner">
-<h2>See what your resolver answers</h2>
-<p><strong>Goal:</strong> you will be able to name the resolver in use, look up a name through the system rules, and explain why a different tool can return a different answer.</p>
-
-<p><strong>Before you start:</strong> these commands only read resolver state and send ordinary lookup queries. They do not change DNS settings.</p>
-
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ getent ahosts example.com
-104.20.23.154   STREAM example.com
-104.20.23.154   DGRAM
-104.20.23.154   RAW
-172.66.147.243  STREAM
-172.66.147.243  DGRAM
-172.66.147.243  RAW
-2606:4700:10::6814:179a STREAM
-2606:4700:10::6814:179a DGRAM
-2606:4700:10::6814:179a RAW
-$ resolvectl status
-Global
-           Protocols: -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
-    resolv.conf mode: stub
-Fallback DNS Servers: 9.9.9.9#dns.quad9.net 2620:fe::9#dns.quad9.net
-                      1.1.1.1#cloudflare-dns.com
-Link 2 (enp1s0)
-    Current Scopes: DNS
-         Protocols: +DefaultRoute -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
-Current DNS Server: 192.168.1.1
-       DNS Servers: 192.168.1.1
-     Default Route: yes
-$ resolvectl query example.com
-example.com: 104.20.23.154                                  -- link: enp1s0
-             172.66.147.243                                 -- link: enp1s0
-             2606:4700:10::6814:179a                        -- link: enp1s0
-             2606:4700:10::ac42:93f3                        -- link: enp1s0
-
--- Information acquired via protocol DNS in 46.0ms.
--- Data is authenticated: no; Data was acquired via local or encrypted transport: no
--- Data from: cache network
-</pre>
-<p>Captured on a wired Arch Linux workstation on 2026-11-21. The status output is shortened to the relevant links; your servers and answers will differ.</p>
-
+<h2>Read a sample resolver answer</h2>
+<p><strong>Goal:</strong> connect a host name to an address without treating the sample as a live lookup.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read a resolver answer"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Look up the sample name with getent ahosts">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="getent ahosts example.test" goal="true" hint="The STREAM line repeats the host name; the other lines are socket types.">
+      <out>192.0.2.20   STREAM example.test</out>
+      <out>192.0.2.20   DGRAM</out>
+      <out>192.0.2.20   RAW</out>
+    </tam-cmd>
+    <tam-cmd match="resolvectl status" hint="This sample shows a stub resolver and a per-link DNS server.">
+      <out>Global</out>
+      <out>  DNSSEC=no/unsupported</out>
+      <out>  resolv.conf mode: stub</out>
+      <out>Link 2 (enp1s0)</out>
+      <out>  Current DNS Server: 192.0.2.1</out>
+    </tam-cmd>
+    <tam-cmd match="resolvectl query example.test" hint="The sample marks the answer as coming from cache or network.">
+      <out>example.test: 192.0.2.20 -- link: enp1s0</out>
+      <out>-- Data from: cache network</out>
+    </tam-cmd>
+  <tam-init>Sample lookup: example.test -&gt; 192.0.2.20 via resolver 192.0.2.1.</tam-init>
+  <tam-hint after="1">Try getent ahosts example.test first.</tam-hint>
+  <tam-hint after="2">Now try resolvectl status to see the configured resolver.</tam-hint>
+  <tam-fallback>Try getent ahosts example.test, resolvectl status or resolvectl query example.test (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>getent ahosts</code> uses the system's Name Service Switch rules, so it answers exactly as an application would. It prints <a href="glossary/i/ipv4.html">IPv4</a> and <a href="glossary/i/ipv6.html">IPv6</a> addresses in the order the resolver supplied.</li>
-<li><code>resolvectl status</code> shows that this machine uses a stub resolver: applications send queries to a local address and systemd-resolved forwards them to the servers listed per link.</li>
-<li>The active link has DNS scope and <code>+DefaultRoute</code>, so its server handles names without an explicit routing domain; other links have no DNS scope.</li>
-<li><code>resolvectl query</code> asks the resolver directly and reports which link supplied each address, how long the query took, and whether the data was authenticated.</li>
-<li><code>-mDNS</code> in the protocol line means systemd-resolved is not handling multicast DNS here; that job belongs to a separate local-discovery stack.</li>
-</ol>
-
+<p><code>getent</code> returns the final address your system would use. <code>resolvectl status</code> shows which servers and scopes the resolver has, and <code>resolvectl query</code> records where the sample answer came from. All three replies are authored sample output.</p>
 <h3>Try it</h3>
-<p>Run <code>getent hosts localhost</code> and then <code>getent ahosts example.com</code>. The first answer comes from the local hosts file; the second from DNS. Both are read-only.</p>
-
+<p>Compare the two query commands in the sandbox. On a real machine a cached answer can differ from a fresh one, and a VPN or split-DNS setting can change which resolver answers.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>A name returns no addresses</dt>
-<dd>Check <code>resolvectl query &lt;name&gt;</code> for the exact error. <code>NXDOMAIN</code> means the name does not exist; <code>SERVFAIL</code> means a server failed; a timeout often means the resolver is unreachable.</dd>
-<dt>A new DNS setting appears in the profile but not in the resolver</dt>
-<dd>The connection must be reapplied and the resolver reloaded. Compare <code>nmcli</code> with <code>resolvectl status</code>.</dd>
-<dt>A short name resolves in one application but not another</dt>
-<dd>Search domains differ between tools. Try the fully qualified name and check <code>resolvectl status</code> for the domain associated with the link.</dd>
-<dt>A <code>.local</code> name fails through DNS</dt>
-<dd>That is expected: <code>.local</code> names are answered by multicast DNS on the local link, not by the global DNS hierarchy.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Tamlinux uses systemd-resolved for ordinary DNS and keeps provider changes in <code>tam-dns</code>, which saves the previous resolver configuration before writing it and records a restart path. The panel and command descriptions live in the public <code>tamlinux</code> repository under <code>commands/tam-dns</code> and <code>desktop/shell/panels/network/</code>.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>Why can getent and resolvectl disagree about the order of addresses?</i></summary>
-<p><code>getent</code> follows NSS and may consult local files and caches before DNS, while <code>resolvectl query</code> goes straight to systemd-resolved. Different sources or cache states produce different ordering.</p>
-</details>
-<details class="q">
-<summary><i>What does a stub resolver actually do?</i></summary>
-<p>It listens on a local address, accepts queries from applications, forwards them to configured upstream servers, and caches the answers. The applications need no knowledge of which upstream server is in use.</p>
-</details>
-<details class="q">
-<summary><i>Predict what happens to a name lookup when a <a href="glossary/v/vpn.html">VPN</a> is connected with split DNS.</i></summary>
-<p>Names in the VPN's routing domain go to the VPN's DNS server and other names continue to the local server. A name outside the domain is not answered by the VPN even though the tunnel is up.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why can a recently changed DNS record still look old?</i></summary><p>Resolvers cache answers for the record’s time to live, so different resolvers may update at different times.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: query path, records and scopes</h2>
-
 <h3>Reference</h3>
 <table>
 <tr><th>Record</th><th>Answers</th><th>Used for</th></tr>
@@ -157,16 +117,7 @@ example.com: 104.20.23.154                                  -- link: enp1s0
 <p>Search domains append a suffix to a short name. A link marked <code>+DefaultRoute</code> is eligible for all queries; a link with a routing domain is used only for names inside that domain, which is how split DNS keeps a corporate name inside the tunnel. DNSSEC validation, when enabled, verifies signatures from the root down; it proves integrity and origin, not confidentiality. DNS over <a href="glossary/t/tls.html">TLS</a> and DNS over <a href="glossary/h/https.html">HTTPS</a> address confidentiality by encrypting the query.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ getent ahostsv4 example.com
-104.20.23.154   STREAM example.com
-172.66.147.243  STREAM
-$ resolvectl query --legend=no --cache=no example.com
-example.com: 104.20.23.154 -- link: enp1s0
-             172.66.147.243 -- link: enp1s0
-             2606:4700:10::6814:179a -- link: enp1s0
-             2606:4700:10::ac42:93f3 -- link: enp1s0
-</pre>
+
 <p>Reading the cache-free form distinguishes a fresh answer from one the resolver remembered. Compare it with a normal query to see the cache in action.</p>
 
 <h3>Edge cases</h3>
@@ -179,13 +130,7 @@ example.com: 104.20.23.154 -- link: enp1s0
 <li>DNS over <a href="glossary/u/udp.html">UDP</a> can lose a large answer; EDNS0 allows larger messages and <a href="glossary/t/tcp.html">TCP</a> fallback handles truncation.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why does split DNS need a routing domain instead of only a list of servers?</summary>
-<p>Without a domain, the system cannot tell which names belong to the tunnel and which belong to the local network. A routing domain labels the link so queries for private names go to the VPN resolver while public names stay local.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <p><a href="man:resolvectl(1)">resolvectl(1)</a>, <a href="man:systemd-resolved.service(8)">systemd-resolved.service(8)</a>, <a href="man:nsswitch.conf(5)">nsswitch.conf(5)</a>, <a href="man:getent(5)">getent(5)</a> and <a href="man:dig(1)">dig(1)</a> where installed.</p>
@@ -193,6 +138,14 @@ example.com: 104.20.23.154 -- link: enp1s0
 <h3>Improve it</h3>
 <p>Keep the distinction between global DNS and link-local discovery explicit; readers often try to fix a <code>.local</code> name by changing an upstream server.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="networking/setup/gateways-and-routing.html">Gateways and routing</a></li>
+<li><a href="glossary/v/vpn.html">VPN</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="networking/services/avahi-and-zeroconf.html">Avahi and Zeroconf</a> &mdash; the discovery system that answers <code>.local</code> names and finds services on the link.</p>
 <h2>Related</h2><ul><li><a href="networking/connections.html">Network connections and DNS</a> &mdash; the short diagnostic guide.</li><li><a href="paths/network-setup.html">Set up a network connection</a> &mdash; the full reading order.</li></ul>

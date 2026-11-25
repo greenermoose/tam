@@ -5,7 +5,7 @@
 <meta name="topic" content="voice-commands">
 <meta name="summary" content="Using safe, validated voice commands at the Bash shell prompt">
 <meta name="keywords" content="voice, commands, shell, bash, readline, f10, voxtype, terminal, safety">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/navigation/index.html">
 <meta name="kind" content="how-to">
@@ -46,17 +46,19 @@ empty prompt --&gt; F10 capture --&gt; Whisper transcript --&gt; allowlist check
 <p><strong>Before you start:</strong> open a terminal with an empty Bash prompt. Do not practice inside an editor or interactive agent.</p>
 <aside class="first-time"><p>F10 is bound inside Bash Readline. It works only at an empty shell prompt. Ordinary F9 dictation still types unrestricted prose elsewhere.</p></aside>
 
-<h3>Worked example</h3>
-<ol>
-<li>Ensure your command prompt is empty.</li>
-<li>Press F10. The prompt displays: Speak a command. Enter finishes; Escape cancels.</li>
-<li>Speak clearly: "codex" (or "open codex").</li>
-<li>Press Enter on your physical keyboard to finish recording.</li>
-<li>The system confirms recognition and inserts the word at your prompt.</li>
-<li>Press Enter again only if you want to run it.</li>
-</ol>
-<p>This walkthrough is checked against the packaged voice command helper, not a claim that an interactive terminal test was performed in your session.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Identify the voice command action available to the reader"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Identify the voice command action available to the reader">
+  <tam-cmd match="tam-voxtype --help" goal="true">
+    <out>Sample: start, stop, status and device options</out>
+  </tam-cmd>
+  <tam-init>Try: tam-voxtype --help</tam-init>
+  <tam-hint after="1">The command help lists supported actions.</tam-hint>
+  <tam-hint after="2">The actual device and voice model determine whether recognition works.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>F10 started a locked capture that does not execute anything.</li>
@@ -89,7 +91,9 @@ empty prompt --&gt; F10 capture --&gt; Whisper transcript --&gt; allowlist check
 <p>No. The helper enforces a strict allowlist and rejects arguments, options, and shell syntax.</p></details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Expert reference</h2>
+<p>Voice input requires an audio capture path and configured recognition backend.</p>
 <h2>Voice command shortcuts reference</h2>
 <table>
 <tr><th>Key</th><th>Context</th><th>Action</th></tr>
@@ -107,7 +111,7 @@ empty prompt --&gt; F10 capture --&gt; Whisper transcript --&gt; allowlist check
   <li><strong>Two-stage verification:</strong> allowlist check plus PATH existence before updating the prompt.</li>
   <li><strong>Buffer injection:</strong> assignment to <code>READLINE_LINE</code> with no trailing newline.</li>
 </ol>
-
+</section>
 <h2>Sources and further reading</h2>
 <p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
 </body>

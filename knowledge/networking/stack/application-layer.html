@@ -15,7 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Application layer</p></nav>
 
-<p>The application layer is the part of the network stack where programs give meaning to data, using protocols such as DNS, HTTP, or SSH.</p>
+<p>The application layer defines the meaning of network messages: a browser request, a DNS question or an SSH session all use lower layers but speak different application rules.</p>
 
 <section data-level="novice">
 <h2>What the application layer does</h2>
@@ -27,36 +27,51 @@
 </section>
 
 <section data-level="learner">
-<h2>See application-layer protocols in action</h2>
-<p><strong>Goal:</strong> Recognize common application protocols and the transport they use.</p>
-<p><strong>Before you start:</strong> Read <a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ getent ahosts example.com
-$ curl -I https://example.com
-</pre>
-<p><code>getent ahosts</code> exercises name resolution through the system resolver. <code>curl -I</code> sends an HTTP request and shows response headers. Both depend on lower layers, but the meaning comes from application protocols.</p>
-
+<h2>Read a tiny application-layer exchange</h2>
+<p><strong>Goal:</strong> recognise a request, a header and a response in sample HTTP text.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read HTTP text"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Find the response status in the sample HTTP exchange">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">GET /hello HTTP/1.1
+Host: example.test
+HTTP/1.1 200 OK
+Content-Type: text/plain</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep HTTP clues.txt" goal="true" hint="Try grep HTTP clues.txt to see both protocol lines.">
+      <out>GET /hello HTTP/1.1</out>
+      <out>HTTP/1.1 200 OK</out>
+    </tam-cmd>
+    <tam-cmd match="grep Host clues.txt" hint="The Host header tells a web server which site the client wants.">
+      <out>Host: example.test</out>
+    </tam-cmd>
+    <tam-cmd match="curl -I https://example.test" hint="Sample headers from curl -I; no request was sent anywhere.">
+      <out>HTTP/1.1 200 OK</out>
+      <out>Content-Type: text/plain</out>
+    </tam-cmd>
+  <tam-init>Sample HTTP text: request line, Host header and 200 response.</tam-init>
+  <tam-hint after="1">Try grep HTTP clues.txt to see both protocol lines.</tam-hint>
+  <tam-hint after="2">Now try grep Host clues.txt for the header.</tam-hint>
+  <tam-fallback>Try grep HTTP clues.txt, grep Host clues.txt or cat clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<p>DNS turned a name into addresses. HTTP described a request for a resource and a response with headers. If TLS is involved, encryption protects the application data in transit, but the application still interprets the HTTP messages after decryption.</p>
-
+<p>The request line names a method, path and protocol version. The <code>Host</code> header selects a site, and the response line gives a status code. The <code>curl -I</code> reply is authored sample output, not a live request.</p>
 <h3>Try it</h3>
-<p>Run <code>dig example.com</code> if available, or <code>getent ahosts example.com</code>. Identify which part is application protocol behavior and which part is transport/addressing.</p>
-
+<p>Use <code>cat clues.txt</code> to read the whole exchange. Predict what a <code>404</code> response line would mean before moving on. Lower layers deliver bytes; this layer decides what those bytes say.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>Name resolves but HTTP fails</dt>
-<dd>DNS may be working while the web server, transport port, TLS, or HTTP layer has a problem. Test layers in order.</dd>
-<dt>Can connect by IP but not by name</dt>
-<dd>The lower layers may be fine; the DNS application-layer step is failing.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>Why is HTTP considered an application-layer protocol?</i></summary>
-<p>HTTP defines the meaning and structure of web requests and responses between programs. It relies on lower layers for delivery but is not responsible for routing packets or managing ports.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What does the application layer decide that TCP does not?</i></summary><p>The format and meaning of messages, such as HTTP methods, headers and status codes.</p></details>
 </section>
 </section>
 
@@ -75,10 +90,7 @@ $ curl -I https://example.com
 <p>The internet model places application semantics at the top and treats presentation/session concerns as part of application protocols or libraries when needed. For example, HTTP defines web semantics, TLS provides cryptographic protection, and DNS defines name-resolution messages. These protocols use transport sockets but define their own message formats, state machines, and error handling.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ curl -v https://example.com
-$ dig +trace example.com
-</pre>
+
 <p>Verbose tool output exposes application-layer negotiation, headers, and protocol decisions. Use it after confirming lower-layer connectivity.</p>
 
 <h3>Edge cases</h3>
@@ -88,17 +100,18 @@ $ dig +trace example.com
 <li><strong>Same port, different meaning:</strong> Port 443 commonly carries HTTPS, but the actual application behavior depends on the protocol negotiated.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary><i>Why does the internet model merge OSI layers 5-7?</i></summary>
-<p>Because many internet protocols bundle session, presentation, and application concerns into the application protocol or library. The merged model keeps focus on the practical boundary between transport services and application semantics.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <p>RFC 9110 for HTTP semantics, RFC 1034 for DNS concepts, and <a href="man:curl(1)">curl(1)</a>.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a></li>
+</ul>
+
+
 
 <h2>Where next</h2>
 <ul>

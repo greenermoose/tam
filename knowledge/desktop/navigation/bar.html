@@ -44,14 +44,19 @@
 <p><strong>Goal:</strong> you will be able to toggle the bar and recognize the packaged fred.* modules by name.</p>
 
 
-<h3>Worked example</h3>
-<ol>
-<li>Press <kbd>Meta + Shift + Space</kbd> to toggle the top bar (<code>tam-shell tamlinux-shell toggleBar</code> from <code>utilities.lua</code>).</li>
-<li>If you hid it, press the same chord again to bring it back.</li>
-<li>Locate the clock area—that module is <code>fred.clock</code>. Other modules use ids such as <code>fred.weather</code> and <code>fred.sysinfo</code>.</li>
-</ol>
-<p>Module ids come from each plugin's packaged manifest in the product tree. Layout can vary by host profile.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Find the binding that controls the bar"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Find the binding that controls the bar">
+  <tam-cmd match="tam-menu-keybindings" goal="true">
+    <out>Sample: Meta + B toggles the top bar</out>
+  </tam-cmd>
+  <tam-init>Try: tam-menu-keybindings</tam-init>
+  <tam-hint after="1">The keybinding list shows the configured chord.</tam-hint>
+  <tam-hint after="2">A toggle reverses state each time it runs.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The shell toggled bar visibility.</li>

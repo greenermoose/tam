@@ -15,60 +15,73 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Algorithm analysis</p></nav>
 
-<p>Algorithm analysis is how we predict the cost of an algorithm as the input grows. Instead of asking only "is it fast on my machine?", we ask "how does its running time and memory use grow when the problem gets bigger?"</p>
+<p>Algorithm analysis predicts how much time and memory a method needs as its input grows. It helps you compare approaches before a slow one meets a huge file.</p>
 
 <section data-level="novice">
 <h2>Why counting steps matters</h2>
-<p>Two programs can solve the same problem, but one may become unusably slow on large input. A stopwatch can tell you what happened for one test, but analysis helps you predict what will happen when the input is ten times, a thousand times, or a million times larger.</p>
-<h3>Two costs to watch</h3>
-<table>
-<tr><th>Cost</th><th>Question</th><th>Example</th></tr>
-<tr><td><a href="glossary/t/time-complexity.html">Time complexity</a></td><td>How does running time grow?</td><td>Checking every item takes longer as the list grows.</td></tr>
-<tr><td><a href="glossary/s/space-complexity.html">Space complexity</a></td><td>How much memory grows?</td><td>Making a copy of a list uses extra memory proportional to the list.</td></tr>
-</table>
+<p>Two methods can solve the same problem, but one may become unusably slow when the input gets large. A stopwatch reports one run; analysis describes the pattern behind many runs.</p>
+<h3>Why it matters</h3>
+<p>Choosing a method that grows gently means your program still works when a list grows from a hundred items to a million. Choosing one that grows quickly can turn a small delay into hours.</p>
 <h3>How to think about it</h3>
-<p>Imagine looking for a name in a phone book. Scanning every page works, but a smarter method that halves the search area each step scales much better. Analysis gives you the vocabulary to compare those strategies before you run them on huge data.</p>
+<p>Imagine finding a name in a phone book. Reading every page works, but splitting the book in half again and again works much better as the book thickens. Analysis gives names to those two strategies.</p>
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/t/time-complexity.html">Time complexity</a></dfn></dt><dd>How the work grows as the input grows.</dd>
+<dt><dfn><a href="glossary/s/space-complexity.html">Space complexity</a></dfn></dt><dd>How much memory the method needs as the input grows.</dd>
+</dl>
 </section>
 
 <section data-level="learner">
-<h2>Input size, cases, and growth</h2>
-<p><strong>Goal:</strong> understand what algorithm analysis measures and what it ignores.</p>
-<h3>What "n" means</h3>
-<p>Analysis usually expresses cost as a function of input size, often written as <code>n</code>. For a list, <code>n</code> might be the number of items. For a number, it might be the number of digits or bits. For an image, it might be the number of pixels. The right <code>n</code> depends on the problem.</p>
-<h3>Cases</h3>
-<table>
-<tr><th>Case</th><th>Meaning</th><th>When useful</th></tr>
-<tr><td>Best case</td><td>Least work for some input of size n</td><td>Optimistic; rarely enough alone</td></tr>
-<tr><td>Average case</td><td>Expected work over a distribution of inputs</td><td>Useful when input distribution is realistic</td></tr>
-<tr><td>Worst case</td><td>Most work for any input of size n</td><td>Safe bound; common in guarantees</td></tr>
-<tr><td>Amortized</td><td>Average cost per operation over a sequence</td><td>Useful for dynamic arrays, hash tables, etc.</td></tr>
-</table>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ python3 - &lt;&lt;'PY'
-def linear_search(items, target):
-    steps = 0
-    for x in items:
-        steps += 1
-        if x == target:
-            return steps
-    return steps
+<h2>Input size, cases and growth</h2>
+<p><strong>Goal:</strong> use a table of step counts to explain why the worst case matters.</p>
+<tam-sandbox
+  title="Try it: find the slowest search"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Show the searches that take ten steps">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="steps.txt" size="84">target-first steps=1
+target-middle steps=5
+target-last steps=10
+not-present steps=10</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat steps.txt" hint="Four searches, four different amounts of work. Now narrow to the largest count.">
+      <out>target-first steps=1</out>
+      <out>target-middle steps=5</out>
+      <out>target-last steps=10</out>
+      <out>not-present steps=10</out>
+    </tam-cmd>
+    <tam-cmd match="grep 10 steps.txt" goal="true" hint="Both lines scan all ten items. That is the worst case for this list.">
+      <out>target-last steps=10</out>
+      <out>not-present steps=10</out>
+    </tam-cmd>
+  <tam-init>Try: cat steps.txt, then grep 10 steps.txt</tam-init>
+  <tam-hint after="1">Type grep 10 steps.txt to keep only the slowest searches.</tam-hint>
+  <tam-fallback>Try cat steps.txt, or grep 10 steps.txt (or type help).</tam-fallback>
+</tam-sandbox>
 
-items = list(range(10))
-print(linear_search(items, 0))   # best case
-print(linear_search(items, 9))   # worst case in this list
-print(linear_search(items, 99))  # not found
-PY
-1
-10
-10
-</pre>
-<p>The same algorithm does different amounts of work depending on the input. Analysis usually reports the growth pattern, not just one lucky case.</p>
+<h3>What just happened</h3>
+<p>The first target was found after one check, but finding the last item and finding no item both took ten checks. Analysis usually reports how the count grows with <code>n</code>, not the lucky first run. The table is sample data for a ten-item list, not a measurement from your machine.</p>
+<h3>Try it</h3>
+<p>Run <code>head -n 1 steps.txt</code>. Predict which row would change if the list grew to a thousand items: the happy first row stays small, while the last and missing rows grow with the list.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The grep command finds nothing.</dt><dd>Check the spacing and type grep 10 steps.txt exactly. The count is plain text, not a calculation.</dd>
+<dt>I expected four output lines.</dt><dd>The goal rule keeps only lines containing 10. Use cat steps.txt to see all four rows.</dd>
+</dl>
 <section class="quiz">
 <h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
 <details class="q">
 <summary><i>Why is worst-case analysis common?</i></summary>
-<p>It gives a guarantee: the algorithm will not do worse than that bound for inputs of size n. This is useful when you need reliability, security, or predictable limits, even if typical inputs are easier.</p>
+<p>It gives a guarantee: no input of that size needs more work. That matters when a slow run would be unacceptable, even if typical inputs are easier.</p>
+</details>
+<details class="q">
+<summary><i>Does a stopwatch result replace analysis?</i></summary>
+<p>No. A stopwatch records one machine and one input. Analysis explains how the work grows when either changes.</p>
 </details>
 </section>
 </section>
@@ -79,20 +92,23 @@ PY
 <table>
 <tr><th>Concept</th><th>Purpose</th><th>Caveat</th></tr>
 <tr><td><a href="glossary/a/asymptotic-notation.html">Asymptotic notation</a></td><td>Describe growth as n becomes large</td><td>Ignores constants and lower-order terms</td></tr>
-<tr><td>Cost model</td><td>Define what counts as a step/unit</td><td>RAM model, bit model, I/O model can give different answers</td></tr>
-<tr><td>Empirical measurement</td><td>Observe real runtime/memory</td><td>Depends on hardware, compiler, input, cache, OS noise</td></tr>
+<tr><td>Cost model</td><td>Define what counts as one step</td><td>RAM, bit and I/O models can disagree</td></tr>
+<tr><td>Empirical measurement</td><td>Observe real runtime and memory</td><td>Depends on hardware, compiler, input and cache</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Asymptotic analysis chooses a cost model (often the RAM model: simple operations and memory accesses cost O(1)) and counts how many such operations occur as a function of n. It then simplifies using <a href="glossary/b/big-o-notation.html">Big-O notation</a> and related notations. This gives machine-independent growth trends, but not exact seconds.</p>
-<h3>Edge cases</h3>
+<p>Analysis fixes a cost model, counts the model's steps as a function of input size, then simplifies with <a href="glossary/b/big-o-notation.html">Big-O notation</a> and related notations. It yields machine-independent growth trends, not exact seconds. Define <code>n</code> explicitly: a list's length, a number's bits, a graph's vertices plus edges, and an image's pixels lead to different bounds.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li>Small n: constants matter; an O(n^2) algorithm can beat O(n log n) for tiny inputs.</li>
-<li>Memory hierarchy: cache misses can dominate runtime even when operation counts look good.</li>
-<li>Input model: "n" may be value, count, bits, or graph size (V+E); be explicit.</li>
-<li>Amortized vs worst-case: occasional expensive operations may be acceptable if average cost is bounded.</li>
+<li>For small n, constants dominate; a method with a worse bound can win.</li>
+<li>Memory hierarchy effects can outweigh operation counts.</li>
+<li>Amortized bounds describe sequences, not one isolated call.</li>
+<li>Average-case bounds depend on an input distribution that may not hold.</li>
 </ul>
 <h3>Sources</h3>
-<p><a href="https://en.wikipedia.org/wiki/Analysis_of_algorithms">Analysis of algorithms</a>; Cormen, Leiserson, Rivest, and Stein, <em>Introduction to Algorithms</em>.</p>
+<p><a href="https://en.wikipedia.org/wiki/Analysis_of_algorithms">Analysis of algorithms</a>; Cormen, Leiserson, Rivest and Stein, <em>Introduction to Algorithms</em>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="algorithms/time-complexity.html">Time complexity and Big-O notation</a>, <a href="algorithms/space-complexity.html">Space complexity and memory use</a>, <a href="algorithms/measuring-performance.html">Measuring algorithm performance</a>, <a href="paths/algorithm-analysis.html">Analyzing algorithms</a>.</p>
 </section>
 
 <h2>Where next</h2>

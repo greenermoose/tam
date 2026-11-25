@@ -78,21 +78,31 @@ flake.nix + flake.lock
 <p>A <em>flake</em> is a directory with a <code>flake.nix</code> file and a <code>flake.lock</code> file. The <code>flake.nix</code> declares <em>inputs</em> (other flakes or source trees) and an <em>outputs</em> function that turns those inputs into packages, modules, checks or other results. The <code>flake.lock</code> records the exact revision and tree hash of every input. Pinning the lock file is what makes a flake reproducible: two machines that use the same lock get the same inputs, even if a branch has moved since.</p>
 
 <p>Home Manager is a library and a command built on Nix. It uses the NixOS <em>module system</em>. A module is a function that declares <em>options</em> (the settings a user may choose) and <em>config</em> (the values those settings should have). Modules are merged, and the result is built into an <em>activation package</em>. Activating that package creates a new generation, links files into your home directory, and runs any activation scripts the modules defined.</p>
-<h3>Worked example: follow a command into the store</h3>
-<pre class="session" data-risk="read-only">
-$ nix --version
-nix (Determinate Nix 3.22.5) 2.35.2
+<h3>Explore: follow a command into the store</h3>
+<tam-sandbox
+  title="Try it: follow a command into the store"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Follow a command into the store">
+  <tam-cmd match="nix --version" hint="Look for the value that answers the task.">
+    <out>nix (Determinate Nix 3.22.5) 2.35.2</out>
+  </tam-cmd>
+  <tam-cmd match="readlink -f ~/.nix-profile">
+    <out>/nix/store/c16r82dn5wpsz72imqz86x3sxxap9j6c-user-environment</out>
+  </tam-cmd>
+  <tam-cmd match="home-manager generations | head -n 3" goal="true">
+    <out>2026-10-29 20:20 : id 14 -&gt; /nix/store/hjv5ndzzkadphxx8wj8x3pzzwz0kvs8f-home-manager-generation (current)
+2026-10-29 19:52 : id 13 -&gt; /nix/store/k1ir8w8b2ahblx6s2xmj1ynzzrypwgqg-home-manager-generation
+2026-10-29 19:38 : id 12 -&gt; /nix/store/1h48kj4599hk1bg7gxb81s6k5452g08v-home-manager-generation</out>
+  </tam-cmd>
+  <tam-init>Try: nix --version</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try nix --version (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-$ readlink -f ~/.nix-profile
-/nix/store/c16r82dn5wpsz72imqz86x3sxxap9j6c-user-environment
-
-$ home-manager generations | head -n 3
-2026-10-29 20:20 : id 14 -> /nix/store/hjv5ndzzkadphxx8wj8x3pzzwz0kvs8f-home-manager-generation (current)
-2026-10-29 19:52 : id 13 -> /nix/store/k1ir8w8b2ahblx6s2xmj1ynzzrypwgqg-home-manager-generation
-2026-10-29 19:38 : id 12 -> /nix/store/1h48kj4599hk1bg7gxb81s6k5452g08v-home-manager-generation
-</pre>
-
-<p>Captured on an Arch Linux workstation with Determinate Nix, 2026-10-31. Your hashes, dates and generation numbers will differ.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>nix --version</code> prints the version of the Nix program itself. Nix is the tool that builds and stores software; it is not the same thing as NixOS, a whole operating system built on Nix.</li>
@@ -146,6 +156,22 @@ readlink ~/.nix-profile
 <p>A generation is one recorded selection. A profile is the named pointer that says which generation is current. Switching moves the profile pointer to another generation.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for nix eval .#packages.x86_64-linux.tam.na"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for nix eval .#packages.x86_64-linux.tam.name">
+<tam-cmd match="nix eval .#packages.x86_64-linux.tam.name" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>"tam-0.45.1"</out>
+  </tam-cmd>
+  <tam-init>Try: nix eval .#packages.x86_64-linux.tam.name</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try nix eval .#packages.x86_64-linux.tam.name (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Reading and changing the Tamlinux Nix source</h2>
@@ -356,12 +382,7 @@ in {
 
 <p>In a checkout of the public <code>tamlinux-packages</code> repository, read the lock file and ask Nix to evaluate one package name. These commands are read-only; the last one may build nothing because it asks only for a name.</p>
 
-<pre class="session" data-risk="read-only">
-$ nix eval .#packages.x86_64-linux.tam.name
-"tam-0.45.1"
-</pre>
 
-<p>Captured on an Arch Linux workstation with Determinate Nix, 2026-10-31. Your package version will differ. To see the pinned inputs without building, run <code>nix flake metadata</code>. Its output has this shape:</p>
 
 <pre>
 Inputs:

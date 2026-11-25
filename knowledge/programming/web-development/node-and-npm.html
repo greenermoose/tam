@@ -19,99 +19,94 @@
 <p>Node.js runs JavaScript on a computer without a browser, and npm helps you find and manage reusable code.</p>
 
 <section data-level="novice">
-<h2>What this is</h2>
-<p><dfn><a href="glossary/n/node-js.html">Node.js</a></dfn> is a <a href="glossary/i/interpreter.html">runtime</a> that uses the same JavaScript language as a browser but supplies different services. <dfn><a href="glossary/n/npm.html">npm</a></dfn> is a <a href="glossary/p/package-manager.html">package manager</a> that downloads and records reusable <a href="glossary/p/package.html">packages</a>.</p>
+<h2>JavaScript beyond the page</h2>
+<p><a href="glossary/n/node-js.html">Node.js</a> is a <a href="glossary/i/interpreter.html">runtime</a> that runs JavaScript outside a browser. <a href="glossary/n/npm.html">npm</a> is a <a href="glossary/p/package-manager.html">package manager</a> that installs reusable <a href="glossary/p/package.html">packages</a>.</p>
 <h3>Why it matters</h3>
-<p>One language can describe the page a person sees and the program that answers its requests. That shortens the distance between the two halves of an application.</p>
+<p>The same language can serve web pages, run command-line tools and build desktop apps. npm records which versions a project uses.</p>
 <h3>How to think about it</h3>
-<p>A browser gives script a window, a mouse, and a page. Node gives script files, network ports, and processes. The language stays the same; the tools around it change.</p>
-<h3>New words</h3>
-<dl>
-<dt><a href="glossary/m/module.html">Module</a></dt><dd>A file that publishes named values for other files to use.</dd>
-<dt><a href="glossary/p/package.html">Package</a></dt><dd>A folder of code with a name and version that npm can install.</dd>
-<dt><code>package.json</code></dt><dd>The file that names a project, its scripts, and its dependencies.</dd>
-</dl>
-<p><a href="programming/web-development/full-stack-architecture.html">Next: full-stack web architecture</a></p>
+<p>Node is the engine in a car without a windscreen; npm is the parts catalogue and invoice file.</p>
 </section>
 
 <section data-level="learner">
-<h2>Run a small project</h2>
-<p><strong>Goal:</strong> you will be able to run a JavaScript file with Node, read project metadata with npm, and start a named script.</p>
-<p><strong>Learner path:</strong> previous: <a href="programming/web-development/browser-apis-and-async.html?level=2">Browser APIs and asynchronous JavaScript</a>; next: <a href="programming/web-development/full-stack-architecture.html?level=2">Full-stack web architecture</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ node --version
-v24.5.0
-$ npm --version
-12.2.1
-$ npm pkg get name version
-name = 'demo-web-app'
-version = '0.1.0'
-$ npm run start
-demo app
-</pre>
-<p>Captured in a scratch directory on 2026-11-24. The <code>package.json</code> named the project <code>demo-web-app</code>, set its version to <code>0.1.0</code>, and defined <code>start</code> as <code>node index.js</code>. On this machine npm also printed a warning that version 12.2.1 expects a different Node version; the commands still ran.</p>
-<ol>
-<li><code>node --version</code> reports the runtime, not the language version.</li>
-<li><code>npm pkg get</code> reads <code>package.json</code> without changing it.</li>
-<li><code>npm run start</code> looks up the named script and runs its command.</li>
-</ol>
+<h2>Read a package manifest</h2>
+<p><strong>Goal:</strong> find the command that <code>npm start</code> runs.</p>
+<tam-sandbox
+  title="Try it: inspect a sample package.json"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="paths"
+  goal="Show the start script from the manifest">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="package.json" size="121">{
+  "name": "demo-web-app",
+  "version": "0.1.0",
+  "scripts": { "start": "node app.mjs" }
+}</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat package.json" hint="The scripts object maps a short name to a command.">
+      <out>{</out>
+      <out>  "name": "demo-web-app",</out>
+      <out>  "version": "0.1.0",</out>
+      <out>  "scripts": { "start": "node app.mjs" }</out>
+      <out>}</out>
+    </tam-cmd>
+    <tam-cmd match="grep start package.json" goal="true" hint="Correct: npm start runs node app.mjs.">
+      <out>  "scripts": { "start": "node app.mjs" }</out>
+    </tam-cmd>
+  <tam-init>Try: grep start package.json</tam-init>
+  <tam-hint after="1">Type cat package.json to see all fields.</tam-hint>
+  <tam-fallback>Try cat package.json, or grep start package.json (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The manifest is sample data in the sandbox. Its <code>scripts</code> object gives <code>start</code> a command; npm runs that command when asked. The version is data, not permission to publish anything.</p>
 <h3>Try it</h3>
-<p>In a scratch directory, create <code>index.js</code> with <code>console.log('hello from my app');</code>. Write a <code>package.json</code> with a <code>start</code> script, then run <code>npm run start</code>. Change the message and run it again.</p>
+<p>Run <code>grep version package.json</code>. A version helps identify a build, but a release still needs an explicit decision by the project owner.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>node: command not found</code></dt><dd>Node.js is not installed or not on your search path. Check with your package manager.</dd>
-<dt><code>Missing script: start</code></dt><dd>Open <code>package.json</code> and add a <code>scripts</code> entry named <code>start</code>.</dd>
-<dt>A dependency behaves differently from the browser</dt><dd>Node and browsers expose different global objects. Check whether the package is meant for a browser, a server, or both.</dd>
+<dt>grep returned a whole object line.</dt><dd>The sample manifest keeps scripts on one line, so grep prints that line.</dd>
+<dt>I expected a running server.</dt><dd>The sandbox only shows the manifest. A real npm start runs the command in your project.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Name two services a browser supplies that Node does not, and two that Node supplies that a browser does not.</summary>
-<p>A browser supplies a page tree, windows, and user input events. Node supplies filesystem access, network listening sockets, and process control. Both share the JavaScript core language and an <a href="glossary/e/event-loop.html">event loop</a>.</p>
+<summary><i>What does npm start do?</i></summary>
+<p>Runs the command stored under the start key in package.json.</p>
+</details>
+<details class="q">
+<summary><i>Why keep dependencies in a manifest?</i></summary>
+<p>So another machine can install the same set of packages rather than guessing.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Runtime and package semantics</h2>
+<h2>Reference: packages and execution</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Name</th><th>Meaning</th></tr>
-<tr><td><code>process</code></td><td>Node's object for arguments, environment, and exit status.</td></tr>
-<tr><td>CommonJS</td><td>The older <code>require()</code> and <code>module.exports</code> module system.</td></tr>
-<tr><td>ES modules</td><td>The standard <code>import</code> and <code>export</code> syntax, selected with <code>"type": "module"</code>.</td></tr>
-<tr><td><code>package-lock.json</code></td><td>The exact dependency graph npm resolved on a previous install.</td></tr>
+<tr><th>Item</th><th>Role</th><th>Note</th></tr>
+<tr><td><code>package.json</code></td><td>Manifest</td><td>Name, version, scripts, dependencies</td></tr>
+<tr><td>Lockfile</td><td>Pinned dependency graph</td><td>Reproducible installs</td></tr>
+<tr><td><a href="glossary/m/module.html">Module</a></td><td>Reusable code unit</td><td>ESM and CommonJS coexist</td></tr>
+<tr><td><a href="glossary/e/event-loop.html">Event loop</a></td><td>Scheduling model</td><td>Shares ideas with the browser</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Node embeds the V8 JavaScript engine and adds C++ and JavaScript services around it. Its <a href="glossary/e/event-loop.html">event loop</a> uses libuv for filesystem and network work. JavaScript callbacks run one at a time, but asynchronous operations finish in the background and queue their results. npm resolves a dependency tree from <code>package.json</code>, writes the chosen versions to a lockfile, and places code under <code>node_modules</code>. The lockfile is what makes a second install repeat the first one.</p>
-<h3>Advanced usage</h3>
-<pre data-risk="scratch">
-const http = require('node:http');
-const server = http.createServer((request, response) =&gt; {
-  response.setHeader('Content-Type', 'text/plain');
-  response.end('Hello from Node');
-});
-server.listen(0, '127.0.0.1');
-</pre>
-<p>Illustrative snippet: port <code>0</code> asks the operating system for an unused port. A captured request to such a server returned <code>200 text/plain Hello from Node</code>.</p>
+<p>npm resolves dependency ranges, records exact answers in a lockfile, and links packages into <code>node_modules</code>. Node loads modules through its resolver and executes them on an event loop. The <a href="bibliography/node-docs.html">Node.js documentation</a> is authoritative for flags and APIs.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
-<li>A synchronous filesystem call blocks every other request in that process.</li>
-<li>Installing without committing the lockfile lets a later install choose different versions.</li>
-<li>Engine mismatches can change syntax support; record the Node version with the project.</li>
-<li>Dependency scripts run code during install; review new packages before adding them.</li>
+<li>Semver ranges can pull different versions without a lockfile.</li>
+<li>Lifecycle scripts can run code during install; review dependencies.</li>
+<li>Mixing module systems needs careful interop.</li>
+<li>Global and local installs resolve modules from different places.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A service hangs after a slow database query even though the query runs in a library. What do you inspect first?</summary>
-<p>Model answer: check for synchronous work or an unawaited promise on Node's event loop. A library using a blocking call stalls all requests; a forgotten <code>await</code> leaves the request unfinished. Instrument the handler and time each boundary before blaming the database.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p>See <cite data-ref="node-docs"><a href="bibliography/node-docs.html">the Node.js documentation</a></cite> and <cite data-ref="ecma262"><a href="bibliography/ecma-262.html">the ECMAScript specification</a></cite>.</p>
+<p><a href="bibliography/ecma-262.html">the ECMAScript specification</a>; <a href="programming/web-development/frameworks-and-tooling.html">Frameworks and tooling</a>; <a href="glossary/e/event-loop.html">Event loop glossary entry</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="programming/web-development/full-stack-architecture.html">Next: full-stack web architecture</a>, <a href="programming/web-development/browser-apis-and-async.html?level=2">Browser APIs and asynchronous JavaScript</a>, <a href="programming/web-development/full-stack-architecture.html?level=2">Full-stack web architecture</a>, <a href="programming/web-development/full-stack-architecture.html">Full-stack web architecture</a>, <a href="paths/web-development.html">From first page to full-stack web developer</a>.</p>
 </section>
 
 <h2>Where next</h2>
@@ -124,4 +119,5 @@ server.listen(0, '127.0.0.1');
 <li><a href="glossary/e/event-loop.html">Event loop glossary entry</a> &mdash; shared by browsers and Node.</li>
 <li><a href="paths/web-development.html">From first page to full-stack web developer</a> &mdash; the whole sequence.</li>
 </ul>
-</body></html>
+</body>
+</html>

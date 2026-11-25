@@ -43,16 +43,19 @@
 <aside class="first-time">
 <p>Find the key marked <code>Print</code>, <code>PrtSc</code>, or <code>Print Screen</code>, usually near the top right of the keyboard. Press it once. The screen stops changing and the pointer becomes a crosshair. Drag a box around what you want, then let go. The picture is saved and copied. If you change your mind, press <code>Print</code> again while the crosshair is showing.</p>
 </aside>
-<h3>Worked example</h3>
-<ol>
-<li>Open a window with something you want to keep, such as this guide.</li>
-<li>Press <code>Print</code>. The screen freezes and the pointer becomes a crosshair.</li>
-<li>Hold the left mouse button and drag a box around the part you want, then release.</li>
-<li>Look for a notification saying the screenshot was saved to the clipboard and to a file. Click the notification if you want to draw on the picture.</li>
-<li>Open your <code>Pictures</code> folder. The newest file is named like <code>screenshot-2026-11-02_14-30-00-AbCdEf.png</code>.</li>
-</ol>
-
-<p>Captured from the packaged keybindings and the capture script on 2026-11-02. The file name and folder will differ on your computer.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Choose the screenshot action and predict its result"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Choose the screenshot action and predict its result">
+  <tam-cmd match="tam-capture-screenshot" goal="true">
+    <out>Sample: region picker opened; image will be saved to Pictures</out>
+  </tam-cmd>
+  <tam-init>Try: tam-capture-screenshot</tam-init>
+  <tam-hint after="1">The picker lets you choose a region or window.</tam-hint>
+  <tam-hint after="2">A finished capture is saved and copied to the clipboard.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>Pressing <code>Print</code> started <code>tam-capture-screenshot</code> in its smart selection mode.</li>

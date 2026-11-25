@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / The internet protocol stack</p></nav>
 
-<p>This page explains how a message is split into layers so that a program on one computer can reach a program on another without either one knowing how the cable or radio works.</p>
+<p>A protocol stack splits network work into layers so a browser can send a request without knowing the details of every cable, radio and router along the way.</p>
 
 <section data-level="novice">
 <h2>What is a protocol stack?</h2>
@@ -41,62 +41,53 @@
 </section>
 
 <section data-level="learner">
-<h2>Name the layers and find them on your machine</h2>
-<p><strong>Goal:</strong> you will be able to name the four layers of the internet model and find the addresses and ports each layer adds on a running Linux system.</p>
-<h3>The four layers</h3>
-<ol>
-<li><strong><a href="networking/stack/application-layer.html">Application</a>:</strong> the program's data and rules, such as <a href="glossary/d/dns.html">DNS</a> for names or <a href="glossary/h/http.html">HTTP</a> for web pages.</li>
-<li><strong><a href="networking/stack/transport-layer.html">Transport</a>:</strong> <a href="glossary/t/tcp.html">TCP</a> or <a href="glossary/u/udp.html">UDP</a>, which adds port numbers so the right program receives the data.</li>
-<li><strong><a href="networking/stack/internet-layer.html">Internet</a>:</strong> <a href="glossary/i/ip-address.html">IP</a>, which adds source and destination addresses so routers can forward the packet.</li>
-<li><strong><a href="networking/stack/link-layer.html">Link</a>:</strong> <a href="glossary/e/ethernet.html">Ethernet</a> or Wi-Fi, which turn the packet into signals on the local cable or radio link.</li>
-</ol>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ip -br addr show enp1s0
-enp1s0           UP             192.168.1.26/24 fe80::80d1:99bb:b99:2848/64
-
-$ ss -tan | head -4
-State     Recv-Q Send-Q Local Address:Port     Peer Address:Port
-LISTEN    0      128          0.0.0.0:22            0.0.0.0:*
-LISTEN    0      4096      127.0.0.54:53            0.0.0.0:*
-LISTEN    0      4096      127.0.0.1:45701         0.0.0.0:*
-</pre>
-<p>Captured on a Tamlinux workstation, 2026-11-21. Your interface names and addresses will differ.</p>
+<h2>Name the four layers from sample records</h2>
+<p><strong>Goal:</strong> match sample records to the application, transport, internet and link layers.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: match records to layers"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Find the internet-layer record in the sample stack">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">application: GET / HTTP/1.1
+transport: TCP source port 37764 destination port 443
+internet: src 192.0.2.26 dst 192.0.2.20
+link: enp1s0 -&gt; next hop 10:0c:6b:20:34:e6</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep internet clues.txt" goal="true" hint="Try grep application clues.txt to start at the top.">
+      <out>internet: src 192.0.2.26 dst 192.0.2.20</out>
+    </tam-cmd>
+    <tam-cmd match="grep link clues.txt" hint="The link layer delivers frames on the local network.">
+      <out>link: enp1s0 -&gt; next hop 10:0c:6b:20:34:e6</out>
+    </tam-cmd>
+    <tam-cmd match="grep transport clues.txt" hint="The transport layer identifies the receiving program.">
+      <out>transport: TCP source port 37764 destination port 443</out>
+    </tam-cmd>
+  <tam-init>Four sample records: application, transport, internet, link.</tam-init>
+  <tam-hint after="1">Try grep application clues.txt to start at the top.</tam-hint>
+  <tam-hint after="2">Now try grep internet clues.txt for addressing and routing.</tam-hint>
+  <tam-fallback>Try grep application clues.txt, grep transport clues.txt, grep internet clues.txt or grep link clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>ip -br addr</code> shows the internet-layer address on the link named <code>enp1s0</code>: an <a href="glossary/i/ipv4.html">IPv4</a> address and an <a href="glossary/i/ipv6.html">IPv6</a> link-local address.</li>
-<li><code>ss -tan</code> shows transport-layer endpoints. <code>0.0.0.0:22</code> means program listening on port 22 on every local address.</li>
-<li>The pair of an address and a port is a socket endpoint. A conversation is identified by the local and remote ends together.</li>
-<li>Nothing here shows the application data; that is added above the transport layer and is hidden by encryption for many web services.</li>
-</ol>
+<p>Each prepared line belongs to one layer. The application line is a web request, transport adds ports, internet adds addresses, and link delivers frames on the local network. This is a model built from sample text.</p>
 <h3>Try it</h3>
-<p>Run <code>ip -br addr</code> and <code>ss -tan</code> on your own machine. Then run <code>getent ahosts example.com</code> to see the address an application gets after DNS resolves a name. All three commands only read state.</p>
+<p>Use <code>cat clues.txt</code> to see all four lines, then cover them and rebuild the stack from memory. The expert section describes how encapsulation adds and removes these headers.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>ss: command not found</code></dt>
-<dd>The <code>iproute2</code> tools are not installed. Use <code>cat /proc/net/tcp</code> to read the same kernel table in raw form.</dd>
-<dt>No lines after the header in <code>ss -tan</code></dt>
-<dd>No TCP sockets are open right now. Open a web page and repeat the command.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> NetworkManager owns connection state and systemd-resolved answers name lookups. The connection panel and <code>tam-network-status</code> read the same kernel and resolver state shown here; see <a href="networking/connections.html">Network connections and DNS</a> for the command source and limits.</p>
-</aside>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Which layer adds the IP address 192.168.1.26, and which adds the port 22?</i></summary>
-<p>The internet layer adds the address so routers can forward the packet. The transport layer adds the port so the receiving machine knows which program to hand the data to. The link layer then wraps both in a frame for the local cable or radio link.</p>
-</details>
-<details class="q">
-<summary><i>Why can one IP address serve many web connections at once?</i></summary>
-<p>Because each conversation is identified by the local address, local port, remote address and remote port together. Different local port numbers keep the conversations separate inside the same machine.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What changes when you switch from Ethernet to Wi-Fi?</i></summary><p>The link layer changes; the browser, transport ports and IP addresses can stay the same.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: encapsulation and the kernel data path</h2>
 <h3>Reference</h3>
 <table>
 <tr><th>Layer</th><th>Unit of data</th><th>What it adds</th><th>Linux example</th></tr>
@@ -115,20 +106,7 @@ LISTEN    0      4096      127.0.0.1:45701         0.0.0.0:*
 </pre>
 <p>Each layer reads only the header meant for it and passes the rest upward or downward. On the receive path a network interface places frames into memory, the driver raises an interrupt and the kernel's NAPI loop polls in batches to avoid an interrupt per packet. Each <code>sk_buff</code> carries header offsets that let layers add or remove headers without copying the payload. Netfilter hooks sit at PREROUTING, INPUT, FORWARD, OUTPUT and POSTROUTING, which is why a firewall rule can see a packet before or after a routing decision.</p>
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ ip -j route get 1.1.1.1 | jq .
-[
-  {
-    "dst": "1.1.1.1",
-    "gateway": "192.168.1.1",
-    "dev": "enp1s0",
-    "prefsrc": "192.168.1.26",
-    "flags": [],
-    "uid": 1000,
-    "cache": []
-  }
-]
-</pre>
+
 <p>This shows the same route decision as data, including the source address the kernel would choose. Illustrative output from the workstation used above; your values will differ.</p>
 <h3>Edge cases</h3>
 <ul>
@@ -137,16 +115,30 @@ $ ip -j route get 1.1.1.1 | jq .
 <li><a href="glossary/c/checksum.html">Checksum</a> offload and segmentation offload can make a captured frame look different from what the application wrote, because hardware fills in fields after the capture point.</li>
 <li>A single physical interface can hold several addresses, and a network namespace gives each container its own stack with a separate loopback device.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A numeric address replies to a ping but a web page fails. Which layers are proven, and which still need checking?</summary>
-<p>The link, internet and <a href="glossary/i/icmp.html">ICMP</a> parts of the stack work, because a ping reached the numeric destination and came back. Name resolution, the TCP connection, <a href="glossary/t/tls.html">TLS</a> and the HTTP application are still open. Test them in that order so each check eliminates one layer.</p>
-</details>
-</section>
+
 <h3>Sources</h3>
 <p><cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite> for IP, <cite data-ref="rfc9293"><a href="bibliography/rfc9293.html">RFC 9293</a></cite> for TCP, and <a href="man:ip(8)">ip(8)</a>, <a href="man:ss(8)">ss(8)</a> and <a href="man:netns(8)">netns(8)</a> for the Linux view.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="networking/stack/application-layer.html">Application</a></li>
+<li><a href="glossary/d/dns.html">DNS</a></li>
+<li><a href="glossary/h/http.html">HTTP</a></li>
+<li><a href="networking/stack/transport-layer.html">Transport</a></li>
+<li><a href="glossary/t/tcp.html">TCP</a></li>
+<li><a href="glossary/u/udp.html">UDP</a></li>
+<li><a href="networking/stack/internet-layer.html">Internet</a></li>
+<li><a href="networking/stack/link-layer.html">Link</a></li>
+<li><a href="glossary/e/ethernet.html">Ethernet</a></li>
+<li><a href="glossary/i/ipv4.html">IPv4</a></li>
+<li><a href="glossary/i/ipv6.html">IPv6</a></li>
+<li><a href="networking/connections.html">Network connections and DNS</a></li>
+<li><a href="glossary/i/icmp.html">ICMP</a></li>
+<li><a href="glossary/t/tls.html">TLS</a></li>
+</ul>
+
+
 
 <h2>Where next</h2>
 <ul>

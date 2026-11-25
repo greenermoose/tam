@@ -74,10 +74,15 @@ Power = Current^2 * Resistance    (P = I^2 * R)
 </pre>
 
 <p>Because resistive power loss scales with the <em>square</em> of the current ($I^2 R$), doubling the current quadruples the heat generated in the cables. This explains why computers use higher voltages (+12V rather than +5V, or <a href="glossary/u/usb-pd.html">USB-PD</a> at 20V/48V) to power energy-intensive processors and graphics cards: transmitting power at higher voltage requires fewer amperes of current for the same wattage, dramatically reducing cable heating and voltage drop.</p>
-<h3>Worked example: inspect system power rails and battery state</h3>
-<pre class="session" data-risk="read-only">
-$ upower -i $(upower -e | grep -E "battery|line_power" | head -1)
-  native-path:          BAT0
+<h3>Explore: inspect system power rails and battery state</h3>
+<tam-sandbox
+  title="Try it: inspect system power rails and battery state"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Inspect system power rails and battery state">
+  <tam-cmd match="upower -i $(upower -e | grep -E &quot;battery|line_power&quot; | head -1)" hint="Look for the value that answers the task.">
+    <out>  native-path:          BAT0
   power supply:         yes
   updated:              Sun 01 Nov 2026 02:20:10 PM EST (12 seconds ago)
   has history:          yes
@@ -95,16 +100,21 @@ $ upower -i $(upower -e | grep -E "battery|line_power" | head -1)
     voltage:             12.65 V
     percentage:          86%
     capacity:            97.7%
-    technology:          lithium-ion
-
-$ sensors | grep -E "in[0-9]|Vcore|\+12V|\+5V|\+3.3V|curr[0-9]" | head -4
-in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
+    technology:          lithium-ion</out>
+  </tam-cmd>
+  <tam-cmd match="sensors | grep -E &quot;in[0-9]|Vcore|\+12V|\+5V|\+3.3V|curr[0-9]&quot; | head -4" goal="true">
+    <out>in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
 +12V:         12.08 V  (min = +11.40 V, max = +12.60 V)
 +5V:           5.02 V  (min =  +4.75 V, max =  +5.25 V)
-+3.3V:         3.31 V  (min =  +3.14 V, max =  +3.47 V)
-</pre>
++3.3V:         3.31 V  (min =  +3.14 V, max =  +3.47 V)</out>
+  </tam-cmd>
+  <tam-init>Try: upower -i $(upower -e | grep -E "battery|line_power" | head -1)</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try upower -i $(upower -e | grep -E "battery|line_power" | head -1) (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-<p>Captured on a Tamlinux workstation, 2026-11-01. Your battery properties and voltage readings will reflect your specific motherboard and power supply.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>upower</code> queries the system power management daemon for physical battery metrics, reporting an active voltage of 12.65 volts and an instantaneous charging rate of 18.4 watts.</li>
@@ -139,6 +149,23 @@ in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
 <p>It widens its internal depletion barrier and blocks electric current from passing through, functioning like a closed one-way valve.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Compare package, core and memory power readings"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Compare package, core and memory power readings">
+<tam-cmd match="turbostat --quiet --show PkgWatt,CorWatt,RAMWatt --interval 1" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>PkgWatt  CorWatt  RAMWatt
+  12.50     8.10     1.20</out>
+  </tam-cmd>
+  <tam-init>Try: turbostat --quiet --show PkgWatt,CorWatt,RAMWatt --interval 1</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try turbostat --quiet --show PkgWatt,CorWatt,RAMWatt --interval 1 (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Switched-mode power supplies, ground loops, and circuit protection</h2>
@@ -203,13 +230,7 @@ in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
 
 <p>Inspect instantaneous processor power consumption and thermal metrics directly from the kernel's Model-Specific Registers (MSRs) via the <code>turbostat</code> utility:</p>
 
-<pre class="session" data-risk="system">
-$ sudo turbostat --quiet --show PkgWatt,CorWatt,RAMWatt,Core,CPU,Avg_MHz --interval 1 | head -4
-Core	CPU	Avg_MHz	PkgWatt	CorWatt	RAMWatt
--	-	28	1.42	0.21	0.45
-0	0	45	1.42	0.21	0.45
-0	8	12	...	...	...
-</pre>
+
 
 <section class="quiz">
 <h3>Check yourself</h3>

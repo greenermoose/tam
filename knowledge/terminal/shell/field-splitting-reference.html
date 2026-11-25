@@ -4,7 +4,7 @@
 <meta name="topic" content="shell-field-splitting-reference">
 <meta name="summary" content="Precise POSIX field-splitting semantics for IFS, empty fields, special parameters and read">
 <meta name="keywords" content="field splitting, IFS, POSIX, empty fields, IFS whitespace, special parameters, read, reference">
-<meta name="level" content="expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="terminal">
 <meta name="parent" content="terminal/shell/index.html">
 <meta name="prereqs" content="shell-expansion, shell-word-splitting">
@@ -14,7 +14,63 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/shell/index.html">Giving your computer written instructions</a> / Field splitting rules</p></nav>
 
-<p>This page states the precise rules a <a href="glossary/p/posix.html">POSIX</a> shell follows when it splits expansion results into fields.</p>
+<p>This reference records how IFS splitting treats whitespace, empty fields and quoted expansions in portable shell behaviour.</p>
+
+<section data-level="novice">
+
+<h2>A separator with rules</h2>
+
+<p>IFS is the set of characters the shell treats as separators when an unquoted expansion is split. Whitespace separators collapse runs; a non-whitespace separator such as a comma can produce genuine empty fields.</p>
+<p>Think of a row of beads on a string. Spaces between beads may be ignored as padding, while commas mark exact places where an empty bead can exist.</p>
+
+</section>
+
+<section data-level="learner">
+<h2>See empty fields from a comma</h2>
+<p><strong>Goal:</strong> read the fields produced by a fixed IFS example</p>
+
+<tam-sandbox
+  title="Try it: split with a comma"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="quoting"
+  goal="Print the fields of a comma-separated value">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="IFS=,; v=&#x27;,a,,b,&#x27;; printf &#x27;[%s]\n&#x27; $v" goal="true" hint="Each comma terminates a field, so adjacent commas leave an empty one.">
+    <out>[]
+[a]
+[]
+[b]</out>
+  </tam-cmd>
+  <tam-cmd match="unset IFS; v=&#x27;  a  b  &#x27;; printf &#x27;[%s]\n&#x27; $v" hint="Default whitespace IFS collapses runs and does not keep empty fields.">
+    <out>[a]
+[b]</out>
+  </tam-cmd>
+  <tam-init>A fixed IFS=, example preserves empty fields.</tam-init>
+   <tam-hint after="1">Each comma terminates a field, so adjacent commas leave an empty one.</tam-hint>
+  <tam-hint after="2">Default whitespace IFS collapses runs and does not keep empty fields.</tam-hint>
+  <tam-fallback>Try IFS=,; v=',a,,b,'; printf '[%s]\n' $v, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>Comma is a non-whitespace IFS character, so each occurrence ends a field. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. Default whitespace separators behave differently and collapse runs.</p>
+<h3>Try it</h3>
+<p>Predict how many bracketed lines the comma example prints before running it.</p>
+<h3>If it goes wrong</h3>
+<p>If you changed IFS in a real shell, start a new shell or restore the default before continuing.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary><i>Why do two adjacent commas create an empty field?</i></summary><p>Because comma is non-whitespace IFS; each comma terminates a field.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Rules worth keeping precise</h2>
+
+<p>Splitting applies to unquoted expansion results after parameter expansion, command substitution and arithmetic expansion. Field splitting is not pathname expansion: globbing happens after splitting. Quoting suppresses splitting for the quoted part, and NUL cannot appear in a shell argument. Locale-dependent whitespace behaviour is implementation-defined in portable shells.</p>
 
 <h2>Scope</h2>
 <p>Field splitting applies to the results of unquoted parameter expansion, command substitution and arithmetic expansion. It does not apply to literal characters from the original word, nor to any result that was quoted when the word was tokenized. It runs after those expansions and before pathname expansion; quote removal happens last. The normative source is <cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>, section 2.6.5, with the <a href="glossary/i/ifs.html">IFS</a> variable defined in section 2.5.3.</p>
@@ -61,21 +117,8 @@
 <li>Shell variables and arguments cannot contain a <a href="glossary/n/nul.html">NUL</a> byte, so no splitting rule can preserve one.</li>
 <li>Extensions such as brace expansion and Bash arrays go beyond the portable rules; scripts depending on them need the corresponding shell manual.</li>
 </ul>
-
-<h2>Worked reference capture</h2>
-<pre class="session" data-risk="scratch">
-$ IFS=,; v=',a,,b,'
-$ printf '[%s]\n' $v
-[]
-[a]
-[]
-[b]
-$ unset IFS; v='  a  b  '
-$ printf '[%s]\n' $v
-[a]
-[b]
-</pre>
-<p>Captured on Arch Linux, 2026-11-22, with <a href="bibliography/bash.html">GNU Bash</a> 5.3.20. The first value uses a non-whitespace delimiter and keeps empty fields; the second uses default whitespace and collapses runs.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/p/posix.html">POSIX</a>.</p>
+</section>
 
 <h2>Sources</h2>
 <p><cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>, sections 2.2, 2.5.2, 2.5.3, 2.6, 2.6.5 and 2.6.7; <cite data-ref="bash"><a href="bibliography/bash.html">GNU Bash manual</a></cite>; <a href="man:bash(1)">bash(1)</a>.</p>

@@ -46,14 +46,26 @@
 <p><strong>Goal:</strong> you will be able to switch wallpapers and understand how fonts and color themes are managed.</p>
 
 
-<h3>Worked example</h3>
+
 <ol>
 <li>Open the background switcher with <kbd>Meta + Ctrl + Space</kbd> (or run <code>tam-menu toggle background</code>) to select from available wallpapers.</li>
 <li>Open the theme switcher menu with <kbd>Meta + Shift + T</kbd> (or run <code>tam-menu toggle theme</code>) to preview and select from available system themes.</li>
 <li>Install a curated monospace font package using the font installer:
-<pre class="session" data-risk="system">
-$ tam-install-font "JetBrains Mono" ttf-jetbrains-mono "JetBrains Mono"
-</pre>
+<tam-sandbox
+  title="Try it: Install a curated monospace font package using the font instal"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Install a curated monospace font package using the font installer">
+  <tam-cmd match="tam-install-font &quot;JetBrains Mono&quot; ttf-jetbrains-mono &quot;JetBrains Mono&quot;" goal="true" hint="Look for the value that answers the task.">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: tam-install-font "JetBrains Mono" ttf-jetbrains-mono "JetBrains Mono"</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-install-font "JetBrains Mono" ttf-jetbrains-mono "JetBrains Mono" (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 </li>
 </ol>
 

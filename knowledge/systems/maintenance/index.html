@@ -5,7 +5,7 @@
 <meta name="topic" content="maintain">
 <meta name="summary" content="System maintenance, updates, rollbacks, logs, power, resources, packaging, and emergency recovery">
 <meta name="keywords" content="maintain, maintenance, health, updates, rollback, logs, power, recovery, diagnostics, reliability, resources, packaging, boot, snapper, checkpoint">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="systems">
 <meta name="parent" content="systems/index.html">
 <meta name="kind" content="hub">
@@ -34,7 +34,7 @@
 <p><strong>Goal:</strong> you will be able to pick the right next guide for an update or recovery question.</p>
 
 
-<h3>Worked example</h3>
+
 <p>Suppose you want to check installed software without changing anything. Open
 <a href="systems/maintenance/updates.html?level=2">Checking and updating your software</a>
 at the learner level and run the package query there. That page separates inspection from applying an update.</p>
@@ -55,8 +55,29 @@ at the learner level and run the package query there. That page separates inspec
 <details class="q"><summary><i>Where should you start if the computer will not boot?</i></summary>
 <p>Start from the symptom index or boot-recovery guides, not from an ordinary package update page.</p></details>
 </section>
+<h2>Automated inspection</h2>
+<p>Read-only inspection tools:</p>
+<tam-sandbox
+  title="Try it: Check yourself"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Check yourself">
+  <tam-cmd match="tam inspect" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="tam check" goal="true">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: tam inspect</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam inspect (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
+<p><code>tam inspect</code> reports host facts. <code>tam check</code> evaluates them against the offline Check Contract and links to maintenance guides when corrective steps are recommended.</p>
 </section>
-
+<section data-level="expert">
+<h2>Reference and system behavior</h2>
+<p>Maintenance changes can affect boot, login, packages and personal data. Use the linked recovery guide for the symptom you have, and read its rollback point before acting.</p>
 <h2>Start from a symptom</h2>
 <p><a href="systems/maintenance/symptoms/index.html">Symptom index</a> — blank screen, boot failure, no desktop, network, wrong version, dead input, disk pressure.</p>
 <p><a href="systems/maintenance/faq.html">Maintaining FAQ</a> — short answers before deep guides.</p>
@@ -133,13 +154,6 @@ at the learner level and run the package query there. That page separates inspec
 <a href="paths/rescue.html?level=2">Rescue</a> provides a disaster recovery path.
 <a href="paths/index.html">Other goal paths</a>.</p>
 
-<h2>Automated inspection</h2>
-<p>Read-only inspection tools:</p>
-<pre class="session" data-risk="read-only">
-$ tam inspect
-$ tam check
-</pre>
-<p><code>tam inspect</code> reports host facts. <code>tam check</code> evaluates them against the offline Check Contract and links to maintenance guides when corrective steps are recommended.</p>
 
 <h2>Next</h2><p><a href="systems/maintenance/updates.html">Checking and updating your software</a></p>
 <h2>Related</h2><ul><li><a href="systems/maintenance/resources.html">Resources and performance</a></li><li><a href="index.html">Guide index</a></li></ul>

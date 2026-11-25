@@ -16,10 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / Communication protocols, framing, and data rates</p></nav>
 
-
-<p>This page explains how communication protocols format digital data into framed messages, the precise difference between baud rate and bit rate, and how flow control prevents data loss.</p>
-<h2>Before this</h2><p><a href="hardware/signals/serial-and-parallel.html">Serial and parallel communication channels</a> · <a href="hardware/signals/cables-and-signaling.html">Transmission media: electrical cables, optical fiber, and wireless waves</a></p>
-<p>Having a physical cable or radio wave is only the first step in communication. Without agreed-upon rules, a receiver hears only meaningless voltage changes or bursts of radio static. A communication protocol establishes the shared language of computing: defining when a message starts, how fast symbols change, how bits are grouped into bytes, how flow control pauses transmission when buffers fill, and how errors are flagged. Understanding protocol framing and rate metrics allows you to configure terminals, troubleshoot serial devices, and evaluate network throughput.</p>
+<p>Communication protocols agree how bits are timed, framed and interpreted so two devices can exchange messages without a human translating every byte.</p>
 
 <section data-level="novice">
 <h2>What is a communication protocol?</h2>
@@ -40,79 +37,49 @@
 </section>
 
 <section data-level="learner">
-<h2>Protocols, baud rate vs bit rate, and packet framing</h2>
-<p><strong>Goal:</strong> you will be able to define what a communication protocol is, distinguish between baud rate and bit rate, and explain the purpose of packet framing.</p>
-<p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). The commands in this section inspect terminal line characteristics without altering your connection.</p>
-<aside class="first-time">
-<p><strong>New to this?</strong> A protocol is simply an agreed-upon set of rules for conversation. Just as human conversation requires agreeing on a language, speaking at a pace the listener can follow, and taking turns without shouting over one another, computer protocols define identical rules for hardware devices.</p>
-</aside>
-<h3>Mental model</h3>
-<pre>
-Universal Asynchronous Receiver-Transmitter (UART) Frame Anatomy:
-
-Line Voltage
-(+V) Idle (Mark) ----\                                /---- Stop (Mark) ---- Idle
-                      \                              /
-(0V)                   \--[D0][D1][D2][D3][D4][D5][D6][D7][P]--/
-                         ^                                ^  ^
-                      Start Bit                        Parity Stop Bit
-                      (Space)                          (Opt)  (1 or 2 bits)
-                      (1 bit)   &lt;--- 8 Data Bits ---&gt;  (1 bit)
-                                (Sent LSB First)
-
-Flow Control Pacing:
-  Hardware (Out-of-band):
-    Transmitter ---[ TX Data Wire ]---&gt; Receiver
-    Transmitter &lt;--[ CTS Line: HIGH (Ready) / LOW (Pause) ]-- Receiver  (Instantaneous!)
-
-  Software (In-band):
-    Transmitter ---[ TX Data Wire: Text Stream ]---&gt; Receiver
-    Transmitter &lt;--[ RX Wire: Sends ASCII 0x13 (XOFF) ]-- Receiver  (Subject to buffer lag!)
-</pre>
-<h3>Worked example: query and set serial line speed</h3>
-<pre class="session" data-risk="read-only">
-$ stty speed
-38400
-
-$ python3 -c 'baud=115200; bits_per_char=10; print(f"Max throughput: {baud/bits_per_char:.0f} bytes/sec ({baud*8/bits_per_char/1000:.1f} kbps)")'
-Max throughput: 115200 bytes/sec (92.2 kbps)
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-01. The terminal queries its configured communication speed and calculates theoretical byte throughput.</p>
+<h2>Compare line speed with useful throughput</h2>
+<p><strong>Goal:</strong> predict how a start bit, data bits and a stop bit reduce the payload rate of a serial line.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: serial line speed"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Compare stty speed with the payload throughput in the sample calculation">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="stty speed" goal="true" hint="stty reports the line speed in bits per second, not the payload rate.">
+      <out>38400</out>
+    </tam-cmd>
+    <tam-cmd match="python3 -c &#x27;baud=115200; bits_per_char=10; print(f&quot;Max throughput: {baud/bits_per_char:.0f} bytes/sec ({baud*8/bits_per_char/1000:.1f} kbps)&quot;)&#x27;" hint="Ten line bits carry eight data bits, so the payload rate is lower than the raw bit rate.">
+      <out>Max throughput: 11,520 bytes/sec (92.2 kbps)</out>
+    </tam-cmd>
+    <tam-cmd match="python3 -c &#x27;import termios, sys; attrs = termios.tcgetattr(sys.stdin); print(f&quot;c_cflag: {attrs[2]:#x}, ispeed: {attrs[4]}, ospeed: {attrs[5]}&quot;)&#x27;" hint="The terminal attributes store input and output speeds separately.">
+      <out>c_cflag: 0x4bf, ispeed: 38400, ospeed: 38400</out>
+    </tam-cmd>
+  <tam-init>Sample: stty speed 38400; 115200 baud carries 11,520 bytes/sec.</tam-init>
+  <tam-hint after="1">Try stty speed to see the configured line rate.</tam-hint>
+  <tam-hint after="2">Now run the python3 calculation to compare raw rate with payload.</tam-hint>
+  <tam-fallback>Try stty speed or the python3 command shown above (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>stty speed</code> prints the baud rate configured on standard input (38,400 baud).</li>
-<li>The Python calculation demonstrates how serial framing affects transfer speed: in standard asynchronous serial communication, each 8-bit byte of data requires 10 physical bit periods on the wire (1 Start bit + 8 Data bits + 1 Stop bit).</li>
-<li>At 115,200 baud, the line transmits a maximum of 11,520 payload bytes per second (92.2 kbps net data throughput), with 20% of the raw bandwidth consumed by framing overhead.</li>
-</ol>
+<p>The sample sets a raw rate of 115,200 bits per second. A ten-bit frame carries eight data bits, so the payload is 11,520 bytes per second, or about 92.2 kilobits per second. The <code>stty speed</code> reply is a sample value; it is not a reading from your machine.</p>
 <h3>Try it</h3>
-<p>Run <code>stty -a</code> and locate the line containing <code>cs8</code>. <code>cs8</code> stands for "character size 8 bits". Test changing to 7-bit characters in a subshell using <code>(stty cs7; stty -a | grep -o "cs[0-9]")</code> and observe how the driver adapts.</p>
+<p>Change the pattern in your head: if a frame used eleven bits instead of ten, would the payload increase or decrease? The python command in this sandbox only prints the authored calculation; on a real machine <code>stty speed</code> reports the active terminal line.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><a href="glossary/t/terminal.html">Terminal</a> prints strange hieroglyphs or high-<a href="glossary/a/ascii.html">ASCII</a> box-drawing characters</dt>
-<dd>The terminal baud rate does not match the connected hardware, causing the receiver to sample in the middle of transitions. Set the standard baud rate using <code>stty 115200</code>.</dd>
-<dt>Output pauses and appears completely frozen</dt>
-<dd>You may have accidentally pressed Ctrl+S, which transmits the software flow control XOFF character. Press Ctrl+Q (XON) to resume transmission.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> serial line disciplines are managed through the kernel tty core. When configuring serial login terminals (`agetty`), Tamlinux units explicitly pass `115200,38400,9600` in their unit definitions. If a remote console cannot synchronize at 115,200 baud, `agetty` automatically steps down through the fallback baud rates upon receiving a break signal.</p>
-</aside>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>When does baud rate equal bit rate, and when do they differ?</i></summary>
-<p>Baud rate equals bit rate when each electrical symbol transition represents exactly one binary bit (two-level binary signaling). They differ when multi-level modulation is used: if each symbol represents 4 voltage states (2 bits per symbol), the bit rate is twice the baud rate.</p>
-</details>
-<details class="q">
-<summary><i>Why must an asynchronous serial frame include a Start bit?</i></summary>
-<p>Because there is no shared clock wire. When the line is resting in the idle high state, the receiver does not know when data will arrive. The Start bit forces a sudden high-to-low voltage transition that wakes up and synchronizes the receiver's local timer so it can sample subsequent bits at precise intervals.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why is 115200 baud not 115200 bytes per second?</i></summary><p>Each character needs framing bits as well as eight data bits. At ten line bits per character, the payload is 11,520 bytes per second.</p></details>
 </section>
 </section>
-<section data-level="expert">
-<h2>Modulation, Nyquist and Shannon limits, and line coding</h2>
 
+<section data-level="expert">
 <h3>Reference</h3>
 
 <table>
@@ -189,23 +156,11 @@ Even with infinite voltage levels (as <code>M</code> approaches infinity), chann
 <li><strong>Flow Control Deadlock:</strong> When two devices communicate with hardware flow control enabled, but each device incorrectly configures its CTS pin as an input waiting for the other side to assert RTS before asserting its own, both devices freeze indefinitely in a mutual wait state.</li>
 </ul>
 
-<h3>Explore</h3>
 
-<p>Inspect active POSIX terminal flags on your current session using Python's <code>termios</code> module:</p>
 
-<pre class="session" data-risk="read-only">
-$ python3 -c 'import termios, sys; attrs = termios.tcgetattr(sys.stdin); print(f"c_cflag: {attrs[2]:#x}, ispeed: {attrs[4]}, ospeed: {attrs[5]}")'
-c_cflag: 0x4bf, ispeed: 38400, ospeed: 38400
-</pre>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q open">
-<summary>According to the Shannon-Hartley theorem, why can you not achieve infinite data rate across a channel simply by dividing voltage into thousands of microscopic levels?</summary>
-<p>Because every physical transmission channel contains thermal Johnson-Nyquist noise generated by the random thermal agitation of charge carriers (<code>P_noise = k_B * T * B</code>). As voltage levels are divided into thousands of microscopic steps, the voltage separation between adjacent states becomes smaller than the random thermal noise fluctuations. Noise causes the receiver to misread states, generating errors that collapse error-free information capacity.</p>
-</details>
-</section>
+
+
 
 <h3>Sources</h3>
 
@@ -219,6 +174,15 @@ c_cflag: 0x4bf, ispeed: 38400, ospeed: 38400
 
 <p>Contribute terminal speed optimizations and serial communication diagnostics in the public <a href="tamlinux/development/tam.html">tam</a> command repository.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="terminal/shell/index.html">The Shell and Streams</a></li>
+<li><a href="glossary/t/terminal.html">Terminal</a></li>
+<li><a href="glossary/a/ascii.html">ASCII</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="hardware/signals/error-detection-and-correction.html">Error detection, correction, and channel reliability</a> &mdash; parity, checksums, CRCs, and Hamming codes.</p>
 <h2>Related</h2><ul><li><a href="hardware/diagnostics/hardware-diagnostics.html">Hardware diagnostics: troubleshooting cables and communication boards</a> &mdash; multimeter testing, loopbacks, and board repair.</li><li><a href="hardware/signals/serial-and-parallel.html">Serial and parallel communication channels</a> &mdash; simplex, half-duplex, and full-duplex architectures.</li><li><a href="hardware/signals/cables-and-signaling.html">Transmission media: electrical cables, optical fiber, and wireless waves</a> &mdash; copper, fiber, and radio physics.</li><li><a href="tamlinux/components.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li></ul>

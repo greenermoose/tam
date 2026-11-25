@@ -15,9 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/editors/index.html">Classic text editors</a> / The great Emacs versus vi debate</p></nav>
 
-
-<p>This page explains why two text editors became symbols of two ways to work, what the jokes mean, and which differences are real enough to guide a choice.</p>
-
+<p>The Emacs versus vi argument is mostly a debate about two editing models, and the useful question is which trade-off is testable.</p>
 <h2>Before this</h2>
 
 <p><a href="terminal/editors/ex.html">The ex line editor</a>, <a href="terminal/editors/vi.html">The vi screen editor</a>, and <a href="terminal/editors/emacs.html">GNU Emacs</a> describe the programs themselves. This page is about the argument around them.</p>
@@ -52,89 +50,45 @@
 </section>
 
 <section data-level="learner">
-<h2>How the argument started and what it is about</h2>
+<h2>Turn a claim into a testable question</h2>
+<p><strong>Goal:</strong> filter a fixed claim list to find claims that can be measured</p>
 
-<p><strong>Goal:</strong> you will be able to describe the two lineages, explain the best-known jokes without repeating them as facts, and judge a claim about the editors by asking whether it is testable.</p>
-
-<h3>The short history</h3>
-
-<table>
-<tr><th>Time</th><th>What happened</th></tr>
-<tr><td>Early 1970s</td><td>Ken Thompson's <code>ed</code> establishes the line-editor model at Bell Labs: addresses, commands, and a buffer.</td></tr>
-<tr><td>Mid-1970s</td><td>Bill Joy at UC Berkeley writes <code>ex</code> and then <code>vi</code>, adding a full-screen view to the ex command language. <a href="glossary/b/bsd.html">BSD</a> distributions spread it.</td></tr>
-<tr><td>Mid-1970s</td><td>At the MIT AI Lab, Richard Stallman, with Guy Steele and David Moon, turns TECO macros into EMACS. The 1981 AI Memo 554 describes an extensible, self-documenting display editor.</td></tr>
-<tr><td>1985</td><td>GNU Emacs is released as part of the GNU Project, with Emacs Lisp as its extension language.</td></tr>
-<tr><td>1980s and 1990s</td><td>Usenet turns the disagreement into a recurring flame war. The Jargon File calls it a holy war and notes that such arguments are often about cultural attachment rather than large technical differences.</td></tr>
-<tr><td>1991</td><td>Bram Moolenaar releases Vim, a vi-compatible editor with extensions. It becomes the most common vi on Linux systems.</td></tr>
-<tr><td>2010s and later</td><td>Neovim forks Vim; Emacs adds package management, use-package, and native compilation; both remain actively developed.</td></tr>
-</table>
-
-<p>The Jargon File is blunt about the genre. Its entry on holy wars lists "EMACS vs. vi" among the hardy perennials and says that in a holy war "most of the participants spend their time trying to pass off personal value choices and cultural attachments as objective technical evaluations." That is the most useful sentence ever written about the editor war.</p>
-
-<h3>The jokes and what they mean</h3>
-
-<p>The Jargon File records several spoof expansions of EMACS: "Escape Meta Alt Control Shift", "Eight Megabytes And Constantly Swapping", and "EMACS Makes A Computer Slow". Each encodes a real criticism. Emacs commands use modifier keys heavily; it was large for the memory of its early machines; and a fully loaded Emacs can take noticeable time to start. The joke is not evidence that Emacs is unusable. It is a compressed complaint about a trade-off.</p>
-
-<p>vi has its own jokes. Because VI is the Roman numeral for six, "vi vi vi" reads as 666, and the editor has long been called the editor of the beast in mock horror. The more practical joke is that vi "will neither take commands while expecting input text nor vice versa", as the Jargon File puts it. That is mode confusion, and it is a real cost for a beginner.</p>
-
-<p>A common quip calls Emacs "a great operating system lacking a decent editor". It is a joke about scope: Emacs contains mail, news, a file manager, a calendar, and much more. Whether that is a feature or a distraction depends on what you want from an editor. The quip is a preference dressed as a verdict.</p>
-
-<h3>Worked example: compare the two editors</h3>
-
-<p>Use the same set of questions for both editors, and answer each with something you could observe or test. The table below is a worked example of that method, not a scorecard.</p>
-
-<table>
-<tr><th>Question</th><th>vi and its descendants</th><th>Emacs</th></tr>
-<tr><td>Core model</td><td>Modal command grammar plus an ex command line</td><td>Modeless editing plus named commands and key chords</td></tr>
-<tr><td>Extension language</td><td>Ex commands and recorded macros; Vim adds Vimscript and Lua support; Neovim adds a Lua <a href="glossary/a/api.html">API</a></td><td>Emacs Lisp, a full programming environment inside the editor</td></tr>
-<tr><td>Standardization</td><td>vi and ex are standardized by <a href="glossary/p/posix.html">POSIX</a></td><td>Not standardized by POSIX; the GNU manuals and the implementation define behaviour</td></tr>
-<tr><td>Availability</td><td>Very wide: POSIX systems, BSDs, embedded systems, rescue images, and clones such as BusyBox vi</td><td>Wide, but usually an installed package; not the minimal rescue editor</td></tr>
-<tr><td>Footprint</td><td>A small vi can be tiny; Vim is larger but still modest</td><td>Substantially larger, especially with packages and native compilation</td></tr>
-<tr><td>Startup</td><td>A bare vi starts quickly; Vim starts quickly with a small configuration</td><td>Depends heavily on init files and packages; a daemon changes the comparison</td></tr>
-<tr><td>Typical strength</td><td>Fast edits, remote sessions, servers, repetitive text changes</td><td>Long sessions, organizing text, <a href="glossary/g/git.html">Git</a>, mail, documents, building a personal environment</td></tr>
-<tr><td>Typical cost</td><td>Mode confusion; terse commands; a learning curve before fluency</td><td>Configuration complexity; chord-heavy input; a large environment to learn and maintain</td></tr>
-</table>
-
-<p>Measured package sizes on one Arch-based system on 2026-11-16 make the footprint difference concrete: Vim was 2.54 MiB to download and 5.40 MiB installed, while <code>emacs-nox</code> was 73.81 MiB and 259.94 MiB. These are package measurements, not timeless properties. Both programs can be made larger or smaller by how they are built and configured.</p>
-
+<tam-sandbox
+  title="Try it: find a testable claim"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Show only lines marked testable">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="claims.txt" size="96">vi starts quickly: testable
+Emacs is more extensible: testable
+modal editing is confusing: preference</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="grep testable claims.txt" goal="true" hint="A testable claim needs a measurement or observation.">
+    <out>vi starts quickly: testable
+Emacs is more extensible: testable</out>
+  </tam-cmd>
+  <tam-cmd match="cat claims.txt" hint="A preference can be honestly disagreed about.">
+    <out>vi starts quickly: testable
+Emacs is more extensible: testable
+modal editing is confusing: preference</out>
+  </tam-cmd>
+  <tam-init>A fixed claim list marks each statement as testable or preference.</tam-init>
+   <tam-hint after="1">A testable claim needs a measurement or observation.</tam-hint>
+  <tam-hint after="2">A preference can be honestly disagreed about.</tam-hint>
+  <tam-fallback>Try cat claims.txt, then grep testable claims.txt.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The filtered lines name claims that can be checked. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. A preference is not false; it simply needs a person and a task before it can be evaluated.</p>
 <h3>Try it</h3>
-
-<p>Take three claims you have heard about the editors and label each as <em>testable</em> or <em>a preference</em>: "vi starts faster", "Emacs is more extensible", and "modal editing is confusing". For each testable claim, write down the measurement that would settle it. For each preference, write down who might reasonably disagree. This exercise is more useful than winning the argument.</p>
-
+<p>Choose one testable line and write the measurement that would settle it for a named machine.</p>
 <h3>If it goes wrong</h3>
-
-<dl>
-<dt>You open vi and cannot type text</dt>
-<dd>You are in command mode. Press <code>i</code> to enter insert mode, type, then press Esc to return to commands and <code>:wq</code> to save and quit. If you are lost, press Esc a few times and type <code>:q!</code> to quit without saving.</dd>
-<dt>You open Emacs and a key combination does nothing</dt>
-<dd>Your terminal may not deliver Meta. Use Esc followed by the key, or run the command by name with <code>M-x</code>. Start with <code>emacs -Q -nw</code> to rule out your init file.</dd>
-<dt>Someone says one editor is objectively better</dt>
-<dd>Ask "better for which task, on which machine, with how much configuration?" The answer usually turns a verdict into a comparison.</dd>
-<dt>Someone quotes a joke as evidence</dt>
-<dd>Ask what trade-off the joke points to. "Eight megabytes and constantly swapping" points to memory use; it does not prove that Emacs is slow today.</dd>
-<dt>Someone says the other editor is unusable</dt>
-<dd>Both have been used for decades by people doing serious work. The useful question is which costs less for the work in front of you.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p>Tamlinux does not take a side. Its baseline editor is <code>micro</code>, chosen for familiar shortcuts and a small default footprint. vi, Vim, Neovim, and Emacs are optional packages. The pages in this section describe them so you can use a system that already has one, not to pressure you to replace the default.</p>
-</aside>
-
+<p>When someone quotes a joke as evidence, ask which trade-off the joke points to.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Why does the Jargon File call the editor argument a holy war rather than a technical dispute?</i></summary>
-<p>A holy war is a dispute in which people present personal and cultural preferences as objective technical facts. The editors do differ technically, but many of the loudest claims are about identity and taste. The Jargon File's point is that the substantive differences are often smaller than the rhetoric suggests.</p>
-</details>
-<details class="q">
-<summary><i>Is "Emacs is more extensible than vi" a testable claim?</i></summary>
-<p>Partly. You can compare what each editor exposes to users: a full Lisp environment with hooks and advice versus ex commands, macros, and a plugin API in Vim or Neovim. But "more extensible" also depends on what you want to change and how much complexity you will accept. The measurable part is the mechanism; the overall verdict includes a value judgement.</p>
-</details>
-<details class="q">
-<summary><i>Why can a vi user still be productive on a system where Emacs is installed, and the reverse?</i></summary>
-<p>Both edit plain text, and both are available on most systems. A vi user can use Vim, Neovim, or a vi clone; an Emacs user can install Emacs or use it over a terminal. The choice affects fluency and workflow, not whether the file can be edited at all.</p>
-</details>
+<details class="q"><summary><i>Why label modal editing as a preference?</i></summary><p>Whether it confuses someone depends on the person and their experience.</p></details>
 </section>
 </section>
 
@@ -192,14 +146,6 @@
 <li><strong>The argument is not zero-sum.</strong> A team can standardize on one editor for shared workflows while individuals use another for their own work. File formats and version control matter more than the editor that produced them.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A team proposes a rule that every member must use the same editor so that pair programming and documentation stay consistent. Argue both sides, then propose a policy that addresses the real risks without turning the editor into an identity test.</summary>
-<p>The case for one editor is real: shared keybindings make pairing smoother, plugins and formatting can be standardized, and onboarding has one path. The case against is also real: forcing a tool on skilled users costs productivity and morale, and the editor is rarely the source of inconsistent output. The risks that matter are formatting, line endings, encoding, and reproducible builds. A better policy standardizes those with a formatter, an editorconfig file, and a pre-commit check, then lets people choose their editor. <a href="glossary/p/pairing.html">Pairing</a> can use a shared screen or a common keybinding layer without mandating one program. The debate becomes a tooling decision instead of a loyalty test.</p>
-</details>
-</section>
-
 <h3>Sources</h3>
 
 <ul>
@@ -212,6 +158,7 @@
 <h3>Improve it</h3>
 
 <p>Add a comparison only when it names the implementation, version, and configuration behind the numbers. Keep jokes labelled as jokes, and do not let a memorable quip stand in for a measurement.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/b/bsd.html">BSD</a> · <a href="glossary/a/api.html">API</a> · <a href="glossary/p/posix.html">POSIX</a> · <a href="glossary/g/git.html">Git</a> · <a href="glossary/p/pairing.html">Pairing</a>.</p>
 </section>
 
 <h2>Next</h2>

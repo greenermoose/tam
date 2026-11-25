@@ -16,187 +16,91 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/c/index.html">C and native toolchains</a> / Object files, static libraries, and compilation stages</p></nav>
 
-
-<p>This page explains what object files and static archives are, how they are produced from C source code, and why systems software compiles and links in stages.</p>
-<h2>Before this</h2><p><a href="programming/c/c11.html">The C11 programming language and portable systems code</a></p>
-<p>When you build software like the <code>tam</code> command or the <code>libtam</code> core foundation, the compiler does not transform human-readable C source files directly into a final program in a single step. Instead, the toolchain breaks the transformation into discrete stages: compiling source files into intermediate object files (<code>.o</code>), bundling reusable object files into static library archives (<code>.a</code>), and linking those components into an executable binary.</p>
+<p>A compiler does not turn source straight into a finished program. It first makes object files, then a linker combines them with libraries.</p>
 
 <section data-level="novice">
-<h2>From human code to machine instructions</h2>
-<p>Computer processors cannot directly read human-written programming languages like C. They only understand binary <dfn><a href="glossary/m/machine-code.html">machine code</a></dfn> &mdash; sequences of numbers that instruct <a href="glossary/c/cpu.html">CPU</a> circuits to move data between registers and perform arithmetic. Between the code written by programmers and the program you run in a terminal are intermediate files that make software faster to build, easier to share, and simpler to maintain.</p>
-
+<h2>From pages to a bound book</h2>
+<p>A <a href="glossary/c/compiler.html">compiler</a> translates each C source file into an object file. A <a href="glossary/l/linker.html">linker</a> joins object files and libraries into one runnable program.</p>
 <h3>Why it matters</h3>
-<p>Large software systems consist of dozens or hundreds of individual source files. If every change to a single line required recompiling the entire system from scratch, building software would take minutes or hours instead of milliseconds. Breaking code into individual object files and reusable static archives allows computers to recompile only the files that changed and package common routines so multiple programs can share them without rewriting logic.</p>
-
+<p>Stages let a large project rebuild only what changed. They also let one compiled object be reused in a <a href="glossary/s/static-library.html">static library</a>.</p>
 <h3>How to think about it</h3>
-<p>Think of source files (<code>.c</code>) as handwritten recipes in a cookbook. An object file (<code>.o</code>) is a single pre-baked dish prepared from one recipe, ready to be served but waiting on the counter. A static archive (<code>.a</code>) is a banquet platter holding many prepared dishes together in one container. The linker is the caterer who inspects the menu requested by the customer, selects only the required dishes from the platters, and plates the final meal.</p>
-
-<h3>New words</h3>
-<dl>
-<dt><a href="glossary/c/compiler.html">Compiler</a></dt>
-<dd>A programming tool (such as <a href="glossary/g/gcc.html">GCC</a> or Clang) that translates human-readable source code into machine instructions.</dd>
-<dt>Object file (<code>.o</code>)</dt>
-<dd>The compiled machine code translation of a single source file, complete with function instructions and relocation placeholders, but not yet linked into an executable program.</dd>
-<dt><a href="glossary/s/static-library.html">Static library (<code>.a</code>)</a></dt>
-<dd>A single archive file bundling multiple object files together with an index of exported symbols, linked directly into executable binaries.</dd>
-<dt><a href="glossary/l/linker.html">Linker</a></dt>
-<dd>A program (<code>ld</code>) that combines object files, resolves function references, and assigns final memory addresses to produce a runnable executable or library.</dd>
-</dl>
+<p>Each source file is a chapter. Object files are the printed chapters; the linker binds them into a book and fills in references between chapters.</p>
 </section>
 
 <section data-level="learner">
-<h2>Compiling, inspecting, and archiving object files</h2>
-<p><strong>Goal:</strong> you will be able to compile a standalone C source file into an object file (<code>.o</code>), inspect its symbol table using <code>nm</code>, package object files into a static library archive (<code>.a</code>) using <code>ar</code>, and link the archive into a working executable.</p>
-
-
-<p><strong>Before you start:</strong> open a terminal (<a href="terminal/shell/index.html">The Shell and Streams</a>). The exercises in this section run entirely in a temporary scratch directory and do not alter system packages or workstation settings.</p>
-
-<aside class="first-time">
-<p>In C compilation commands, the flag <code>-c</code> tells the compiler to compile the source file into an object file without invoking the linker. The output file convention uses the <code>.o</code> extension.</p>
-</aside>
-
-<h3>Worked example</h3>
-
-<pre class="session" data-risk="scratch">
-$ cd $(mktemp -d /tmp/c_stages.XXXXXX)
-$ printf '#include &lt;stdio.h&gt;\nvoid greet(const char *name) { printf("Hello, %%s\\n", name); }\n' &gt; greet.c
-$ printf 'void greet(const char *name);\nint main(void) { greet("Tamlinux"); return 0; }\n' &gt; main.c
-$ gcc -std=c11 -Wall -Wextra -c greet.c -o greet.o
-$ file greet.o
-greet.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
-$ nm greet.o
-                 U printf
-0000000000000000 T greet
-$ ar rcs libgreet.a greet.o
-$ file libgreet.a
-libgreet.a: current ar archive
-$ gcc -std=c11 -Wall -Wextra main.c -L. -lgreet -o demo
-$ ./demo
-Hello, Tamlinux
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-11-09. Your scratch directory name will differ.</p>
+<h2>Follow the build stages</h2>
+<p><strong>Goal:</strong> name what the compiler, archiver and linker each produce.</p>
+<tam-sandbox
+  title="Try it: trace a two-file build"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the final runnable program output">
+  <tam-fs>
+<dir name="/home/alex"></dir>
+  </tam-fs>
+    <tam-cmd match="gcc -c greet.c -o greet.o" hint="The object holds machine code and a symbol table, but no entry point yet.">
+      <out>Sample: wrote greet.o as an ELF relocatable object</out>
+    </tam-cmd>
+    <tam-cmd match="ar rcs libgreet.a greet.o" hint="An archive is a bundle of object files. Now link it into a program.">
+      <out>Sample: libgreet.a now contains greet.o</out>
+    </tam-cmd>
+    <tam-cmd match="gcc main.c -L. -lgreet -o demo &amp;&amp; ./demo" goal="true" hint="Correct: the linker resolved greet from the archive and produced a runnable file.">
+      <out>Hello, Tamlinux</out>
+    </tam-cmd>
+  <tam-init>Try: gcc -c greet.c -o greet.o</tam-init>
+  <tam-hint after="1">Next: ar rcs libgreet.a greet.o</tam-hint>
+  <tam-hint after="2">Finally: gcc main.c -L. -lgreet -o demo &amp;&amp; ./demo</tam-hint>
+  <tam-fallback>Try the three sample commands in order, or type help.</tam-fallback>
+</tam-sandbox>
 
 <h3>What just happened</h3>
-
-<ol>
-<li><code>gcc -c greet.c -o greet.o</code> compiled the C source into an <a href="glossary/e/elf.html">ELF</a> 64-bit relocatable object file. The machine code for <code>greet()</code> was generated, but memory addresses for external dependencies like <code>printf</code> remain unresolved.</li>
-<li><code>nm greet.o</code> inspected the object file symbol table: <code>T greet</code> marks <code>greet</code> as an exported text (code) symbol defined in this object, while <code>U printf</code> marks <code>printf</code> as an undefined symbol that the linker must resolve later.</li>
-<li><code>ar rcs libgreet.a greet.o</code> packaged the object file into an indexed static library archive. The <code>r</code> flag inserts files, <code>c</code> creates the archive without warning, and <code>s</code> builds an object symbol index.</li>
-<li><code>gcc main.c -L. -lgreet -o demo</code> compiled <code>main.c</code> and instructed the linker to search the current directory (<code>-L.</code>) for a library named <code>libgreet.a</code> (<code>-lgreet</code>), producing a self-contained executable.</li>
-</ol>
-
+<p>Compiling produced a relocatable object. Archiving bundled it for reuse. Linking resolved the call from <code>main.c</code> and produced an executable. The short lines are sample output: no files are really compiled or written in the sandbox.</p>
 <h3>Try it</h3>
-
-<p>Inspect the table of contents inside the archive using the <code>ar -t</code> command:</p>
-
-<pre class="session" data-risk="scratch">
-$ ar -t libgreet.a
-greet.o
-</pre>
-
-<p>Notice that <code>ar</code> behaves like an archiver (similar to <code>tar</code>): it preserves individual <code>.o</code> files inside the <code>.a</code> container along with their symbol indexes. When you are finished, clean up the scratch directory with <code>cd ~ &amp;&amp; rm -rf /tmp/c_stages.*</code>.</p>
-
+<p>Predict what happens if <code>libgreet.a</code> is left out of the link command. The linker cannot find <code>greet</code>, so no program is produced.</p>
 <h3>If it goes wrong</h3>
-
 <dl>
-<dt><code>undefined reference to 'greet'</code></dt>
-<dd>The linker could not find the definition of <code>greet</code>. Ensure that <code>-L.</code> (library search path) and <code>-lgreet</code> (library name) appear after <code>main.c</code> on the compiler command line.</dd>
-<dt><code>ar: command not found</code></dt>
-<dd>The <a href="glossary/g/gnu.html">GNU</a> binary utilities (<code>binutils</code>) are not installed. Static archive creation requires <code>ar</code> from the standard development package group.</dd>
+<dt>The sandbox does not create files.</dt><dd>It scripts the visible output of the stages. A real build needs a native toolchain.</dd>
+<dt>I expected symbol names.</dt><dd>This sample keeps output short. A real nm or readelf run shows the symbol table and sections.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Tamlinux links <code>libtam</code> statically into core utilities like <code>tam</code>. This means the <code>tam</code> binary contains the machine code from <code>libtam.a</code> embedded directly inside itself, eliminating dynamic library lookup overhead and ensuring the guide and recovery tools function even if shared library paths are broken.</p>
-</aside>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>What is the difference between an object file (.o) and a static archive (.a)?</i></summary>
-<p>An object file (<code>.o</code>) is the compiled machine code of a single source file with unresolved addresses. A static archive (<code>.a</code>) is an archive container holding multiple object files indexed for the linker.</p>
+<summary><i>What lives in an object file?</i></summary>
+<p>Machine code, data, symbols and relocation information for one translation unit.</p>
 </details>
 <details class="q">
-<summary><i>Why does the compiler flag <code>-c</code> stop before running the linker?</i></summary>
-<p>The <code>-c</code> flag instructs GCC to compile C source into machine code but halt before linking, allowing developers and build systems like <a href="glossary/m/make.html">Make</a> to recompile individual files incrementally without producing an incomplete executable.</p>
+<summary><i>Why link a static archive?</i></summary>
+<p>It supplies object files that define symbols used by the program, without shipping them as separate source.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>ELF relocatable structures, archive headers, and selective linking</h2>
-
-<h3>Reference: File extensions and toolchain utilities</h3>
-
+<h2>Reference: sections, symbols and archives</h2>
+<h3>Reference</h3>
 <table>
-<tr><th>Extension / Tool</th><th>Format / Class</th><th>Function in compilation pipeline</th></tr>
-<tr><td><code>.c</code></td><td><a href="glossary/a/ascii.html">ASCII</a> / <a href="glossary/u/utf-8.html">UTF-8</a> source</td><td>Human-readable C11 program logic and type declarations.</td></tr>
-<tr><td><code>.o</code></td><td>ELF Relocatable (<code>ET_REL</code>)</td><td>Compiled machine code sections (<code>.text</code>, <code>.data</code>, <code>.rodata</code>), symbol tables (<code>.symtab</code>), and relocation entries (<code>.rela.text</code>).</td></tr>
-<tr><td><code>.a</code></td><td><a href="glossary/u/unix.html">Unix</a> <code>ar</code> Archive</td><td>Collection of ELF relocatable objects prefixed by standard 60-byte headers and an internal symbol index (<code>ranlib</code> map).</td></tr>
-<tr><td><code>gcc -c</code></td><td>Compiler frontend</td><td>Runs the preprocessor and compiler backend to emit relocatable object files without invoking <code>ld</code>.</td></tr>
-<tr><td><code>ar rcs</code></td><td>Archive utility</td><td>Bundles object files into a static library and generates the symbol table map required for fast linker lookups.</td></tr>
-<tr><td><code>nm</code></td><td>Symbol inspector</td><td>Dumps symbol names, types (<code>T</code>, <code>U</code>, <code>D</code>, <code>R</code>), and section offsets from object files and archives.</td></tr>
-<tr><td><code>readelf -h</code></td><td>ELF header reader</td><td>Displays file type, target instruction architecture, entry points, and section header offsets.</td></tr>
+<tr><th>Item</th><th>Tool</th><th>Meaning</th></tr>
+<tr><td><code>.text</code></td><td><code>readelf -S</code></td><td>Executable instructions</td></tr>
+<tr><td><code>.rodata</code></td><td><code>readelf -S</code></td><td>Read-only constants and strings</td></tr>
+<tr><td><code>.symtab</code></td><td><code>nm</code></td><td>Defined and undefined symbols</td></tr>
+<tr><td><code>.rela.text</code></td><td><code>readelf -r</code></td><td>Relocations to apply at link time</td></tr>
 </table>
-
-<h3>How it works: Selective static linking</h3>
-
-<p>When you link an executable against individual object files (e.g. <code>gcc a.o b.o -o prog</code>), the linker unconditionally copies every section from both object files into the resulting binary. However, when linking against a static library archive (<code>libtam.a</code>), the linker operates selectively:</p>
-
-<ol>
-<li><strong>Undefined symbol queue:</strong> The linker maintains an internal list of symbols that have been referenced by object files processed so far but not yet defined.</li>
-<li><strong>Archive index lookup:</strong> When encountering <code>-ltam</code> (representing <code>libtam.a</code>), the linker searches the archive's internal symbol table index for members that satisfy current undefined symbols.</li>
-<li><strong>Granular extraction:</strong> The linker extracts <strong>only</strong> the specific <code>.o</code> members that resolve pending symbols. Any object files inside the archive whose functions are never called are skipped entirely.</li>
-<li><strong>Section relocation:</strong> For extracted object files, the linker applies relocation entries (<code>.rela.text</code>), replacing relative placeholder offsets with absolute virtual addresses in the executable image.</li>
-</ol>
-
-<aside class="peek">
-<p>In Tamlinux's build system, <code>libtam.a</code> packages dozens of utility functions (such as string manipulation, ini parsing, and terminal capability probing). Because of selective static linking, a utility that only uses terminal functions never pays a size penalty for unused ini parsing code.</p>
-</aside>
-
-<h3>Advanced inspection: Examining ELF object sections</h3>
-
-<p>Inspect the internal ELF sections of an object file using <code>readelf -S</code>:</p>
-
-<pre class="session" data-risk="read-only">
-$ readelf -S greet.o | grep -E '\.text|\.data|\.rodata|\.rela\.text|\.symtab'
-  [ 1] .text             PROGBITS         0000000000000000  00000040
-  [ 2] .rela.text        RELA             0000000000000000  000001f0
-  [ 3] .rodata           PROGBITS         0000000000000000  00000058
-  [ 9] .symtab           SYMTAB           0000000000000000  00000108
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-11-09.</p>
-
-<p>The <code>.text</code> section holds compiled CPU instructions, <code>.rodata</code> stores the read-only format string literal, <code>.rela.text</code> contains the relocation pointers marking where <code>printf</code> calls must be patched, and <code>.symtab</code> exposes the symbol list to the linker.</p>
-
-<h3>Edge cases and linker ordering</h3>
-
+<h3>How it works</h3>
+<p>The compiler emits <a href="glossary/e/elf.html">ELF</a> relocatable objects with placeholders for external references. The linker resolves symbols, applies relocations, assigns addresses and chooses a layout. An <code>ar</code> archive is an index of member objects; the linker pulls in only members that satisfy a needed symbol.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li><strong>Command-line argument order:</strong> The GNU linker (<code>ld</code>) processes arguments sequentially from left to right. If a library appears <em>before</em> the object file that references its symbols (e.g. <code>gcc -lgreet main.c</code>), the linker will not know that <code>main.o</code> needs symbols from <code>libgreet.a</code> when reading the archive, resulting in undefined reference errors. Static libraries must always follow the object files or sources that call them.</li>
-<li><strong>Circular archive dependencies:</strong> If <code>libfoo.a</code> calls functions in <code>libbar.a</code> and <code>libbar.a</code> also calls functions in <code>libfoo.a</code>, a single pass from left to right cannot resolve both. In such cases, linkers support archive grouping via <code>-Wl,--start-group -lfoo -lbar -Wl,--end-group</code>, instructing the linker to scan both archives iteratively until all symbols are resolved.</li>
-<li><strong>Duplicate symbol collisions:</strong> If two object files in an archive define the same global symbol name, the linker raises a multiple definition error upon inclusion. Libraries prevent namespace collisions by prefixing global symbols with a unique namespace prefix (e.g. <code>tam_</code> in <code>libtam</code>).</li>
+<li>Order matters for static libraries: a library must follow the object that needs it.</li>
+<li>Duplicate strong symbols cause link errors; weak symbols allow overrides.</li>
+<li>Mixing object files built for different ABIs produces subtle failures.</li>
+<li>Strip removes symbols needed for later debugging, not just size.</li>
 </ul>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q open">
-<summary>Why must static libraries typically appear after source files on the compiler command line?</summary>
-<p>Standard Unix linkers process files from left to right in a single pass, resolving only symbols currently on their unresolved list. If an archive appears before the object file that calls its functions, the linker finds no pending unresolved symbols matching the archive, ignores its members, and later encounters unresolved references when reading subsequent object files.</p>
-</details>
-</section>
-
 <h3>Sources</h3>
-<ul>
-<li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; elf(5) executable and linkable format specification, ar(1) archive utility, and nm(1) symbol extraction.</li>
-<li><a href="man:gcc(1)">gcc(1)</a> &mdash; GNU Compiler Collection compilation stages, <code>-c</code>, <code>-L</code>, and <code>-l</code> options.</li>
-<li><a href="man:ar(1)">ar(1)</a> &mdash; archive administration and symbol indexing commands.</li>
-</ul>
+<p><a href="man:gcc(1)">gcc(1)</a>; <a href="man:ar(1)">ar(1)</a>; <a href="bibliography/linux-api.html">Linux man-pages</a>.</p>
 
-<h3>Improve it</h3>
-<p>The static library implementation for <code>libtam</code> is located in <code>libtam/</code>, and the build recipes linking it into the <code>tam</code> binary are defined in <code>tam/Makefile</code>.</p>
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="programming/c/c11.html">The C11 programming language and portable systems code</a>, <a href="glossary/m/machine-code.html">machine code</a>, <a href="glossary/c/cpu.html">CPU</a>, <a href="glossary/g/gcc.html">GCC</a>, <a href="terminal/shell/index.html">The Shell and Streams</a>, <a href="glossary/g/gnu.html">GNU</a>, <a href="glossary/m/make.html">Make</a>, <a href="glossary/a/ascii.html">ASCII</a>, <a href="glossary/u/utf-8.html">UTF-8</a>, <a href="glossary/u/unix.html">Unix</a>, <a href="programming/c/c11.html">The C11 programming language</a>, <a href="programming/c/toolchains.html">Tools for building programs</a>, <a href="programming/assembly.html">Assembly language programming</a>, <a href="programming/c/libc.html">C standard libraries</a>.</p>
 </section>
 
 <h2>Next</h2><p><a href="programming/c/c11.html">The C11 programming language</a> &mdash; explore standard C11 language features and static assertions.</p>

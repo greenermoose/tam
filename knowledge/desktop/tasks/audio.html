@@ -7,7 +7,7 @@
 <meta name="topic" content="audio">
 <meta name="summary" content="Raise, lower and mute sound, switch outputs, and choose a microphone">
 <meta name="keywords" content="audio, sound, volume, mute, speakers, headphones, microphone, output, input, sound device">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/tasks/index.html">
 <meta name="paths" content="settle-in:6, session-and-desktop:8, make-it-yours:6, everyday-desktop:4">
@@ -43,16 +43,9 @@
 <aside class="first-time">
 <p>Use the volume keys at the top of the keyboard. A small overlay shows the new level. Press the mute key to silence the output; press it again to restore the level. If you hear nothing, press <code>Shift</code> with the mute key to try the next output, such as headphones instead of speakers.</p>
 </aside>
-<h3>Worked example</h3>
-<ol>
-<li>Press the volume-up key a few times. An overlay shows the level rising.</li>
-<li>Press the mute key once. The overlay shows that sound is muted.</li>
-<li>Press <code>Shift</code> with the mute key. The overlay names the next output device, and that device becomes the default.</li>
-<li>Press <code>Meta + Ctrl + A</code> to open the audio panel. It lists the outputs and inputs you can choose.</li>
-<li>Press the microphone-mute key. The overlay says the microphone is muted; press it again to unmute.</li>
-</ol>
 
-<p>Captured from the packaged audio commands and keybindings on 2026-11-02. Device names in the overlay depend on what is connected.</p>
+
+
 <h3>What just happened</h3>
 <ol>
 <li>The volume keys call <code>tam-audio-output-volume</code> with a small step, and holding a key repeats it.</li>
@@ -63,11 +56,22 @@
 </ol>
 <h3>Try it</h3>
 <p>Ask the system which output it is using:</p>
-<pre class="session" data-risk="read-only">
-$ tam-audio-output-sink
-alsa_output.usb-C-Media_Electronics_Inc._Lenovo_USB-A_Wired_Stereo_On-Ear_Headset-00.analog-stereo
-</pre>
-<p>Captured on 2026-11-02. A long name is normal: it identifies the device by its connection and model. Your name will differ.</p>
+<tam-sandbox
+  title="Try sound controls in the sandbox"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Change playback and microphone state safely">
+  <tam-cmd match="tam-audio-output-volume raise" hint="Read the simulated state after each action."><out>Sample: output volume is 55%</out></tam-cmd>
+  <tam-cmd match="tam-audio-output-volume mute-toggle"><out>Sample: output muted</out></tam-cmd>
+  <tam-cmd match="tam-audio-output-switch"><out>Sample: output switched to USB headset</out></tam-cmd>
+  <tam-cmd match="tam-audio-input-mute"><out>Sample: microphone muted</out></tam-cmd>
+  <tam-cmd match="tam-audio-output-sink" goal="true"><out>Sample: alsa_output.usb-Example_Headset-00.analog-stereo</out></tam-cmd>
+  <tam-init>Try: tam-audio-output-volume raise</tam-init>
+  <tam-hint after="1">Read the simulated state shown after the command.</tam-hint>
+  <tam-hint after="2">Compare the state before and after the toggle.</tam-hint>
+  <tam-fallback>Try tam-audio-output-volume raise (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>If it goes wrong</h3>
 <dl>
 <dt>No sound at all</dt>
@@ -92,7 +96,9 @@ alsa_output.usb-C-Media_Electronics_Inc._Lenovo_USB-A_Wired_Stereo_On-Ear_Headse
 </details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Reference and system behavior</h2>
+<p>Linux routes playback and recording through separate default devices. Per-application streams may keep their own volume even when the system output changes.</p>
 <h2>Sound keys</h2>
 <table>
 <tr><th>Keys</th><th>What they do</th></tr>
@@ -103,7 +109,7 @@ alsa_output.usb-C-Media_Electronics_Inc._Lenovo_USB-A_Wired_Stereo_On-Ear_Headse
 <tr><td>Microphone mute</td><td>Mute or unmute the input</td></tr>
 <tr><td><code>Meta + Ctrl + A</code></td><td>Open the audio panel</td></tr>
 </table>
-
+</section>
 <h2>Next</h2><p><a href="desktop/tasks/bluetooth.html">Connect Bluetooth headphones or a mouse</a> &mdash; wireless devices appear as outputs too.</p>
 <h2>Related</h2><ul><li><a href="desktop/commands.html">Desktop commands</a> &mdash; set an exact volume from the terminal.</li></ul>
 

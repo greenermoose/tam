@@ -15,137 +15,94 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/c/index.html">C and native toolchains</a> / pkg-config: finding compiler and linker flags</p></nav>
 
-<p>pkg-config is a command that tells a build which settings an installed library needs.</p>
-<p>A <dfn><a href="glossary/b/build.html">build</a></dfn> turns written source code into a program. When your program uses a <dfn><a href="glossary/l/library.html">library</a></dfn>, the build needs to know where that library keeps its header files and which library files to add. pkg-config reads a small description installed with the library and prints those settings for you.</p>
+<p>pkg-config asks an installed library for the compiler and linker settings it needs. Build scripts use those answers instead of guessing paths.</p>
 
 <section data-level="novice">
-<h2>What pkg-config is</h2>
-<p>Software is often split into reusable parts called libraries. A library ships a description of itself along with the code. pkg-config reads that description when you name the library, then prints the exact settings a build needs. You can also ask which version of the library is installed.</p>
+<h2>Asking a library for its settings</h2>
+<p>A <a href="glossary/l/library.html">library</a> needs include paths for its headers and link flags for its code. <code>pkg-config</code> reads a small description file and prints those settings.</p>
 <h3>Why it matters</h3>
-<p>Typing those settings by hand is easy to get wrong. They change when a library moves to a different directory or starts depending on another library. Asking the library for its own settings keeps a build working without editing every recipe.</p>
+<p>Hard-coded paths break when a package is installed somewhere else. Asking the library keeps a build portable across user and system installs.</p>
 <h3>How to think about it</h3>
-<p>Think of pkg-config as a librarian for a shelf of libraries. You name the library you want. The librarian reads its catalogue card and hands you the directions for using it, including the directions for any other library it needs.</p>
-<h3>New words</h3>
-<dl>
-<dt><a href="glossary/l/library.html">Library</a></dt>
-<dd>Reusable code that a program can use without containing that code itself.</dd>
-<dt><a href="glossary/c/compiler.html">Compiler</a></dt>
-<dd>A program that turns written source code into machine code.</dd>
-<dt><a href="glossary/l/linker.html">Linker</a></dt>
-<dd>The step that joins compiled code with the libraries it uses to make a runnable program.</dd>
-<dt><a href="glossary/e/environment-variable.html">Environment variable</a></dt>
-<dd>A named setting that a shell passes to commands it starts.</dd>
-</dl>
-<aside class="peek">
-<p>Behind the scenes, each description is a small file ending in <code>.pc</code>. The expert section shows what is inside one.</p>
-</aside>
+<p>Imagine calling a supplier for the exact parts list instead of guessing what size screws you need. The answer comes from the source that knows.</p>
 </section>
 
 <section data-level="learner">
-<h2>Asking a library for its flags</h2>
-<p><strong>Goal:</strong> you will be able to ask pkg-config for a library's version and build flags, and say where the answers come from.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ pkg-config --modversion libtam
-0.7.1
-$ pkg-config --cflags --libs libtam
--I/home/alex/.local/include -L/home/alex/.local/lib -ltam
-$ pkg-config --list-all | grep libtam
-libtam                         libtam - Tamlinux C foundation library
-libtam-portal                  libtam-portal - Tamlinux desktop portal library
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-11-19. Your paths, versions and library list will differ.</p>
+<h2>Compare cflags and libs</h2>
+<p><strong>Goal:</strong> explain why header flags and link flags are different answers.</p>
+<tam-sandbox
+  title="Try it: ask about an installed library"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Show the linker flags for libtam">
+  <tam-fs>
+<dir name="/home/alex"></dir>
+  </tam-fs>
+    <tam-cmd match="pkg-config --modversion libtam" hint="That is the installed version. Now ask for the compile-time settings.">
+      <out>0.7.1</out>
+    </tam-cmd>
+    <tam-cmd match="pkg-config --cflags libtam" hint="Include paths tell the compiler where headers live.">
+      <out>-I/home/alex/.local/include</out>
+    </tam-cmd>
+    <tam-cmd match="pkg-config --libs libtam" goal="true" hint="Correct: link flags name the library directory and the library to link.">
+      <out>-L/home/alex/.local/lib -ltam</out>
+    </tam-cmd>
+    <tam-cmd match="pkg-config --cflags --libs libtam" hint="Both sets can be requested in one line for a build.">
+      <out>-I/home/alex/.local/include -L/home/alex/.local/lib -ltam</out>
+    </tam-cmd>
+  <tam-init>Try: pkg-config --modversion libtam</tam-init>
+  <tam-hint after="1">Type pkg-config --cflags libtam.</tam-hint>
+  <tam-hint after="2">Now type pkg-config --libs libtam.</tam-hint>
+  <tam-fallback>Try one of the four pkg-config commands, or type help.</tam-fallback>
+</tam-sandbox>
+
 <h3>What just happened</h3>
-<ol>
-<li><code>--modversion</code> prints the version recorded in the library's description: <code>0.7.1</code>.</li>
-<li><code>--cflags</code> prints the <code>-I</code> option that tells the compiler where to find header files. <code>--libs</code> prints the <code>-L</code> option for the library directory and the <code>-l</code> option naming the library.</li>
-<li><code>--list-all</code> lists every description pkg-config can find. Filtering it with <code>grep</code> shows the two Tamlinux libraries installed under the user prefix.</li>
-</ol>
+<p>The version, include path and link flags are authored samples for a user-local <code>libtam</code> install. The sandbox does not inspect your system. Include flags help the <a href="glossary/c/compiler.html">compiler</a> find headers; link flags help the <a href="glossary/l/linker.html">linker</a> find code.</p>
 <h3>Try it</h3>
-<p>List the descriptions on your own machine with <code>pkg-config --list-all | less</code>, pick a library you recognise, then ask for its version with <code>pkg-config --modversion <em>library-name</em></code>. The name must match the listing exactly.</p>
+<p>Run <code>pkg-config --cflags --libs libtam</code>. Build scripts often place this whole answer directly on a compiler command line.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>Package libtam was not found</code></dt>
-<dd>The description is not on the search path. Check the spelling, then check whether the library was installed with development files; a runtime-only install often has no description.</dd>
-<dt><code>Package 'libtam', required by 'libtam-portal', not found</code></dt>
-<dd>A library that the first one depends on is missing from the search path. Install or build that dependency too.</dd>
-<dt>The version printed is older than the one you just built</dt>
-<dd>Two descriptions with the same name exist. pkg-config uses the first one it finds, so check the directories in <code>PKG_CONFIG_PATH</code>.</dd>
+<dt>The paths mention /home/alex.</dt><dd>That is the sample account used by the sandbox. On your system the answer depends on where the library was installed.</dd>
+<dt>The sandbox did not find my library.</dt><dd>Only the sample commands are scripted; it does not read your system package database.</dd>
 </dl>
-<h3>On Tamlinux</h3>
-<p>Development builds install under the user prefix, so their descriptions live in the user's <code>~/.local/lib/pkgconfig</code> directory. The Tamlinux shell environment adds that directory to the <code>PKG_CONFIG_PATH</code> <a href="glossary/e/environment-variable.html">environment variable</a>, which lets builds find libraries such as <code>libtam</code> without root. Packaging supplies the descriptions for system libraries in <code>/usr/lib/pkgconfig</code> and <code>/usr/share/pkgconfig</code>.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>You ask for <code>--cflags</code> but the build still cannot find the library's header files. What do you check first?</i></summary>
-<p>Check the <code>-I</code> path that pkg-config printed and confirm the headers are really there. <code>--cflags</code> only reports the path recorded in the description; it cannot verify that the installed files match. A moved or partly removed development install leaves a stale path.</p>
+<summary><i>What does --cflags provide?</i></summary>
+<p>Include and define flags needed while compiling source that uses the library.</p>
+</details>
+<details class="q">
+<summary><i>What does --libs provide?</i></summary>
+<p>Search paths and library names needed while linking.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Package metadata and the search path</h2>
+<h2>Reference: description files and searches</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Option</th><th>What it prints</th></tr>
-<tr><td><code>--cflags</code></td><td>All compiler flags for the named packages.</td></tr>
-<tr><td><code>--libs</code></td><td>All linker flags, including flags for dependencies.</td></tr>
-<tr><td><code>--modversion</code></td><td>The version of each named package.</td></tr>
-<tr><td><code>--list-all</code></td><td>Every package description found on the search path.</td></tr>
-<tr><td><code>--atleast-version=VERSION</code></td><td>Nothing, but exits successfully only when the package is new enough; useful in build recipes.</td></tr>
-<tr><td><code>--variable=NAME</code></td><td>The value of a variable in a package description, such as <code>prefix</code>.</td></tr>
-<tr><td><code>--with-path=DIR</code></td><td>Adds a directory to the search path for this invocation.</td></tr>
-<tr><td><code>--print-errors</code></td><td>Reports errors that pkg-config would otherwise keep quiet.</td></tr>
+<tr><th>Item</th><th>Meaning</th><th>Note</th></tr>
+<tr><td><code>.pc</code> file</td><td>Package metadata</td><td>Defines Version, Cflags and Libs</td></tr>
+<tr><td><a href="glossary/e/environment-variable.html">PKG_CONFIG_PATH</a></td><td>Extra search directories</td><td>Used for user-local or staging installs</td></tr>
+<tr><td><code>--static</code></td><td>Static-link flags</td><td>May add private dependencies</td></tr>
+<tr><td><code>pkgconf</code></td><td>Compatible implementation</td><td>Common on minimal systems</td></tr>
 </table>
 <h3>How it works</h3>
-<p>A description is a text file with a <code>.pc</code> suffix. This is the file for the local <code>libtam</code> build, with the example account's home directory:</p>
-<pre>
-prefix=/home/alex/.local
-includedir=${prefix}/include
-libdir=${prefix}/lib
-
-Name: libtam
-Description: Tamlinux C foundation library
-Version: 0.7.1
-Cflags: -I${includedir}
-Libs: -L${libdir} -ltam
-</pre>
-<p><code>Cflags</code> and <code>Libs</code> are the strings printed by <code>--cflags</code> and <code>--libs</code>. Variables such as <code>${prefix}</code> keep the file short and let a relocated install adjust its paths. <code>Requires</code> names other packages whose flags must be included too.</p>
-<p>The search path is built from the directories in <code>PKG_CONFIG_PATH</code>, followed by the command's built-in directories. On the workstation used for the example, the built-in directories are <code>/usr/lib/pkgconfig</code> and <code>/usr/share/pkgconfig</code>. The first description with a given name wins.</p>
-<p>Because dependencies are folded in, asking for <code>libtam-portal</code> returns more than its own library:</p>
-<pre class="session" data-risk="read-only">
-$ pkg-config --libs libtam-portal
--L/home/alex/.local/lib -ltam-portal -ltam -ldbus-1
-</pre>
-<p>That output comes from <code>Requires: libtam = 0.7.1, dbus-1</code> in the <code>libtam-portal</code> description. pkg-config adds the flags for both dependencies.</p>
-<h3>Advanced usage</h3>
-<p>A build recipe can drop the flags straight into a compiler command. This is illustrative, not a student exercise:</p>
-<pre class="session" data-risk="scratch">
-$ cc hello.c $(pkg-config --cflags --libs libtam) -o hello
-</pre>
-<p>For a guarded build, combine a version test with <code>--print-errors</code> so a missing or old dependency stops the recipe instead of failing later at link time.</p>
+<p>pkg-config reads description files from its search path and substitutes variables such as <code>${prefix}</code>. It emits flags for the requested packages and their dependencies. A build script should quote the result or use an array so spaces do not split arguments incorrectly.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
-<li>Two descriptions with the same name in different directories produce whichever one appears first on the search path. Put the intended directory first in <code>PKG_CONFIG_PATH</code> rather than relying on the built-in order.</li>
-<li>Version constraints such as <code>Requires: libtam = 0.7.1</code> are checked while walking dependencies. A version mismatch fails the whole query, even when the requested package itself is present.</li>
-<li>pkg-config prints flags; it does not check that the files they name exist. A library removed without its description leaves flags that look valid but fail during compilation or linking.</li>
-<li>The command on Arch-based systems is <code>pkgconf</code>, installed as <code>pkg-config</code>. Its <code>--version</code> reports the pkg-config specification it supports, not necessarily the <code>pkgconf</code> package version.</li>
+<li>Multiple <code>.pc</code> files with the same name: the first search hit wins.</li>
+<li>Cross-compilation needs a sysroot-aware pkg-config wrapper.</li>
+<li>Missing private dependencies appear only when static linking is requested.</li>
+<li>A wrong prefix produces headers from one install and libraries from another.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A build finds libtam on one workstation but not on another with the same package installed. What is the most likely difference?</summary>
-<p>The search path. pkg-config only reads <code>.pc</code> files in <code>PKG_CONFIG_PATH</code> and its built-in directories. If the package was built under a user prefix, that prefix must be on the path in the second environment; installing the package alone does not add it. Version and dependency checks run only after a description has been found.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<ul>
-<li><a href="man:pkg-config(1)">pkg-config(1)</a> and <a href="man:pkgconf(1)">pkgconf(1)</a> &mdash; the command manuals.</li>
-<li><code>pkg-config --help</code> &mdash; the supported options on this host.</li>
-</ul>
-<h3>Improve it</h3>
-<p>The <code>Makefile</code> of the <code>tam</code> command uses pkg-config for <code>libtam</code> and <code>ncursesw</code>. It is a short real example of the pattern above.</p>
+<p><a href="man:pkg-config(1)">pkg-config(1)</a>; <a href="man:pkgconf(1)">pkgconf(1)</a>; <a href="programming/c/object-files.html">Object files and compilation stages</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="glossary/b/build.html">build</a>, <a href="programming/c/toolchains.html">Tools for building programs</a>, <a href="glossary/m/make.html">Make</a>, <a href="programming/c/c11.html">The C11 programming language and portable systems code</a>, <a href="bibliography/index.html">bibliography</a>.</p>
 </section>
 
 <h2>Where next</h2>

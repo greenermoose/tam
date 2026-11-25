@@ -5,7 +5,7 @@
 <meta name="topic" content="philosophy">
 <meta name="summary" content="Free software, open standards, and resource efficiency in Tamlinux">
 <meta name="keywords" content="philosophy, freedom, free software, copyleft, gpl, fsf, freedesktop, xdg, standards, efficiency, daemons, polling, principles, ergonomics, consistency, fun">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="tamlinux">
 <meta name="parent" content="tamlinux/design/index.html">
 <meta name="kind" content="explanation">
@@ -14,8 +14,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/design/index.html">Design and philosophy</a> / Philosophy: Free Software, Open Standards, and Efficiency</p></nav>
 
-
-<p>This page explains the ideas that guide the design of Tamlinux.</p>
+<p>Tamlinux follows a small set of principles: free software, shared standards, efficient resources and human direction over automated assistance.</p>
 <section data-level="novice">
 <h2>What principles guide Tamlinux?</h2>
 <p>Tamlinux is guided by a small set of design principles: keep the workstation calm, keyboard-first, offline-capable, energy-conscious, and understandable from the ground up so its user stays in control.</p>
@@ -33,81 +32,55 @@
 </section>
 
 <section data-level="learner">
-<h2>Understand the principles</h2>
-<p><strong>Goal:</strong> recognize the project&#x27;s free-software and resource-efficiency goals.</p>
-<p><strong>Before you start:</strong> Read the principles below; this exercise makes no configuration changes.</p>
-<aside class="first-time"><p><strong>New to this?</strong> Read the explanation below, then try the question. Follow links in the Guide and use Left Arrow to return through history.</p></aside>
-<h3>Worked example</h3>
-<p>The four freedoms include the freedom to study and change a program. Compare that with the discussion of its license below.</p>
+<h2>Find a principle in a fixed record</h2>
+<p><strong>Goal:</strong> filter a short principle list to locate the evidence question</p>
 
-<p>Tamlinux builds on the free software tradition and on shared desktop
-standards, and treats resource efficiency as a design brief rather than an
-afterthought.</p>
-
-<h2>Four essential freedoms</h2>
-
-<p>The Free Software Foundation describes four freedoms (counting from zero) that users of free
-software have:</p>
-
-<ol>
- <li>run the program as you wish, for any purpose ("freedom 0")</li>
- <li>study how the program works and change it ("freedom 1")</li>
- <li>redistribute copies to help other ("freedom 2")</li>
- <li>distribute copies of your modified versions ("freedom 3")</li>
-</ol>
-
-<p>Tamlinux is distributed under <strong><a href="glossary/g/gpl-3.html">GPL-3.0</a>-or-later</strong>.
-Copyleft keeps these freedoms attached to every copy and every modified
-version.</p>
-
-<h2>Guiding principles for Tamlinux</h2>
-
-<p>Fred (see <a href="tamlinux/about.html">About Tamlinux</a>) has established seven core engineering and design principles that guide the creation of Tamlinux:</p>
-
-<ol>
- <li><strong>One place to look:</strong> Put configuration and information where users naturally expect to find it. <a href="glossary/m/make.html">Make</a> ownership of configuration discoverable; provide <code>tam</code> as an entry point for documentation and checks. Shell defaults and personal overrides can live in different files.</li>
- <li><strong>1 way to do 15 things, not 15 ways to do 1 thing:</strong> Curate packages decisively so users escape the "fiddling trap". Provide one excellent terminal (<code>foot</code>) and one standard shell (<code>bash</code>), eliminating paralyzing choice while providing a broad suite of software for diverse tasks.</li>
- <li><strong>Ergonomics matter:</strong> Optimize keyboard workflows and minimize keystrokes for common tasks. Design intuitive pager keys, concise <a href="glossary/c/cli.html">CLI</a> syntax, and quick orientation shortcuts.</li>
- <li><strong>Consistency counts:</strong> Standardize essential keybindings and behavioral contracts so muscle memory transfers reliably across terminal, desktop, and editor.</li>
- <li><strong>Zero tolerance policy for bugs:</strong> Uncover root causes no matter how deep into the stack it is necessary to go. Verify code with automated test suites, memory audits, and strict compiler enforcement.</li>
- <li><strong>Gather good ideas from everywhere:</strong> Adopt the best design elements from across computing history—<a href="glossary/u/unix.html">Unix</a> stream purity, Plan 9 plumbing, classic Amiga responsiveness, Mac accessibility, and modern <a href="glossary/w/wayland.html">Wayland</a> protocols.</li>
- <li><strong>Make computing fun for humans:</strong> Don't ask a human to do boring work like test a bunch of things. Instead, have AI agents and scripts do the boring work and let the human play with their workstation. A human will find plenty of bugs just by playing, while scripts and AI agents can do the drudgery. Computing should be fun, not a chore!</li>
-</ol>
-
-<h2>Standards and interoperability</h2>
-
-<p>Tamlinux follows <strong>freedesktop.org (<a href="glossary/x/xdg.html">XDG</a>)</strong> specifications so that
-its parts work with the rest of the free desktop:</p>
-
-<table>
-<tr><td><strong>XDG directories</strong></td><td>configuration in <code>~/.config</code>, data in <code>~/.local/share</code>, and state in <code>~/.local/state</code>.</td></tr>
-<tr><td><strong>Standard protocols</strong></td><td>the shell talks to the compositor through standard Wayland protocols such as <code>wlr-layer-shell</code> and <code>ext-workspace-v1</code> wherever they exist.</td></tr>
-<tr><td><strong>Standard formats</strong></td><td>applications are described by <code>.desktop</code> files; icons and menus follow shared specifications.</td></tr>
-</table>
-
-<h2>Resource efficiency</h2>
-
-<p>Reducing unnecessary work can improve responsiveness or energy use. Verify the effect on the actual workload and hardware:</p>
-
-<table>
-<tr><td><strong>No polling loops</strong></td><td>work is event-driven and bounded; software sleeps until something happens.</td></tr>
-<tr><td><strong>No unnecessary daemons</strong></td><td>if a feature can be an on-demand command, it should not run permanently in the background.</td></tr>
-<tr><td><strong>Self-reporting</strong></td><td>tools say what they did and what failed, so problems can be diagnosed rather than guessed at.</td></tr>
-</table>
-
-<h2>Human direction</h2>
-
-<p>Tamlinux prefers deterministic tools that people direct. AI assistants help
-develop Tamlinux under human direction, and every public repository records how
-in its <code>AI-BLAME.md</code>; see
-<a href="tamlinux/development/ai.html">AI tooling and human agency</a>.</p>
+<tam-sandbox
+  title="Try it: search the principles list"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Show the line about resource efficiency">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="principles.txt" size="145">Free software: study and change the program.
+Open standards: share formats and protocols.
+Resource efficiency: measure the workload, do not assert savings.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="grep -i efficiency principles.txt" goal="true" hint="A principle becomes testable when you name the evidence.">
+    <out>Resource efficiency: measure the workload, do not assert savings.</out>
+  </tam-cmd>
+  <tam-cmd match="cat principles.txt" hint="Read the whole list before filtering.">
+    <out>Free software: study and change the program.
+Open standards: share formats and protocols.
+Resource efficiency: measure the workload, do not assert savings.</out>
+  </tam-cmd>
+  <tam-init>A fixed list maps principles to the evidence that would test them.</tam-init>
+   <tam-hint after="1">A principle becomes testable when you name the evidence.</tam-hint>
+  <tam-hint after="2">Read the whole list before filtering.</tam-hint>
+  <tam-fallback>Try cat principles.txt, then grep -i efficiency principles.txt.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The filtered line turns a broad goal into a check: measure the workload. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. Other principles remain visible in the unfiltered list.</p>
 <h3>Try it</h3>
-<p>Choose one principle and explain what evidence would show whether a change supports it.</p>
+<p>Pick a different principle from the list and write one measurement or observation that would support it.</p>
 <h3>If it goes wrong</h3>
-<p>If a performance claim lacks a measurement, keep it as a hypothesis and compare the actual workload.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a goal of using fewer resources prove a workload uses less energy?</i></summary><p>No. Measure the workload and conditions before drawing that conclusion.</p></details><details class="q"><summary><i>Where can you check a current capability before relying on it?</i></summary><p>Use its current product documentation and the evidence for the installation you are using.</p></details></section>
+<p>If a performance claim lacks a measurement, keep it as a hypothesis rather than reporting it as an effect.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary><i>Does wanting fewer resources prove lower energy use?</i></summary><p>No. The workload and conditions must be measured.</p></details>
+</section>
 </section>
 
+
+<section data-level="expert">
+<h2>Principles as review questions</h2>
+
+<p>Use the principles as questions during review: where is configuration discoverable, which default removes needless choice, what evidence verifies a bug fix, and which protocol avoids custom glue? Free-software freedoms and XDG conventions are commitments; performance and energy claims need measurements on the actual workload.</p>
+
+<p><strong>Further reading in this topic:</strong> <a href="glossary/g/gpl-3.html">GPL-3.0</a> · <a href="tamlinux/about.html">About Tamlinux</a> · <a href="glossary/m/make.html">Make</a> · <a href="glossary/c/cli.html">CLI</a> · <a href="glossary/u/unix.html">Unix</a> · <a href="glossary/w/wayland.html">Wayland</a> · <a href="glossary/x/xdg.html">XDG</a> · <a href="tamlinux/development/ai.html">AI tooling and human agency</a>.</p>
+</section>
 
 <h2>Sources and further reading</h2>
 <p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>

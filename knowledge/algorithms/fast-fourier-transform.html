@@ -16,115 +16,97 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Fast Fourier Transform</p></nav>
 
-<p>The Fast Fourier Transform (FFT) is an algorithm for computing the <a href="algorithms/fourier-transforms.html">Discrete Fourier Transform</a> quickly. It produces the same result as a direct DFT, but with far less work for large inputs.</p>
+<p>A Fast Fourier Transform finds the same frequency information as a direct transform, but reuses repeated work. That reuse makes long signals practical to analyse.</p>
 
 <section data-level="novice">
-<h2>Why "fast" matters</h2>
-<p>A direct DFT checks every sample against every frequency. If you have 1,000 samples, that is roughly a million combinations. If you have a million samples, it becomes a trillion - too much for many real-time uses. The FFT reorganizes the same math to avoid repeating work.</p>
+<h2>What the FFT changes</h2>
+<p>The <a href="algorithms/fourier-transforms.html">Discrete Fourier Transform</a> asks how much of each frequency is in a signal. A direct answer checks every sample against every frequency. The <a href="glossary/f/fast-fourier-transform.html">Fast Fourier Transform</a>, or FFT, gets the same answer by sharing work between those checks.</p>
 <h3>Why it matters</h3>
-<p>The FFT made frequency analysis practical at scale. It helps audio players equalize sound, phones compress voice, Wi-Fi and cellular systems process radio signals, medical scanners reconstruct images, and media tools like <a href="algorithms/ffmpeg.html">FFmpeg</a> analyze and filter audio and video. Many problems that look unrelated to waves become faster after an FFT.</p>
+<p>Audio, images and radio all contain frequencies. Without the FFT, analysing a long recording would take far longer than it needs to.</p>
 <h3>How to think about it</h3>
-<p>Imagine sorting mail by checking every letter against every mailbox one by one. The FFT is like noticing a pattern that lets you split the pile, sort smaller piles, and combine the results. You get the same final mailboxes, but with much less walking around.</p>
+<p>Imagine adding a long column of numbers. Pairing neighbours first, then pairs of pairs, saves repeated additions. The FFT uses the same idea with wave calculations.</p>
 <h3>New words</h3>
 <dl>
-<dt><a href="glossary/f/fast-fourier-transform.html">Fast Fourier Transform (FFT)</a></dt>
-<dd>An efficient algorithm for computing a DFT.</dd>
-<dt><a href="glossary/a/algorithm.html">Algorithm</a></dt>
-<dd>A precise step-by-step procedure for solving a problem.</dd>
-<dt>Complexity</dt>
-<dd>How the cost of an algorithm grows as the input gets larger.</dd>
+<dt><dfn><a href="glossary/a/algorithm.html">Algorithm</a></dfn></dt><dd>A finite set of steps that produces an answer.</dd>
+<dt><a href="algorithms/time-complexity.html">Time complexity</a></dt><dd>How the amount of work grows with input size.</dd>
 </dl>
 </section>
 
 <section data-level="learner">
-<h2>Same answer, less work</h2>
-<p><strong>Goal:</strong> see why FFT is faster than a direct DFT and where that speed shows up.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ python3 - &lt;&lt;'PY'
-import math, time
-def dft(x):
-    N=len(x); out=[]
-    for k in range(N):
-        re=sum(x[n]*math.cos(2*math.pi*k*n/N) for n in range(N))
-        im=-sum(x[n]*math.sin(2*math.pi*k*n/N) for n in range(N))
-        out.append(complex(re,im))
-    return out
+<h2>Compare the work counts</h2>
+<p><strong>Goal:</strong> use a sample table to explain why the FFT wins as the signal grows.</p>
+<tam-sandbox
+  title="Try it: spot the growth gap"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Show the work counts for the largest sample">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="sizes.txt" size="105">N=8 direct=64 fft=24
+N=256 direct=65536 fft=2048
+N=4096 direct=16777216 fft=49152</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat sizes.txt" hint="Each row uses the same length N. Compare how the two counts grow.">
+      <out>N=8 direct=64 fft=24</out>
+      <out>N=256 direct=65536 fft=2048</out>
+      <out>N=4096 direct=16777216 fft=49152</out>
+    </tam-cmd>
+    <tam-cmd match="grep 4096 sizes.txt" goal="true" hint="Correct: direct work grows like N x N; the FFT grows like N x log2(N).">
+      <out>N=4096 direct=16777216 fft=49152</out>
+    </tam-cmd>
+  <tam-init>Try: cat sizes.txt, then grep 4096 sizes.txt</tam-init>
+  <tam-hint after="1">Type grep 4096 sizes.txt to see the largest case.</tam-hint>
+  <tam-fallback>Try cat sizes.txt, or grep 4096 sizes.txt (or type help).</tam-fallback>
+</tam-sandbox>
 
-# A tiny power-of-two size keeps the demo quick.
-N=256
-x=[math.sin(2*math.pi*3*n/N)+0.3*math.cos(2*math.pi*20*n/N) for n in range(N)]
-t0=time.time(); dft(x); t1=time.time()
-print(f"direct DFT: {N*N} sample-frequency combinations")
-print(f"FFT class: about {N*int(math.log2(N))} work units")
-print(f"elapsed: {t1-t0:.4f}s for N={N} (illustrative)")
-PY
-direct DFT: 65536 sample-frequency combinations
-FFT class: about 2048 work units
-elapsed: 0.0123s for N=256 (illustrative)
-</pre>
-<p>Illustrative timing; exact numbers vary by machine. The key point is the growth rate: DFT grows like <code>N^2</code>, FFT grows like <code>N log N</code>. See <a href="algorithms/time-complexity.html">Time complexity and Big-O notation</a> for how these growth rates are compared.</p>
 <h3>What just happened</h3>
-<ol>
-<li>The direct DFT computed every frequency from every sample.</li>
-<li>The FFT class count shows why the same result can be obtained with far fewer operations.</li>
-<li>As <code>N</code> grows, the gap becomes enormous. This is why FFT is not just an optimization - it changes what is feasible.</li>
-</ol>
+<p>For eight samples the two counts are close. By 4096 samples the direct method needs over sixteen million combinations, while the FFT needs about forty-nine thousand stages. These are sample work counts for a power-of-two input, not timings from your machine.</p>
 <h3>Try it</h3>
-<p>Double <code>N</code> several times in your head: <code>N^2</code> becomes four times larger, while <code>N log N</code> grows much more gently. For audio at 48,000 samples per second, that difference is decisive.</p>
+<p>Run <code>grep 256 sizes.txt</code>. Then imagine doubling N again: the direct count would roughly quadruple, while the FFT count would gain another stage.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The numbers look like timings.</dt><dd>They are counts of work units. The sandbox does not run a transform or time your computer.</dd>
+<dt>grep found no row.</dt><dd>Type grep 4096 sizes.txt exactly. The leading N= is part of the line.</dd>
+</dl>
 <section class="quiz">
 <h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>Does the FFT give a different answer than the DFT?</i></summary>
-<p>No. The FFT computes the same DFT result (within normal floating-point rounding). It is a faster algorithm for the same mathematical transform.</p>
+<summary><i>Which column grows faster as N doubles?</i></summary>
+<p>The direct column. It is proportional to N squared; the FFT column is proportional to N times log2(N).</p>
 </details>
 <details class="q">
-<summary><i>Why is FFT important outside audio?</i></summary>
-<p>Many problems can be expressed as frequency analysis or convolution: image filtering, polynomial multiplication, solving some differential equations, radar, MRI, and compression. The FFT makes those frequency-domain methods fast enough to use.</p>
+<summary><i>Why do the examples use powers of two?</i></summary>
+<p>The classic Cooley-Tukey FFT splits the input neatly when N is a power of two. Other sizes need padding or more general decompositions.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: how FFT works and where it is used</h2>
+<h2>Reference: complexity and numerical detail</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Topic</th><th>Detail</th><th>Practical implication</th></tr>
-<tr><td>Complexity</td><td>O(N log N) vs O(N^2)</td><td>Makes large transforms feasible in real time</td></tr>
-<tr><td>Cooley-Tukey</td><td>Divide DFT into smaller DFTs, often by even/odd indices</td><td>Classic radix-2 FFT when N is a power of two</td></tr>
-<tr><td>In-place variants</td><td>Reorder data with bit reversal or stage scheduling</td><td>Lower memory use, careful implementation</td></tr>
-<tr><td>Real FFT</td><td>Exploits conjugate symmetry</td><td>Roughly half the work/storage for real signals</td></tr>
+<tr><th>Aspect</th><th>Direct DFT</th><th>Classic FFT</th></tr>
+<tr><td>Work</td><td>O(N&sup2;)</td><td>O(N log N)</td></tr>
+<tr><td>Memory</td><td>O(N) output</td><td>O(N) working storage</td></tr>
+<tr><td>Input size</td><td>Any N</td><td>Simplest when N is a power of two</td></tr>
 </table>
 <h3>How it works</h3>
-<p>The common Cooley-Tukey FFT uses the divide-and-conquer idea. A DFT of size <code>N</code> can be written as a combination of smaller DFTs of even-indexed and odd-indexed samples. The "twiddle factors" <code>e^(-2πi*k/N)</code> combine those smaller results. When <code>N</code> factors nicely, especially powers of two, the recursion or iterative stages remove repeated computation.</p>
-<pre data-risk="read-only">
-DFT(x[0..N-1])
-  = DFT(even samples) + W^k * DFT(odd samples)
-  = DFT(even samples) - W^k * DFT(odd samples)  (for the upper half)
-</pre>
-<h3>Advanced usage</h3>
+<p>The <a href="https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm">Cooley-Tukey algorithm</a> recursively splits a transform into even and odd samples, reusing the fact that twiddle factors repeat. In-place variants store each butterfly's result where its inputs were, reducing memory traffic.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li><strong>Fast convolution:</strong> filter a signal by multiplying spectra, then inverse FFT.</li>
-<li><strong>Polynomial multiplication:</strong> multiply coefficient polynomials by transforming, pointwise multiplying, and inverse transforming.</li>
-<li><strong>Spectral analysis:</strong> STFT/FFT windows power audio editors, spectrum analyzers, and speech features.</li>
-<li><strong>Compression and codecs:</strong> related transforms (DCT/MDCT) are central in media formats; FFT itself is used in analysis, filtering, and some processing pipelines.</li>
+<li>Floating-point roundoff accumulates differently from the direct sum.</li>
+<li>Real-valued inputs produce conjugate symmetry across bins.</li>
+<li>Non-power-of-two sizes need mixed-radix or Bluestein methods.</li>
+<li>Bad memory layout can cost more than the saved arithmetic.</li>
 </ul>
-<h3>Edge cases</h3>
-<ul>
-<li>Input size and padding matter: many FFT implementations are fastest at power-of-two sizes, while mixed-radix FFTs handle other sizes.</li>
-<li>Window choice affects spectral leakage and resolution.</li>
-<li>Floating-point FFTs introduce rounding error; for some integer/exact problems, number-theoretic transforms are used instead.</li>
-<li>Performance depends on memory layout and cache behavior, not only arithmetic count.</li>
-</ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why did the FFT have such a large historical impact?</summary>
-<p>It turned an O(N^2) transform into O(N log N), making frequency-domain computation practical for large real-world data. That enabled efficient digital signal processing across audio, communications, imaging, scientific computing, and many algorithmic tricks such as fast convolution.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p>Cooley and Tukey, "An Algorithm for the Machine Calculation of Complex Fourier Series" (1965), is the classic modern FFT paper; see also <a href="https://en.wikipedia.org/wiki/Fast_Fourier_transform">Fast Fourier transform</a> and <a href="https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm">Cooley-Tukey FFT algorithm</a>.</p>
+<p><a href="https://en.wikipedia.org/wiki/Fast_Fourier_transform">Fast Fourier transform</a>; <a href="algorithms/ffmpeg.html">FFmpeg and media processing</a>; <a href="algorithms/sorting-algorithms.html">Sorting algorithms</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="paths/algorithms.html">Important algorithms for modern computing</a>.</p>
 </section>
 
 <h2>Where next</h2>

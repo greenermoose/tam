@@ -5,7 +5,7 @@
 <meta name="topic" content="sustainability">
 <meta name="summary" content="Hardware longevity, e-waste reduction, and capability-based profiles">
 <meta name="keywords" content="sustainability, longevity, e-waste, old hardware, energy, battery, terminal-only, profiles">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="hardware">
 <meta name="parent" content="hardware/energy/index.html">
 <meta name="kind" content="explanation">
@@ -37,15 +37,19 @@
 <p><strong>Goal:</strong> describe how continued use and repair can affect a hardware decision.</p>
 <p><strong>Before you start:</strong> Read the capability and repair sections; do not alter the machine for this exercise.</p>
 <aside class="first-time"><p><strong>New to this?</strong> Read the explanation below, then try the question. Follow links in the Guide and use Left Arrow to return through history.</p></aside>
-<h3>Worked example</h3>
-<p>Consider a working computer with a software problem. Identify the fault before deciding that replacement hardware is needed.</p>
-
-<p>Software usually becomes bloated, abandoned, or insecure long before the
-hardware fails. Manufacturing accounts for much of a computer's lifetime
-environmental cost, so keeping a working machine in use is one of the most
-effective ways to reduce electronic waste. A lighter, more efficient system
-keeps older machines useful and makes the computer you already have faster.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Estimate yearly energy for a constant 20 W load"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Estimate yearly energy for a constant 20 W load">
+  <tam-cmd match="python3 -c &quot;print(round(20 * 24 * 365 / 1000, 1))&quot;" goal="true">
+    <out>175.2 kWh per year</out>
+  </tam-cmd>
+  <tam-init>Try: python3 -c "print(round(20 * 24 * 365 / 1000, 1))"</tam-init>
+  <tam-hint after="1">Multiply watts by hours, then convert watt-hours to kilowatt-hours.</tam-hint>
+  <tam-hint after="2">This estimate assumes the load runs all year.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h2>Profiles by capability, not age</h2>
 
 <p>Tamlinux aims for the best possible experience on any hardware. Rather than
@@ -84,8 +88,10 @@ systems and desktops</a>.</p>
 <p>If the fault is unknown, record the symptoms and seek evidence rather than assuming hardware is broken.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a slow application alone prove that a computer must be replaced?</i></summary><p>No. Diagnose the workload, software and hardware before deciding.</p></details><details class="q"><summary><i>Where can you check a current capability before relying on it?</i></summary><p>Use its current product documentation and the evidence for the installation you are using.</p></details></section>
 </section>
-
-
+<section data-level="expert">
+<h2>Expert reference</h2>
+<p>Operational energy is one part of lifecycle impact; manufacturing and service life matter too.</p>
+</section>
 <h2>Sources and further reading</h2>
 <p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
 </body>

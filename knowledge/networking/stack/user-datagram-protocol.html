@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / User Datagram Protocol</p></nav>
 
-<p>This page explains how <a href="glossary/u/udp.html">UDP</a> sends one self-contained message at a time, without setting up a conversation first.</p>
+<p>UDP sends independent datagrams without setting up a connection, which suits small questions and live media where a fresh message matters more than a delayed one.</p>
 
 <section data-level="novice">
 <h2>What is UDP?</h2>
@@ -39,56 +39,51 @@
 </section>
 
 <section data-level="learner">
-<h2>Find UDP services on a running machine</h2>
-<p><strong>Goal:</strong> you will be able to read the UDP socket table, identify well-known services by their port numbers, and explain why a service would choose UDP.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ss -uln | head -6
-State  Recv-Q Send-Q Local Address:Port Peer Address:Port
-UNCONN 0      0         172.17.0.1:53        0.0.0.0:*
-UNCONN 0      0         127.0.0.54:53        0.0.0.0:*
-UNCONN 0      0      127.0.0.53%lo:53        0.0.0.0:*
-UNCONN 0      0            0.0.0.0:5353      0.0.0.0:*
-UNCONN 0      0               [::]:5353         [::]:*
-</pre>
-<p>Captured on a Tamlinux workstation, 2026-11-21. Your sockets and addresses will differ.</p>
+<h2>Find a datagram service in sample output</h2>
+<p><strong>Goal:</strong> identify the mDNS and DNS ports in sample UDP socket records.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read UDP sockets"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find port 5353 in sample UDP output">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="ss -uln" goal="true" hint="Port 53 is DNS and 5353 is mDNS in this sample.">
+      <out>State  Recv-Q Send-Q Local Address:Port  Peer Address:Port</out>
+      <out>UNCONN 0      0      127.0.0.53:53     0.0.0.0:*</out>
+      <out>UNCONN 0      0      0.0.0.0:5353     0.0.0.0:*</out>
+      <out>UNCONN 0      0      [::]:5353        [::]:*</out>
+    </tam-cmd>
+    <tam-cmd match="ss -ulnp" hint="The p form would also show the process when permissions allow it.">
+      <out>State  Recv-Q Send-Q Local Address:Port  Peer Address:Port Process</out>
+      <out>UNCONN 0      0      127.0.0.53:53     0.0.0.0:*</out>
+      <out>UNCONN 0      0      0.0.0.0:5353     0.0.0.0:*</out>
+    </tam-cmd>
+  <tam-init>Sample UDP sockets: DNS on 53, mDNS on 5353.</tam-init>
+  <tam-hint after="1">Try ss -uln to see the datagram sockets.</tam-hint>
+  <tam-hint after="2">Now try ss -ulnp for the process-aware form.</tam-hint>
+  <tam-fallback>Try ss -uln or ss -ulnp (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>UNCONN</code> means no connection state is kept. Each datagram is handled on its own.</li>
-<li>Port 53 is the <a href="glossary/d/dns.html">DNS</a> service. The <code>127.0.0.53%lo</code> entry is the local resolver that applications on this machine ask first.</li>
-<li>Port 5353 is multicast DNS, which answers questions about devices on the local link.</li>
-<li><code>[::]:5353</code> is the same service listening for <a href="glossary/i/ipv6.html">IPv6</a> datagrams; <code>0.0.0.0</code> and <code>[::]</code> mean all local addresses of that family.</li>
-</ol>
+<p>The sample shows UDP sockets for DNS on port 53 and multicast DNS on port 5353. <code>UNCONN</code> reflects that UDP does not establish a connection first. Both replies are authored sample output.</p>
 <h3>Try it</h3>
-<p>Run <code>ss -uln</code>, then <code>getent ahosts example.com</code> while watching the table again. Name resolution usually begins with one UDP question to the local resolver. These commands only read state.</p>
+<p>Predict what a dropped UDP datagram looks like to the sender: without an acknowledgement, the sender does not know from UDP alone. On a real machine the same command lists current sockets.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>Port 53 is missing</dt>
-<dd>No local resolver is listening on that address. Check <code>resolvectl status</code> to see which resolver the system is configured to use.</dd>
-<dt>A service listens only on 127.0.0.1</dt>
-<dd>It will not answer requests from other machines. That is normal for a local-only resolver; an uncovered address is needed for network-wide service.</dd>
-<dt>A UDP reply never arrives</dt>
-<dd>UDP cannot tell you why. Check whether a firewall drops the datagram, the service is running, or the request went to the wrong address.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> the local resolver address <code>127.0.0.53</code> and the multicast DNS service on 5353 come from systemd-resolved and <a href="glossary/a/avahi.html">Avahi</a>. The same setup pages explain how the name lookup reaches them; see <a href="networking/setup/name-resolution.html">Name resolution</a> and <a href="networking/services/avahi-and-zeroconf.html">Avahi and Zeroconf</a>.</p>
-</aside>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>A name lookup gets no reply. Why can't UDP tell the program whether the request or the reply was lost?</i></summary>
-<p>UDP keeps no connection state and sends no acknowledgements. The sender sees only silence, which could mean the request never arrived, the service did not reply, or the reply was dropped. A program that needs to know retries, times out or switches to another transport.</p>
-</details>
-<details class="q">
-<summary><i>Why do two UDP services on one machine use different port numbers?</i></summary>
-<p>The kernel uses the port to choose which socket receives an incoming datagram. Without distinct ports it could not deliver a packet to DNS rather than multicast DNS. The address and port together form the endpoint that the program binds.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why do DNS and mDNS often use UDP?</i></summary><p>A small question and answer fit in one datagram, avoiding the setup cost of a TCP connection.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: datagram semantics and the UDP header</h2>
 <h3>Reference</h3>
 <table>
 <tr><th>Field</th><th>Size</th><th>Meaning</th></tr>
@@ -102,16 +97,8 @@ UNCONN 0      0               [::]:5353         [::]:*
 <p>UDP is specified in <a href="glossary/r/rfc.html">RFC</a> 768. A program creates a socket, binds an address and port if it expects replies, and sends each datagram with <code>sendto(2)</code>. The kernel adds the UDP header and hands the result to the internet layer. On receipt, the kernel looks up the destination address and port, verifies the checksum when it is present, and places the datagram in the socket's queue. Message boundaries survive: one send produces one datagram, and one receive returns one whole datagram, provided the buffer is large enough.</p>
 <p>Because there is no handshake, a UDP sender can transmit immediately. Because there is no retransmission, correctness belongs to the application: DNS retries a question and falls back to TCP when an answer is too large; multicast DNS repeats announcements; real-time media simply accepts some loss; <a href="glossary/q/quic.html">QUIC</a> builds its own reliability over UDP.</p>
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ ss -ulnp | head -6
-State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
-UNCONN 0      0         172.17.0.1:53        0.0.0.0:*
-UNCONN 0      0         127.0.0.54:53        0.0.0.0:*
-UNCONN 0      0      127.0.0.53%lo:53        0.0.0.0:*
-UNCONN 0      0            0.0.0.0:5353      0.0.0.0:*
-UNCONN 0      0               [::]:5353         [::]:*
-</pre>
-<p>Captured on the same workstation, 2026-11-21. The <code>-p</code> flag would add the owning process, but an unprivileged reader sees no process column here; processes owned by other users need elevated privileges. <code>ss -uap</code> also shows UDP sockets that are not listening, which matters when diagnosing an application that sends requests but never receives replies.</p>
+
+
 <h3>Edge cases</h3>
 <ul>
 <li>A receive buffer that is smaller than the datagram truncates it. The application must notice the truncation flag and use a larger buffer.</li>
@@ -120,16 +107,20 @@ UNCONN 0      0               [::]:5353         [::]:*
 <li>An unconnected UDP socket accepts datagrams from any source. An application that cares who sent a message must authenticate it at its own layer.</li>
 <li>A path that drops UDP entirely breaks name lookup and local discovery even though TCP connections still work; test with <code>dig</code> rather than a browser.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>What does an application give up by choosing UDP, and what must it provide itself if it needs reliable delivery?</summary>
-<p>It gives up the handshake, ordered delivery, retransmission, flow control and congestion control that TCP supplies. If it still needs reliable delivery, it must number its messages, detect gaps, retry, and back off when the path is congested. QUIC does exactly this in user space; DNS instead keeps its requests small and simply retries on timeout.</p>
-</details>
-</section>
+
 <h3>Sources</h3>
 <p><cite data-ref="rfc768"><a href="bibliography/rfc768.html">RFC 768</a></cite>, <a href="man:ss(8)">ss(8)</a>, <a href="man:udp(7)">udp(7)</a> and <a href="man:sendto(2)">sendto(2)</a>.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/d/dns.html">DNS</a></li>
+<li><a href="glossary/a/avahi.html">Avahi</a></li>
+<li><a href="networking/setup/name-resolution.html">Name resolution</a></li>
+<li><a href="networking/services/avahi-and-zeroconf.html">Avahi and Zeroconf</a></li>
+</ul>
+
+
 
 <h2>Where next</h2>
 <ul>

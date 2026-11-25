@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/cryptography/index.html">Cryptography</a> / Symmetric Cryptography and Authenticated Encryption</p></nav>
 
-
-<p>This page explains how a single shared secret key scrambles bulk data quickly and seals it against tampering.</p>
-<h2>Before this</h2><p><a href="security/cryptography/cryptography-foundations.html">Foundations of Cryptography</a></p>
+<p>Symmetric cryptography uses one shared key to encrypt and decrypt data, and authenticated modes also prove that the ciphertext was not changed in transit.</p>
 
 <section data-level="novice">
 <h2>Locking and sealing data with one shared key</h2>
@@ -43,59 +41,45 @@
 </section>
 
 <section data-level="learner">
-<h2>Encrypting files and spotting key-derivation headers</h2>
-<p><strong>Goal:</strong> you will be able to encrypt and decrypt a scratch file safely with OpenSSL using <a href="glossary/a/aes-256.html">AES-256</a> and <a href="glossary/p/pbkdf2.html">PBKDF2</a> key derivation, and inspect why salting changes the ciphertext.</p>
-<p><strong>Before you start:</strong> work inside a temporary directory created with <code>mktemp -d</code> so no scratch files remain in your home folder.</p>
+<h2>Recognise a key-derivation header</h2>
+<p><strong>Goal:</strong> explain the Salted__ prefix and why encryption alone is not authentication.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: inspect ciphertext bytes"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Find the salt marker in sample ciphertext bytes">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">0000000 53 61 6c 74 65 64 5f 5f c5 76 5e 0c 91 95 09 3d
+0000020 38 0c 0c 2d 44 97 a2 cc 98 9a 7e ee 7f 62 19 40</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep Salted clues.txt" goal="true" hint="Try cat clues.txt to see the byte dump.">
 
-<h3>Worked example</h3>
-<p>Create a scratch file, encrypt it with AES-256-<a href="glossary/c/cbc.html">CBC</a> and PBKDF2 key derivation, inspect the first 32 bytes of the encrypted file, and decrypt it:</p>
-<pre class="session" data-risk="scratch">
-$ work=$(mktemp -d) &amp;&amp; cd "$work"
-$ printf 'Secret message for Tamlinux.\n' &gt; msg.txt
-$ openssl enc -aes-256-cbc -pbkdf2 -salt -in msg.txt -out msg.enc -pass pass:demo-passphrase-2026
-$ od -tx1 -N 32 msg.enc
-0000000 53 61 6c 74 65 64 5f 5f c5 76 5e 0c 91 95 09 3d
-0000020 38 0c 0c 2d 44 97 a2 cc 98 9a 7e ee 7f 62 19 40
-0000040
-$ openssl enc -d -aes-256-cbc -pbkdf2 -in msg.enc -pass pass:demo-passphrase-2026
-Secret message for Tamlinux.
-$ rm -rf "$work"
-</pre>
-<p>Captured on Arch Linux, 2026-11-14; the random salt and ciphertext bytes will differ on every run.</p>
-
+    </tam-cmd>
+    <tam-cmd match="od -tx1 -N 32 msg.enc" hint="Sample byte dump; 53 61 6c 74 65 64 5f 5f spells Salted__.">
+      <out>0000000 53 61 6c 74 65 64 5f 5f c5 76 5e 0c 91 95 09 3d</out>
+      <out>0000020 38 0c 0c 2d 44 97 a2 cc 98 9a 7e ee 7f 62 19 40</out>
+    </tam-cmd>
+  <tam-init>Sample ciphertext begins with the ASCII marker Salted__.</tam-init>
+  <tam-hint after="1">Try cat clues.txt to see the byte dump.</tam-hint>
+  <tam-hint after="2">Now try grep 53 clues.txt to find the first byte of S.</tam-hint>
+  <tam-fallback>Try cat clues.txt or grep Salted clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li>The first 8 bytes of <code>msg.enc</code> (<code>53 61 6c 74 65 64 5f 5f</code>) spell <code>Salted__</code> in <a href="glossary/a/ascii.html">ASCII</a>, followed by an 8-byte random salt (<code>c5 76 5e ...</code>).</li>
-<li><code>-pbkdf2</code> stretches the passphrase with the random salt to derive both an encryption key and an initialization vector (IV), so encrypting the same file twice with the same passphrase produces different ciphertexts.</li>
-<li>Note that <code>openssl enc</code> defaults to unauthenticated modes (CBC) without a MAC; for real file encryption, prefer authenticated tools such as <code>age</code>, <code>gpg</code>, or <a href="glossary/l/luks2.html">LUKS2</a> rather than raw <code>openssl enc</code>.</li>
-</ol>
-
+<p>The first eight bytes spell <code>Salted__</code>, a marker used by the OpenSSL legacy format. The salt andpassphrase feed a key-derivation function; the rest is ciphertext. This byte dump is sample data, not output from your machine.</p>
 <h3>Try it</h3>
-<p>In a scratch directory, encrypt the same text twice with <code>-aes-256-cbc -pbkdf2</code> and compare the outputs with <code>cmp</code>. Never pass real secrets via <code>-pass pass:...</code> on the command line (shell history and <code>ps</code> can see arguments); omit <code>-pass</code> so OpenSSL prompts interactively.</p>
-
+<p>Predict what an attacker can change in unauthenticated CBC ciphertext without knowing the key: some bits may alter plaintext in controlled ways. AEAD modes add a tag so tampering is detected.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>bad decrypt</code> error</dt>
-<dd>The passphrase is wrong, the file was truncated, or the decryption command omitted <code>-pbkdf2</code> when encryption used it.</dd>
-<dt><a href="glossary/e/ecb.html">ECB</a> mode warning or repeated blocks</dt>
-<dd>Never use <code>-aes-256-ecb</code>: ECB encrypts identical 16-byte blocks identically, leaking structure in images and structured files.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, full-disk encryption (<a href="security/practice/disk-encryption.html">LUKS2</a>) uses <code>aes-xts-plain64</code> (a tweakable block cipher mode designed for fixed-sector storage where ciphertext cannot expand to hold a MAC tag), while <a href="glossary/t/tls.html">TLS</a> 1.3 and WireGuard use AEAD suites (<code>AES-256-GCM</code> and <code>ChaCha20-Poly1305</code>).</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Why is ECB (Electronic Codebook) mode unsafe for encrypting anything longer than a single random block?</i></summary>
-<p>ECB encrypts each 16-byte plaintext block independently with the same key, so identical plaintext blocks produce identical ciphertext blocks and reveal patterns.</p>
-</details>
-<details class="q">
-<summary><i>What does AEAD add beyond plain encryption?</i></summary>
-<p>AEAD computes an authentication tag over both the ciphertext and any unencrypted associated headers (<a href="glossary/a/aad.html">AAD</a>), so decryption rejects any tampered packet before releasing plaintext.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What does authenticated encryption add?</i></summary><p>A tag that fails verification if ciphertext or associated data was changed, so confidentiality and integrity travel together.</p></details>
 </section>
 </section>
 
@@ -123,13 +107,7 @@ $ rm -rf "$work"
 <li><strong>Cache-timing attacks on table-based AES:</strong> Software T-table implementations index <a href="glossary/r/ram.html">RAM</a> by secret-dependent bytes, leaking AES keys across shared <a href="glossary/c/cpu.html">CPU</a> caches (Bernstein 2005). Production systems must use hardware instructions (AES-NI / ARMv8 Crypto) or constant-time bit-sliced / ARX designs.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why does nonce reuse in AES-GCM break integrity as well as confidentiality, whereas nonce reuse in CBC mode only leaks the first-block prefix equality?</summary>
-<p>In AES-GCM, the authentication tag is a polynomial in GF(2^128) masked by E_K(nonce || 1). Subtracting (XORing) two tags generated with the same (K, nonce) cancels the mask E_K(nonce || 1), leaving a polynomial equation in H whose coefficients are known ciphertexts. Solving for H recovers the MAC key permanently. In CBC, reusing an IV leaks equality of identical prefix blocks without exposing any MAC key.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <ul>
@@ -137,5 +115,21 @@ $ rm -rf "$work"
 <li><cite data-ref="boneh-shoup"><a href="bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapters 3–4, 8–9: AES, ChaCha20, GHASH, Poly1305).</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="security/cryptography/cryptography-foundations.html">Foundations of Cryptography</a></li>
+<li><a href="glossary/a/aes-256.html">AES-256</a></li>
+<li><a href="glossary/p/pbkdf2.html">PBKDF2</a></li>
+<li><a href="glossary/c/cbc.html">CBC</a></li>
+<li><a href="glossary/a/ascii.html">ASCII</a></li>
+<li><a href="glossary/l/luks2.html">LUKS2</a></li>
+<li><a href="glossary/e/ecb.html">ECB</a></li>
+<li><a href="security/practice/disk-encryption.html">LUKS2</a></li>
+<li><a href="glossary/t/tls.html">TLS</a></li>
+<li><a href="glossary/a/aad.html">AAD</a></li>
+</ul>
+
+
 </body>
 </html>

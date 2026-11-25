@@ -39,15 +39,19 @@
 <h2>Follow a key press</h2>
 <p><strong>Goal:</strong> you will be able to describe what the server, an application and the window manager each do in an X11 session.</p>
 <p><strong>Learner path:</strong> back: <a href="desktop/windowing/history.html?level=2">A short history of windowing systems</a>; next: <a href="desktop/windowing/wayland.html?level=2">How Wayland draws windows</a>.</p>
-<h3>Worked example</h3>
-<p>Trace one press of a key in an X11 session:</p>
-<ol>
-<li>The <a href="glossary/x/x-server.html">X server</a> reads the key from the input device.</li>
-<li>It sends a key event to the client that currently has <a href="glossary/f/focus.html">focus</a>.</li>
-<li>The application decides what the key means and may send drawing requests back through <a href="glossary/x/xlib.html">Xlib</a> or <a href="glossary/x/xcb.html">XCB</a>.</li>
-<li>The window manager, itself just another client, may move or decorate the window in response to other events.</li>
-</ol>
-<p>The server coordinates; applications and the window manager make requests.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Identify information an X11 client can query"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Identify information an X11 client can query">
+  <tam-cmd match="xdpyinfo" goal="true">
+    <out>Sample: X server vendor and screen dimensions</out>
+  </tam-cmd>
+  <tam-init>Try: xdpyinfo</tam-init>
+  <tam-hint after="1">The X server exposes display and screen properties.</tam-hint>
+  <tam-hint after="2">Clients communicate through the X protocol.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>In a text terminal, run <code>printf '%s\n' "$DISPLAY"</code>. A value such as <code>:0</code> means X11 clients can find a display. Then run <code>printf '%s\n' "$XDG_SESSION_TYPE"</code>: on a modern Wayland session this can say <code>wayland</code> even though <code>DISPLAY</code> is set for compatibility.</p>
 <h3>If it goes wrong</h3>

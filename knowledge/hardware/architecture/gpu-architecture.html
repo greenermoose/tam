@@ -69,22 +69,32 @@
                                                                                ▼
                                                       [ Memory Bandwidth: 500 - 2,000+ GB/s over GDDR/HBM ]
 </pre>
-<h3>Worked example: inspect your system graphics processor</h3>
-<pre class="session" data-risk="read-only">
-$ lspci -nnk -d ::0300
-05:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Lucienne [1002:164c] (rev c1)
+<h3>Explore: inspect your system graphics processor</h3>
+<tam-sandbox
+  title="Try it: inspect your system graphics processor"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Inspect your system graphics processor">
+  <tam-cmd match="lspci -nnk -d ::0300" hint="Look for the value that answers the task.">
+    <out>05:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Lucienne [1002:164c] (rev c1)
 	Subsystem: Advanced Micro Devices, Inc. [AMD/ATI] Device [1002:1636]
 	Kernel driver in use: amdgpu
-	Kernel modules: amdgpu
-
-$ ls -l /dev/dri/
-total 0
+	Kernel modules: amdgpu</out>
+  </tam-cmd>
+  <tam-cmd match="ls -l /dev/dri/" goal="true">
+    <out>total 0
 drwxr-xr-x  2 root root         80 Nov  1 11:00 by-path
 crw-rw----+ 1 root video  226,   1 Nov  1 11:00 card1
-crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
-</pre>
+crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128</out>
+  </tam-cmd>
+  <tam-init>Try: lspci -nnk -d ::0300</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try lspci -nnk -d ::0300 (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-<p>Captured on a Tamlinux workstation, 2026-11-01. Your processor model, PCI bus identifier, and kernel module will reflect your installed hardware.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>lspci</code> locates the graphics controller at PCI bus address <code>05:00.0</code>. It identifies the hardware as an AMD Radeon graphics processor (Lucienne architecture) and confirms that the open-source <code>amdgpu</code> kernel driver is managing the device.</li>
@@ -119,6 +129,25 @@ crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
 <p>An integrated GPU is built into the same silicon chip as the CPU and shares system RAM for video memory. A discrete GPU is an independent expansion card installed in a <a href="glossary/p/pcie.html">PCIe</a> slot, featuring its own dedicated cooling system, power delivery, and ultra-high-speed Video RAM (<a href="glossary/v/vram.html">VRAM</a>).</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for inspect DRM devices and memory managers"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for inspect DRM devices and memory managers">
+<tam-cmd match="cat /sys/kernel/debug/dri/1/name 2&gt;/dev/null || ls -l /sys/class/drm/card1/device/driver" hint="Read the labels and connect each value to the task.">
+    <out>lrwxrwxrwx 1 root root 0 Nov  1 11:00 /sys/class/drm/card1/device/driver -&gt; ../../../../bus/pci/drivers/amdgpu</out>
+  </tam-cmd>
+<tam-cmd match="cat /sys/class/drm/card1/device/power_dpm_state 2&gt;/dev/null || cat /sys/class/drm/card1/device/power_state" goal="true">
+    <out>performance</out>
+  </tam-cmd>
+  <tam-init>Try: cat /sys/kernel/debug/dri/1/name 2&gt;/dev/null || ls -l /sys/class/drm/card1/device/driver</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try cat /sys/kernel/debug/dri/1/name 2&gt;/dev/null || ls -l /sys/class/drm/card1/device/driver (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>The Linux graphics stack: <a href="glossary/d/drm.html">DRM/KMS</a>, Mesa, GEM/<a href="glossary/t/ttm.html">TTM</a>, and <a href="glossary/d/dma.html">DMA</a>-BUF</h2>
@@ -160,13 +189,7 @@ crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
 
 <h3>Explore: inspect DRM devices and memory managers</h3>
 
-<pre class="session" data-risk="read-only">
-$ cat /sys/kernel/debug/dri/1/name 2&gt;/dev/null || ls -l /sys/class/drm/card1/device/driver
-lrwxrwxrwx 1 root root 0 Nov  1 11:00 /sys/class/drm/card1/device/driver -&gt; ../../../../bus/pci/drivers/amdgpu
 
-$ cat /sys/class/drm/card1/device/power_dpm_state 2&gt;/dev/null || cat /sys/class/drm/card1/device/power_state
-performance
-</pre>
 
 <p>Direct Rendering Manager devices expose hardware clock states, power profiles, and memory topology directly through the sysfs device hierarchy.</p>
 

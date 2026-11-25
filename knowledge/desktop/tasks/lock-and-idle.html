@@ -7,7 +7,7 @@
 <meta name="topic" content="lock-and-idle">
 <meta name="summary" content="Lock the screen, unlock it, prevent idle locking, and suspend the computer">
 <meta name="keywords" content="lock, unlock, lock screen, idle, stay awake, sleep, suspend, password, hyprlock">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/tasks/index.html">
 <meta name="paths" content="everyday-desktop:8">
@@ -43,16 +43,9 @@
 <aside class="first-time">
 <p>Press <code>Meta + Ctrl + L</code> to lock. The screen is covered by the lock screen. Type your password and press <code>Return</code> to return to your work. To stop the screen locking while you are idle, press <code>Meta + Ctrl + I</code>; the same keys turn normal locking back on. That toggle is silent, so use the status command on this page if you are unsure which state it is in.</p>
 </aside>
-<h3>Worked example</h3>
-<ol>
-<li>Press <code>Meta + Ctrl + L</code>. The lock screen appears.</li>
-<li>Type your password and press <code>Return</code>. Your windows are as you left them.</li>
-<li>Press <code>Meta + Ctrl + I</code>. The toggle is silent; run <code>tam-toggle-idle status</code> and look for <code>"enabled":true</code>.</li>
-<li>Press <code>Meta + Ctrl + I</code> again. Run the status command once more and confirm it says <code>"enabled":false</code>.</li>
-<li>Open the system menu with <code>Meta + Escape</code> and find the Lock, Suspend, Logout, Reboot, and Shutdown entries.</li>
-</ol>
 
-<p>Captured from the packaged lock and idle commands and keybindings on 2026-11-02. The lock screen's appearance depends on your theme.</p>
+
+
 <h3>What just happened</h3>
 <ol>
 <li><code>Meta + Ctrl + L</code> started the lock screen and reset the keyboard layout to its first entry.</li>
@@ -63,11 +56,21 @@
 </ol>
 <h3>Try it</h3>
 <p>Ask whether Stay Awake is on:</p>
-<pre class="session" data-risk="read-only">
-$ tam-toggle-idle status
-{"enabled":false,"class":"disabled","tooltip":"Stay Awake"}
-</pre>
-<p>Captured on 2026-11-02. Here <code>"enabled":false</code> means Stay Awake is off, so the normal idle behaviour applies. The <code>tooltip</code> names what pressing the Stay Awake key would do next.</p>
+<tam-sandbox
+  title="Try lock and idle controls in the sandbox"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Read Stay Awake state and simulate restoring idle locking">
+  <tam-cmd match="tam-toggle-idle status" hint="Read the simulated state after each action."><out>{"enabled":false,"class":"disabled","tooltip":"Stay Awake"}</out></tam-cmd>
+  <tam-cmd match="tam-toggle-idle stay-awake"><out>Sample: Stay Awake enabled</out></tam-cmd>
+  <tam-cmd match="tam-toggle-idle allow-idle"><out>Sample: normal idle locking restored</out></tam-cmd>
+  <tam-cmd match="tam-system-lock" goal="true"><out>Sample: lock screen requested; the host session is unchanged</out></tam-cmd>
+  <tam-init>Try: tam-toggle-idle status</tam-init>
+  <tam-hint after="1">Read the simulated state shown after the command.</tam-hint>
+  <tam-hint after="2">Compare the state before and after the toggle.</tam-hint>
+  <tam-fallback>Try tam-toggle-idle status (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>If it goes wrong</h3>
 <dl>
 <dt>The screen does not lock</dt>
@@ -92,7 +95,9 @@ $ tam-toggle-idle status
 </details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Reference and system behavior</h2>
+<p>Locking protects the active session without stopping its programs. Suspend reduces power and pauses execution; hibernation writes memory state to storage before powering off.</p>
 <h2>Lock and power actions</h2>
 <table>
 <tr><th>Keys or menu entry</th><th>What it does</th></tr>
@@ -103,7 +108,7 @@ $ tam-toggle-idle status
 <tr><td>Logout</td><td>End the desktop session; unsaved work may be lost</td></tr>
 <tr><td>Reboot, Shutdown</td><td>Restart or power off the computer</td></tr>
 </table>
-
+</section>
 <h2>Next</h2><p><a href="desktop/tasks/night-light.html">Making the screen warmer at night</a> &mdash; the last desktop comfort setting.</p>
 <h2>Related</h2><ul><li><a href="desktop/commands.html">Desktop commands</a> &mdash; the commands behind the lock and idle keys.</li></ul>
 

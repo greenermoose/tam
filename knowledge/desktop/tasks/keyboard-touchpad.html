@@ -7,7 +7,7 @@
 <meta name="topic" content="keyboard-touchpad">
 <meta name="summary" content="Toggle the touchpad, adjust keyboard backlight, and look up any keybinding">
 <meta name="keywords" content="touchpad, trackpad, keyboard, shortcut, keybinding, backlight, input device, keyboard layout">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/tasks/index.html">
 <meta name="paths" content="session-and-desktop:7, everyday-desktop:7">
@@ -43,16 +43,9 @@
 <aside class="first-time">
 <p>Find the key with a small touchpad icon, often near the function keys. Press it once to turn the touchpad off; an overlay confirms the change. Press it again to turn it back on. To see every shortcut, press <code>Meta + K</code>.</p>
 </aside>
-<h3>Worked example</h3>
-<ol>
-<li>Press the touchpad-toggle key. The overlay says the touchpad is off.</li>
-<li>Move a finger on the touchpad. The pointer should not move.</li>
-<li>Press the same key again. The pointer works once more.</li>
-<li>If your keyboard has backlight keys, press the keyboard-brightness-up key and watch the keys get brighter.</li>
-<li>Press <code>Meta + K</code> to open the keybinding list, then close it with <code>Esc</code>.</li>
-</ol>
 
-<p>Captured from the packaged input commands and keybindings on 2026-11-02. A desktop without a touchpad will skip the first three steps.</p>
+
+
 <h3>What just happened</h3>
 <ol>
 <li>The touchpad key called <code>tam-toggle-input-device touchpad</code>.</li>
@@ -62,12 +55,20 @@
 </ol>
 <h3>Try it</h3>
 <p>Ask whether this computer has a touchpad:</p>
-<pre class="session" data-risk="read-only">
-$ tam-hw-touchpad
-$ echo $?
-1
-</pre>
-<p>Captured on 2026-11-02 on a desktop computer. The command printed no name and exited with status 1, meaning no touchpad was found. On a laptop it prints the device name and exits with status 0.</p>
+<tam-sandbox
+  title="Try touchpad controls in the sandbox"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Check for a touchpad, then turn it off and back on">
+  <tam-cmd match="tam-hw-touchpad" hint="Read the simulated state after each action."><out>Sample: touchpad detected</out></tam-cmd>
+  <tam-cmd match="tam-toggle-input-device touchpad off"><out>Sample: touchpad disabled</out></tam-cmd>
+  <tam-cmd match="tam-toggle-input-device touchpad on" goal="true"><out>Sample: touchpad enabled</out></tam-cmd>
+  <tam-init>Try: tam-hw-touchpad</tam-init>
+  <tam-hint after="1">Read the simulated state shown after the command.</tam-hint>
+  <tam-hint after="2">Compare the state before and after the toggle.</tam-hint>
+  <tam-fallback>Try tam-hw-touchpad (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>If it goes wrong</h3>
 <dl>
 <dt>Nothing happens when you press the touchpad key</dt>
@@ -92,7 +93,9 @@ $ echo $?
 </details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Reference and system behavior</h2>
+<p>The desktop receives input events from device drivers and applies keybindings before ordinary application input. Device-specific settings may disappear when hardware is disconnected.</p>
 <h2>Input keys and commands</h2>
 <table>
 <tr><th>Keys or command</th><th>What it does</th></tr>
@@ -103,7 +106,7 @@ $ echo $?
 <tr><td><code>tam-toggle-input-device touchpad on</code></td><td>Enable the touchpad</td></tr>
 <tr><td><code>tam-toggle-input-device touchscreen off</code></td><td>Disable a touchscreen</td></tr>
 </table>
-
+</section>
 <h2>Next</h2><p><a href="desktop/tasks/displays.html">Arranging your screens</a> &mdash; screen brightness and text size.</p>
 <h2>Related</h2><ul><li><a href="desktop/tasks/lock-and-idle.html">Lock the screen and keep it awake</a> &mdash; keyboard and pointer behaviour when idle.</li></ul>
 

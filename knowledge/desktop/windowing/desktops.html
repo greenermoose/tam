@@ -39,13 +39,19 @@
 <h2>Name the parts you can see</h2>
 <p><strong>Goal:</strong> you will be able to separate a desktop's compositor, shell and toolkit when reading a fault report.</p>
 <p><strong>Learner path:</strong> back: <a href="desktop/windowing/other-systems.html?level=2">Windowing on other operating systems</a>; next: <a href="desktop/windowing/toolkits.html?level=2">How graphical toolkits build interfaces</a>.</p>
-<h3>Worked example</h3>
-<p>Map two desktops:</p>
-<ol>
-<li>GNOME: <a href="glossary/m/mutter.html">Mutter</a> presents surfaces; GNOME Shell draws the top bar and overview; <a href="glossary/g/gtk.html">GTK</a> and <a href="glossary/l/libadwaita.html">libadwaita</a> build many of its applications.</li>
-<li>KDE Plasma: <a href="glossary/k/kwin.html">KWin</a> manages and composes windows; Plasma Shell supplies panels and widgets; <a href="glossary/q/qt.html">Qt</a> and <a href="glossary/q/qml.html">QML</a> build much of the interface.</li>
-</ol>
-<p>Same visible jobs, different components behind them.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Identify the active desktop session"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Identify the active desktop session">
+  <tam-cmd match="loginctl show-session &quot;$XDG_SESSION_ID&quot; -p Type -p Desktop" goal="true">
+    <out>Sample: Type=wayland; Desktop=Hyprland</out>
+  </tam-cmd>
+  <tam-init>Try: loginctl show-session "$XDG_SESSION_ID" -p Type -p Desktop</tam-init>
+  <tam-hint after="1">The login manager records the session type and desktop.</tam-hint>
+  <tam-hint after="2">Different sessions can provide different shells and compositors.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>Look at one panel, one application window and one notification on your desktop. Write which layer probably owns each: compositor, shell or application toolkit. Do not change settings.</p>
 <h3>If it goes wrong</h3>

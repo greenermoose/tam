@@ -38,15 +38,19 @@
 <h2>Follow one idea through time</h2>
 <p><strong>Goal:</strong> you will be able to name the main stages that led from shared screens to today's X11 and Wayland desktops.</p>
 <p><strong>Learner path:</strong> start: <a href="desktop/windowing/history.html?level=2">A short history of windowing systems</a>; next: <a href="desktop/windowing/x11.html?level=2">How X11 draws windows</a>.</p>
-<h3>Worked example</h3>
-<p>Trace the same job, "show two programs at once", through four designs:</p>
-<ol>
-<li>A research desktop draws both programs into one screen-sized picture, with a mouse pointer and overlapping rectangles.</li>
-<li><a href="glossary/x/x11.html">X11</a> puts a display server between programs and the screen. Programs ask that server to draw; a separate window manager places and decorates windows.</li>
-<li><a href="glossary/g/gnome.html">GNOME</a> and <a href="glossary/k/kde.html">KDE</a> add a complete <a href="glossary/d/desktop-environment.html">desktop environment</a>: panels, settings, icons and core applications on top of X11.</li>
-<li><a href="glossary/w/wayland.html">Wayland</a> gives the <a href="glossary/c/compositor.html">compositor</a> both jobs. Applications draw their own surface and hand it to the compositor, which places it on screen.</li>
-</ol>
-<p>The idea of a window stayed. The owner of the screen changed.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Place the two display systems on a historical timeline"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Place the two display systems on a historical timeline">
+  <tam-cmd match="printf &#x27;X11 began earlier; Wayland was designed as a modern display protocol&#x27;" goal="true">
+    <out>X11 predates Wayland; both shape today's desktop sessions</out>
+  </tam-cmd>
+  <tam-init>Try: printf 'X11 began earlier; Wayland was designed as a modern display protocol'</tam-init>
+  <tam-hint after="1">X11 predates modern desktop compositing needs.</tam-hint>
+  <tam-hint after="2">Wayland changes the client-compositor boundary.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>Look at your current desktop and write down three separate windows, one panel or bar, and which program probably draws each one. Do not change settings; this is an observation exercise.</p>
 <h3>If it goes wrong</h3>

@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/protocols/index.html">Secure protocols</a> / SSL, TLS, and HTTPS</p></nav>
 
-
-<p>This page explains how SSL and its modern replacement TLS protect web browsing and network connections, and how HTTPS combines <a href="glossary/h/http.html">HTTP</a> with TLS.</p>
-<h2>Before this</h2><p><a href="security/cryptography/public-key-cryptography.html">Public-Key Cryptography, Elliptic Curves, and PKI</a></p>
+<p>TLS protects web traffic by authenticating the server, agreeing fresh keys and encrypting records; HTTPS is HTTP carried inside that protected connection.</p>
 
 <section data-level="novice">
 <h2>The padlock behind secure websites</h2>
@@ -42,74 +40,48 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspecting TLS 1.3 cipher suites and a live handshake</h2>
-<p><strong>Goal:</strong> you will be able to list the TLS 1.3 cipher suites supported by OpenSSL on your machine and read the negotiated protocol version, cipher suite, key-exchange group, and certificate fields of a TLS handshake.</p>
-<p><strong>Before you start:</strong> listing OpenSSL ciphers is read-only; running a test <code>s_server</code> in a temporary <code>mktemp -d</code> folder lets you inspect a real TLS 1.3 handshake locally without needing internet access.</p>
-
-<h3>Worked example</h3>
-<p>List the three <a href="glossary/a/aead.html">AEAD</a> cipher suites available in TLS 1.3, then run a local loopback TLS 1.3 handshake in a temporary directory:</p>
-<pre class="session" data-risk="scratch">
-$ openssl ciphers -v -s -tls1_3
-TLS_AES_256_GCM_SHA384         TLSv1.3 Kx=any      Au=any   Enc=AESGCM(256)            Mac=AEAD
-TLS_CHACHA20_POLY1305_SHA256   TLSv1.3 Kx=any      Au=any   Enc=CHACHA20/POLY1305(256) Mac=AEAD
-TLS_AES_128_GCM_SHA256         TLSv1.3 Kx=any      Au=any   Enc=AESGCM(128)            Mac=AEAD
-
-$ work=$(mktemp -d)
-$ openssl req -x509 -newkey rsa:2048 -nodes -keyout "$work/key.pem" -out "$work/cert.pem" -subj "/CN=localhost" -days 1 2&gt;/dev/null
-$ openssl s_server -key "$work/key.pem" -cert "$work/cert.pem" -accept 18443 -tls1_3 -quiet &gt;/dev/null 2&gt;&amp;1 &amp;
-$ spid=$!
-$ sleep 0.3
-$ printf 'HEAD / HTTP/1.1\r\nHost: localhost\r\n\r\n' | openssl s_client -connect 127.0.0.1:18443 -tls1_3 -brief
-Connecting to 127.0.0.1
-Can't use SSL_get_servername
-depth=0 CN=localhost
-verify error:num=18:self-signed certificate
-CONNECTION ESTABLISHED
-Protocol version: TLSv1.3
-Ciphersuite: TLS_AES_256_GCM_SHA384
-Peer certificate: CN=localhost
-Hash used: SHA256
-Signature type: rsa_pss_rsae_sha256
-Verification error: self-signed certificate
-Negotiated TLS1.3 group: X25519MLKEM768
-DONE
-$ kill "$spid" &amp;&amp; rm -rf "$work"
-</pre>
-<p>Captured on Arch Linux (OpenSSL 3.6.5), 2026-11-14; the negotiated group and cipher suite depend on your installed OpenSSL version.</p>
-
+<h2>Read a sample TLS 1.3 cipher list</h2>
+<p><strong>Goal:</strong> name the three TLS 1.3 cipher suites and explain what AEAD means.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read TLS 1.3 cipher suites"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the ChaCha20 suite in sample OpenSSL output">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="openssl ciphers -v -s -tls1_3" goal="true" hint="TLS 1.3 separates the cipher suite from key exchange and authentication.">
+      <out>TLS_AES_256_GCM_SHA384         TLSv1.3 Kx=any Au=any Enc=AESGCM(256) Mac=AEAD</out>
+      <out>TLS_CHACHA20_POLY1305_SHA256   TLSv1.3 Kx=any Au=any Enc=CHACHA20/POLY1305(256) Mac=AEAD</out>
+      <out>TLS_AES_128_GCM_SHA256         TLSv1.3 Kx=any Au=any Enc=AESGCM(128) Mac=AEAD</out>
+    </tam-cmd>
+    <tam-cmd match="openssl s_client -connect 127.0.0.1:18443 -tls1_3 -brief" hint="Sample handshake summary with a self-signed certificate; no connection was made.">
+      <out>CONNECTION ESTABLISHED</out>
+      <out>Protocol version: TLSv1.3</out>
+      <out>Ciphersuite: TLS_AES_256_GCM_SHA384</out>
+      <out>Verification error: self-signed certificate</out>
+      <out>Negotiated TLS1.3 group: X25519MLKEM768</out>
+    </tam-cmd>
+  <tam-init>Sample TLS 1.3: three AEAD suites; self-signed demo handshake.</tam-init>
+  <tam-hint after="1">Try openssl ciphers -v -s -tls1_3 first.</tam-hint>
+  <tam-hint after="2">Now try openssl s_client -connect 127.0.0.1:18443 -tls1_3 -brief.</tam-hint>
+  <tam-fallback>Try openssl ciphers -v -s -tls1_3 or openssl s_client -connect 127.0.0.1:18443 -tls1_3 -brief (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>openssl ciphers -v -s -tls1_3</code> showed only AEAD suites: TLS 1.3 removed all unauthenticated <a href="glossary/c/cbc.html">CBC</a>, <a href="glossary/r/rc4.html">RC4</a>, and static <a href="glossary/r/rsa.html">RSA</a> ciphers.</li>
-<li><code>openssl s_client -tls1_3 -brief</code> connected to the local test server, negotiated <code>TLSv1.3</code> with <code>TLS_AES_256_GCM_SHA384</code>, signed the handshake with <code>rsa_pss_rsae_sha256</code>, and established the shared secret using the post-quantum hybrid group <code>X25519MLKEM768</code>.</li>
-<li><code>verify error:num=18:self-signed certificate</code> appeared because the scratch certificate was not signed by a CA in <code>/etc/ssl/certs/</code>; real browsers abort the connection on this error.</li>
-</ol>
-
+<p>Each sample suite names an authenticated encryption algorithm and a hash. AEAD means encryption and integrity checking are combined. The handshake summary shows why a self-signed certificate produces a verification error even when encryption succeeds. All replies are authored samples.</p>
 <h3>Try it</h3>
-<p>On an online machine, run <code>curl -vI https://example.com 2&gt;&amp;1 | grep -E 'SSL connection|ALPN|subject:'</code> to observe TLS version, <a href="glossary/a/alpn.html">ALPN</a> protocol negotiation (such as <code>h2</code> for <a href="glossary/h/http.html">HTTP/2</a>), and certificate verification against the system trust store.</p>
-
+<p>HTTPS adds HTTP semantics on top of TLS. On a real machine the padlock means the connection was verified against a trusted certificate, not that the site itself is honest.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>verify error:num=20:unable to get local issuer certificate</code></dt>
-<dd>The server forgot to send an intermediate CA certificate, or your system's <code>ca-certificates</code> bundle is missing or outdated.</dd>
-<dt><code>no protocols available</code></dt>
-<dd>The server only speaks retired SSL 3.0 / TLS 1.0–1.1, which modern clients refuse for security.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, system-wide TLS trust anchors are managed by Arch's <code>ca-certificates</code> package under <code>/etc/ca-certificates/</code>; <code>pacman</code>, <code>curl</code>, and browsers all verify HTTPS chains against that store.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Why did TLS 1.3 remove static RSA key exchange?</i></summary>
-<p>Static RSA key exchange encrypts the pre-master secret under the server's long-term public key, providing no forward secrecy: anyone recording traffic today could decrypt it years later if the server's private key is stolen.</p>
-</details>
-<details class="q">
-<summary><i>What does ALPN (Application-Layer Protocol Negotiation) decide during the TLS handshake?</i></summary>
-<p>ALPN lets client and server agree on the application protocol carried inside TLS—such as HTTP/2 (<code>h2</code>) or <a href="glossary/h/http.html">HTTP/1.1</a> (<code>http/1.1</code>)—without an extra network round trip.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why did TLS 1.3 remove older cipher-suite negotiation fields?</i></summary><p>Key exchange and authentication were separated from record protection, reducing downgrade and negotiation ambiguity.</p></details>
 </section>
 </section>
 
@@ -157,13 +129,7 @@ ClientHello
 <li><strong>TLS-terminating proxies &amp; middleboxes:</strong> Corporate inspection proxies and CDNs terminate TLS, re-encrypting or inspecting plaintext; misconfigured proxies frequently reintroduce weak cipher suites, skip upstream certificate validation, or leak private keys across tenants.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>How does TLS 1.3 prevent a downgrade attack from TLS 1.3 to TLS 1.2 even though ServerHello is sent in plaintext?</summary>
-<p>First, both TLS 1.3 and TLS 1.2 sign the full handshake transcript (so altering ClientHello supported_versions breaks CertificateVerify/Finished). Second, RFC 8446 places a fixed 8-byte magic sentinel in the last 8 bytes of ServerHello.random when a TLS 1.3 server downgrades to TLS 1.2 or 1.1; a TLS 1.3-capable client detects this sentinel and immediately aborts with illegal_parameter.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <ul>
@@ -171,5 +137,18 @@ ClientHello
 <li><cite data-ref="boneh-shoup"><a href="bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapter 21: Authenticated key exchange and TLS 1.3).</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/h/http.html">HTTP</a></li>
+<li><a href="security/cryptography/public-key-cryptography.html">Public-Key Cryptography, Elliptic Curves, and PKI</a></li>
+<li><a href="glossary/a/aead.html">AEAD</a></li>
+<li><a href="glossary/c/cbc.html">CBC</a></li>
+<li><a href="glossary/r/rc4.html">RC4</a></li>
+<li><a href="glossary/r/rsa.html">RSA</a></li>
+<li><a href="glossary/a/alpn.html">ALPN</a></li>
+</ul>
+
+
 </body>
 </html>

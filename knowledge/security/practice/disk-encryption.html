@@ -15,8 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/practice/index.html">Protect your computer</a> / Disk encryption and LUKS passphrases</p></nav>
 
-
-<p>This page explains what full-disk encryption protects while your computer is turned off, why unlocking happens early at boot, and how Tamlinux manages encrypted drives.</p>
+<p>Disk encryption protects data at rest by making stored bytes unreadable without a passphrase or key, so a lost or stolen drive does not expose files directly.</p>
 
 <section data-level="novice">
 <h2>Locking your drive when the machine is off</h2>
@@ -40,47 +39,49 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspect encrypted drives and manage passphrases safely</h2>
-<p><strong>Goal:</strong> distinguish what is encrypted from unencrypted boot partitions and inspect LUKS drives safely without altering key slots.</p>
-<p><strong>Before you start:</strong> listing block devices and partition types is read-only. Changing a LUKS passphrase modifies disk header key slots; ensure you keep at least one tested recovery passphrase stored safely offline before changing slots.</p>
-
-<h3>Worked example</h3>
-<p>List block devices, filesystems, and mount points read-only to see which partitions hold <code>crypto_LUKS</code> versus your <a href="glossary/e/efi.html">EFI</a> boot partition:</p>
-<pre class="session" data-risk="read-only">
-$ lsblk -f
-</pre>
-<p>You can inspect detailed size, model, and mount information for a specific device path without changing it:</p>
-<pre class="session" data-risk="read-only">
-$ tam-drive-info /dev/nvme0n1
-</pre>
-<p>When a drive uses LUKS, notice that the small EFI system partition (containing the boot loader and kernel images) remains unencrypted so your firmware can start the unlock prompt.</p>
-
+<h2>Read a sample encrypted-device record</h2>
+<p><strong>Goal:</strong> name the encrypted partition, its filesystem and the boot partition in sample output.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: identify an encrypted drive"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the crypto_LUKS line in sample block-device output">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="lsblk -f" goal="true" hint="The crypto_LUKS line is the encrypted container.">
+      <out>NAME        FSTYPE      LABEL  UUID                                 MOUNTPOINT</out>
+      <out>nvme0n1                                                            </out>
+      <out>nvme0n1p1   vfat        ESP    A1B2-C3D4                            /boot</out>
+      <out>nvme0n1p2   crypto_LUKS        11111111-2222-3333-4444-555555555555</out>
+      <out>  luks-...  ext4               abcdef01-2345-6789-abcd-ef0123456789 /</out>
+    </tam-cmd>
+    <tam-cmd match="tam-drive-info /dev/nvme0n1" hint="Sample driver report; it does not inspect your hardware.">
+      <out>model: Example NVMe</out>
+      <out>size: 512G</out>
+      <out>encrypted: yes</out>
+      <out>unlocked: yes</out>
+    </tam-cmd>
+  <tam-init>Sample lsblk: ESP on p1, crypto_LUKS on p2.</tam-init>
+  <tam-hint after="1">Try lsblk -f to see the filesystem column.</tam-hint>
+  <tam-hint after="2">Now try tam-drive-info /dev/nvme0n1.</tam-hint>
+  <tam-fallback>Try lsblk -f or tam-drive-info /dev/nvme0n1 (or type help).</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The sample shows an unencrypted EFI boot partition and an encrypted root container. The filesystem appears on the unlocked mapping, not directly on the encrypted partition. Both replies are authored sample output.</p>
 <h3>Try it</h3>
-<p>Run <code>lsblk -o NAME,TYPE,FSTYPE,MOUNTPOINTS</code> in a terminal. Identify which partition carries <code>crypto_LUKS</code> and which mapped device sits underneath your root filesystem.</p>
-
+<p>Predict what happens if the passphrase is lost: the stored data cannot be recovered from the ciphertext alone. Keep a recovery key in a separate, safe place before changing passphrases.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><a href="glossary/p/passphrase.html">Passphrase</a> rejected at boot unlock</dt>
-<dd>Check keyboard layout or Caps Lock, since early boot prompts normally default to US layout. Test carefully before repeating wrong attempts.</dd>
-<dt>Need to update an encrypted drive passphrase</dt>
-<dd>Menu &rarr; Update &rarr; Password &rarr; Drive Encryption runs <code>tam-drive-password</code> (which selects drives via <code>tam-drive-select</code>). Never remove the only working key slot before verifying the replacement passphrase.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Disk encryption protects data at rest when powered down or hibernated; while unlocked and running, rely on screen locking (<code>Meta + Escape</code> or <code>tam-system-lock</code>) and normal file permissions.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary><i>Does disk encryption replace locking your screen when you step away from a running laptop?</i></summary>
-<p>No. Once booted, the encrypted drive is unlocked in memory; you still need screen locking and user permissions while running.</p>
-</details>
-<details class="q">
-<summary><i>Which read-only command helps identify whether a partition uses <code>crypto_LUKS</code>?</i></summary>
-<p><code>lsblk -f</code> (or <code>blkid -t TYPE=crypto_LUKS</code> read-only with privileges).</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What does disk encryption protect while the machine is running and unlocked?</i></summary><p>Much less: once the key is available to the running system, ordinary file and process protections matter again.</p></details>
 </section>
 </section>
 
@@ -106,6 +107,14 @@ $ tam-drive-info /dev/nvme0n1
 <li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>cryptsetup(8)</code> and <code>systemd-cryptenroll(1)</code>.</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/e/efi.html">EFI</a></li>
+<li><a href="glossary/p/passphrase.html">Passphrase</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="systems/storage/drives.html">Storage drives</a> &mdash; drive health, speed tests, and drive selection.</p>
 <h2>Related</h2><ul><li><a href="systems/boot/boot-recovery.html">Linux boot fallbacks and rescue routes</a> &mdash; unlocking and mounting encrypted storage during recovery.</li></ul>

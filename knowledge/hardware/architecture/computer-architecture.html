@@ -68,25 +68,35 @@
 </pre>
 
 <p>As you move down the hierarchy, storage capacity grows exponentially, cost per gigabyte plummets, but latency jumps by orders of magnitude. A register access takes less than a third of a nanosecond; reading from main memory takes roughly 100 times longer; and retrieving a block from an NVMe SSD takes 100,000 times longer. For a human-scaled comparison of these delays, see <a href="hardware/foundations/computer-timescales.html">Time and timescales in computing</a>.</p>
-<h3>Worked example: query CPU architecture and cache sizes</h3>
-<pre class="session" data-risk="read-only">
-$ lscpu | grep -E "Architecture|Byte Order|Address sizes|Model name|Thread\(s\) per core|Core\(s\) per socket"
-Architecture:                            x86_64
+<h3>Explore: query CPU architecture and cache sizes</h3>
+<tam-sandbox
+  title="Try it: query CPU architecture and cache sizes"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Query CPU architecture and cache sizes">
+  <tam-cmd match="lscpu | grep -E &quot;Architecture|Byte Order|Address sizes|Model name|Thread\(s\) per core|Core\(s\) per socket&quot;" hint="Look for the value that answers the task.">
+    <out>Architecture:                            x86_64
 Address sizes:                           48 bits physical, 48 bits virtual
 Byte Order:                              Little Endian
 Model name:                              AMD Ryzen 7 5700U with Radeon Graphics
 Thread(s) per core:                      2
-Core(s) per socket:                      8
-
-$ lscpu -C
-NAME ONE-SIZE ALL-SIZE WAYS TYPE        LEVEL SETS PHY-LINE COHERENCY-SIZE
+Core(s) per socket:                      8</out>
+  </tam-cmd>
+  <tam-cmd match="lscpu -C" goal="true">
+    <out>NAME ONE-SIZE ALL-SIZE WAYS TYPE        LEVEL SETS PHY-LINE COHERENCY-SIZE
 L1d       32K     256K    8 Data            1   64        1             64
 L1i       32K     256K    8 Instruction     1   64        1             64
 L2       512K       4M    8 Unified         2 1024        1             64
-L3         4M       8M   16 Unified         3 4096        1             64
-</pre>
+L3         4M       8M   16 Unified         3 4096        1             64</out>
+  </tam-cmd>
+  <tam-init>Try: lscpu | grep -E "Architecture|Byte Order|Address sizes|Model name|Thread\(s\) per core|Core\(s\) per socket"</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try lscpu | grep -E "Architecture|Byte Order|Address sizes|Model name|Thread\(s\) per core|Core\(s\) per socket" (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-<p>Captured on a Tamlinux workstation, 2026-11-01. Your processor model, core counts, and cache sizes will reflect your specific machine.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>lscpu</code> reports the fundamental CPU architecture: <code>x86_64</code> (64-bit x86 extensions), using Little Endian byte ordering (least significant byte stored at the lowest address).</li>
@@ -118,6 +128,27 @@ L3         4M       8M   16 Unified         3 4096        1             64
 <p>While main memory is unified (Von Neumann), the CPU core internally uses a modified Harvard architecture at Level 1 cache: separating instruction fetch from data access prevents structural contention between reading instructions and reading variables.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for grep -m 1 &quot;model name&quot; /proc/cpuinfo"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for grep -m 1 &quot;model name&quot; /proc/cpuinfo">
+<tam-cmd match="grep -m 1 &quot;model name&quot; /proc/cpuinfo" hint="Read the labels and connect each value to the task.">
+    <out>model name	: AMD Ryzen 7 5700U with Radeon Graphics</out>
+  </tam-cmd>
+<tam-cmd match="cat /sys/devices/system/node/node0/meminfo | head -n 3" goal="true">
+    <out>Node 0 MemTotal:       28522496 kB
+Node 0 MemFree:         8912340 kB
+Node 0 MemUsed:        19610156 kB</out>
+  </tam-cmd>
+  <tam-init>Try: grep -m 1 "model name" /proc/cpuinfo</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try grep -m 1 "model name" /proc/cpuinfo (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Hardware interconnects, <a href="glossary/d/dma.html">DMA</a>, and memory management units</h2>
@@ -160,15 +191,7 @@ L3         4M       8M   16 Unified         3 4096        1             64
 
 <p>Inspect the physical memory controller configuration and active memory clock rates:</p>
 
-<pre class="session" data-risk="read-only">
-$ grep -m 1 "model name" /proc/cpuinfo
-model name	: AMD Ryzen 7 5700U with Radeon Graphics
 
-$ cat /sys/devices/system/node/node0/meminfo | head -n 3
-Node 0 MemTotal:       28522496 kB
-Node 0 MemFree:         8912340 kB
-Node 0 MemUsed:        19610156 kB
-</pre>
 
 <section class="quiz">
 <h3>Check yourself</h3>

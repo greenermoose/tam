@@ -5,7 +5,7 @@
 <meta name="topic" content="man">
 <meta name="summary" content="Manual pages and system documentation">
 <meta name="keywords" content="man, manual, manuals, apropos, whatis, man pages">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="help">
 <meta name="parent" content="help/index.html">
 <meta name="kind" content="how-to">
@@ -37,12 +37,19 @@
 <p><strong>Goal:</strong> find a manual page and identify its synopsis and description.</p>
 <p><strong>Before you start:</strong> This exercise reads documentation and changes no files.</p>
 <aside class="first-time"><p><strong>New to this?</strong> Start in the Guide; follow links with the reader and press Left Arrow to return through history. At a terminal, do not type a leading dollar sign shown as a prompt.</p></aside>
-<h3>Worked example</h3>
-<p>Open the linked ls(1) manual below and find NAME, SYNOPSIS and DESCRIPTION. Availability depends on the installed manual database.</p>
-
-<p>The <code>man</code> command is the traditional manual. It looks terse, but
-it follows a steady rhythm once you know the sections.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Find the purpose and synopsis of a command"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Find the purpose and synopsis of a command">
+  <tam-cmd match="man ls" goal="true">
+    <out>LS(1)  User Commands</out>
+  </tam-cmd>
+  <tam-init>Try: man ls</tam-init>
+  <tam-hint after="1">The NAME section states what ls does.</tam-hint>
+  <tam-hint after="2">SYNOPSIS shows the command form.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h2>The anatomy</h2>
 
 <table>
@@ -121,8 +128,10 @@ links to related <code>tldr</code> pages and the full manual page (for example
 <p>If the page is missing, confirm the name and installed documentation. Use the Guide or Info as another source when available.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does the number in ls(1) identify an option?</i></summary><p>No. It is the manual section, here user commands.</p></details><details class="q"><summary><i>What should you do when a result differs from the example?</i></summary><p>Read the result and the relevant documentation, then check the input and prerequisites before changing anything.</p></details></section>
 </section>
-
-
+<section data-level="expert">
+<h2>Expert reference</h2>
+<p>Manual sections are numbered; user commands are section 1.</p>
+</section>
 <h2>Sources and further reading</h2>
 <p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
 </body>

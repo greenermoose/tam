@@ -7,13 +7,21 @@
 <meta name="topic" content="package-commands">
 <meta name="summary" content="Hand-checked Tamlinux commands to check installed packages, install or remove software, inspect updates, and check firmware">
 <meta name="keywords" content="package commands, tam-pkg-add, tam-pkg-install, tam-pkg-remove, tam-pkg-present, tam-update, tam-update-firmware, tam-workstation-upgrade">
-<meta name="level" content="learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="systems">
 <meta name="parent" content="systems/packages/index.html">
 <meta name="paths" content="command-line-fluency:10">
 </head>
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/packages/index.html">Software packages</a> / Package and update commands</p></nav>
+<section data-level="novice">
+<h2>Command helpers</h2>
+<p>These commands inspect packages and updates or change installed software. Read each risk note before using a host command.</p>
+</section>
+<section data-level="learner">
+<h2>Use the command reference</h2>
+<p><strong>Goal:</strong> read a command and predict its effect before trying its simulated example.</p>
+<p>Read each command description and its simulated result before deciding what to run on a real system.</p>
 
 
 <p>These commands check installed system packages, install or remove applications through Tamlinux wrappers, check pending updates read-only, and check device firmware.</p>
@@ -25,9 +33,16 @@
 <tr><td><code>tam-pkg-missing &lt;pkg...&gt;</code></td><td>Print which named packages are missing</td><td>Read-only</td><td><code>commands/tam-pkg-missing/tam-pkg-missing</code></td></tr>
 <tr><td><code>tam-pkg-drop &lt;pkg...&gt;</code></td><td>Check package presence in scripts safely</td><td>Read-only</td><td><code>commands/tam-pkg-drop/tam-pkg-drop</code></td></tr>
 </table>
-<pre class="session" data-risk="read-only">
-$ tam-pkg-present bash && echo "installed"
-</pre>
+<tam-sandbox title="Try it: tam-pkg-present bash &amp;&amp; echo &quot;installed&quot;"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-pkg-present bash &amp;&amp; echo &quot;installed&quot;" goal="true"><out>Sample: installed</out></tam-cmd>
+  <tam-init>Try: tam-pkg-present bash &amp;&amp; echo "installed"</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-pkg-present bash &amp;&amp; echo "installed" (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; no desktop setting or system package changes.</p>
 
 <h2>Adding, removing, and updating software</h2>
 <table>
@@ -41,11 +56,24 @@ $ tam-pkg-present bash && echo "installed"
 <tr><td><code>tam-update-firmware --check</code></td><td>Query pending <code>fwupdmgr</code> firmware updates without flashing</td><td>Read-only</td><td><code>commands/tam-update-firmware/tam-update-firmware</code></td></tr>
 <tr><td><code>tam-workstation-upgrade</code></td><td>Upgrade Tamlinux workstation assembly from text login using released assembly coordinates</td><td>System (privileged; requires verified assembly digest)</td><td><code>commands/tam-workstation-upgrade/tam-workstation-upgrade</code></td></tr>
 </table>
-<pre class="session" data-risk="read-only">
-$ tam-update --check
-$ tam-update-firmware --check
-</pre>
+<tam-sandbox title="Try it: tam-update --check"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-update --check"></tam-cmd>
+<tam-cmd match="tam-update-firmware --check" goal="true"><out>Sample: no firmware updates available</out></tam-cmd>
+  <tam-init>Try: tam-update --check</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-update --check (or type help).</tam-fallback>
+</tam-sandbox>
 
+
+
+</section>
+<section data-level="expert">
+<h2>Reference and safety</h2>
+<p>The table records each helper source and its risk boundary. System transactions require a rollback point and explicit confirmation on the real host.</p>
+</section>
 <h2>Next</h2><p><a href="systems/maintenance/updates.html">Checking and updating your software</a> &mdash; package ownership and rollback boundaries.</p>
 <h2>Related</h2><ul><li><a href="systems/recovery/snapper.html">Snapper: Btrfs snapshots for system rollbacks</a> &mdash; snapshot safety before system package changes.</li><li><a href="help/commands.html">Command reference hub</a> &mdash; return to all command groups.</li></ul>
 

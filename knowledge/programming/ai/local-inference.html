@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html><head>
+<html>
+<head>
 <title>The speed and energy use of AI on your computer</title>
 <meta name="topic" content="ai-performance">
 <meta name="summary" content="Inspect memory, compare local inference workloads, and verify answers">
@@ -11,54 +12,104 @@
 <meta name="kind" content="how-to">
 <meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
 <meta name="paths" content="work-with-ai-locally:3">
-</head><body>
+</head>
+<body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/ai/index.html">Working with AI</a> / The speed and energy use of AI on your computer</p></nav>
 
-<p>This page explains what affects the speed and energy use of artificial intelligence running on your own computer.</p>
-<h2>Before this</h2><p><a href="tamlinux/development/index.html">Developing Tamlinux</a> · <a href="systems/maintenance/resources.html">How your computer uses its resources</a></p>
-<p>An AI model is software that produces an answer from a request. Running it on your own computer may avoid sending the request elsewhere, but privacy depends on the software and settings you choose.</p>
+<p>Local AI runs a model on your own computer. Its speed depends on memory, the processor or graphics card, and how much work each request asks for.</p>
+
 <section data-level="novice">
-<h2>What limits local AI inference?</h2>
-<p>Local AI inference means running a language or media model directly on your own computer instead of sending prompts to a remote cloud server. How fast and smoothly it runs depends mostly on your machine&apos;s available memory and graphics hardware.</p>
+<h2>What uses the computer</h2>
+<p>Running an AI model on your own machine means keeping its weights and working data in <a href="glossary/r/ram.html">RAM</a>. A <a href="glossary/g/gpu.html">GPU</a> can do many simple sums at once, which suits this work.</p>
 <h3>Why it matters</h3>
-<p>Running an oversized model can slow down the whole workstation, fail to load, or push the computer into heavy memory pressure. Knowing your machine&apos;s limits helps you pick models that stay responsive and offline-friendly.</p>
+<p>A model that does not fit in memory can become very slow because the system starts swapping. Knowing what to check helps you choose a smaller model or a shorter request.</p>
 <h3>How to think about it</h3>
-<p>Think of a local AI model like a massive reference encyclopedia you have to spread open on a desk to read quickly: if the desk (your <a href="glossary/r/ram.html">RAM</a> or <a href="glossary/g/gpu.html">GPU</a> memory) is big enough, looking up answers is fast; if it spills onto the floor (disk swap), every word slows to a crawl.</p>
+<p>Think of a kitchen. RAM is the counter space, the processor is the cook, and the model is a very detailed recipe. More counter space means less time fetching ingredients from storage.</p>
 <h3>New words</h3>
 <dl>
-<dt><a href="glossary/p/process.html">Process</a></dt>
-<dd>A running program—such as the local inference server handling your prompts.</dd>
-<dt>Model</dt>
-<dd>The trained data file that an AI runtime loads into memory to generate responses.</dd>
+<dt><dfn><a href="glossary/r/ram.html">RAM</a></dfn></dt><dd>Working memory the processor can reach quickly.</dd>
+<dt><dfn><a href="glossary/g/gpu.html">GPU</a></dfn></dt><dd>A processor with many cores suited to repeated numeric work.</dd>
 </dl>
 </section>
 
 <section data-level="learner">
-<h2>Check memory before inference</h2>
-<p><strong>Goal:</strong> inspect memory headroom and identify where a query is sent before asking a local model.</p>
-<p><strong>Before you start:</strong> open a <a href="glossary/t/terminal.html">terminal</a> and read <a href="systems/maintenance/resources.html">resources</a>. The example only reads memory statistics.</p>
-<aside class="first-time"><p><strong>New to this?</strong> Type the command after the dollar sign and press Enter. Output is a snapshot and changes as programs run.</p></aside>
-<h3>Mental model</h3>
-<p>Model weights, context and runtime state occupy memory. Computation and memory transfers both influence response time. Device placement, context, quantization, concurrency and other work affect measurements.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">$ free -h
-               total        used        free      shared  buff/cache   available
-Mem:            28Gi        10Gi       8.7Gi       121Mi        10Gi        17Gi
-Swap:           56Gi       6.1Gi        50Gi</pre>
-<p>Captured on Arch Linux, 2026-10-27. Available memory estimates headroom; model weights, context, runtime overhead and other work all consume resources. This snapshot does not guarantee that a particular model fits.</p>
+<h2>Read a memory snapshot</h2>
+<p><strong>Goal:</strong> explain why available memory matters more than the free column.</p>
+<tam-sandbox
+  title="Try it: read a memory report"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Show the available memory line">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="memory.txt" size="74">Mem total 28Gi used 10Gi available 17Gi
+Swap total 56Gi used 6.1Gi</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat memory.txt" hint="Two kinds of memory: RAM and swap. Which one can a model use quickly?">
+      <out>Mem total 28Gi used 10Gi available 17Gi</out>
+      <out>Swap total 56Gi used 6.1Gi</out>
+    </tam-cmd>
+    <tam-cmd match="grep available memory.txt" goal="true" hint="Correct: available memory is the useful estimate for starting new work.">
+      <out>Mem total 28Gi used 10Gi available 17Gi</out>
+    </tam-cmd>
+  <tam-init>Try: cat memory.txt, then grep available memory.txt</tam-init>
+  <tam-hint after="1">Type grep available memory.txt to isolate the useful RAM line.</tam-hint>
+  <tam-fallback>Try cat memory.txt, or grep available memory.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The report is sample output, not a reading from your machine. The free column ignores memory that can be reclaimed from caches; the available column estimates what new work can actually use. Model weights and the context being processed both need room.</p>
 <h3>Try it</h3>
-<p>Run <code>free -h</code> and compare available memory with the model's documented requirements. If the model, server or headroom is unknown, leave inference pending.</p>
+<p>Run <code>grep Swap memory.txt</code>. Swap is disk space used as overflow, but it is far slower than RAM, so heavy swapping makes inference sluggish.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> the same <a href="systems/maintenance/resources.html">resource inspection</a> ideas apply whether the model runs from a terminal or a desktop tool.</p></aside>
 <h3>If it goes wrong</h3>
-<p>A missing model or server is different from memory pressure. Read the message and inspect the configured endpoint. Do not download a model or change swap merely to complete this exercise.</p>
-<aside class="tamlinux"><p><strong>On Tamlinux:</strong> <code>tam ask</code> defaults to <code>http://127.0.0.1:11434</code>, but <code>--server</code> or <code>TAM_ASK_SERVER</code> can select another host. The current client accepts non-loopback hosts and sends plain <a href="glossary/h/http.html">HTTP</a>, even when a <a href="glossary/u/url.html">URL</a> begins with <code>https://</code>. Do not use it to send sensitive data to a remote endpoint. A server or model can have its own network behavior.</p></aside>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does available memory alone guarantee a model will run without pressure?</i></summary><p>No. Runtime overhead, context and competing workloads also matter, and available memory changes.</p></details><details class="q"><summary><i>Is a cited answer automatically correct?</i></summary><p>No. Open the cited source and check whether it supports the answer.</p></details></section>
+<dl>
+<dt>The numbers differ from my machine.</dt><dd>They are sample data chosen for the lesson. The sandbox does not inspect your computer.</dd>
+<dt>grep found nothing.</dt><dd>Type grep available memory.txt with the lowercase word available.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>Why is available RAM a better guide than free RAM?</i></summary>
+<p>Available includes memory the system can reclaim from caches; free counts only what is untouched right now.</p>
+</details>
+<details class="q">
+<summary><i>What happens when a model exceeds RAM?</i></summary>
+<p>The system may swap to disk, which is much slower, or the process may fail to allocate memory.</p>
+</details>
 </section>
-<section data-level="expert"><h2>Limits of resource estimates</h2>
-<p>Weight size is only one part of a deployment's memory use. Context state and runtime buffers depend on implementation and configuration. Memory bandwidth can constrain autoregressive inference, but compute, data placement, caching, batching and scheduling can also matter. Treat a bandwidth calculation as an upper-bound model with explicit assumptions, then measure the actual workload.</p>
-<p>The current <code>tam ask</code> implementation resolves its configured host and uses plain HTTP sockets; its help describes a local server but does not enforce loopback or transport encryption. Review the endpoint before submitting a prompt and do not treat an <code>https://</code> prefix as <a href="glossary/t/tls.html">TLS</a> protection in this client.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>How would you distinguish a memory-bandwidth limit from another bottleneck?</summary><p>Hold model, context and workload constant; measure throughput and resource use across comparable runs, then vary one relevant factor at a time. Record uncertainty and avoid attributing a slowdown to bandwidth from core count alone.</p></details></section>
-<p>See <a href="systems/maintenance/resources.html">resource inspection</a> and the inference runtime's own documentation for its allocation and networking behavior.</p></section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: cost drivers</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Factor</th><th>Effect</th><th>Why</th></tr>
+<tr><td>Weight memory</td><td>Sets the minimum footprint</td><td>Model parameters must be resident or streamed</td></tr>
+<tr><td>Memory bandwidth</td><td>Often limits token rate</td><td>Weights are read for each generated token</td></tr>
+<tr><td>Context length</td><td>Adds cache memory and work</td><td>Attention state grows with sequence length</td></tr>
+<tr><td>Quantization</td><td>Trades precision for size</td><td>Lower-precision weights use fewer bits</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Decode inference is usually memory-bound: the accelerator streams weights for each token rather than performing enough arithmetic to saturate its compute units. Batch processing changes that balance. Remote APIs move the cost to a server and add <a href="glossary/h/http.html">HTTP</a>, <a href="glossary/u/url.html">URL</a> and <a href="glossary/t/tls.html">TLS</a> considerations.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Thermal throttling can reduce sustained speed below short bursts.</li>
+<li>Unified-memory systems share bandwidth between CPU and GPU.</li>
+<li>Very long contexts can dominate memory even when weights fit.</li>
+<li>Optional layers and adapters change the real footprint.</li>
+</ul>
+<h3>Sources</h3>
+<p><a href="systems/maintenance/resources.html">How your computer uses its resources</a>; <a href="tamlinux/development/index.html">Developing Tamlinux</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="glossary/p/process.html">Process</a>, <a href="glossary/t/terminal.html">terminal</a>, <a href="bibliography/index.html">bibliography</a>.</p>
+</section>
 
 <h2>Sources and further reading</h2>
 <p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
-</body></html>
+</body>
+</html>

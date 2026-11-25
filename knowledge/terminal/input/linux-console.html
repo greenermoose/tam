@@ -15,9 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/input/index.html">How a key press becomes input</a> / The Linux text console</p></nav>
 
-
-
-<p>This page explains the text screens you can reach with <code>Ctrl + Alt + F2</code>, how the kernel turns keys into input there, and why a key can behave differently from the same key in a terminal window.</p>
+<p>A Linux virtual console is a text screen provided by the kernel without a graphical desktop, with its own terminfo entry and input path.</p>
 <h2>Before this</h2><p><a href="terminal/input/index.html">How a key press becomes input</a></p>
 
 <section data-level="novice">
@@ -48,90 +46,40 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspect a key on a text console</h2>
+<h2>Identify the active console</h2>
+<p><strong>Goal:</strong> read the active virtual console from a fixed sysfs report</p>
 
-<p><strong>Goal:</strong> you will be able to switch to a text console, identify the bytes and keycodes a key produces there, and return to your desktop safely.</p>
-
-<h3>Worked example</h3>
-
-<p>First, find which text screen is active without leaving the session. The kernel exposes the answer in sysfs.</p>
-
-<pre class="session" data-risk="read-only">
-$ cat /sys/class/tty/tty0/active
-tty1
-$ ls -l /dev/tty0 /dev/tty1
-crw------- 1 root tty 4, 0 Nov  9 15:46 /dev/tty0
-crw------- 1 fred tty 4, 1 Nov 12 21:10 /dev/tty1
-</pre>
-
-<p>Captured on Arch Linux, 2026-11-13. <code>tty1</code> is the active console. <code>/dev/tty0</code> is the current console and belongs to root; <code>/dev/tty1</code> is the first console device and belongs to the logged-in user. Your numbers and owners will differ.</p>
-
-<p>The <code>linux</code> terminfo entry describes the escape sequences the console expects. Its function keys differ from foot's.</p>
-
-<pre class="session" data-risk="read-only">
-$ infocmp -1 linux | grep -E '^\s+(kbs|kcuu1|kcub1|khome|kf1|kf5)='
-	kbs=^?,
-	kcub1=\E[D,
-	kcuu1=\E[A,
-	kf1=\E[[A,
-	kf5=\E[[E,
-	khome=\E[1~,
-</pre>
-
-<p>Captured on Arch Linux, 2026-11-13. <code>\E</code> means the escape byte <code>0x1B</code>. The Linux console sends <code>ESC [ A</code> for Up and <code>ESC [ [ A</code> for F1. Unmodified function keys pass through to applications: <code>F1</code>&ndash;<code>F5</code> send <code>\x1b[[A</code>&ndash;<code>\x1b[[E</code>, and <code>F6</code>&ndash;<code>F12</code> send <code>\x1b[17~</code>&ndash;<code>\x1b[24~</code>. foot sends <code>ESC O A</code> for application Up and <code>ESC O P</code> for F1, which is why a program that hard-codes one terminal's sequences fails on the other.</p>
-
-<p>Modifier chords behave differently on a stock Linux VT keymap (<code>TERM=linux</code>, <code>/dev/ttyN</code>) than in a desktop terminal emulator:</p>
-
-<table>
-<tr><td><code>Alt + &lt;ASCII char&gt;</code></td><td>works via <code>ESC</code> prefixing (configured with <code>setmetamode esc</code>).</td></tr>
-<tr><td><code>Alt + Left</code></td><td><code>Alt + Right</code>, <code>Alt + F1</code>..<code>F12</code>, and <code>Ctrl + Alt + F1</code>..<code>F12</code> are intercepted by the kernel VT driver for switching virtual consoles and never reach the program.</td></tr>
-<tr><td><code>Alt + Up</code></td><td>/ <code>Alt + Down</code> and <code>Ctrl + Arrow</code> / <code>Shift + Arrow</code> do not emit xterm <code>CSI 1;&lt;mod&gt;...</code> sequences on a stock Linux VT keymap.</td></tr>
-</table>
-
+<tam-sandbox
+  title="Try it: inspect the console name"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="paths"
+  goal="Print the active console name">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="cat /sys/class/tty/tty0/active" goal="true" hint="tty0 refers to the current virtual console; tty1 is the console selected here.">
+    <out>tty1</out>
+  </tam-cmd>
+  <tam-cmd match="infocmp -1 linux | grep -E &#x27;^\s+kbs=&#x27;" hint="The linux terminfo entry describes keys on the text console.">
+    <out>	kbs=^?,</out>
+  </tam-cmd>
+  <tam-init>A fixed sysfs file reports tty1 as active.</tam-init>
+   <tam-hint after="1">tty0 refers to the current virtual console; tty1 is the console selected here.</tam-hint>
+  <tam-hint after="2">The linux terminfo entry describes keys on the text console.</tam-hint>
+  <tam-fallback>Type cat /sys/class/tty/tty0/active, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The active console is tty1 in the sample, and the linux terminfo entry uses DEL for Backspace. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. A graphical terminal uses a different terminal name and capability set.</p>
 <h3>Try it</h3>
-
-<p>Do this on a text console, not in a terminal window. Save your work first, and note which function key returns to your desktop.</p>
-
-<pre class="session" data-risk="read-only">
-$ showkey -a
-$ showkey -k
-$ dumpkeys | grep -E 'keycode +(14|28|57|59) '
-</pre>
-
-<p><code>showkey -a</code> prints the decimal, octal and hexadecimal value of each key according to the current keymap. Press <code>a</code>, <code>Ctrl + H</code>, Backspace, Up and F1, and compare the values. <code>showkey -k</code> prints kernel keycodes instead. <code>dumpkeys</code> prints the loaded keymap. Each mode ends after ten seconds without a key press, except <code>-a</code>, which ends on <code>Ctrl + D</code>.</p>
-
+<p>Read the terminfo rule and compare it with the foot capability from the linked page.</p>
 <h3>If it goes wrong</h3>
-
-<dl>
-<dt><code>Couldn't get a file descriptor referring to the console</code></dt>
-<dd><code>showkey</code>, <code>dumpkeys</code> and <code>loadkeys</code> need a real console. They do not work in a terminal window or over <a href="glossary/s/ssh.html">SSH</a>. Switch to a VT first.</dd>
-<dt>The screen is black after switching</dt>
-<dd>Wait a moment. The console may be blanked, or the display may be reconfiguring. Press a key, then try the function key that returns to your desktop. Do not press a sequence of random keys in a panic.</dd>
-<dt>The keyboard does not respond on the console</dt>
-<dd>The console may be in an unusual keyboard mode, or the kernel may be busy. Try another VT. If the whole machine is unresponsive, use the emergency recovery procedure rather than guessing.</dd>
-<dt>You cannot return to the desktop</dt>
-<dd>The desktop may be on a different VT number. Try <code>Ctrl + Alt + F1</code> through <code>Ctrl + Alt + F7</code>, pausing between attempts. If the desktop crashed, the text console is now the place to diagnose it.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> the active console is reported by the kernel, not chosen by a Tamlinux convention. Read <code>/sys/class/tty/tty0/active</code> or run <code>fgconsole</code> on a console before assuming that <code>F1</code> or <code>F2</code> returns to the desktop.</p>
-</aside>
-
+<p>showkey and dumpkeys need a real console; do not guess device paths from a sample.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Does <code>Ctrl + Alt + F2</code> send a special byte to the program on the current console?</i></summary>
-<p>No. The kernel's console keymap maps the chord to the action <code>Console_2</code>, and the console driver switches the active VT. The program on the old console does not receive a key press; it simply stops being the visible console.</p>
-</details>
-<details class="q">
-<summary><i>Why does F1 produce <code>ESC [ [ A</code> on the Linux console but <code>ESC O P</code> in foot?</i></summary>
-<p>The two terminals use different key encodings, described by different terminfo entries. The program asks terminfo for the sequence, or parses both. The physical key and the kernel keycode can be the same while the terminal bytes differ.</p>
-</details>
-<details class="q">
-<summary><i>Is the console keycode for a letter the same as the XKB keycode?</i></summary>
-<p>No. The console keymap uses kernel keycodes, such as <code>30</code> for <code>a</code>. XKB and <a href="glossary/w/wayland.html">Wayland</a> use the kernel keycode plus 8, so the same key is <code>38</code>. The console never adds that offset.</p>
-</details>
+<details class="q"><summary><i>What does tty0 represent?</i></summary><p>The currently active virtual console, not a fixed physical device name.</p></details>
 </section>
 </section>
 
@@ -218,17 +166,10 @@ alt keycode 106 = Incr_Console
 <li><strong>Keycode remapping is persistent only if loaded.</strong> <code>loadkeys</code> changes the running console; a reboot restores the configured keymap unless the change was installed in the system configuration.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A user says <code>Ctrl + Alt + F2</code> does nothing on a machine where the desktop is healthy. What layers would you check, and in what order, before changing the keymap?</summary>
-<p>First confirm that a second VT exists and is not already active: read <code>/sys/class/tty/tty0/active</code> or run <code>fgconsole</code> on a console. Then check whether the focused application or compositor grabbed the chord; a full-screen compositor may handle it before the kernel sees it, or the kernel may be in a VT process mode that refuses the switch. Next check whether the keymap still maps Control+Alt+F2 to <code>Console_2</code> and whether the function key produces the expected keycode. Only after those should you consider reloading a keymap, because the evidence so far does not show a keymap fault.</p>
-</details>
-</section>
-
 <h3>Sources</h3>
 
 <p><a href="man:console_codes(4)">console_codes(4)</a>, <a href="man:console_ioctl(4)">console_ioctl(4)</a>, <a href="man:keymaps(5)">keymaps(5)</a>, <a href="man:showkey(1)">showkey(1)</a>, <a href="man:dumpkeys(1)">dumpkeys(1)</a>, <a href="man:loadkeys(1)">loadkeys(1)</a>, <a href="man:setmetamode(1)">setmetamode(1)</a>, and the default keymaps under <code>/usr/share/kbd/keymaps/</code>.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/s/ssh.html">SSH</a> · <a href="glossary/w/wayland.html">Wayland</a>.</p>
 </section>
 
 <h2>Next</h2><p><a href="terminal/input/foot.html">Keys inside foot</a> &mdash; the graphical path for comparison.</p>

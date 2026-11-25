@@ -69,14 +69,24 @@ Disk Swapfile (/swap/swapfile on NVMe/SSD)
 </pre>
 
 <p>The Linux kernel virtual memory subsystem prioritizes swap devices numerically: the device with the highest priority receives swapped pages first. By giving <code>/dev/zram0</code> priority 100 and disk swap priority 0, the kernel absorbs all initial memory pressure directly in fast, compressed RAM. Only if ZRAM becomes completely saturated does page eviction spill over to persistent disk storage.</p>
-<h3>Worked example: Inspect compressed RAM swap devices</h3>
-<pre class="session" data-risk="read-only">
-$ zramctl
-NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
-/dev/zram0 zstd         28.3G  6.9M  2.3M    4M         [SWAP]
-</pre>
+<h3>Explore: Inspect compressed RAM swap devices</h3>
+<tam-sandbox
+  title="Try it: Inspect compressed RAM swap devices"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Inspect compressed RAM swap devices">
+  <tam-cmd match="zramctl" goal="true" hint="Look for the value that answers the task.">
+    <out>NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
+/dev/zram0 zstd         28.3G  6.9M  2.3M    4M         [SWAP]</out>
+  </tam-cmd>
+  <tam-init>Try: zramctl</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try zramctl (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-<p>Captured on an Arch Linux workstation, 2026-10-25. Your output will differ depending on current RAM size and running workloads.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>zramctl</code> queries the Linux kernel's ZRAM driver and displays configured compressed memory block devices.</li>
@@ -113,6 +123,25 @@ NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
 <p>ZRAM compresses and decompresses pages directly in physical memory using <a href="glossary/c/cpu.html">CPU</a> instructions in microseconds, avoiding the millisecond latency and I/O bottlenecks of physical storage drives.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for Inspect kernel zram sysfs attributes di"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for Inspect kernel zram sysfs attributes directly">
+<tam-cmd match="cat /sys/block/zram0/comp_algorithm" hint="Read the labels and connect each value to the task.">
+    <out>lzo-rle lzo lz4 lz4hc [zstd] deflate 842</out>
+  </tam-cmd>
+<tam-cmd match="cat /sys/block/zram0/mm_stat" goal="true">
+    <out> 7237632  2419127  4218880        0 11472896       41        0       62      136</out>
+  </tam-cmd>
+  <tam-init>Try: cat /sys/block/zram0/comp_algorithm</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try cat /sys/block/zram0/comp_algorithm (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>zsmalloc kernel allocator and compression algorithms</h2>
@@ -153,14 +182,7 @@ NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
 
 <p>Inspect the kernel driver's runtime statistics directly through the <code>/sys/block/zram0/</code> virtual filesystem:</p>
 
-<pre class="session" data-risk="read-only">
-$ cat /sys/block/zram0/comp_algorithm
-lzo-rle lzo lz4 lz4hc [zstd] deflate 842
-$ cat /sys/block/zram0/mm_stat
- 7237632  2419127  4218880        0 11472896       41        0       62      136
-</pre>
 
-<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
 
 <p>The <code>comp_algorithm</code> file displays available kernel compression engines with the active engine in brackets. <code>mm_stat</code> exposes raw kernel counters: original size, compressed size, allocated memory, memory limit, maximum peak memory used, zero pages count, and recompression counters.</p>
 

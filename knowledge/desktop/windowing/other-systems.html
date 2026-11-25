@@ -39,15 +39,21 @@
 <h2>Map one action across systems</h2>
 <p><strong>Goal:</strong> you will be able to match "show a window, draw a button, deliver a click" to the named components on several operating systems.</p>
 <p><strong>Learner path:</strong> back: <a href="desktop/windowing/comparison.html?level=2">Why Linux moved from X11 to Wayland</a>; next: <a href="desktop/windowing/desktops.html?level=2">GNOME, KDE Plasma and other desktops</a>.</p>
-<h3>Worked example</h3>
-<p>Follow one button click on four systems:</p>
-<ol>
-<li><a href="glossary/m/microsoft-windows.html">Windows</a>: USER sends a message to the window, the application's Win32 handler responds, and the <a href="glossary/d/dwm.html">Desktop Window Manager</a> composes the result.</li>
-<li>macOS: <a href="glossary/a/appkit.html">AppKit</a> turns the click into an action on an <code>NSView</code>, and Quartz/Core Animation presents the window.</li>
-<li>iOS: <a href="glossary/u/uikit.html">UIKit</a> delivers a touch through the view hierarchy; Core Animation composites the layers.</li>
-<li>Android: the input dispatcher sends the event into the View hierarchy or Compose, while <a href="glossary/s/surfaceflinger.html">SurfaceFlinger</a> combines surfaces.</li>
-</ol>
-<p>Linux with Wayland follows a similar shape: a toolkit handles the widget, the compositor owns display and input, and the kernel driver presents pixels.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Compare who composes application windows"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Compare who composes application windows">
+  <tam-cmd match="printf &#x27;Windows: Desktop Window Manager; macOS: WindowServer; Linux: compositor chosen by the session&#x27;" goal="true">
+    <out>Windows: Desktop Window Manager
+macOS: WindowServer
+Linux: compositor chosen by the session</out>
+  </tam-cmd>
+  <tam-init>Try: printf 'Windows: Desktop Window Manager; macOS: WindowServer; Linux: compositor chosen by the session'</tam-init>
+  <tam-hint after="1">Each platform has a system component responsible for windows.</tam-hint>
+  <tam-hint after="2">Linux sessions can choose among desktop shells and compositors.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>Draw a three-column table labelled "application controls", "system compositor", "toolkit". Fill a row for each system above. Do not install anything; this is a mapping exercise.</p>
 <h3>If it goes wrong</h3>

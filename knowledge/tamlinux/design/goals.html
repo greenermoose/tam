@@ -14,8 +14,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/design/index.html">Design and philosophy</a> / Design goals</p></nav>
 
-<p>Tamlinux design goals describe the practical targets that guide how Tamlinux utility programs are built and kept fast, simple, and easy to understand.</p>
-
+<p>Tamlinux design goals give small utility programs measurable targets for startup time, memory use, dependencies and readability.</p>
 <section data-level="novice">
 <h2>What Tamlinux aims for</h2>
 <p>When you run a small Tamlinux command, it should feel immediate and leave room for the work you actually want to do. Tamlinux design goals keep core tools small, quick, and simple so they work well on old and new computers.</p>
@@ -33,46 +32,41 @@
 </section>
 
 <section data-level="learner">
-<h2>Understand the goals</h2>
-<p><strong>Goal:</strong> Identify the main Tamlinux design goals for utility programs and explain why they matter.</p>
-<p><strong>Before you start:</strong> Read <a href="tamlinux/design/philosophy.html">Philosophy</a> and <a href="tamlinux/design/language-choices.html">Systems programming philosophy and language choices</a>.</p>
-<h3>Worked example</h3>
-<p>Tamlinux gives its <code>tam-*</code> utility programs a clear performance target called the <strong>Tamlinux Five</strong>: start and exit in 5 milliseconds and use under 5 megabytes of memory. This is a design goal to measure against, not a claim that every command on every system will always hit the same number under every condition.</p>
-
-<h3>The main goals</h3>
-<table>
-<tr><th>Goal</th><th>What it means</th><th>Why it helps</th></tr>
-<tr><td><strong>Tamlinux Five</strong></td><td><code>tam-*</code> utility programs aim to start and exit in 5 milliseconds and use under 5 megabytes of memory.</td><td>Commands feel immediate and remain usable on older or resource-constrained hardware.</td></tr>
-<tr><td><strong>Minimal dependencies</strong></td><td>Tamlinux utility programs aim to have no dependencies other than the C standard library, <code>libc</code>.</td><td>Fewer moving parts mean simpler builds, fewer runtime surprises, and less code to audit or carry.</td></tr>
-<tr><td><strong>C11 implementation</strong></td><td>Tamlinux utility programs are written in standard <a href="glossary/c/c11.html">C11</a>.</td><td>C11 is small, widely supported, and close to the machine, which makes behavior easier to inspect and reason about.</td></tr>
-<tr><td><strong>Helpful to machine intelligence</strong></td><td>Simple C11 code with minimal dependencies gives AI tools and other automated assistants less hidden behavior to guess about.</td><td>When code is direct and dependencies are few, machine intelligence can more reliably read, test, explain, and propose changes.</td></tr>
-</table>
-
-<h3>Why C11 and minimal dependencies help machine intelligence</h3>
-<p>Machine intelligence works best when the code it reads has clear boundaries. A C11 program that depends only on <code>libc</code> has a small language surface, explicit memory and control flow, and a limited set of external interfaces. There is no large runtime, garbage collector, framework magic, or hidden dependency tree to infer. That makes it easier for an AI agent, static analyzer, or human reviewer to trace what a program does, reproduce its behavior, and verify a fix.</p>
-
+<h2>Check a declared dependency footprint</h2>
+<p><strong>Goal:</strong> interpret a sample library listing against the libc-only goal</p>
+<p><strong>Before you start:</strong> <a href="tamlinux/design/philosophy.html">Philosophy</a> and <a href="tamlinux/design/language-choices.html">Language choices</a>.</p>
+<tam-sandbox
+  title="Try it: read a dependency sample"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Print the sample library listing">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="ldd ./build/tam" goal="true" hint="The design goal concerns Tamlinux utility programs; this is a sample listing.">
+    <out>	libc.so.6 =&gt; /usr/lib/libc.so.6 (0x00007f0000000000)
+	/lib64/ld-linux-x86-64.so.2 =&gt; /usr/lib64/ld-linux-x86-64.so.2 (0x00007f0002000000)</out>
+  </tam-cmd>
+  <tam-cmd match="wc -l deps.txt" hint="Counting declared dependencies is a simpler teaching check.">
+    <out>2 deps.txt</out>
+  </tam-cmd>
+  <tam-init>A fixed listing shows one library for a tiny utility.</tam-init>
+   <tam-hint after="1">The design goal concerns Tamlinux utility programs; this is a sample listing.</tam-hint>
+  <tam-hint after="2">Counting declared dependencies is a simpler teaching check.</tam-hint>
+  <tam-fallback>Type ldd ./build/tam, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The listing shows only the C library and its loader. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. This is a design goal for core tam-* utilities, not a blanket rule for desktop components or rootstock packages.</p>
 <h3>Try it</h3>
-<p>Pick a small Tamlinux utility and ask three questions: How quickly does it start? How much memory does it use? What does it depend on besides <code>libc</code>? Use those questions as a practical check against the design goals.</p>
-
+<p>Compare the sample listing with the Tamlinux Five table and name which goal it addresses.</p>
 <h3>If it goes wrong</h3>
-<dl>
-<dt>A command feels slow or heavy</dt>
-<dd>Measure it before drawing conclusions. Startup time and memory use depend on the command, workload, and system. Compare the result to the Tamlinux Five goal and look for unnecessary work or dependencies.</dd>
-<dt>A feature seems to need a large dependency</dt>
-<dd>Check whether the feature belongs in a core <code>tam-*</code> utility or in a different layer. The minimal-dependency goal is strongest for Tamlinux's own utility programs.</dd>
-</dl>
-
+<p>A slow measurement may reflect cold caches or scheduler noise; measure repeatedly and report conditions.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>What is the Tamlinux Five performance target?</i></summary>
-<p>Tamlinux <code>tam-*</code> utility programs aim to start and exit in 5 milliseconds and use under 5 megabytes of memory.</p>
-</details>
-<details class="q">
-<summary><i>Why can minimal dependencies help machine intelligence work with code?</i></summary>
-<p>With fewer external libraries and less hidden runtime behavior, an AI tool or reviewer has less context to guess about and can more reliably trace, test, and change the program.</p>
-</details>
+<details class="q"><summary><i>Why is libc-only a goal rather than a universal rule?</i></summary><p>Core utilities benefit from a small audit surface; specialized components may need deliberate exceptions.</p></details>
 </section>
 </section>
 
@@ -95,11 +89,6 @@
 
 <h3>Advanced usage</h3>
 <p>When evaluating a proposed change to a <code>tam-*</code> utility, treat the goals as review questions:</p>
-<pre class="session" data-risk="scratch">
-$ time ./build/tam --version
-$ /usr/bin/time -v ./build/tam --version
-$ ldd ./build/tam
-</pre>
 <p>Illustrative checks: measure startup, inspect memory use, and confirm the runtime dependency footprint. Use the measurements appropriate to the program and system under test.</p>
 
 <h3>Edge cases</h3>
@@ -109,16 +98,9 @@ $ ldd ./build/tam
 <li><strong>AI assistance is not proof:</strong> Machine intelligence can help read and modify simple code, but tests, review, and measured behavior still determine correctness.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary><i>Why is "no dependencies other than libc" a design goal rather than a blanket rule for every Tamlinux component?</i></summary>
-<p>It gives Tamlinux utility programs a strong default: small, portable, auditable binaries with little runtime overhead. Some components may still need specialized libraries, but those dependencies should be deliberate exceptions because they increase build, runtime, and audit complexity.</p>
-</details>
-</section>
-
 <h3>Sources</h3>
 <p><a href="tamlinux/design/language-choices.html">Systems programming philosophy and language choices</a>, <a href="tamlinux/design/philosophy.html">Philosophy</a>, <a href="programming/c/c11.html">The C11 programming language and portable systems code</a>.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/c/c11.html">C11</a>.</p>
 </section>
 
 <h2>Where next</h2>

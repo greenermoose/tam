@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Ports and sockets</p></nav>
 
-<p>This page explains how a single computer can run many network conversations at once without mixing them up.</p>
+<p>A port identifies which program on a host should receive a network message, while a socket pairs that port with an address and transport protocol.</p>
 
 <section data-level="novice">
 <h2>What is a port?</h2>
@@ -39,49 +39,51 @@
 </section>
 
 <section data-level="learner">
-<h2>Read listening sockets and identify a conversation</h2>
-<p><strong>Goal:</strong> you will be able to read a socket table, name the four values that identify a conversation, and explain why local port numbers are reused by different remote connections.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ss -tan | head -5
-State     Recv-Q Send-Q Local Address:Port     Peer Address:Port
-LISTEN    0      128          0.0.0.0:22            0.0.0.0:*
-LISTEN    0      4096      127.0.0.54:53            0.0.0.0:*
-LISTEN    0      4096      127.0.0.1:45701         0.0.0.0:*
-LISTEN    0      128        127.0.0.1:35577         0.0.0.0:*
-
-$ ss -uln | head -6
-State  Recv-Q Send-Q Local Address:Port Peer Address:Port
-UNCONN 0      0         172.17.0.1:53        0.0.0.0:*
-UNCONN 0      0         127.0.0.54:53        0.0.0.0:*
-UNCONN 0      0      127.0.0.53%lo:53        0.0.0.0:*
-UNCONN 0      0            0.0.0.0:5353      0.0.0.0:*
-UNCONN 0      0               [::]:5353         [::]:*
-</pre>
-<p>Captured on a Tamlinux workstation, 2026-11-21. Your open ports will differ.</p>
+<h2>Separate a port from a socket</h2>
+<p><strong>Goal:</strong> read sample listening records and identify the SSH port and its transport protocol.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read listening sockets"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the SSH listening record in the sample table">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">State  Local Address:Port  Peer Address:Port
+LISTEN 0.0.0.0:22        0.0.0.0:*
+LISTEN 127.0.0.54:53      0.0.0.0:*
+UNCONN 0.0.0.0:5353      0.0.0.0:*</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep :22 clues.txt" goal="true" hint="Try grep :22 clues.txt to find SSH.">
+      <out>LISTEN 0.0.0.0:22        0.0.0.0:*</out>
+    </tam-cmd>
+    <tam-cmd match="ss -tan" hint="Sample TCP socket output for the same listener.">
+      <out>State     Local Address:Port   Peer Address:Port</out>
+      <out>LISTEN    0.0.0.0:22        0.0.0.0:*</out>
+    </tam-cmd>
+    <tam-cmd match="ss -uln" hint="Sample UDP socket output; UDP has no LISTEN state.">
+      <out>State  Local Address:Port  Peer Address:Port</out>
+      <out>UNCONN 0.0.0.0:5353     0.0.0.0:*</out>
+    </tam-cmd>
+  <tam-init>Sample socket table: port 22 SSH, port 53 DNS, port 5353 mDNS.</tam-init>
+  <tam-hint after="1">Try grep :22 clues.txt to find SSH.</tam-hint>
+  <tam-hint after="2">Now try grep UNCONN clues.txt for a datagram service.</tam-hint>
+  <tam-fallback>Try grep :22 clues.txt, grep :53 clues.txt or grep UNCONN clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>LISTEN</code> means a program is waiting for new connections on that address and port. Port 22 is the usual <a href="glossary/s/ssh.html">SSH</a> service; port 53 is <a href="glossary/d/dns.html">DNS</a>.</li>
-<li><code>0.0.0.0:22</code> listens on every <a href="glossary/i/ipv4.html">IPv4</a> address on the machine; <code>127.0.0.54:53</code> listens only on a local loopback address.</li>
-<li><code>UNCONN</code> in the UDP table is a socket with no connection state: it accepts independent datagrams.</li>
-<li>Port 5353 is multicast DNS, which announces local printers and devices; it appears once for <a href="glossary/i/ipv4.html">IPv4</a> and once for <a href="glossary/i/ipv6.html">IPv6</a>.</li>
-</ol>
+<p>Port 22 is the conventional SSH listener in this sample. Port 53 is DNS and 5353 is mDNS. The <code>ss</code> replies are authored sample output; they show the shape of listening TCP and UDP records, not your machine’s current sockets.</p>
 <h3>Try it</h3>
-<p>Run <code>ss -tan</code>, then <code>ss -uln</code>. Open a web page and run <code>ss -tan state established</code>: each line is one live conversation with its local and remote address and port. These commands only read kernel state.</p>
+<p>Use <code>cat clues.txt</code> to read all records. Predict why a UDP service appears as <code>UNCONN</code> rather than <code>LISTEN</code>: UDP has no connection setup.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>ss: command not found</code></dt>
-<dd>The <code>iproute2</code> tools are missing. Read <code>/proc/net/tcp</code> and <code>/proc/net/udp</code> instead; the port numbers are in hexadecimal.</dd>
-<dt>An address and port you expect is missing</dt>
-<dd>The service may not be running, or it may listen only on <a href="glossary/i/ipv6.html">IPv6</a>. Check <code>ss -tlan</code> for all listening TCP sockets on both families.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Two browser tabs connect to the same website on port 443. Why don't the connections collide?</i></summary>
-<p>Each connection gets its own local port from the ephemeral range. A conversation is identified by local address, local port, remote address and remote port together, so two tabs have different four-tuples even though the remote port is the same.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Can two programs use port 443 on one host?</i></summary><p>Yes, if they bind different addresses or protocols; an address, protocol and port together identify the socket.</p></details>
 </section>
 </section>
 
@@ -100,15 +102,8 @@ UNCONN 0      0               [::]:5353         [::]:*
 <h3>How it works</h3>
 <p>A program calls <code>socket(2)</code> to create a socket, <code>bind(2)</code> to choose a local address and port, <code>listen(2)</code> to accept TCP connections, and <code>accept(2)</code> to obtain a new socket for each client. The original listening socket stays open. The kernel matches an incoming segment to a socket by hashing the four-tuple, with separate lookup tables for listening and established sockets. UDP uses <code>sendto(2)</code> and <code>recvfrom(2)</code>, and preserves message boundaries: one send becomes one datagram. A socket appears in the process's file descriptor table, so <code>/proc/&lt;pid&gt;/fd</code> and <code>lsof -i</code> show which program owns it.</p>
 <h3>Advanced usage</h3>
-<pre data-risk="read-only">
-$ ss -tan state established '( dport = :443 or sport = :443 )' | head -4
-Recv-Q Send-Q Local Address:Port    Peer Address:Port
-0      0       192.168.1.26:37764  172.217.119.4:443
-0      0       192.168.1.26:42234 142.251.45.165:443
-0      0       192.168.1.26:48752   104.18.18.80:443
-0      0       192.168.1.26:54308 74.151.238.100:443
-</pre>
-<p>Captured on a Tamlinux workstation, 2026-11-21; the remote addresses and local ports depend on which sites are open. <code>ss -ti</code> adds TCP timer and congestion information. <code>SO_REUSEPORT</code> lets several processes share one listening port, and the kernel distributes incoming connections among them.</p>
+
+
 <h3>Edge cases</h3>
 <ul>
 <li>A closed TCP connection spends time in <code>TIME_WAIT</code> so delayed duplicates cannot be mistaken for a new connection on the same four-tuple.</li>
@@ -116,16 +111,20 @@ Recv-Q Send-Q Local Address:Port    Peer Address:Port
 <li>Network namespaces each have their own port space, so containers can reuse the same ports without conflict.</li>
 <li>A UDP socket with no peer receives datagrams from any source; an application that cares about identity must authenticate the sender itself.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>What breaks if two processes bind the same address and port without SO_REUSEPORT, and why does the second bind fail?</summary>
-<p>The kernel has no way to decide which socket should receive an incoming segment, so the second bind returns EADDRINUSE. With SO_REUSEPORT the kernel accepts both sockets and spreads incoming connections among them, which is how multi-process servers balance load on one port.</p>
-</details>
-</section>
+
 <h3>Sources</h3>
 <p><a href="man:ss(8)">ss(8)</a>, <a href="man:socket(2)">socket(2)</a>, <a href="man:bind(2)">bind(2)</a>, <a href="man:ip(8)">ip(8)</a> and <cite data-ref="rfc9293"><a href="bibliography/rfc9293.html">RFC 9293</a></cite>.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/s/ssh.html">SSH</a></li>
+<li><a href="glossary/d/dns.html">DNS</a></li>
+<li><a href="glossary/i/ipv4.html">IPv4</a></li>
+<li><a href="glossary/i/ipv6.html">IPv6</a></li>
+</ul>
+
+
 
 <h2>Where next</h2>
 <ul>

@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/protocols/index.html">Secure protocols</a> / The SSH Protocol Internals</p></nav>
 
-
-<p>This page explains how the Secure Shell (SSH) protocol establishes an encrypted, mutually authenticated tunnel for remote terminals and file transfers.</p>
-<h2>Before this</h2><p><a href="security/protocols/tls-and-https.html">SSL, TLS, and HTTPS</a></p>
+<p>The SSH protocol builds an encrypted channel over TCP, verifies the server’s host key, and then multiplexes authentication and terminal or file-transfer sessions.</p>
 
 <section data-level="novice">
 <h2>Proving both sides before opening a remote terminal</h2>
@@ -40,63 +38,47 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspecting OpenSSH key-exchange and cipher algorithms</h2>
-<p><strong>Goal:</strong> you will be able to query the key-exchange (<a href="glossary/k/kex.html">KEX</a>), cipher, and <a href="glossary/m/mac.html">MAC</a> algorithms supported by OpenSSH on your workstation and see how <code>ssh -G</code> resolves client defaults without opening a connection.</p>
-<p><strong>Before you start:</strong> <code>ssh -Q</code> and <code>ssh -G</code> are completely read-only and never contact a remote host.</p>
-
-<h3>Worked example</h3>
-<p>List the modern key-exchange algorithms supported by OpenSSH and inspect the effective client configuration for <code>localhost</code>:</p>
-<pre class="session" data-risk="read-only">
-$ ssh -V
-OpenSSH_10.6p1, OpenSSL 3.6.5 29 Sep 2026
-$ ssh -Q kex | tail -n 8
-ecdh-sha2-nistp384
-ecdh-sha2-nistp521
-mlkem768nistp256-sha256
-curve25519-sha256
-curve25519-sha256@libssh.org
-sntrup761x25519-sha512
-sntrup761x25519-sha512@openssh.com
-mlkem768x25519-sha256
-$ ssh -G localhost | grep -E '^(kexalgorithms|ciphers|macs) '
-kexalgorithms mlkem768x25519-sha256,sntrup761x25519-sha512,sntrup761x25519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521
-ciphers chacha20-poly1305@openssh.com,aes128-gcm@openssh.com,aes256-gcm@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr
-macs umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512
-</pre>
-<p>Captured on Arch Linux, 2026-11-14; algorithm lists reflect OpenSSH 10.6p1.</p>
-
+<h2>Read a sample algorithm negotiation list</h2>
+<p><strong>Goal:</strong> name the key-exchange family and cipher list in a sample SSH configuration.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: inspect SSH algorithms"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the key-exchange list in sample SSH output">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="ssh -Q kex | tail -n 4" goal="true" hint="The list includes classical and post-quantum hybrid exchanges.">
+      <out>curve25519-sha256</out>
+      <out>curve25519-sha256@libssh.org</out>
+      <out>sntrup761x25519-sha512</out>
+      <out>mlkem768x25519-sha256</out>
+    </tam-cmd>
+    <tam-cmd match="ssh -G localhost" hint="Sample effective configuration; it is not read from your SSH client.">
+      <out>kexalgorithms mlkem768x25519-sha256,curve25519-sha256</out>
+      <out>ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com</out>
+      <out>macs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com</out>
+    </tam-cmd>
+  <tam-init>Sample SSH: hybrid KEX, AEAD ciphers, EtM MACs.</tam-init>
+  <tam-hint after="1">Try ssh -Q kex | tail -n 4 first.</tam-hint>
+  <tam-hint after="2">Now try ssh -G localhost for the effective list.</tam-hint>
+  <tam-fallback>Try ssh -Q kex | tail -n 4 or ssh -G localhost (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>ssh -Q kex</code> showed both classical (<code>curve25519-sha256</code>) and post-quantum hybrid key exchanges (<code>mlkem768x25519-sha256</code>, <code>sntrup761x25519-sha512</code>).</li>
-<li><code>ssh -G localhost</code> printed the exact preference order your client proposes in <code>SSH_MSG_KEXINIT</code>, preferring <a href="glossary/a/aead.html">AEAD</a> ciphers (<code>chacha20-poly1305@openssh.com</code>, AES-<a href="glossary/g/gcm.html">GCM</a>) and Encrypt-then-MAC (<code>-etm</code>) modes.</li>
-</ol>
-
+<p>The sample key-exchange list includes <code>mlkem768x25519-sha256</code>, a hybrid method. The cipher list prefers AEAD modes, and the MAC list uses encrypt-then-MAC variants. These lines are authored sample output, not a reading of your OpenSSH build.</p>
 <h3>Try it</h3>
-<p>Run <code>ssh-keygen -l -f ~/.ssh/id_ed25519.pub</code> (if you have a key) or <code>ssh -vvv localhost true 2&gt;&amp;1 | head -n 30</code> (only if <code>sshd</code> is enabled) to see the key-exchange negotiation in action. For practical setup and hardening, see <a href="security/practice/ssh.html">SSH keys and remote access</a>.</p>
-
+<p>Compare host-key verification with certificate verification: SSH traditionally trusts a host key on first use, while TLS uses a certificate authority chain. Both are trying to answer “am I talking to the right server?”</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!</code></dt>
-<dd>Either the server was legitimately reinstalled/rekeyed, or an active attacker is intercepting the connection. Verify the new host key fingerprint out-of-band before removing the old entry with <code>ssh-keygen -R hostname</code>.</dd>
-<dt><code>HashKnownHosts yes</code> makes <code>~/.ssh/known_hosts</code> unreadable</dt>
-<dd>OpenSSH hashes hostnames with <a href="glossary/h/hmac-sha1.html">HMAC-SHA1</a> in <code>known_hosts</code> so an attacker who steals your laptop cannot read a list of servers you connect to. Use <code>ssh-keygen -F hostname</code> to look up a host.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, <code>tam-setup-security-sshd</code> writes drop-in <code>10-tamlinux-hardening.conf</code> to disable password logins after adding an authorized key, keeping incoming SSH off by default on laptops until explicitly enabled.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>What is the security weakness of Trust On First Use (TOFU) in SSH?</i></summary>
-<p>TOFU detects key changes on all future connections, but if an active attacker intercepts your very first connection when the host key is unknown, you must verify the displayed fingerprint out-of-band (or use <a href="glossary/s/sshfp.html">SSHFP</a> <a href="glossary/d/dnssec.html">DNSSEC</a> / SSH certificates) to spot the impersonation.</p>
-</details>
-<details class="q">
-<summary><i>Why do modern OpenSSH configurations prefer <code>-etm</code> MACs or AEAD ciphers like <code>chacha20-poly1305@openssh.com</code>?</i></summary>
-<p>Encrypt-then-MAC and AEAD authenticate the ciphertext (including the encrypted packet length) before decrypting, preventing chosen-ciphertext length-oracle attacks against unauthenticated <a href="glossary/c/cbc.html">CBC</a> streams.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What does the exchange hash bind?</i></summary><p>The negotiated parameters and shared secret, so an attacker cannot alter the negotiation without detection.</p></details>
 </section>
 </section>
 
@@ -131,18 +113,29 @@ H = SHA-256(V_C || V_S || I_C || I_S || K_S || Q_C || Q_S || K)
 <li><strong><code>ssh-agent</code> forwarding hijacking:</strong> Forwarding <code>SSH_AUTH_SOCK</code> (<code>ssh -A</code>) exposes a <a href="glossary/u/unix.html">Unix</a> socket on the remote host; any root user or compromised process on that remote host can request signatures from your local agent for the lifetime of the session. Prefer <code>ProxyJump</code> (<code>ssh -J</code>), where the local client authenticates end-to-end without exposing the agent socket.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why is SSH's publickey authentication signature computed over session_id rather than just a fresh server nonce?</summary>
-<p>session_id is the exchange hash H of the entire Transport Layer handshake (version strings, <a href="glossary/k/kexinit.html">KEXINIT</a> lists, server host key K_S, ephemeral shares, and shared secret K). Signing session_id cryptographically binds the client's authentication proof to the exact server host key and encrypted channel, preventing an attacker from relaying a client's signature to a different server or MITM session.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <ul>
 <li><cite data-ref="rfc4251-ssh"><a href="bibliography/rfc4251-ssh.html">RFC 4251–4254: The Secure Shell (SSH) Protocol Architecture</a></cite>.</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="security/protocols/tls-and-https.html">SSL, TLS, and HTTPS</a></li>
+<li><a href="glossary/k/kex.html">KEX</a></li>
+<li><a href="glossary/m/mac.html">MAC</a></li>
+<li><a href="glossary/a/aead.html">AEAD</a></li>
+<li><a href="glossary/g/gcm.html">GCM</a></li>
+<li><a href="security/practice/ssh.html">SSH keys and remote access</a></li>
+<li><a href="glossary/h/hmac-sha1.html">HMAC-SHA1</a></li>
+<li><a href="glossary/s/sshfp.html">SSHFP</a></li>
+<li><a href="glossary/d/dnssec.html">DNSSEC</a></li>
+<li><a href="glossary/c/cbc.html">CBC</a></li>
+<li><a href="glossary/k/kexinit.html">KEXINIT</a></li>
+</ul>
+
+
 </body>
 </html>

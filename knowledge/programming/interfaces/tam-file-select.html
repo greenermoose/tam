@@ -7,7 +7,7 @@
 <meta name="topic" content="tam-file-select">
 <meta name="summary" content="Invoke the native C XDG desktop portal file chooser with tam-file-select and handle picked paths and exit statuses in scripts">
 <meta name="keywords" content="tam-file-select, file picker, portal, xdg portal, directory picker, tamlinux-tools">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="programming">
 <meta name="parent" content="programming/interfaces/index.html">
 <meta name="paths" content="files-and-apps:12">
@@ -15,74 +15,89 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/interfaces/index.html">Application interfaces</a> / Selecting files natively with tam-file-select</p></nav>
 
-
-<p><code>tam-file-select</code> is a fast C utility (linking <code>libtam</code>) that opens the desktop <a href="glossary/x/xdg.html">XDG</a> file chooser portal so shell scripts and theme tools can ask you to pick files or folders cleanly.</p>
+<p>tam-file-select opens the desktop file chooser so a script can ask you to pick a file. It returns the chosen path and an exit status your script can check.</p>
 
 <section data-level="novice">
-<h2>Picking a file cleanly from scripts and themes</h2>
-<p>When a desktop action—such as choosing a custom background image—needs you to pick a <a href="glossary/p/png.html">PNG</a> or <a href="glossary/s/svg.html">SVG</a> file, <code>tam-file-select</code> opens your native graphical file dialog, prints the chosen file path to standard output, and exits immediately.</p>
-
+<h2>Letting a person choose</h2>
+<p>A script sometimes needs a file name from you. <code>tam-file-select</code> opens the desktop's <a href="glossary/x/xdg.html">XDG</a> chooser and gives the chosen <a href="glossary/p/path.html">path</a> back to the script.</p>
 <h3>Why it matters</h3>
-<p>Delegating to the XDG portal avoids pulling heavy graphical toolkits into every small script while respecting your current desktop theme.</p>
-
+<p>Using the native chooser looks familiar and avoids making every script invent its own file list.</p>
 <h3>How to think about it</h3>
-<p>Every run returns one clear exit status: <code>0</code> when at least one path was chosen, <code>1</code> when you cancelled without choosing, and <code>2</code> if the portal could not open.</p>
-
-<h3>New words</h3>
-<dl>
-<dt><dfn><a href="glossary/e/exit-status.html">Exit status</a></dfn></dt>
-<dd>The numeric result code telling a calling script whether a file was chosen (0), cancelled (1), or failed (2).</dd>
-<dt><dfn><a href="glossary/p/path.html">Path</a></dfn></dt>
-<dd>The chosen file or folder path printed one line per selection on stdout.</dd>
-</dl>
+<p>It is like handing someone a form and waiting for them to tick a file. If they cancel, the form comes back marked as unfinished.</p>
 </section>
 
 <section data-level="learner">
-<h2>Options, filters, and exit codes</h2>
-<p><strong>Goal:</strong> call <code>tam-file-select</code> with optional title, multi-select, directory mode, or extension filters and handle cancellation cleanly in shell scripts.</p>
-<p><strong>Before you start:</strong> running <code>tam-file-select</code> requires an active graphical session with an XDG desktop portal backend. Cancelling the dialog makes no filesystem changes.</p>
+<h2>Read a chooser result</h2>
+<p><strong>Goal:</strong> check whether a file was chosen before using the returned path.</p>
+<tam-sandbox
+  title="Try it: check a file picker result"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="variables"
+  goal="Show a successful pick and its exit status">
+  <tam-fs>
+<dir name="/home/alex"></dir>
+  </tam-fs>
+    <tam-cmd match="tam-file-select --title &quot;Pick PNG or SVG&quot; --extensions &quot;png svg&quot;" hint="A path was returned. A script still needs to check success.">
+      <out>/home/alex/Pictures/logo.svg</out>
+    </tam-cmd>
+    <tam-cmd match="tam-file-select --title &quot;Pick PNG or SVG&quot; --extensions &quot;png svg&quot;; echo $?" goal="true" hint="Correct: exit=0 means a path was chosen; a cancelled pick uses a different status.">
+      <out>/home/alex/Pictures/logo.svg</out>
+      <out>exit=0</out>
+    </tam-cmd>
+  <tam-init>Try: tam-file-select --title "Pick PNG or SVG" --extensions "png svg"</tam-init>
+  <tam-hint after="1">Append ; echo $? to see the sample exit status.</tam-hint>
+  <tam-fallback>Try the tam-file-select command shown above, or type help.</tam-fallback>
+</tam-sandbox>
 
-<h3>Worked example</h3>
-<p>Prompt the user for one image file (<code>png</code> or <code>svg</code>) without modifying any files:</p>
-<pre class="session" data-risk="read-only">
-$ picked=$(tam-file-select --title "Pick PNG or SVG" --extensions "png svg")
-$ printf 'exit=%s picked=%s\n' "$?" "$picked"
-</pre>
-<table>
-<tr><th>Option</th><th>Effect</th></tr>
-<tr><td><code>--title &lt;title&gt;</code></td><td>Set dialog window title (default: <code>Select file</code>)</td></tr>
-<tr><td><code>--multiple</code></td><td>Allow selecting multiple files, printed one path per line</td></tr>
-<tr><td><code>--directory</code></td><td>Select a folder instead of a file</td></tr>
-<tr><td><code>--extensions "&lt;ext ...&gt;"</code></td><td>Space-separated filename extension filter list</td></tr>
-</table>
-
+<h3>What just happened</h3>
+<p>The path and status are sample output. The sandbox cannot open a real chooser, and no desktop portal is involved. In a script, a zero <a href="glossary/e/exit-status.html">exit status</a> means the path can be used; a cancelled pick should stop the script.</p>
 <h3>Try it</h3>
-<p>In a graphical terminal, run <code>tam-file-select --directory --title "Test pick"</code> and press Cancel to observe exit status <code>1</code> cleanly without touching any files.</p>
-
+<p>Think about the safe order: check the status first, then quote the path when passing it to another command. A path with spaces would otherwise split into several arguments.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> the utility is written in C, links <code>libtam</code>, and is meant for shell scripts and theme tools.</p></aside>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>Command exits with status 2</dt>
-<dd>Either no XDG desktop portal is available (for example on a headless text VT), an invalid flag was passed, or <code>tam_install_pending()</code> refused execution while a Tamlinux install or upgrade transaction is in progress.</dd>
-<dt><a href="glossary/s/script.html">Script</a> fails when user presses Cancel</dt>
-<dd>Always handle exit status <code>1</code> explicitly instead of treating empty stdout under <code>set -e</code> as a selected filename.</dd>
+<dt>No chooser window appeared.</dt><dd>The sandbox scripts the result as text. It does not open desktop windows.</dd>
+<dt>I wanted a different extension.</dt><dd>Only the sample png/svg command is scripted. Real scripts can pass other extensions.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p><code>tam-file-select</code> guards against mid-upgrade state transitions via <code>tam_install_pending()</code> from <code>libtam</code>, refusing to start until an interrupted install or upgrade transaction is resolved from the console.</p>
-</aside>
-
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
+<p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>What exit status does <code>tam-file-select</code> return when the user cancels the dialog?</i></summary>
-<p>Exit status <code>1</code> (while <code>0</code> means a selection was printed and <code>2</code> means chooser failure).</p>
+<summary><i>Why check the exit status?</i></summary>
+<p>A cancelled chooser gives no usable file path, so the script should stop instead of guessing.</p>
 </details>
 <details class="q">
-<summary><i>How should shell scripts separate multiple extensions passed to <code>--extensions</code>?</i></summary>
-<p>Space-separated inside quotes, for example <code>--extensions "png svg"</code>.</p>
+<summary><i>Why quote the chosen path?</i></summary>
+<p>Paths can contain spaces or other shell characters; quoting keeps them as one argument.</p>
 </details>
 </section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: portals and script contracts</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Item</th><th>Meaning</th><th>Note</th></tr>
+<tr><td>XDG desktop portal</td><td>Neutral dialog service</td><td>Works across desktop toolkits</td></tr>
+<tr><td>File filters</td><td>Extension hints</td><td>Usually advisory, not security checks</td></tr>
+<tr><td>Exit status</td><td>Success or cancellation</td><td>Check before using the path</td></tr>
+<tr><td>Path quoting</td><td>Shell argument safety</td><td>Essential for spaces and quotes</td></tr>
+</table>
+<h3>How it works</h3>
+<p>The utility asks the portal for a file, prints the selected path on standard output, and uses its exit status to signal success. A script captures the output into a variable, checks the status, then passes the quoted path onward. The chooser's extension list is a convenience filter; the script should still validate the file it receives.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>No portal service in a bare session: the request cannot complete.</li>
+<li>Cancellation produces no path; old variables may still hold a previous value.</li>
+<li>Symlinks and relative paths need care before writing back to a file.</li>
+<li>Accepted extensions do not guarantee a file's real type.</li>
+</ul>
+<h3>Sources</h3>
+<p><a href="desktop/apps/tam-journal.html">Keeping plain-text daily journals with tam-journal</a>; <a href="glossary/p/png.html">PNG</a>; <a href="glossary/s/svg.html">SVG</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="glossary/s/script.html">Script</a>, <a href="systems/packages/tam-bundle.html">How tam-bundle installs and rolls back files</a>, <a href="bibliography/index.html">bibliography</a>.</p>
 </section>
 
 <h2>Next</h2><p><a href="desktop/apps/tam-journal.html">Keeping plain-text daily journals with tam-journal</a> &mdash; plain-text daily notebook utility.</p>

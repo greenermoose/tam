@@ -58,12 +58,23 @@ configuration -> numbered snapshot + metadata -> optional boot-menu entry
 not make a snapshot type pre. Snapper types are single, pre and post; a post
 refers to its pre number. They describe relationships, not different Btrfs
 snapshot mechanisms.</p>
-<h3>Worked example: List configuration without a service request</h3>
-<pre class="session" data-risk="read-only">
-$ snapper --no-dbus --csvout list-configs --columns config,subvolume
-config,subvolume
-root,/
-</pre>
+<h3>Explore: List configuration without a service request</h3>
+<tam-sandbox
+  title="Try it: List configuration without a service request"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="List configuration without a service request">
+  <tam-cmd match="snapper --no-dbus --csvout list-configs --columns config,subvolume" goal="true" hint="Look for the value that answers the task.">
+    <out>config,subvolume
+root,/</out>
+  </tam-cmd>
+  <tam-init>Try: snapper --no-dbus --csvout list-configs --columns config,subvolume</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try snapper --no-dbus --csvout list-configs --columns config,subvolume (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <p>Captured with Snapper 0.13.2 on an Arch Linux workstation, 2026-10-21.
 Your configuration and output may differ.</p>
 <ol><li><code>--no-dbus</code> reads directly instead of contacting snapperd.</li>

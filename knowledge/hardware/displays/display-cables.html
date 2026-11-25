@@ -66,17 +66,27 @@
    [Type-C Controller] ──&gt; Reassigns 4 High-Speed Differential Pairs ──&gt; Native DisplayPort Main Link
    (Carries 4K/8K video while retaining USB 2.0 data lines and 100W USB Power Delivery)
 </pre>
-<h3>Worked example: inspect active physical display connectors on Linux</h3>
-<pre class="session" data-risk="read-only">
-$ for port in /sys/class/drm/card1-*; do
-    echo "$(basename "$port"): $(cat "$port/status" 2&gt;/dev/null)"
+<h3>Explore: inspect active physical display connectors on Linux</h3>
+<tam-sandbox
+  title="Try it: inspect active physical display connectors on Linux"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Inspect active physical display connectors on Linux">
+  <tam-cmd match="for port in /sys/class/drm/card1-*; do" goal="true" hint="Look for the value that answers the task.">
+    <out>    echo "$(basename "$port"): $(cat "$port/status" 2&gt;/dev/null)"
   done
 card1-DP-1: connected
 card1-DP-2: connected
-card1-HDMI-A-1: connected
-</pre>
+card1-HDMI-A-1: connected</out>
+  </tam-cmd>
+  <tam-init>Try: for port in /sys/class/drm/card1-*; do</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try for port in /sys/class/drm/card1-*; do (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-<p>Captured on a Tamlinux workstation, 2026-11-01. Your port names and connection statuses will reflect your physical setup.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The shell script loops through each display connector registered under graphics controller 1 in the Linux sysfs tree.</li>
@@ -106,6 +116,22 @@ card1-HDMI-A-1: connected
 <p>An HDMI connector has two symmetrical angled corners at the bottom (forming a trapezoid). A DisplayPort connector has only one angled corner (the other three are square 90-degree corners), and often has mechanical release latches on top.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Identify the display information carried in EDID"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Identify the display information carried in EDID">
+<tam-cmd match="edid-decode --help" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>Sample: decode monitor identification data</out>
+  </tam-cmd>
+  <tam-init>Try: edid-decode --help</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try edid-decode --help (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2><a href="glossary/d/drm.html">DRM</a> connector topology, <a href="glossary/e/edid.html">EDID</a> parsing, and the DisplayPort AUX channel</h2>
@@ -160,17 +186,7 @@ card1-HDMI-A-1: connected
 
 <h3>Explore: decode monitor EDID with edid-decode</h3>
 
-<pre class="session" data-risk="read-only">
-$ if command -v edid-decode &gt;/dev/null; then
-    edid-decode &lt; /sys/class/drm/card1-HDMI-A-1/edid | grep -E "Manufacturer:|Model:|Detailed Timing"
-  else
-    hexdump -C /sys/class/drm/card1-HDMI-A-1/edid | head -n 4
-  fi
-00000000  00 ff ff ff ff ff ff 00  34 a9 b8 a0 01 01 01 01  |........4.......|
-00000010  1a 1f 01 03 80 34 20 78  ea 7b 35 a6 55 51 9e 26  |.....4 x.{5.UQ.&amp;|
-00000020  0f 50 54 a5 4b 00 71 4f  81 00 81 c0 81 80 a9 c0  |.PT.K.qO........|
-00000030  b3 00 d1 c0 01 01 02 3a  80 18 71 38 2d 40 58 2c  |.......:..q8-@X,|
-</pre>
+
 
 <p>The raw binary EDID block contains the exact pixel clock, horizontal blanking, vertical sync pulses, and manufacturer ID programmed into the display hardware at the factory.</p>
 

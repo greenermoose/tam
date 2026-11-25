@@ -5,7 +5,7 @@
 <meta name="topic" content="voice">
 <meta name="summary" content="Using local voice dictation to enter text into any window">
 <meta name="keywords" content="voice, dictation, voxtype, whisper, speech, speech-to-text, microphone, f9, wtype">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/navigation/index.html">
 <meta name="kind" content="how-to">
@@ -45,15 +45,19 @@
 <p><strong>Before you start:</strong> ensure your microphone is plugged in and selected as the default recording device. Open an empty text editor or terminal.</p>
 <aside class="first-time"><p>F9 is push-to-talk. Press and hold F9 while you speak, then release F9 when you finish. Meta + Ctrl + X toggles start and stop with separate presses.</p></aside>
 
-<h3>Worked example</h3>
-<ol>
-<li>Click into your empty practice window so it has focus.</li>
-<li>Press and hold F9. A small on-screen indicator shows that the system is recording.</li>
-<li>Speak clearly: "Tamlinux runs speech recognition entirely on my local machine."</li>
-<li>Release F9. The indicator shows transcribing, and within one to two seconds the text is typed at your cursor.</li>
-</ol>
-<p>This walkthrough is checked against the packaged Voxtype bindings, not a claim that a <a href="glossary/g/gui.html">GUI</a> acceptance test was performed in your session.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Trace the voice input path"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Trace the voice input path">
+  <tam-cmd match="tam-voxtype --help" goal="true">
+    <out>Sample: hold-to-talk starts capture; release stops it</out>
+  </tam-cmd>
+  <tam-init>Try: tam-voxtype --help</tam-init>
+  <tam-hint after="1">The keybinding starts capture through the voice helper.</tam-hint>
+  <tam-hint after="2">Recognition then returns text to the focused application.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The compositor detected F9 and told the Voxtype daemon to start recording.</li>
@@ -85,7 +89,9 @@
 <p>A virtual keyboard injector (<code>wtype</code>) sends Wayland keyboard events to the focused window.</p></details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Expert reference</h2>
+<p>The focused application receives text after capture and recognition complete.</p>
 <h2>Key reference</h2>
 <table>
 <tr><th>Shortcut</th><th>Action</th><th>Behavior</th></tr>
@@ -100,7 +106,7 @@
   <li><strong>Context optimization:</strong> Short clips skip unnecessary padding so typical phrases finish in about a second.</li>
   <li><strong>Window injection:</strong> <code>wtype</code> injects keystrokes into the active Wayland surface.</li>
 </ol>
-
+</section>
 <h2>Sources and further reading</h2>
 <p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
 </body>

@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/development/index.html">Developing Tamlinux</a> / Contributing to Tamlinux</p></nav>
 
-
-<p>This page explains how to report problems, propose ideas, claim working paths in shared repositories, and test contributions.</p>
+<p>Contributing safely means claiming only the paths you edit, checking local components and keeping work records in the public repository.</p>
 <h2>Before this</h2><p><a href="tamlinux/development/index.html">Developing Tamlinux</a></p>
 
 <section data-level="novice">
@@ -42,55 +41,43 @@
 </section>
 
 <section data-level="learner">
-<h2>Claim paths and test components safely</h2>
-<p><strong>Goal:</strong> you will be able to check working claims and run local component checks without building a full release.</p>
+<h2>Read a path-claim sample</h2>
+<p><strong>Goal:</strong> interpret the sample output from a path-claim command</p>
 
-
-<h3>Worked example</h3>
-<ol>
-<li>Check active repository claims before starting edits:
-<pre class="session" data-risk="read-only">
-$ tam-work status
-</pre>
-</li>
-<li>Claim the repository paths you will change:
-<pre class="session" data-risk="user">
-$ tam-work begin --scope knowledge/my-topic.html --note 'Improve documentation'
-</pre>
-</li>
-<li><a href="glossary/b/build.html">Build</a> and test your local component changes using the developer loop:
-<pre class="session" data-risk="user">
-$ tam-dev check tam
-</pre>
-</li>
-<li>When working with multiple machines in a fleet, inspect host deployment status:
-<pre class="session" data-risk="read-only">
-$ tam-fleet status
-</pre>
-</li>
-</ol>
-
+<tam-sandbox
+  title="Try it: inspect a claim report"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Print a fixed tam-work status sample">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="tam-work status" goal="true" hint="Claim only the paths you will change; overlapping paths conflict.">
+    <out>owner: opencode
+session: draft-notes
+scope: knowledge/my-topic.html
+note: Improve documentation</out>
+  </tam-cmd>
+  <tam-cmd match="tam-work begin --scope knowledge/my-topic.html --note &#x27;Improve documentation&#x27;" hint="A shared checkout allows disjoint claims at the same time.">
+    <out>Claimed: knowledge/my-topic.html</out>
+  </tam-cmd>
+  <tam-init>A fixed report shows one owned path and one note.</tam-init>
+   <tam-hint after="1">Claim only the paths you will change; overlapping paths conflict.</tam-hint>
+  <tam-hint after="2">A shared checkout allows disjoint claims at the same time.</tam-hint>
+  <tam-fallback>Type tam-work status, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The status sample shows the owner, session, claimed path and purpose. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. A claim is not a commit; commit only the paths you claimed.</p>
 <h3>Try it</h3>
-<p>Run <code>tam-dev --help</code> in your terminal. It displays the available subcommands for building, checking, and running preview trials of Tamlinux components.</p>
-
+<p>Read the claim rule and identify which part of the report would change for a neighbour editing a different file.</p>
 <h3>If it goes wrong</h3>
-<dl>
-<dt>tam-work reports a path conflict</dt>
-<dd>Review <code>tam-work status</code>; wait for the other session to finish or choose disjoint paths.</dd>
-<dt>Component check reports build errors</dt>
-<dd>Inspect compiler diagnostics; keep local dev builds in <code>~/.local</code> rather than modifying system directories.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p>Public Tamlinux repositories keep work history under <code>work/</code>, with one <code>W&lt;n&gt;-&lt;name&gt;</code> record per session and <code>WHATNOW</code> for the handoff. Older records are read-only history in <code>work/history/</code>; <code>AI-BLAME.md</code> (not <code>AI_PROVENANCE.md</code>) documents how AI assistance is recorded.</p>
-</aside>
-
+<p>If Git reports index.lock, wait and retry; never delete the lock.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>Which tool coordinates path claims in a shared checkout?</i></summary>
-<p><code>tam-work</code>.</p></details>
-<details class="q"><summary><i>What command tests local components without assembling a full package candidate?</i></summary>
-<p><code>tam-dev</code>.</p></details>
+<details class="q"><summary><i>Why claim paths before editing?</i></summary><p>To keep overlapping work from being swept into another agent’s commit.</p></details>
 </section>
 </section>
 
@@ -103,6 +90,7 @@ $ tam-fleet status
 <tr><td><code>tam-fleet</code></td><td>One-shot host registration, reconciliation, and fleet deployment</td></tr>
 </table>
 <p>All contributions follow strict repository etiquette: commit only your claimed paths, never run blanket staging (<code>git add -A</code>), and cite real journal evidence with boot IDs for any diagnosed bugs.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/b/build.html">Build</a>.</p>
 </section>
 
 <h2>Next</h2><p><a href="programming/scripting.html">Shell scripting and tool conventions</a> — guidelines for writing tools.</p>

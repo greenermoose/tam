@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/services/index.html">Local services and discovery</a> / Avahi and Zeroconf</p></nav>
 
-<p>Local service discovery lets a printer, screen or file share announce itself on a network so a computer can find it without being told its address first.</p>
-<h2>Before this</h2><p><a href="networking/setup/name-resolution.html">Name resolution</a> explains ordinary <a href="glossary/d/dns.html">DNS</a>, which answers names from a configured server. This page begins where that server is not needed.</p>
+<p>Avahi lets devices announce and find services on a local network without a central server, using multicast DNS and DNS-Based Service Discovery.</p>
 
 <section data-level="novice">
 <h2>Finding things on a network with no central list</h2>
@@ -50,74 +49,47 @@ Your computer             --- asks --------&gt;  everyone on the local link
 </section>
 
 <section data-level="learner">
-<h2>Publish and find a service</h2>
-<p><strong>Goal:</strong> you will be able to publish a temporary test service, read the discovery output, resolve the resulting local name and stop the test cleanly.</p>
-
-<p><strong>Before you start:</strong> the Avahi daemon must be running on your machine. The example creates a short-lived service in your own session and then removes it. It does not install anything or change configuration files.</p>
-
-<h3>Worked example</h3>
-<pre class="session" data-risk="user">
-$ avahi-publish -s 'Demo Printer' _ipp._tcp 631 &amp;
-Established under name 'Demo Printer'
-$ avahi-browse _ipp._tcp -t -r -p
-+;enp1s0;IPv4;Demo\032Printer;Internet Printer;local
-+;lo;IPv4;Demo\032Printer;Internet Printer;local
-=;enp1s0;IPv4;Demo\032Printer;Internet Printer;local;workstation.local;192.168.1.26;631;
-=;lo;IPv4;Demo\032Printer;Internet Printer;local;workstation.local;127.0.0.1;631;
-$ avahi-resolve -4 -n "$(hostname).local"
-workstation.local       192.168.1.26
-</pre>
-<p>Captured on a wired Arch Linux workstation on 2026-11-21 with Avahi 0.9-rc5. The host name is shortened to <code>workstation.local</code> here; your name, interfaces and addresses will differ. Stop the publisher with <code>kill %1</code> or Ctrl+C in the shell that started it.</p>
-
+<h2>Match a service type to an advertised record</h2>
+<p><strong>Goal:</strong> pick the Internet Printer record from sample Avahi browse output.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: discover a local printer"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the IPP printer line in sample Avahi output">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="avahi-browse _ipp._tcp -t -r -p" goal="true" hint="The = line is a resolved record with host, address and port.">
+      <out>+;enp1s0;IPv4;Demo Printer;Internet Printer;local</out>
+      <out>=;enp1s0;IPv4;Demo Printer;Internet Printer;local;workstation.local;192.0.2.26;631;</out>
+    </tam-cmd>
+    <tam-cmd match="avahi-resolve -4 -n workstation.local" hint="The name resolves to the address used in the browse record.">
+      <out>workstation.local       192.0.2.26</out>
+    </tam-cmd>
+  <tam-init>Sample Avahi browse: _ipp._tcp shows an Internet Printer.</tam-init>
+  <tam-hint after="1">Try avahi-browse _ipp._tcp -t -r -p.</tam-hint>
+  <tam-hint after="2">Now try avahi-resolve -4 -n workstation.local.</tam-hint>
+  <tam-fallback>Try avahi-browse _ipp._tcp -t -r -p or avahi-resolve -4 -n workstation.local (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>avahi-publish -s</code> registers a service instance named <code>Demo Printer</code> of type <code>_ipp._tcp</code> on port 631. The ampersand puts it in the background so the next command can run.</li>
-<li><code>avahi-browse -t</code> asks for instances of that type and terminates after collecting them; <code>-r</code> resolves each one; <code>-p</code> prints semicolon-separated fields suitable for scripts.</li>
-<li>Lines beginning <code>+</code> announce that a service was found. Lines beginning <code>=</code> give the resolved host name, address and port.</li>
-<li><code>\032</code> is the DNS text escape for a space. Service instance names can contain spaces; the parsable output escapes them so fields stay separated.</li>
-<li>The same service appears on <code>enp1s0</code> and <code>lo</code> because Avahi listens on both interfaces. The loopback copy resolves to <code>127.0.0.1</code>; the wired copy resolves to the LAN address.</li>
-<li><code>avahi-resolve</code> resolves the machine's <code>.local</code> name to an address using multicast DNS rather than a configured DNS server.</li>
-</ol>
-
+<p>The browse reply is authored sample output. The <code>=</code> line gives the resolved name, address and port; the <code>+</code> line is the service as it first appeared. <code>avahi-resolve</code> confirms the name-to-address step for the same sample host.</p>
 <h3>Try it</h3>
-<p>Repeat the example with a name of your own, then run <code>avahi-browse -a -t -r -p</code> to see all advertised types on the link. End with <code>avahi-browse -D -t</code> to list discovery domains. Stop every publisher you started; a forgotten one keeps announcing a service that no longer exists.</p>
-
+<p>Change the service type in your prediction: <code>_ssh._tcp</code> would describe remote login rather than printing. This sandbox has rules only for the commands shown; on a real local network, Avahi answers from neighbouring devices.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>No services appear</dt>
-<dd>Check <code>systemctl is-active avahi-daemon</code>. If it is inactive, start it with <code>systemctl start avahi-daemon</code>, which needs privilege; then browse again.</dd>
-<dt>A service appears but cannot be resolved</dt>
-<dd>The publisher may have stopped, or a firewall may block <a href="glossary/u/udp.html">UDP</a> port 5353. The Tamlinux host firewall template permits mDNS from the local home subnet.</dd>
-<dt><code>avahi-resolve</code> fails for a <code>.local</code> name</dt>
-<dd>Ordinary DNS does not answer <code>.local</code>. Check that a Name Service Switch module such as <code>nss-mdns</code> is installed and that the resolver is not claiming the domain first.</dd>
-<dt>Services appear only from this machine</dt>
-<dd>Multicast traffic may be confined by a switch, a guest-network setting or a firewall. Discovery is a link-local mechanism and does not cross a router by default.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Tamlinux's host firewall template permits mDNS on UDP 5353 from the local home subnet, and its connection pages direct DNS changes through a command that records a snapshot. The template is documented in the public product repository; the enabled protocols on a given machine can be checked with <code>resolvectl status</code>, where <code>-mDNS</code> means systemd-resolved is not answering <code>.local</code> and the Avahi stack handles it instead.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>Why does the same service appear twice in the browse output?</i></summary>
-<p>Avahi listens on more than one interface. It sees its own announcement on the wired interface and through loopback, each with a different address. Device lists normally hide the local copies, but the parsable output shows both.</p>
-</details>
-<details class="q">
-<summary><i>What does the _ipp._tcp part identify?</i></summary>
-<p>A DNS-SD service type: Internet Printing Protocol over <a href="glossary/t/tcp.html">TCP</a>. It is a label used to group instances of the same kind of service, not the printer's name or its address.</p>
-</details>
-<details class="q">
-<summary><i>Predict what happens if the firewall drops UDP 5353 on the wired interface.</i></summary>
-<p>Local announcements still appear on loopback, but no other machine is heard and no announcement from this machine reaches the network. Browse shows little or nothing while the daemon itself remains active.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What does DNS-SD add beyond plain mDNS name lookup?</i></summary><p>It standardises service types and records, so a client can ask for printers or SSH servers instead of guessing host names.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: mDNS, DNS-SD and the Avahi daemon</h2>
-
 <h3>Reference</h3>
 <table>
 <tr><th>Item</th><th>Meaning</th><th>Authority</th></tr>
@@ -136,17 +108,7 @@ workstation.local       192.168.1.26
 <p>Avahi is the Linux implementation: <code>avahi-daemon</code> owns multicast responses and records, applications talk to it over D-<a href="glossary/b/bus.html">Bus</a>, and <code>avahi-browse</code>, <code>avahi-resolve</code> and <code>avahi-publish</code> are clients of that interface. Its configuration file controls <code>host-name</code>, <code>domain-name</code>, <code>use-ipv4</code>, <code>use-ipv6</code>, <code>allow-interfaces</code>, <code>deny-interfaces</code>, <code>enable-dbus</code>, the <code>publish-*</code> switches and <code>enable-wide-area</code>. Host-name resolution for applications uses a Name Service Switch module such as <code>nss-mdns</code>, which is separate from the daemon.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="system">
-# /etc/avahi/services/printer.service - published by the daemon at start
-&lt;service-group&gt;
-  &lt;name replace-wildcards="yes"&gt;Printer on %h&lt;/name&gt;
-  &lt;service&gt;
-    &lt;type&gt;_ipp._tcp&lt;/type&gt;
-    &lt;port&gt;631&lt;/port&gt;
-    &lt;txt-record&gt;txtvers=1&lt;/txt-record&gt;
-  &lt;/service&gt;
-&lt;/service-group&gt;
-</pre>
+
 <p>A static definition publishes a service even when no application is running. Reload the daemon after a change. This is an illustrative file, not an exercise; a typo in <code>/etc/avahi/services/</code> can publish a misleading service to the whole link.</p>
 
 <h3>Edge cases</h3>
@@ -160,17 +122,7 @@ workstation.local       192.168.1.26
 <li>Wide-area mode changes how queries and responses are framed for unicast DNS. It is not the normal home-network setting and needs deliberate configuration.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why does DNS-SD use PTR records for browsing instead of SRV records alone?</summary>
-<p>A query for an SRV record assumes the instances are interchangeable and returns targets directly. DNS-SD needs a user-visible list of named instances to choose from, so a PTR query returns instance names first; the client then resolves the chosen instance with SRV and TXT queries.</p>
-</details>
-<details class="q open">
-<summary>What does the cache-flush bit accomplish, and why is it only set on unique records?</summary>
-<p>It tells receivers to discard older data for that name and type, which is correct when exactly one host owns the record. Shared records can legitimately have several owners, so flushing would erase valid answers from other hosts.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <p><cite data-ref="rfc6762-mdns"><a href="bibliography/rfc6762-mdns.html">RFC 6762, Multicast DNS</a></cite> and <cite data-ref="rfc6763-dns-sd"><a href="bibliography/rfc6763-dns-sd.html">RFC 6763, DNS-Based Service Discovery</a></cite> are the standards. <a href="man:avahi-daemon(8)">avahi-daemon(8)</a>, <a href="man:avahi-daemon.conf(5)">avahi-daemon.conf(5)</a>, <a href="man:avahi-browse(1)">avahi-browse(1)</a>, <a href="man:avahi-resolve(1)">avahi-resolve(1)</a> and <a href="man:avahi-publish(1)">avahi-publish(1)</a> describe the implementation.</p>
@@ -178,6 +130,15 @@ workstation.local       192.168.1.26
 <h3>Improve it</h3>
 <p>Verify new capture against the installed Avahi version and date. A change in output format is easy to mistake for a protocol detail.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/d/dns.html">DNS</a></li>
+<li><a href="glossary/u/udp.html">UDP</a></li>
+<li><a href="glossary/t/tcp.html">TCP</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="networking/ietf-and-rfcs.html">The IETF and how RFCs work</a> &mdash; read the standards behind the behavior you just observed.</p>
 <h2>Related</h2><ul><li><a href="networking/setup/name-resolution.html">Name resolution</a> &mdash; where ordinary DNS ends and <code>.local</code> begins.</li><li><a href="paths/network-setup.html">Set up a network connection</a> &mdash; the path that leads here.</li></ul>

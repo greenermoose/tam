@@ -3,8 +3,8 @@
 Read this with [`corpus-authoring.md`](corpus-authoring.md) and
 [`corpus-pedagogy.md`](corpus-pedagogy.md). Authoring covers what must be
 true. Pedagogy covers level anatomy, paths and quizzes. This file covers
-voice, page kinds, one-page difficulty levels, learning paths, and how much
-effort goes into static examples.
+voice, page kinds, one-page difficulty levels, learning paths, and how
+interactive sandboxes replace static examples.
 
 Approved for plan 26 W0 on 2026-11-04 (D225, D226). Do not change it without
 the developer's word.
@@ -73,33 +73,36 @@ forces a novice through a tutorial.
 Kinds align with Diátaxis labels in page metadata (`how-to`, `explanation`,
 `reference`, `tutorial`) where those are declared.
 
-## Examples: keep them light until interactivity lands (D225)
+## Examples: interactive sandboxes (D225)
 
-Today's pager can only show fixed text. A static worked example is like a
-textbook: useful, but not interactive. A future `tam` version will add
-custom bash sandbox windows where the reader runs commands and sees live
-results; the developer will specify that design when the time comes.
+The pager can run a simulated shell in a `<tam-sandbox>`. Use it wherever a
+page shows how to use the computer. The reader types commands and sees
+authored output or works on the sandbox's own sample files. A static
+command-and-output transcript is no longer the teaching device.
 
-Until then:
-
-- Put worked examples only in Learner (2) sections of the same page.
-- Prefer one short, real capture over fading ladders, Parsons puzzles, or
-  multi-stage example craft on every page.
-- Capture output by running the command (never invent it). Prefer a scratch
-  directory. Note when output varies by machine.
+- Put every sandbox in the Learner (2) section of the same page. Pages with
+  a sandbox declare novice, learner and expert sections.
+- Give the sandbox one clear goal, short progressive hints and a fallback.
+  Make the task a small discovery, prediction or diagnosis, not busywork.
+- Prefer built-in commands that really operate on sandbox files: `ls`, `cd`,
+  `cat`, `grep`, `wc`, `sort`, `uniq`, `head`, `tail`, `find`, `tree`, pipes
+  and redirection. Scripted rules cover tools the sandbox cannot simulate.
+- Label scripted output as a sample. Do not write that it was captured on a
+  machine unless it really was; do not leave "Captured on..." prose beside
+  a sandbox.
 - Link the man page instead of copying long flag tables.
-- Do not spend large effort polishing static example sequences that
-  interactive sandboxes will replace.
+- Keep `<tam-init>` short: it is the only sandbox text visible in pipe
+  rendering.
 
 Expert sections may still show advanced illustrative commands. Novice
-sections must not.
+sections must not contain sandboxes, goals or quizzes.
 
 ## Learning devices (Learner sections only)
 
 In Learner (2) sections, when they earn their place:
 
 1. One-line **Goal:** ("You will be able to…").
-2. A short **worked example** (captured; see above).
+2. A short **interactive sandbox** that replaces a captured worked example.
 3. A safe **Try it** in a scratch or reversible setting, when practice helps.
 4. A **Check yourself** question with a folded answer, when a check helps.
 5. Path onward via **Where next** / **See also**, and embedded path links

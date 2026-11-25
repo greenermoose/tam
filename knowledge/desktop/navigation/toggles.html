@@ -41,14 +41,19 @@
 <p><strong>Goal:</strong> you will be able to open the Toggle menu and recognize idle versus night-light controls.</p>
 
 
-<h3>Worked example</h3>
-<ol>
-<li>Press <kbd>Meta + Ctrl + O</kbd> to run <code>tam-menu toggle toggle</code>.</li>
-<li>Leave the menu without changing anything if you are unsure.</li>
-<li>Read <a href="desktop/tasks/lock-and-idle.html">Lock and idle</a> before changing sleep behaviour, and
-<a href="desktop/tasks/night-light.html">Night light</a> before changing colours.</li>
-</ol>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Predict the effect of a toggle key"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Predict the effect of a toggle key">
+  <tam-cmd match="tam-menu-keybindings" goal="true">
+    <out>Sample: Meta + U toggles gaps; repeat to restore the previous state</out>
+  </tam-cmd>
+  <tam-init>Try: tam-menu-keybindings</tam-init>
+  <tam-hint after="1">A toggle changes state each time it is pressed.</tam-hint>
+  <tam-hint after="2">Press the same chord again to return to the earlier state.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>Open and dismiss the Toggle menu once. Do not disable idle on a laptop you will leave unattended.</p>
 

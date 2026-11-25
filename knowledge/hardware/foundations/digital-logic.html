@@ -65,21 +65,31 @@ Clock Pulse ---------+  (Updates only on rising edge: ___/--- )
 <tr><td><strong>Combinational logic</strong></td><td>the output depends strictly and immediately on the current combination of inputs. It has no memory and no concept of past state. Examples include addition circuits, multiplexers, and decoders.</td></tr>
 <tr><td><strong>Sequential logic</strong></td><td>the output depends on both current inputs and past history. It uses feedback loops to store bits, synchronized by a master <em>clock signal</em>. Examples include <a href="glossary/c/cpu.html">CPU</a> registers, program counters, and <a href="glossary/r/ram.html">RAM</a> cells.</td></tr>
 </table>
-<h3>Worked example: evaluate Boolean logic gates in Bash</h3>
-<pre class="session" data-risk="read-only">
-$ a=12  # binary 1100
-$ b=10  # binary 1010
-$ printf "AND: %d &amp; %d = %d\n" "$a" "$b" "$(( a &amp; b ))"
-AND: 12 &amp; 10 = 8
+<h3>Explore: evaluate Boolean logic gates in Bash</h3>
+<tam-sandbox
+  title="Try it: evaluate Boolean logic gates in Bash"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Evaluate Boolean logic gates in Bash">
+  <tam-cmd match="a=12  # binary 1100" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="b=10  # binary 1010"></tam-cmd>
+  <tam-cmd match="printf &quot;AND: %d &amp; %d = %d\n&quot; &quot;$a&quot; &quot;$b&quot; &quot;$(( a &amp; b ))&quot;">
+    <out>AND: 12 &amp; 10 = 8</out>
+  </tam-cmd>
+  <tam-cmd match="printf &quot;OR:  %d | %d = %d\n&quot; &quot;$a&quot; &quot;$b&quot; &quot;$(( a | b ))&quot;">
+    <out>OR:  12 | 10 = 14</out>
+  </tam-cmd>
+  <tam-cmd match="printf &quot;XOR: %d ^ %d = %d\n&quot; &quot;$a&quot; &quot;$b&quot; &quot;$(( a ^ b ))&quot;" goal="true">
+    <out>XOR: 12 ^ 10 = 6</out>
+  </tam-cmd>
+  <tam-init>Try: a=12  # binary 1100</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try a=12  # binary 1100 (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-$ printf "OR:  %d | %d = %d\n" "$a" "$b" "$(( a | b ))"
-OR:  12 | 10 = 14
-
-$ printf "XOR: %d ^ %d = %d\n" "$a" "$b" "$(( a ^ b ))"
-XOR: 12 ^ 10 = 6
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-01.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The number 12 in binary is <code>1100</code>; the number 10 in binary is <code>1010</code>.</li>
@@ -109,6 +119,25 @@ XOR: 12 ^ 10 = 6
 <p>Any possible Boolean function (including AND, OR, NOT, and XOR) can be constructed exclusively out of interconnected NAND gates.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for cat /sys/devices/system/cpu/cpu0/cpufre"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq">
+<tam-cmd match="cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq" hint="Read the labels and connect each value to the task.">
+    <out>1400000</out>
+  </tam-cmd>
+<tam-cmd match="cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" goal="true">
+    <out>schedutil</out>
+  </tam-cmd>
+  <tam-init>Try: cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2><a href="glossary/c/cmos.html">CMOS</a> transistor physics, propagation delay, and <a href="glossary/a/alu.html">ALU</a> design</h2>
@@ -155,13 +184,7 @@ where C is capacitance, V is voltage, f is clock frequency, and alpha is switchi
 
 <p>Inspect CPU clock frequencies across active cores using the sysfs interface:</p>
 
-<pre class="session" data-risk="read-only">
-$ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
-1400000
 
-$ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-schedutil
-</pre>
 
 <section class="quiz">
 <h3>Check yourself</h3>

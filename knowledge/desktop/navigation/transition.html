@@ -44,15 +44,19 @@
 <p><strong>Goal:</strong> you will be able to open the menu, open a terminal, list keybindings, and close a practice window.</p>
 
 
-<h3>Worked example</h3>
-<ol>
-<li>Press <kbd>Meta + Space</kbd> for the Tamlinux menu, then Escape to dismiss it.</li>
-<li>Press <kbd>Meta + Return</kbd> for a terminal.</li>
-<li>Press <kbd>Meta + K</kbd> to browse keybindings.</li>
-<li><a href="glossary/f/focus.html">Focus</a> the empty terminal and press <kbd>Meta + Q</kbd> to close it.</li>
-</ol>
-<p>These chords come from packaged <code>utilities.lua</code> and <code>applications.lua</code>. On a Mac keyboard, confirm which physical key sends Meta.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Distinguish switching workspace from moving a window"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Distinguish switching workspace from moving a window">
+  <tam-cmd match="tam-menu-keybindings" goal="true">
+    <out>Sample: Meta + Shift + 1 moves the focused window</out>
+  </tam-cmd>
+  <tam-init>Try: tam-menu-keybindings</tam-init>
+  <tam-hint after="1">A workspace switch changes the visible group.</tam-hint>
+  <tam-hint after="2">A move changes the window location and may also follow it.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>Menus and launchers are keyboard-reachable without a Windows-style Start glyph hunt.</li>

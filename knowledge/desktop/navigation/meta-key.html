@@ -53,15 +53,19 @@
 <p>Hold Meta, tap the second key, then release both. A plus sign means hold the keys together, not type a plus. These chords go to the desktop, not into the focused program's text.</p>
 </aside>
 
-<h3>Worked example</h3>
-<ol>
-  <li>Find the Meta key on the bottom row of your keyboard.</li>
-  <li>Press and hold <strong>Meta</strong>, tap <strong>Space</strong>, and release both. The Tamlinux system menu appears. Tap <strong>Escape</strong> to close it.</li>
-  <li>Press <strong>Meta + K</strong>. The interactive keybindings reference opens. Tap <strong>Escape</strong> or <strong>Meta + Q</strong> to close it.</li>
-  <li>Press <strong>Meta + Return</strong>. An empty terminal opens. Press <strong>Meta + Q</strong> to close that terminal only.</li>
-</ol>
-<p>The bindings are verified against packaged session definitions. Live <a href="glossary/g/gui.html">GUI</a> behaviour on your keyboard still needs human verification if your layout differs.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Find the packaged action for a Meta chord"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Find the packaged action for a Meta chord">
+  <tam-cmd match="tam-menu-keybindings" goal="true">
+    <out>Sample: Meta + Return opens a terminal; Meta + K opens keybindings</out>
+  </tam-cmd>
+  <tam-init>Try: tam-menu-keybindings</tam-init>
+  <tam-hint after="1">Search the keybinding list by the chord.</tam-hint>
+  <tam-hint after="2">Personal overrides may change the packaged default.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
   <li><code>Meta + Space</code> sent a desktop-level command to open the main menu.</li>
@@ -116,7 +120,7 @@
 </table>
 
 <h3>Input pipeline</h3>
-<pre class="session" data-risk="read-only">
+<pre class="diagram">
 Physical Key (PC Windows key / Mac Command ⌘)
     |
     v

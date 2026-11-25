@@ -14,7 +14,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/memory/index.html">Memory technology</a> / Sequential access media</p></nav>
 
-<p>Sequential access media store data in an order that is read from beginning to end, or from a current position to a later one. Punch cards, paper tape, and magnetic tape are classic examples: they are simple, durable in the right conditions, and efficient for long streams, but slow when you need one small item in the middle.</p>
+<p>Sequential media store data in order, so reaching one item may require reading what comes before it. Magnetic tape is a familiar example.</p>
 
 <section data-level="novice">
 <h2>Reading in order</h2>
@@ -40,18 +40,31 @@
 <h3>Magnetic tape</h3>
 <p>Magnetic tape stores data as magnetized regions on a thin plastic film coated with magnetic material. A write head changes the magnetic orientation of tiny regions as the tape passes. A read head senses those magnetic changes later. Because the tape is a long continuous ribbon, it is naturally sequential: the drive winds to the needed position and then reads or writes a stream.</p>
 
-<h3>Worked example: tar and tape archives</h3>
+<h3>Explore: tar and tape archives</h3>
 <p>The Unix <code>tar</code> command creates a tape archive: a stream of file headers and file data written one after another. Even when you write a <code>.tar</code> file to disk, the format still looks like a tape stream. This is why tar is good for backups and streaming: it can write files in sequence without needing to jump around a lot.</p>
-<pre class="session" data-risk="scratch">
-$ work=$(mktemp -d)
-$ mkdir -p "$work/data"
-$ printf 'log entry\n' &gt; "$work/data/log.txt"
-$ tar -cf "$work/backup.tar" -C "$work/data" .
-$ tar -tf "$work/backup.tar"
-./
-./log.txt
-$ rm -rf -- "$work"
-</pre>
+<tam-sandbox
+  title="Try it: tar and tape archives"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Tar and tape archives">
+  <tam-cmd match="work=$(mktemp -d)" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="mkdir -p &quot;$work/data&quot;"></tam-cmd>
+  <tam-cmd match="printf &#x27;log entry\n&#x27; &gt; &quot;$work/data/log.txt&quot;"></tam-cmd>
+  <tam-cmd match="tar -cf &quot;$work/backup.tar&quot; -C &quot;$work/data&quot; ."></tam-cmd>
+  <tam-cmd match="tar -tf &quot;$work/backup.tar&quot;">
+    <out>./
+./log.txt</out>
+  </tam-cmd>
+  <tam-cmd match="rm -rf -- &quot;$work&quot;" goal="true">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: work=$(mktemp -d)</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try work=$(mktemp -d) (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <p>The first command creates an archive file. The second lists its contents in order. On real tape hardware, listing can mean winding through the tape until the relevant headers are read.</p>
 
 <h3>Try it</h3>

@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/setup/index.html">Network setup</a> / How networks fit together</p></nav>
 
-<p>A network is a set of devices that can exchange messages, and every working connection answers the same four questions: how to reach the wire or radio, what address to use, where to send traffic for other networks, and how to turn a name into an address.</p>
-<h2>Before this</h2><p><a href="terminal/shell/index.html">Giving your computer written instructions</a> helps if you want to try the commands yourself.</p>
+<p>Every network connection answers four questions: which link is up, which address is used, which route leaves the local network, and which resolver turns names into addresses.</p>
 
 <section data-level="novice">
 <h2>The four questions of every connection</h2>
@@ -53,83 +52,56 @@
 </section>
 
 <section data-level="learner">
-<h2>Read the four answers from a running system</h2>
-<p><strong>Goal:</strong> you will be able to name the active interface, its address, the gateway and the DNS server, and say which command revealed each one.</p>
-
-<p><strong>Before you start:</strong> the commands below only read network state. They do not change a connection. Open a <dfn><a href="glossary/t/terminal.html">terminal</a></dfn> and run them one at a time.</p>
-
-<aside class="first-time">
-<p>Type what follows the <code>$</code> and press Enter; do not type the <code>$</code>. Your interface names, addresses and timings will differ from the example. Success means the command prints something useful, not that the numbers match.</p>
-</aside>
-
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ip -br addr
-lo               UNKNOWN        127.0.0.1/8 ::1/128
-enp1s0           UP             192.168.1.26/24 fe80::80d1:99bb:b99:2848/64
-enp2s0           DOWN
-wlp3s0           DOWN
-docker0          DOWN           172.17.0.1/16 fe80::14cd:83ff:febb:9e4b/64
-$ ip route
-default via 192.168.1.1 dev enp1s0 proto dhcp src 192.168.1.26 metric 100
-172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown
-192.168.1.0/24 dev enp1s0 proto kernel scope link src 192.168.1.26 metric 100
-$ getent ahosts example.com
-104.20.23.154   STREAM example.com
-104.20.23.154   DGRAM
-104.20.23.154   RAW
-172.66.147.243  STREAM
-</pre>
-<p>Captured on a wired Arch Linux workstation on 2026-11-21. The name lookup is shortened here; your resolver will return its own addresses.</p>
-
+<h2>Find the four answers in sample records</h2>
+<p><strong>Goal:</strong> match a sample interface, route and resolver line to the question each one answers.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: four questions, four records"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Find the route line in the sample network records">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">link: enp1s0 UP
+address: 192.0.2.26/24
+route: default via 192.0.2.1
+resolver: example.test -&gt; 192.0.2.20</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep route clues.txt" goal="true" hint="Try grep route clues.txt to see the path out.">
+      <out>route: default via 192.0.2.1</out>
+    </tam-cmd>
+    <tam-cmd match="grep link clues.txt" hint="Link is the local hardware or wireless connection.">
+      <out>link: enp1s0 UP</out>
+    </tam-cmd>
+    <tam-cmd match="grep address clues.txt" hint="Address is the interface’s IP and prefix.">
+      <out>address: 192.0.2.26/24</out>
+    </tam-cmd>
+    <tam-cmd match="grep resolver clues.txt" hint="Resolver turns a name into an address.">
+      <out>resolver: example.test -&gt; 192.0.2.20</out>
+    </tam-cmd>
+  <tam-init>Four sample records: link, address, route and resolver.</tam-init>
+  <tam-hint after="1">Try grep route clues.txt to see the path out.</tam-hint>
+  <tam-hint after="2">Now try grep resolver clues.txt for the name answer.</tam-hint>
+  <tam-fallback>Try grep link clues.txt, grep address clues.txt, grep route clues.txt or grep resolver clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>ip -br addr</code> answers the link and address questions. <code>UP</code> means the interface is enabled; <code>DOWN</code> means it is not. <code>lo</code> is the loopback interface the machine uses to talk to itself.</li>
-<li><code>192.168.1.26/24</code> is an <a href="glossary/i/ipv4.html">IPv4</a> address with a prefix length; <code>fe80::…/64</code> is an <a href="glossary/i/ipv6.html">IPv6</a> link-local address valid only on this cable or radio link.</li>
-<li><code>ip route</code> answers the route question. The <code>default</code> line names the gateway for everywhere outside the local <code>192.168.1.0/24</code> network.</li>
-<li><code>proto dhcp</code> records where the setting came from: DHCP supplied it. <code>proto kernel</code> marks a route the kernel added from an address on the interface.</li>
-<li><code>getent ahosts</code> answers the name question through the system's normal lookup rules and prints the addresses in the order it tried them.</li>
-</ol>
-
+<p>Each prepared line answers one question. The link line names an active interface, the address line gives its IP and prefix, the route line names the next router, and the resolver line maps a name to an address. This is sample text, not a scan of your machine.</p>
 <h3>Try it</h3>
-<p>Run <code>nmcli device status</code> and compare its <code>DEVICE</code> and <code>CONNECTION</code> columns with the interfaces you saw above. Then run <code>ip route get 1.1.1.1</code>: it tells you which interface and source address the kernel would choose for a numeric destination, without sending a packet.</p>
-
+<p>Use <code>cat clues.txt</code> to read all four records at once. Then hide the answer and try to say which record you would check first if a browser failed but a numeric address replied.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>The interface shows <code>DOWN</code> or <code>NO-CARRIER</code></dt>
-<dd>There is no link. Check the cable or join a Wi-Fi network before changing any address.</dd>
-<dt>No line begins with <code>default</code></dt>
-<dd>The machine has no route to outside networks. Local addresses may still work; remote traffic cannot leave.</dd>
-<dt>An address is present but <code>getent</code> prints nothing</dt>
-<dd>The link, address and route layers work while name resolution fails. Check the resolver with <code>resolvectl status</code>.</dd>
-<dt><code>command not found</code></dt>
-<dd>The tool is not installed on this system. <code>ip</code> comes from <code>iproute2</code> and <code>getent</code> from the C library tools; on Tamlinux both are present.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, NetworkManager owns connection state and systemd-resolved answers ordinary DNS questions. The Tamlinux panel reads NetworkManager and calls the same <code>tam-network-*</code> commands a terminal user calls; <code>tam-network-status --verbose</code> prints the interface, address, gateway and ping times together. Those behaviors are recorded in the public <code>tamlinux</code> repository under <code>commands/</code> and <code>desktop/shell/panels/network/</code>.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>A machine has an address on enp1s0 but no default route. What still works?</i></summary>
-<p>Traffic to destinations on the local <code>192.168.1.0/24</code> network still works, because the kernel added a route for that prefix from the interface's address. Traffic to the wider internet has no next hop, so it fails.</p>
-</details>
-<details class="q">
-<summary><i>Why does the example use a numeric address with ip route get?</i></summary>
-<p>A numeric destination avoids a DNS lookup, so the result describes only the routing decision. Using a name would mix the route and name questions in one answer.</p>
-</details>
-<details class="q">
-<summary><i>Which layer produces the line proto dhcp in the routing table?</i></summary>
-<p>The address-configuration layer. A DHCP client supplied the address and default route; the kernel installed them in the table and recorded the origin as <code>dhcp</code>.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why check the link before DNS?</i></summary><p>A name lookup cannot succeed if the machine has no working local path to send the question.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: the layers and their authorities</h2>
-
 <h3>Reference</h3>
 <table>
 <tr><th>Layer</th><th>Kernel object</th><th>Read it with</th><th>Usual owner</th></tr>
@@ -144,18 +116,7 @@ $ getent ahosts example.com
 <p>NetworkManager does not implement the stack. It computes a desired configuration from saved profiles and pushes it into the kernel through netlink, then monitors the interface for changes. systemd-resolved listens on a local stub address and answers <code>getent</code> queries through the Name Service Switch, forwarding to the servers listed per link or globally. Keeping the authorities separate is why a broken resolver does not corrupt routes, and why a link flap does not erase saved profiles.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ ip -j route get 1.1.1.1 | python3 -m json.tool
-{
-    "1.1.1.1": {
-        "via": "192.168.1.1",
-        "dev": "enp1s0",
-        "src": "192.168.1.26",
-        "uid": 1000,
-        "cache": true
-    }
-}
-</pre>
+
 <p>The <a href="glossary/j/json.html">JSON</a> form is the machine-readable version of the same decision. It is useful when a script must check which interface would carry a destination without sending traffic.</p>
 
 <h3>Edge cases</h3>
@@ -167,13 +128,7 @@ $ ip -j route get 1.1.1.1 | python3 -m json.tool
 <li>Name resolution is not a single service: <code>/etc/hosts</code>, NSS modules, mDNS and DNS each answer some names. The order is set in <code>/etc/nsswitch.conf</code>.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why can NetworkManager and the kernel both be said to "own" an address?</summary>
-<p>NetworkManager owns the desired configuration in a saved profile and applies it; the kernel owns the live address and routing table that actually forward packets. They are authorities at different layers, which is why <code>nmcli</code> and <code>ip addr</code> can briefly disagree during a reconnect.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <p><a href="man:ip(8)">ip(8)</a>, <a href="man:nmcli(1)">nmcli(1)</a>, <a href="man:getent(5)">getent(5)</a>, <a href="man:nsswitch.conf(5)">nsswitch.conf(5)</a> and <a href="man:resolvectl(1)">resolvectl(1)</a>. The Tamlinux command behavior is in the public <code>tamlinux</code> repository under <code>commands/tam-network-status</code> and <code>desktop/shell/panels/network/</code>.</p>
@@ -181,6 +136,15 @@ $ ip -j route get 1.1.1.1 | python3 -m json.tool
 <h3>Improve it</h3>
 <p>Corrections to the Tamlinux-specific descriptions belong in the public <code>tamlinux</code> repository. Corrections to this explanation belong in the knowledge corpus.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="terminal/shell/index.html">Giving your computer written instructions</a></li>
+<li><a href="glossary/t/terminal.html">terminal</a></li>
+<li><a href="glossary/i/ipv4.html">IPv4</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="networking/setup/addresses-and-subnets.html">Addresses and subnets</a> &mdash; understand the numbers that the address and route layers use.</p>
 <h2>Related</h2><ul><li><a href="networking/connections.html">Network connections and DNS</a> &mdash; the short diagnostic guide for a connection that is already configured.</li><li><a href="paths/network-setup.html">Set up a network connection</a> &mdash; the full reading order.</li></ul>

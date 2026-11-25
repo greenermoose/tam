@@ -15,8 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/practice/index.html">Protect your computer</a> / Checking and managing the host firewall</p></nav>
 
-
-<p>This page explains what a host firewall does on your workstation, how Tamlinux inspects whether incoming network connections are blocked or allowed, and how firewall rules interact with <a href="glossary/s/ssh.html">SSH</a>.</p>
+<p>A host firewall decides which network traffic may reach services on your machine, so unused doors stay closed while needed connections continue to work.</p>
 
 <section data-level="novice">
 <h2>Closing unused doors on the network</h2>
@@ -38,52 +37,55 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspect firewall state before changing rules</h2>
-<p><strong>Goal:</strong> verify whether Tamlinux's <code>nftables</code> policy or transitional <code>ufw</code> frontend owns the firewall before touching rules or services.</p>
-<p><strong>Before you start:</strong> checking systemd service status is read-only. Changing live firewall rules on a remote machine can lock out your connection; prepare local console access and a rollback checkpoint first.</p>
-
-<h3>Worked example</h3>
-<p>Check read-only whether <code>nftables.service</code> is active on the workstation:</p>
-<pre class="session" data-risk="read-only">
-$ systemctl is-active nftables.service 2>/dev/null || echo "nftables inactive"
-</pre>
-<p>With administrator privileges, inspect the active owned <code>tamlinux-filter</code> table (or check transitional <code>ufw status</code> on systems before full nftables cutover):</p>
-<pre class="session" data-risk="system">
-$ sudo nft list table inet tamlinux-filter
-</pre>
-<p>The owned host template installs from <code>~/.local/share/tamlinux/nftables/tamlinux-host.conf.template</code> into <code>/etc/nftables.conf</code>. Its input chain defaults to <code>policy drop</code>, permits established/related connections, loopback, <a href="glossary/i/icmp.html">ICMP</a>/ICMPv6, and restricts SSH (port 22), mDNS (5353), and LocalSend (53317) to your local home subnet.</p>
-
+<h2>Read a sample firewall state check</h2>
+<p><strong>Goal:</strong> tell whether the sample nftables and UFW states describe the same active firewall.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read firewall state"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the active firewall in the sample service state">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="systemctl is-active nftables.service" goal="true" hint="This is a sample service state, not a reading from your system.">
+      <out>active</out>
+    </tam-cmd>
+    <tam-cmd match="sudo nft list table inet tamlinux-filter" hint="The sample policy drops new traffic except allowed cases such as SSH.">
+      <out>table inet tamlinux-filter {</out>
+      <out>  chain input {</out>
+      <out>    type filter hook input priority filter; policy drop;</out>
+      <out>    ct state established,related accept</out>
+      <out>    tcp dport 22 accept</out>
+      <out>  }</out>
+      <out>}</out>
+    </tam-cmd>
+    <tam-cmd match="sudo ufw status" hint="A transitional machine may show UFW inactive while nftables is authoritative.">
+      <out>Status: inactive</out>
+    </tam-cmd>
+  <tam-init>Sample: nftables active, UFW inactive, SSH allowed.</tam-init>
+  <tam-hint after="1">Try systemctl is-active nftables.service first.</tam-hint>
+  <tam-hint after="2">Now try sudo nft list table inet tamlinux-filter.</tam-hint>
+  <tam-fallback>Try systemctl is-active nftables.service, sudo nft list table inet tamlinux-filter or sudo ufw status (or type help).</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The sample shows nftables active and UFW inactive. The rules accept traffic that belongs to an existing connection and allow new SSH on port 22, with a drop policy for the rest. These lines are authored sample output.</p>
 <h3>Try it</h3>
-<p>Run <code>systemctl is-active nftables.service</code> without <code>sudo</code> to see whether the kernel ruleset service is running on your workstation. Remember that Docker keeps its own chains via iptables compatibility rather than modifying <code>tamlinux-filter</code>.</p>
-
+<p>Predict why SSH is allowed before a broad web rule: remote administration needs a path in, while web services may be closed by default. Changing firewall rules needs a recorded rollback point.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>tam-setup-security-sshd</code> says it skipped automatic firewall rules</dt>
-<dd>Neither an active <code>tamlinux-filter</code> policy nor <code>ufw</code> was detected. Verify <code>/etc/nftables.conf</code> syntax safely with <code>nft -c -f</code> during an approved maintenance step.</dd>
-<dt>Closing a service port after setup</dt>
-<dd>When <code>ufw</code> owns the transitional rule, <code>tam-remove-security-sshd</code> removes its SSH limit rule; when <code>nftables</code> owns <code>/etc/nftables.conf</code>, edit the owned file intentionally rather than mixing temporary runtime deletes.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Tamlinux avoids running two conflicting firewall frontends together: <code>nftables</code> with table <code>inet tamlinux-filter</code> is the target owned firewall policy, replacing legacy <code>ufw</code> rules cleanly.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary><i>What happens to replies for websites you open when the input chain uses <code>policy drop</code>?</i></summary>
-<p>They are accepted automatically by the <code>ct state { established, related } accept</code> rule because your workstation initiated the connection.</p>
-</details>
-<details class="q">
-<summary><i>Why should you check whether <code>nftables</code> or <code>ufw</code> owns the firewall before adding rules?</i></summary>
-<p>Mixing rules across two firewall managers causes conflicts or silent overrides when services reload.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why check which firewall manages the host before adding a rule?</i></summary><p>Two managers can give misleading states; a rule written in the inactive one will not take effect.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Netfilter hooks, nftables bytecode, and conntrack state</h2>
 <h3>Reference</h3>
 <p>Linux packet filtering executes inside kernel <strong>Netfilter</strong> hooks (<code>ingress</code>, <code>prerouting</code>, <code>input</code>, <code>forward</code>, <code>output</code>, <code>postrouting</code>). <code>nftables</code> compiles human-readable rulesets in <code>/etc/nftables.conf</code> into register-based <code>nf_tables</code> VM expressions evaluated atomically in the kernel without full table-lock reloads.</p>
 <h3>How it works</h3>
@@ -104,6 +106,14 @@ $ sudo nft list table inet tamlinux-filter
 <li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>nft(8)</code>.</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/s/ssh.html">SSH</a></li>
+<li><a href="glossary/i/icmp.html">ICMP</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="security/practice/ssh.html">SSH keys and remote access</a> &mdash; how incoming SSH checks firewall ownership.</p>
 <h2>Related</h2><ul><li><a href="networking/commands.html">Network commands</a> &mdash; read-only network diagnostics.</li></ul>

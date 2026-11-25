@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / From packets to applications</p></nav>
 
-<p>This page follows one request for a web page through every layer, from the first lookup of a name to the moment the page appears on screen.</p>
+<p>Opening a web page sets off a chain of questions: find the address, choose a route, open a transport connection, protect it and send the request.</p>
 
 <section data-level="novice">
 <h2>What happens when you open a web page?</h2>
@@ -41,65 +41,56 @@
 </section>
 
 <section data-level="learner">
-<h2>Follow a request with read-only commands</h2>
-<p><strong>Goal:</strong> you will be able to name the stage each command checks, and say which layer a failure belongs to.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ getent ahosts example.com | head -6
-172.66.147.243  STREAM example.com
-172.66.147.243  DGRAM
-172.66.147.243  RAW
-104.20.23.154   STREAM
-104.20.23.154   DGRAM
-104.20.23.154   RAW
-
-$ ip route get 1.1.1.1
-1.1.1.1 via 192.168.1.1 dev enp1s0 src 192.168.1.26 uid 1000
-    cache
-
-$ ss -tan state established '( dport = :443 or sport = :443 )' | head -3
-Recv-Q Send-Q Local Address:Port    Peer Address:Port
-0      0       192.168.1.26:37764  172.217.119.4:443
-0      0       192.168.1.26:38016  74.151.238.140:443
-</pre>
-<p>Captured on a Tamlinux workstation, 2026-11-21. Your addresses, routes and open connections will differ.</p>
+<h2>Follow one request through the layers</h2>
+<p><strong>Goal:</strong> place four sample replies in the order a web request uses them.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: one request, four layers"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Find the transport connection line in the sample chain">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">name: example.test -&gt; 192.0.2.20
+route: via 192.0.2.1 dev enp1s0
+transport: established 192.0.2.26:37764 -&gt; 192.0.2.20:443
+application: GET / HTTP/1.1</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep transport clues.txt" goal="true" hint="Try grep name clues.txt to start at DNS.">
+      <out>transport: established 192.0.2.26:37764 -&gt; 192.0.2.20:443</out>
+    </tam-cmd>
+    <tam-cmd match="grep name clues.txt" hint="Name resolution comes first.">
+      <out>name: example.test -&gt; 192.0.2.20</out>
+    </tam-cmd>
+    <tam-cmd match="grep route clues.txt" hint="The route decides which interface carries the packets.">
+      <out>route: via 192.0.2.1 dev enp1s0</out>
+    </tam-cmd>
+    <tam-cmd match="grep application clues.txt" hint="The request is meaningful only after lower layers are ready.">
+      <out>application: GET / HTTP/1.1</out>
+    </tam-cmd>
+  <tam-init>One sample request: name, route, transport, application.</tam-init>
+  <tam-hint after="1">Try grep name clues.txt to start at DNS.</tam-hint>
+  <tam-hint after="2">Now try grep transport clues.txt for the connection step.</tam-hint>
+  <tam-fallback>Try grep name clues.txt, grep route clues.txt, grep transport clues.txt or grep application clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>getent ahosts</code> asks the system resolver for a name. It returns addresses with the socket types that can use them: <code>STREAM</code> for TCP, <code>DGRAM</code> for <a href="glossary/u/udp.html">UDP</a> and <code>RAW</code> for direct internet-protocol use.</li>
-<li><code>ip route get</code> asks the kernel where a packet to a numeric destination would go. The answer names the gateway and the source address, without sending anything.</li>
-<li><code>ss -tan state established</code> shows real TCP conversations. Each line is a pair of endpoints: a local address and port, and a remote address and port.</li>
-<li>TLS and the web request itself run inside those conversations. They add encryption and page semantics above the transport layer, so the socket table cannot show them.</li>
-</ol>
+<p>The prepared lines appear in the order the layers work: resolve a name, choose a route, establish a transport connection, then send an application request. This is a teaching model, not captured traffic.</p>
 <h3>Try it</h3>
-<p>Run the three commands while a web page is open. Then close the page and run the last one again: the finished connections disappear or move to a closing state. All three commands only read state.</p>
+<p>Use <code>cat clues.txt</code> to check the full chain, then reorder the four ideas in your own words. On a real machine the commands in the expert section read each step separately.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>The name lookup returns nothing</dt>
-<dd>Check <code>resolvectl status</code>. A failed name lookup stops the process before any route or connection is attempted.</dd>
-<dt><code>Network is unreachable</code> from <code>ip route get</code></dt>
-<dd>No route matches the destination. Check the interface address and the default route before blaming the website.</dd>
-<dt>An address resolves and a route exists, but no connection appears</dt>
-<dd>The remote service may refuse the connection, a firewall may drop it, or TLS or the web application may fail after the connection opens. Test the port before inspecting the page contents.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> name lookup goes through systemd-resolved and the connection's DNS settings; the browser does not read DNS servers directly. The <a href="networking/setup/name-resolution.html">Name resolution</a> page shows what to check when that hand-off fails.</p>
-</aside>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>A numeric address replies to a ping, but the page will not open. What have you ruled out, and what do you check next?</i></summary>
-<p>Link, addressing, routing and basic internet control messages work. Check that a TCP connection to the web port can be established, then TLS and the HTTP response. Each check isolates one layer above the one the ping proved.</p>
-</details>
-<details class="q">
-<summary><i>Why can the socket table not tell you whether TLS succeeded?</i></summary>
-<p>TLS data travels inside the TCP stream as ordinary bytes from the transport layer's point of view. The socket table reports addresses, ports, queues and timers, not the meaning of the bytes. A browser or a tool such as <code>openssl s_client</code> must inspect the application data.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why does the transport connection come after the route decision?</i></summary><p>The kernel must know which interface and next hop can reach the destination before a connection can be carried there.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: one request across the layers</h2>
 <h3>Reference</h3>
 <table>
 <tr><th>Stage</th><th>Layer</th><th>What is decided</th><th>Read-only evidence</th></tr>
@@ -114,21 +105,8 @@ Recv-Q Send-Q Local Address:Port    Peer Address:Port
 <p>A resolver reads the system's name-service configuration, queries a local cache and, on a miss, sends a UDP question to a configured DNS server. The answer is a set of addresses. The kernel then performs a longest-prefix route lookup for the chosen address, selects a source address, and creates a TCP socket with an ephemeral local port. The three-way handshake establishes sequence numbers and windows. The application writes an encrypted TLS record containing an HTTP request into the socket; TCP segments it, IP addresses it, and the link layer frames it for the next hop. At the far end each layer removes its own header before handing the data upward.</p>
 <p>Modern browsers prefer <a href="glossary/h/https.html">HTTPS</a> and often negotiate <a href="glossary/h/http.html">HTTP/2</a> over TCP. HTTP/3 instead uses <a href="glossary/q/quic.html">QUIC</a> over UDP, moving the handshake and reliability into user space so a lost packet does not block unrelated streams. Both reach the same application result through different transport choices.</p>
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ ip -j route get 1.1.1.1 | jq .
-[
-  {
-    "dst": "1.1.1.1",
-    "gateway": "192.168.1.1",
-    "dev": "enp1s0",
-    "prefsrc": "192.168.1.26",
-    "flags": [],
-    "uid": 1000,
-    "cache": []
-  }
-]
-</pre>
-<p>Captured on the same workstation, 2026-11-21. The <a href="glossary/j/json.html">JSON</a> form is useful when a script needs the route decision; a human usually prefers the plain form shown in the Learner section. <code>curl -v</code> adds the name lookup, connection, TLS and HTTP lines in one trace, which is the quickest way to see all four stages at once.</p>
+
+
 <h3>Edge cases</h3>
 <ul>
 <li>A name can resolve to several addresses. Happy Eyeballs tries both families so a broken path does not stall the page while the host waits for a timeout.</li>
@@ -137,16 +115,19 @@ $ ip -j route get 1.1.1.1 | jq .
 <li>TLS session resumption shortens a later handshake, so a short connection can carry data almost immediately.</li>
 <li>Early replies and cached content can complete before a firewall or a path-<a href="glossary/m/mtu.html">MTU</a> problem shows up in a large transfer.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A page loads over HTTP/3 while ss -tan shows no connection for it. Explain why.</summary>
-<p>HTTP/3 uses QUIC, which runs over UDP rather than TCP. The connection appears in <code>ss -uan</code> or in the QUIC implementation's own state, not in the TCP table. The layers above still perform name lookup, route selection, encryption and an HTTP request, but the transport that carries them has changed.</p>
-</details>
-</section>
+
 <h3>Sources</h3>
 <p><cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite>, <cite data-ref="rfc8200"><a href="bibliography/rfc8200.html">RFC 8200</a></cite>, <cite data-ref="rfc9293"><a href="bibliography/rfc9293.html">RFC 9293</a></cite>, <a href="man:getent(5)">getent(5)</a>, <a href="man:ip-route(8)">ip-route(8)</a> and <a href="man:ss(8)">ss(8)</a>.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/u/udp.html">UDP</a></li>
+<li><a href="networking/setup/name-resolution.html">Name resolution</a></li>
+<li><a href="glossary/j/json.html">JSON</a></li>
+</ul>
+
+
 
 <h2>Where next</h2>
 <ul>

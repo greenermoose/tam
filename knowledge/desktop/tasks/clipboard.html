@@ -43,16 +43,19 @@
 <aside class="first-time">
 <p>Copy with <code>Meta + C</code> and paste with <code>Meta + V</code>. These work in the same way in a terminal, a browser, and a text editor. To see the history, press <code>Meta + Ctrl + V</code>. A searchable list opens. Type part of the text you want, use the Up and Down Arrow keys to choose it, then press <code>Return</code> to paste it.</p>
 </aside>
-<h3>Worked example</h3>
-<ol>
-<li>Select a few words in any window and press <code>Meta + C</code>.</li>
-<li>Select different words and press <code>Meta + C</code> again. Now the first words are no longer the newest item.</li>
-<li>Press <code>Meta + Ctrl + V</code>. The clipboard manager opens with the newest item first.</li>
-<li>Type a word from the first item to filter the list.</li>
-<li>Press <code>Return</code> to paste the chosen item into the window you were using.</li>
-</ol>
-
-<p>Captured from the packaged clipboard bindings and the clipboard service on 2026-11-02. The list on your computer will contain your own items.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Open the clipboard history"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Open the clipboard history">
+  <tam-cmd match="tam-shell clipboard toggle" goal="true">
+    <out>Sample: clipboard history opened</out>
+  </tam-cmd>
+  <tam-init>Try: tam-shell clipboard toggle</tam-init>
+  <tam-hint after="1">The history lists recent items for this user.</tam-hint>
+  <tam-hint after="2">Selecting an item copies it back to the clipboard.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>Meta + C</code> copied the selected text.</li>

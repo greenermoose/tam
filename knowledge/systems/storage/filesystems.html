@@ -46,12 +46,23 @@
 </pre>
 <p>Each column recovers different state. A healthy plan names which column covers the change you are about to make.</p>
 <aside class="tamlinux"><p><strong>On Tamlinux:</strong> Snapper timelines and deploy generations are both used; neither replaces the other. See <a href="systems/recovery/rollback.html">rollback</a>.</p></aside>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ findmnt -T /
-TARGET SOURCE FSTYPE OPTIONS
-/ /dev/... btrfs ...
-</pre>
+
+<tam-sandbox
+  title="Try it: Explore findmnt output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore findmnt output">
+  <tam-cmd match="findmnt -T /" goal="true" hint="Look for the value that answers the task.">
+    <out>TARGET SOURCE FSTYPE OPTIONS
+/ /dev/... btrfs ...</out>
+  </tam-cmd>
+  <tam-init>Try: findmnt -T /</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try findmnt -T / (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <p>Captured pattern on Arch Linux, 2026-11-02. Your device name and options differ. If the type is btrfs, snapshot tools may apply; if not, do not invent Snapper steps.</p>
 <h3>Try it</h3>
 <p>Run <code>findmnt -T /home</code> as well and compare types.</p>

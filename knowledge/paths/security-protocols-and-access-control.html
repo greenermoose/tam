@@ -5,7 +5,7 @@
 <meta name="topic" content="security-protocols-and-access-control">
 <meta name="summary" content="Goal path from zero prior technical knowledge to threat modeling, authentication, Linux access control, TLS, SSH, and formal protocol verification.">
 <meta name="keywords" content="path, computer security, threat model, authentication, authorization, permissions, tls, ssh, protocols">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="paths">
 <meta name="parent" content="paths/index.html">
 <meta name="kind" content="path">
@@ -14,14 +14,57 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Security protocols and access control</p></nav>
 
+<p>This path joins threat modelling, authentication, filesystem access control and transport protocols into one read-only security audit.</p>
 
-<p>This path starts from everyday ideas—locks, secrets, and trust boundaries—with zero prior technical knowledge assumed, and builds step by step to Linux kernel credentials, <a href="glossary/t/tls.html">TLS</a> 1.3, <a href="glossary/s/ssh.html">SSH</a> internals, and formal protocol verification.</p>
+<section data-level="novice">
 <p>If any page feels too advanced, step back one stop along the path until the terms feel familiar. Every exercise uses read-only commands.</p>
+<h2>Layers of a security boundary</h2>
 
-<h2>Stage 1: Security principles and threat modeling</h2>
-<ol>
-<li><a href="security/computer-security-principles.html?level=1">Computer Security Principles and Threat Modeling</a> &mdash; <a href="glossary/c/cia.html">CIA</a> triad, STRIDE, Saltzer–Schroeder principles, Lampson's matrix, Bell–LaPadula, and side channels.</li>
-</ol>
+<p>Passwords answer who you claim to be; keys and tokens can prove it; filesystem modes decide what an account may read or change; isolation flags limit what a process can reach; TLS and SSH protect data in transit.</p>
+<p>Think of a building with a reception desk, badges, locked rooms and sealed delivery tubes. Each layer protects a different crossing, so checking one does not certify the others.</p>
+
+</section>
+
+<section data-level="learner">
+<h2>Read process isolation flags</h2>
+<p><strong>Goal:</strong> interpret a fixed process status report for isolation evidence</p>
+
+<tam-sandbox
+  title="Try it: inspect isolation labels"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Read the sample security status lines">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="grep -E &#x27;^(Uid|NoNewPrivs|Seccomp|CapEff):&#x27; /proc/self/status" goal="true" hint="These labels describe isolation; they do not prove a firewall rule.">
+    <out>Uid:	1000	1000	1000	1000
+NoNewPrivs:	1
+Seccomp:	2
+CapEff:	0000000000000000</out>
+  </tam-cmd>
+  <tam-cmd match="systemctl is-active nftables.service" hint="Host firewall state is a separate boundary.">
+    <out>inactive</out>
+  </tam-cmd>
+  <tam-init>Four fixed status lines describe one process boundary.</tam-init>
+   <tam-hint after="1">These labels describe isolation; they do not prove a firewall rule.</tam-hint>
+  <tam-hint after="2">Host firewall state is a separate boundary.</tam-hint>
+  <tam-fallback>Try grep -E '^(Uid|NoNewPrivs|Seccomp|CapEff):' /proc/self/status, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>NoNewPrivs and Seccomp show kernel-level restrictions, while CapEff reports effective capabilities. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. A separate firewall query answers a different question about host network policy.</p>
+<h3>Try it</h3>
+<p>Run the firewall rule and explain why an inactive service does not change what the process status lines mean.</p>
+<h3>If it goes wrong</h3>
+<p>If a real command is unavailable, leave that boundary unknown rather than assuming the safest value.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary><i>Do process isolation flags prove the host firewall is active?</i></summary><p>No. They describe the process; firewall state needs its own evidence.</p></details>
+</section>
+<h3>Path checkpoints</h3>
 <section class="quiz">
 <h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <p>Answer before moving to Stage 2.</p>
@@ -30,12 +73,6 @@
 <p>Confidentiality (keeping secrets), Integrity (preventing tampering), and Availability (keeping systems usable). A threat model identifies what you are protecting and who might attack it so defenses match real risks.</p>
 </details>
 </section>
-
-<h2>Stage 2: Passwords, authentication, and authorization</h2>
-<ol>
-<li><a href="security/practice/passwords.html?level=1">Passwords, sudo, and keeping secrets safe</a> &mdash; normal accounts vs. administrator elevation and secrets hygiene.</li>
-<li><a href="security/authentication-and-authorization.html?level=2">Authentication, Authorization, and Linux Access Control</a> &mdash; Argon2id, <a href="glossary/p/pam.html">PAM</a> stacks, DAC/<a href="glossary/m/mac.html">MAC</a>/<a href="glossary/r/rbac.html">RBAC</a>/<a href="glossary/a/abac.html">ABAC</a>/ReBAC, Linux UIDs, capabilities, and <code>seccomp-bpf</code>.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer before moving to Stage 3.</p>
@@ -44,11 +81,6 @@
 <p>In DAC, resource owners choose who gets access; in MAC, system-wide kernel policies restrict subjects and objects in ways even resource owners cannot override.</p>
 </details>
 </section>
-
-<h2>Stage 3: <a href="glossary/f/filesystem.html">Filesystem</a> permissions and <a href="glossary/p/posix.html">POSIX</a> ACLs</h2>
-<ol>
-<li><a href="security/permissions.html?level=2">Who can use a file</a> &mdash; read/write/execute bits, directory search rights, POSIX ACLs, and dynamic-linker hardening.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer before moving to Stage 4.</p>
@@ -57,11 +89,6 @@
 <p>On directories, <code>x</code> grants traversal/search permission to resolve names to inodes; <code>r</code> alone only lists filenames without letting you open them.</p>
 </details>
 </section>
-
-<h2>Stage 4: Hardware authentication and privilege helpers</h2>
-<ol>
-<li><a href="security/hardware-authentication.html?level=2">Hardware Security and Privilege Management</a> &mdash; <code>tam-setup-security-*</code> helpers, <code>tam-sudo-docker</code>, and bounded privilege elevation.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer before moving to Stage 5.</p>
@@ -70,12 +97,6 @@
 <p>A FIDO2 authenticator signs a challenge bound cryptographically to the exact origin/Relying Party ID, so a lookalike site cannot replay the signature elsewhere.</p>
 </details>
 </section>
-
-<h2>Stage 5: Transport security: TLS, <a href="glossary/h/https.html">HTTPS</a>, and SSH</h2>
-<ol>
-<li><a href="security/protocols/tls-and-https.html?level=2">SSL, TLS, and HTTPS</a> &mdash; TLS 1.3 1-<a href="glossary/r/rtt.html">RTT</a> handshake, HKDF key schedule, <a href="glossary/x/x509.html">X.509</a> PKI, and <a href="glossary/h/http.html">HTTP/1.1</a>–HTTP/3.</li>
-<li><a href="security/protocols/ssh-protocol.html?level=2">The SSH Protocol Internals</a> &mdash; <a href="glossary/r/rfc.html">RFC</a> 4251–4254 binary packet protocol, <a href="glossary/t/tofu.html">TOFU</a> host keys, strict-kex, and agent-forwarding risks.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer before moving to Stage 6.</p>
@@ -84,11 +105,6 @@
 <p><code>ProxyJump</code> tunnels end-to-end encrypted SSH traffic through the jump host without exposing your local <code>ssh-agent</code> signing socket to root on that intermediate machine.</p>
 </details>
 </section>
-
-<h2>Stage 6: Network, messaging, and identity protocols</h2>
-<ol>
-<li><a href="security/protocols/security-protocols.html?level=3">Network, Messaging, and Identity Security Protocols</a> &mdash; WireGuard (Noise), IPsec, Signal Double Ratchet, <a href="glossary/k/kerberos.html">Kerberos</a>, OAuth 2.0/<a href="glossary/o/oidc.html">OIDC</a>, <a href="glossary/d/dnssec.html">DNSSEC</a>, FIDO2, and ProVerif/Tamarin.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer before moving to the capstone.</p>
@@ -97,19 +113,51 @@
 <p>A Diffie–Hellman ratchet and a symmetric <a href="glossary/k/kdf.html">KDF</a> chain ratchet, providing both forward secrecy for past messages and post-compromise (future) secrecy after a temporary state leak.</p>
 </details>
 </section>
+</section>
 
-<h2>Capstone: Inspect your session's security boundaries read-only</h2>
-<p>Check your own Tamlinux session's security posture read-only: process isolation flags (<code>/proc/self/status</code>), capability sets (<code>capsh --print</code>), SSH client negotiation defaults (<code>ssh -G localhost</code>), and firewall service status to see how kernel access control and cryptographic protocols work together.</p>
-<details class="solution">
-<p>Run these read-only commands in a terminal:</p>
-<pre class="session" data-risk="read-only">
-$ grep -E '^(Uid|NoNewPrivs|Seccomp|CapEff):' /proc/self/status
-$ capsh --print | head -n 4
-$ ssh -G localhost | grep -E '^(kexalgorithms|ciphers|macs) '
-$ systemctl is-active nftables.service 2>/dev/null || echo "nftables inactive"
-</pre>
-<p>Verify that your shell runs as an unprivileged <a href="glossary/u/uid.html">UID</a> with zero ambient capabilities, confirm modern post-quantum/<a href="glossary/a/aead.html">AEAD</a> SSH algorithms, and check host firewall state before enabling any network service.</p>
-</details>
+<section data-level="expert">
+<h2>Protocol and access-control map</h2>
+
+<p>Read the linked stages from threat modelling through authentication, filesystem modes, hardware authentication and transport protocols. Keep the audit read-only: listing algorithms and service state changes nothing, while enabling a service would require its own separate decision.</p>
+
+<h2>Stage 1: Security principles and threat modeling</h2>
+<ol>
+<li><a href="security/computer-security-principles.html?level=1">Computer Security Principles and Threat Modeling</a> &mdash; <a href="glossary/c/cia.html">CIA</a> triad, STRIDE, Saltzer–Schroeder principles, Lampson's matrix, Bell–LaPadula, and side channels.</li>
+</ol>
+
+
+<h2>Stage 2: Passwords, authentication, and authorization</h2>
+<ol>
+<li><a href="security/practice/passwords.html?level=1">Passwords, sudo, and keeping secrets safe</a> &mdash; normal accounts vs. administrator elevation and secrets hygiene.</li>
+<li><a href="security/authentication-and-authorization.html?level=2">Authentication, Authorization, and Linux Access Control</a> &mdash; Argon2id, <a href="glossary/p/pam.html">PAM</a> stacks, DAC/<a href="glossary/m/mac.html">MAC</a>/<a href="glossary/r/rbac.html">RBAC</a>/<a href="glossary/a/abac.html">ABAC</a>/ReBAC, Linux UIDs, capabilities, and <code>seccomp-bpf</code>.</li>
+</ol>
+
+
+<h2>Stage 3: <a href="glossary/f/filesystem.html">Filesystem</a> permissions and <a href="glossary/p/posix.html">POSIX</a> ACLs</h2>
+<ol>
+<li><a href="security/permissions.html?level=2">Who can use a file</a> &mdash; read/write/execute bits, directory search rights, POSIX ACLs, and dynamic-linker hardening.</li>
+</ol>
+
+
+<h2>Stage 4: Hardware authentication and privilege helpers</h2>
+<ol>
+<li><a href="security/hardware-authentication.html?level=2">Hardware Security and Privilege Management</a> &mdash; <code>tam-setup-security-*</code> helpers, <code>tam-sudo-docker</code>, and bounded privilege elevation.</li>
+</ol>
+
+
+<h2>Stage 5: Transport security: TLS, <a href="glossary/h/https.html">HTTPS</a>, and SSH</h2>
+<ol>
+<li><a href="security/protocols/tls-and-https.html?level=2">SSL, TLS, and HTTPS</a> &mdash; TLS 1.3 1-<a href="glossary/r/rtt.html">RTT</a> handshake, HKDF key schedule, <a href="glossary/x/x509.html">X.509</a> PKI, and <a href="glossary/h/http.html">HTTP/1.1</a>–HTTP/3.</li>
+<li><a href="security/protocols/ssh-protocol.html?level=2">The SSH Protocol Internals</a> &mdash; <a href="glossary/r/rfc.html">RFC</a> 4251–4254 binary packet protocol, <a href="glossary/t/tofu.html">TOFU</a> host keys, strict-kex, and agent-forwarding risks.</li>
+</ol>
+
+
+<h2>Stage 6: Network, messaging, and identity protocols</h2>
+<ol>
+<li><a href="security/protocols/security-protocols.html?level=3">Network, Messaging, and Identity Security Protocols</a> &mdash; WireGuard (Noise), IPsec, Signal Double Ratchet, <a href="glossary/k/kerberos.html">Kerberos</a>, OAuth 2.0/<a href="glossary/o/oidc.html">OIDC</a>, <a href="glossary/d/dnssec.html">DNSSEC</a>, FIDO2, and ProVerif/Tamarin.</li>
+</ol>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/t/tls.html">TLS</a> · <a href="glossary/s/ssh.html">SSH</a> · <a href="glossary/u/uid.html">UID</a> · <a href="glossary/a/aead.html">AEAD</a>.</p>
+</section>
 
 <h2>Next paths</h2>
 <ul>

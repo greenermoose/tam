@@ -16,98 +16,99 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/web-development/index.html">Web development</a> / Browser APIs and asynchronous JavaScript</p></nav>
 
-<p>Browser APIs let a page react to people, ask for data, and remember small amounts of information without freezing the page.</p>
+<p>Browser APIs let a page react to clicks, fetch data and remember small amounts of state. Asynchronous code keeps the page responsive while it waits.</p>
 
 <section data-level="novice">
-<h2>What this is</h2>
-<p>A browser page is always listening. An <dfn><a href="glossary/b/browser-api.html">event</a></dfn> is something that happens, such as a click or a key press. A <a href="glossary/b/browser-api.html">browser API</a> is a built-in way for script to ask the browser to do a job, such as fetch data or save a preference.</p>
+<h2>What the browser offers</h2>
+<p>A <a href="glossary/b/browser-api.html">browser API</a> is a built-in feature a page can use, such as listening for a click or asking for data. A <a href="glossary/p/promise.html">Promise</a> represents a result that will arrive later.</p>
 <h3>Why it matters</h3>
-<p>Without these services, JavaScript could calculate but could not hear a click, read a typed value, or ask another computer for fresh information. With them, a page becomes an application.</p>
+<p>Network requests take time. If a page waited for them without doing anything else, buttons and scrolling would freeze.</p>
 <h3>How to think about it</h3>
-<p>Think of a restaurant. The page is the dining room, events are customers raising a hand, and browser APIs are the staff who bring food or take a message to the kitchen. Your code decides what to do when a hand goes up.</p>
-<h3>New words</h3>
-<dl>
-<dt><a href="glossary/b/browser-api.html">Browser API</a></dt><dd>A service the browser gives to script, such as events, storage, or network requests.</dd>
-<dt><a href="glossary/p/promise.html">Promise</a></dt><dd>An object that stands for a result that will arrive later.</dd>
-<dt><a href="glossary/e/event-loop.html">Event loop</a></dt><dd>The browser's way of taking one waiting job at a time.</dd>
-</dl>
-<p><a href="programming/web-development/node-and-npm.html">Next: Node.js and npm</a></p>
+<p>Imagine ordering at a café. You place the order, then sit at a table while it is prepared. The <a href="glossary/e/event-loop.html">event loop</a> is the person who calls your number when it is ready.</p>
 </section>
 
 <section data-level="learner">
-<h2>Work without blocking</h2>
-<p><strong>Goal:</strong> you will be able to explain why a delayed task lets other output print first, and use <code>await</code> to wait for a result.</p>
-<p><strong>Learner path:</strong> previous: <a href="programming/web-development/browser-engines-and-dom.html?level=2">Browser engines and the DOM</a>; next: <a href="programming/web-development/node-and-npm.html?level=2">Node.js and npm</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ node -e "const delay = ms =&gt; new Promise(resolve =&gt; setTimeout(resolve, ms)); (async () =&gt; { console.log('start'); await delay(1); console.log('after await'); })(); console.log('before await ends');"
-start
-before await ends
-after await
-</pre>
-<p>Captured on 2026-11-24 with Node.js 24.5.0. Browsers use the same ordering idea for a delayed timer or a network reply.</p>
-<ol>
-<li><code>delay(1)</code> returns a promise that finishes after about one millisecond.</li>
-<li><code>await</code> pauses that one function, not the whole program, so the last line prints next.</li>
-<li>When the timer fires, the paused function continues and prints <code>after await</code>.</li>
-</ol>
+<h2>Predict the log order</h2>
+<p><strong>Goal:</strong> explain why an awaited delay lets other code run first.</p>
+<tam-sandbox
+  title="Try it: find the line that runs next"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Show the work that runs while a function waits">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="sequence.txt" size="133">start: async function begins
+await: function paused
+other work: runs now
+resume: promise callback continues</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat sequence.txt" hint="Read the four lines in order. The paused function does not block the rest of the page.">
+      <out>start: async function begins</out>
+      <out>await: function paused</out>
+      <out>other work: runs now</out>
+      <out>resume: promise callback continues</out>
+    </tam-cmd>
+    <tam-cmd match="grep &quot;other work&quot; sequence.txt" goal="true" hint="Correct: other work runs while the async function waits for its timer.">
+      <out>other work: runs now</out>
+    </tam-cmd>
+    <tam-cmd match="grep resume sequence.txt" hint="The continuation returns after the waiting line has had its turn.">
+      <out>resume: promise callback continues</out>
+    </tam-cmd>
+  <tam-init>Try: cat sequence.txt</tam-init>
+  <tam-hint after="1">Type grep "other work" sequence.txt to isolate the line that runs early.</tam-hint>
+  <tam-hint after="2">Use grep resume sequence.txt to see the last step.</tam-hint>
+  <tam-fallback>Try cat sequence.txt, or grep "other work" sequence.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The sample log shows the point of <code>await</code>: it pauses that async function, not the whole page. The line <code>other work</code> runs before <code>resume</code>, when the timer finishes. These lines are sample data held in the sandbox; it does not run Node or a browser.</p>
 <h3>Try it</h3>
-<p>Change <code>delay(1)</code> to <code>delay(100)</code> and add another <code>console.log</code> after the <code>await</code>. Predict the order before you run it.</p>
+<p>Run <code>grep resume sequence.txt</code>. If the timer waited longer, that line would move later in time, but <code>other work</code> would still come first.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>The last line never prints</dt><dd>You may have used <code>await</code> at the top level in an older runtime. Put the code inside an <code>async</code> function or use a module.</dd>
-<dt>A network request fails with a CORS message</dt><dd>The server did not permit your page's origin. Read <a href="glossary/c/cors.html">CORS</a>; a local file usually needs a local web server instead.</dd>
+<dt>The sandbox did not run Node.</dt><dd>The log is scripted sample data. Use a real browser or Node runtime to experiment with timers.</dd>
+<dt>I expected resume second.</dt><dd>await suspends that function. Other code can run before the timer callback resumes it.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why does <code>before await ends</code> print before <code>after await</code>?</summary>
-<p><code>await</code> suspends only the async function that contains it. The <a href="glossary/e/event-loop.html">event loop</a> keeps running other work while the timer waits, then resumes the suspended function when its promise settles.</p>
+<summary><i>What does await pause?</i></summary>
+<p>Only the async function containing it, not the entire page or event loop.</p>
+</details>
+<details class="q">
+<summary><i>Why keep long work off the main thread?</i></summary>
+<p>A busy main thread cannot respond to input or redraw the page.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference and timing</h2>
+<h2>Reference: event loop details</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>API family</th><th>What it supplies</th><th>Common entry point</th></tr>
-<tr><td>Events</td><td>Notices about input, loading, and state changes</td><td><code>addEventListener</code></td></tr>
-<tr><td>Network</td><td>Requests and streaming responses</td><td><code>fetch</code>, <a href="glossary/w/websocket.html">WebSocket</a></td></tr>
-<tr><td>Storage</td><td>Small key-value data kept by the browser</td><td><code>localStorage</code>, <code>sessionStorage</code></td></tr>
-<tr><td>Timers</td><td>Delayed and repeated callbacks</td><td><code>setTimeout</code>, <code>setInterval</code></td></tr>
-<tr><td>Background work</td><td>Script away from the main rendering path</td><td>Web Worker</td></tr>
+<tr><th>Concept</th><th>Queue</th><th>Effect</th></tr>
+<tr><td>Microtask</td><td>Promise callbacks</td><td>Runs before the next macrotask</td></tr>
+<tr><td>Macrotask</td><td>Timers, events</td><td>One per event-loop turn</td></tr>
+<tr><td><a href="glossary/c/cors.html">CORS</a></td><td>Fetch policy</td><td>Governs cross-origin reads</td></tr>
+<tr><td><a href="glossary/w/websocket.html">WebSocket</a></td><td>Long-lived channel</td><td>Pushes messages without polling</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Each browser tab has a main <a href="glossary/e/event-loop.html">event loop</a> with a task queue and a microtask queue. Script runs to completion; it cannot be interrupted mid-statement. Promises queue microtasks, which drain before the next task. A <code>fetch</code> reply, a timer, and a click are tasks supplied by the host. Long synchronous work delays rendering because paint waits for the loop. The <a href="glossary/s/same-origin-policy.html">same-origin policy</a> limits which replies script may read; <a href="glossary/c/cors.html">CORS</a> is the server's way to grant an exception.</p>
-<h3>Advanced usage</h3>
-<pre data-risk="scratch">
-const controller = new AbortController();
-const response = await fetch('/api/items', {
-  signal: controller.signal,
-  headers: { 'Accept': 'application/json' },
-});
-if (!response.ok) throw new Error(`HTTP ${response.status}`);
-const items = await response.json();
-</pre>
-<p>Illustrative snippet: an abort signal lets a page cancel a stale request when the user navigates away or types again.</p>
+<p>The event loop runs a task, drains microtasks, then may render before choosing the next task. Promise continuations are microtasks, so they can starve rendering if chained endlessly. <a href="glossary/s/same-origin-policy.html">Same-origin policy</a> and CORS decide which responses a page may read.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
-<li>An unhandled rejected promise reports an error even when no <code>catch</code> exists; attach handlers at the boundary.</li>
-<li>Timers are throttled in background tabs, so they are unsuitable for precise scheduling.</li>
-<li>Old replies can arrive after new ones; compare a request id before applying a result.</li>
-<li><code>localStorage</code> stores strings only and is synchronous, so large values block the main loop.</li>
+<li>A rejected promise without a handler becomes an unhandled rejection.</li>
+<li>Async functions return promises even when they appear to return plain values.</li>
+<li>Timers are minimum delays, not exact schedules.</li>
+<li>Background tabs may throttle timers heavily.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A click handler starts a long calculation and the page stops responding. Where is the fault, and what would you measure?</summary>
-<p>Model answer: the main event loop is blocked by synchronous work. Record a performance trace, find the long task, and move the calculation to a Web Worker or split it into smaller tasks. A faster repaint cannot fix a blocked loop.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p>See <cite data-ref="mdn-web"><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a></cite> and <cite data-ref="whatwg-html"><a href="bibliography/whatwg-html.html">the WHATWG standards</a></cite>.</p>
+<p><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a>; <a href="bibliography/whatwg-html.html">the WHATWG standards</a>; <a href="programming/web-development/web-security.html">Web security</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="programming/web-development/node-and-npm.html">Next: Node.js and npm</a>, <a href="programming/web-development/browser-engines-and-dom.html?level=2">Browser engines and the DOM</a>, <a href="programming/web-development/node-and-npm.html?level=2">Node.js and npm</a>, <a href="programming/web-development/node-and-npm.html">Node.js and npm</a>, <a href="programming/web-development/browser-engines-and-dom.html">Browser engines and the DOM</a>, <a href="paths/web-development.html">From first page to full-stack web developer</a>.</p>
 </section>
 
 <h2>Where next</h2>
@@ -120,4 +121,5 @@ const items = await response.json();
 <li><a href="programming/web-development/browser-engines-and-dom.html">Browser engines and the DOM</a> &mdash; the tree these APIs act on.</li>
 <li><a href="paths/web-development.html">From first page to full-stack web developer</a> &mdash; the whole sequence.</li>
 </ul>
-</body></html>
+</body>
+</html>

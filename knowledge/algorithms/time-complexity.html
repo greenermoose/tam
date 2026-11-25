@@ -16,96 +16,92 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Time complexity and Big-O notation</p></nav>
 
-<p><a href="glossary/t/time-complexity.html">Time complexity</a> describes how an algorithm's running time grows with input size. <a href="glossary/b/big-o-notation.html">Big-O notation</a> is the most common way to write that growth.</p>
+<p>Time complexity describes how an algorithm’s work grows with input size. Big-O notation gives a short name to that growth.</p>
 
 <section data-level="novice">
-<h2>Growth rates, not seconds</h2>
-<p>A fast computer can make any small test look good. Time complexity asks a different question: if the input becomes much larger, does the cost grow slowly, steadily, or explosively?</p>
-<h3>Common growth classes</h3>
-<table>
-<tr><th>Notation</th><th>Name</th><th>Intuition</th><th>Example</th></tr>
-<tr><td>O(1)</td><td>Constant</td><td>Same work regardless of n</td><td>Read an array element by index</td></tr>
-<tr><td>O(log n)</td><td>Logarithmic</td><td>Halves the problem each step</td><td>Binary search</td></tr>
-<tr><td>O(n)</td><td>Linear</td><td>Work grows with input size</td><td>Scan a list once</td></tr>
-<tr><td>O(n log n)</td><td>Linearithmic</td><td>Common efficient sorting bound</td><td>Merge sort</td></tr>
-<tr><td>O(n^2)</td><td>Quadratic</td><td>Nested passes over data</td><td>Simple pairwise comparison</td></tr>
-<tr><td>O(2^n)</td><td>Exponential</td><td>Grows very quickly</td><td>Brute-force all subsets</td></tr>
-</table>
+<h2>Work, not stopwatch time</h2>
+<p><a href="glossary/t/time-complexity.html">Time complexity</a> counts how the work grows when the input grows. <a href="glossary/b/big-o-notation.html">Big-O notation</a> writes that growth with the small details left out.</p>
+<h3>Why it matters</h3>
+<p>A method that checks every pair of items can be fine for ten items and hopeless for ten thousand. The notation warns you before you try the large case.</p>
+<h3>How to think about it</h3>
+<p>Scanning a guest list once grows steadily as guests are added. Comparing every guest with every other guest grows much faster, like adding rows and columns to a square.</p>
 </section>
 
 <section data-level="learner">
-<h2>How to read and estimate Big-O</h2>
-<p><strong>Goal:</strong> estimate time complexity from simple code patterns.</p>
-<h3>Rules of thumb</h3>
-<ul>
-<li><strong>Constants drop:</strong> O(2n) is O(n).</li>
-<li><strong>Lower-order terms drop:</strong> O(n^2 + n) is O(n^2).</li>
-<li><strong>Sequential steps add, then simplify:</strong> O(n) then O(n) is O(n).</li>
-<li><strong>Nested loops multiply:</strong> a loop of n inside a loop of n is O(n^2), if body is O(1).</li>
-<li><strong>Halving loops are logarithmic:</strong> <code>i *= 2</code> or <code>n /= 2</code> often gives O(log n).</li>
-</ul>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ python3 - &lt;&lt;'PY'
-# O(n): one pass
-def find_max(xs):
-    m = xs[0]
-    for x in xs:
-        if x > m: m = x
-    return m
+<h2>Spot the growth pattern</h2>
+<p><strong>Goal:</strong> tell a one-pass scan from an all-pairs check using sample counts.</p>
+<tam-sandbox
+  title="Try it: compare growth rows"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Show the all-pairs count for 32 items">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="growth.txt" size="69">n=8 scan=8 pairs=28
+n=16 scan=16 pairs=120
+n=32 scan=32 pairs=496</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat growth.txt" hint="Watch each column as n doubles. Which column grows faster?">
+      <out>n=8 scan=8 pairs=28</out>
+      <out>n=16 scan=16 pairs=120</out>
+      <out>n=32 scan=32 pairs=496</out>
+    </tam-cmd>
+    <tam-cmd match="grep pairs=496 growth.txt" goal="true" hint="Correct: 32 x 31 / 2 = 496 pair checks.">
+      <out>n=32 scan=32 pairs=496</out>
+    </tam-cmd>
+  <tam-init>Try: cat growth.txt, then grep pairs=496 growth.txt</tam-init>
+  <tam-hint after="1">Type grep pairs=496 growth.txt for the largest row.</tam-hint>
+  <tam-fallback>Try cat growth.txt, or grep pairs=496 growth.txt (or type help).</tam-fallback>
+</tam-sandbox>
 
-# O(n^2): all pairs
-def has_duplicate(xs):
-    for i in range(len(xs)):
-        for j in range(i+1, len(xs)):
-            if xs[i] == xs[j]:
-                return True
-    return False
-
-print(find_max([3,1,4,1,5]))
-print(has_duplicate([3,1,4,1,5]))
-PY
-5
-True
-</pre>
-<p>Illustrative example. The duplicate check is easy to read but scales poorly for large n; a hash set can make it O(n) average time with extra space.</p>
+<h3>What just happened</h3>
+<p>The scan column doubles with n, matching O(n). The pairs column grows roughly four times when n doubles, matching O(n&sup2;). These counts are sample calculations for tiny inputs, not timings from your machine.</p>
+<h3>Try it</h3>
+<p>Run <code>grep n=16 growth.txt</code>. Compare 16 scan steps with 120 pair checks to see why the all-pairs method becomes painful quickly.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>grep returned nothing.</dt><dd>Type grep pairs=496 growth.txt exactly. The pattern includes the equals sign.</dd>
+<dt>I expected milliseconds.</dt><dd>The file stores counts of conceptual steps, not elapsed time.</dd>
+</dl>
 <section class="quiz">
 <h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>Is O(n log n) better or worse than O(n^2) for large n?</i></summary>
-<p>Better for large n. As n grows, n^2 grows much faster than n log n. For small n, constants and implementation details can still matter.</p>
+<summary><i>Which grows faster: scan or pairs?</i></summary>
+<p>Pairs. It is proportional to n times (n-1) divided by two, while scan is proportional to n.</p>
+</details>
+<details class="q">
+<summary><i>Why leave constants out of Big-O?</i></summary>
+<p>Constants do not change the growth pattern; they matter for small inputs but not for the trend as n becomes large.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: asymptotic bounds and analysis</h2>
+<h2>Reference: notation and caveats</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Notation</th><th>Meaning</th><th>Use</th></tr>
-<tr><td>O(g(n))</td><td>Upper bound: grows no faster than g(n)</td><td>Worst-case guarantee</td></tr>
-<tr><td>Ω(g(n))</td><td>Lower bound: grows at least as fast as g(n)</td><td>Lower bounds, best-case, or proof of necessity</td></tr>
-<tr><td>Θ(g(n))</td><td>Tight bound: both O and Ω</td><td>Precise asymptotic growth rate</td></tr>
-<tr><td>o(g(n)), ω(g(n))</td><td>Strict upper/lower growth</td><td>Proofs and fine distinctions</td></tr>
+<tr><th>Notation</th><th>Bound</th><th>Meaning</th></tr>
+<tr><td>O(f(n))</td><td>Upper</td><td>Never grows faster than a constant times f(n)</td></tr>
+<tr><td>Omega(f(n))</td><td>Lower</td><td>Never grows slower than a constant times f(n)</td></tr>
+<tr><td>Theta(f(n))</td><td>Tight</td><td>Both upper and lower bounds match</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Formally, f(n) ∈ O(g(n)) if ∃c,n0&gt;0 such that f(n) ≤ c·g(n) for all n ≥ n0. Time complexity depends on the machine/cost model. The word-RAM model is common for in-memory algorithms; bit complexity matters for arbitrary-precision integers; I/O complexity matters for external memory.</p>
-<h3>Edge cases</h3>
+<p>Choose a cost model and an input size, count model steps, then keep the fastest-growing term and drop constant factors. <a href="glossary/b/big-o-notation.html">Big-O notation</a> is widely used even when a tight Theta bound would be more informative.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li><strong>Amortized analysis:</strong> dynamic array append is O(1) amortized though occasional resize is O(n).</li>
-<li><strong>Expected vs worst case:</strong> quicksort average O(n log n), worst O(n^2); hash tables average O(1) lookup, adversarial worst O(n).</li>
-<li><strong>Input representation:</strong> factoring algorithms are analyzed in bit length of the number, not its numeric value.</li>
-<li><strong>Hidden costs:</strong> comparisons, allocations, hash functions, and cache behavior can dominate in practice.</li>
+<li>Log bases differ only by constants, so log2 n and ln n share a Big-O class.</li>
+<li>Multiple parameters need separate symbols, such as O(V + E) for graphs.</li>
+<li>Best, average and worst cases can belong to different classes.</li>
+<li>Cache misses and allocations may add hidden cost not visible in operation counts.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why can an O(n) algorithm be slower than an O(n log n) algorithm in a real program?</summary>
-<p>Asymptotic notation drops constants and lower-order terms and assumes large n. For the actual input size, the O(n) algorithm may have large constants, poor cache behavior, expensive per-element work, or memory allocation overhead. Always combine asymptotic analysis with measurement.</p>
-</details>
-</section>
 <h3>Sources</h3>
 <p><a href="https://en.wikipedia.org/wiki/Time_complexity">Time complexity</a>; <a href="https://en.wikipedia.org/wiki/Big_O_notation">Big O notation</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="algorithms/space-complexity.html">Space complexity and memory use</a>, <a href="algorithms/measuring-performance.html">Measuring algorithm performance</a>, <a href="paths/algorithm-analysis.html">Analyzing algorithms</a>.</p>
 </section>
 
 <h2>Where next</h2>

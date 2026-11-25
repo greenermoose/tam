@@ -16,106 +16,102 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/web-development/index.html">Web development</a> / HTML and CSS foundations</p></nav>
 
-<p>HTML says what a page contains, and CSS says how that content should look.</p>
+<p>HTML gives a page its structure, such as headings and paragraphs. CSS describes how that structure looks.</p>
 
 <section data-level="novice">
-<h2>What this is</h2>
-<p><dfn><a href="glossary/h/html.html">HTML</a></dfn> is a plain text file with labels around words, such as a heading label or a list label. <dfn><a href="glossary/c/css.html">CSS</a></dfn> is another text file with rules about colour, spacing, and size.</p>
+<h2>Structure and appearance</h2>
+<p><a href="glossary/h/html.html">HTML</a> marks up content as headings, links and lists. <a href="glossary/c/css.html">CSS</a> chooses colours, spacing and fonts for those pieces.</p>
 <h3>Why it matters</h3>
-<p>A browser can read those two files on almost any computer. That is why one web page works on a phone, a laptop, and a TV without a separate installation.</p>
+<p>Separating the two lets the same structure wear different styles, including styles that work better for accessibility.</p>
 <h3>How to think about it</h3>
-<p>HTML is the skeleton and the words. CSS is the clothes. The same skeleton can wear different clothes for a narrow screen, a dark room, or a printed page.</p>
-<h3>New words</h3>
-<dl>
-<dt>Element</dt><dd>A piece of a page, usually written with an opening tag, content, and a closing tag.</dd>
-<dt>Attribute</dt><dd>Extra information inside a tag, such as a link address or a class name.</dd>
-<dt>Selector</dt><dd>The part of a CSS rule that chooses which elements to style.</dd>
-</dl>
-<p><a href="programming/web-development/browser-engines-and-dom.html">Next: browser engines and the document object model</a></p>
+<p>HTML is the skeleton and CSS is the clothing. The skeleton decides what is there; the clothing decides how it presents.</p>
 </section>
 
 <section data-level="learner">
-<h2>Build a tiny page</h2>
-<p><strong>Goal:</strong> you will be able to make a small HTML file, attach a CSS file, and explain what each part does.</p>
-<p><strong>Learner path:</strong> previous: <a href="programming/web-development/javascript.html?level=2">JavaScript and its history</a>; next: <a href="programming/web-development/browser-engines-and-dom.html?level=2">Browser engines and the DOM</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ cat &gt; index.html
-&lt;!doctype html&gt;
+<h2>Match parts to their jobs</h2>
+<p><strong>Goal:</strong> find the page title and its stylesheet link in sample source.</p>
+<tam-sandbox
+  title="Try it: inspect two small source files"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="paths"
+  goal="Show the title line from the sample page">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="index.html" size="222">&lt;!doctype html&gt;
 &lt;html lang="en"&gt;
 &lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;title&gt;My first page&lt;/title&gt;
-&lt;link rel="stylesheet" href=&quot;style.css&quot;&gt;&lt;/head&gt;
+&lt;link rel="stylesheet" href="style.css"&gt;&lt;/head&gt;
 &lt;body&gt;&lt;h1&gt;Hello, web&lt;/h1&gt;&lt;p class="note"&gt;Made with HTML and CSS.&lt;/p&gt;&lt;/body&gt;
-&lt;/html&gt;
-$ cat &gt; style.css
-h1 { color: #16324f; }
-.note { font-size: 1.1rem; }
-$ python3 -c "...read index.html with HTMLParser..."
-title: My first page
-$ wc -c index.html style.css
- 222 index.html
-  52 style.css
- 274 total
-</pre>
-<p>Captured in a scratch directory on 2026-11-24. The byte counts depend on your exact whitespace; the title does not.</p>
-<ol>
-<li><code>&lt;!doctype html&gt;</code> tells the browser to use standards mode.</li>
-<li><code>&lt;head&gt;</code> holds information about the page. Its title appears in the tab.</li>
-<li><code>&lt;body&gt;</code> holds what the reader sees. The <code>class</code> attribute lets CSS find the paragraph.</li>
-</ol>
+&lt;/html&gt;</file>
+      <file name="style.css" size="52">h1 { color: #16324f; }
+.note { font-size: 1.1rem; }</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat index.html" hint="The head carries the title and stylesheet link; the body carries visible content.">
+      <out>&lt;!doctype html&gt;</out>
+      <out>&lt;html lang="en"&gt;</out>
+      <out>&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;title&gt;My first page&lt;/title&gt;</out>
+      <out>&lt;link rel="stylesheet" href="style.css"&gt;&lt;/head&gt;</out>
+      <out>&lt;body&gt;&lt;h1&gt;Hello, web&lt;/h1&gt;&lt;p class="note"&gt;Made with HTML and CSS.&lt;/p&gt;&lt;/body&gt;</out>
+      <out>&lt;/html&gt;</out>
+    </tam-cmd>
+    <tam-cmd match="grep title index.html" goal="true" hint="Correct: the title is metadata in head, not the h1 you see in the page body.">
+      <out>&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;title&gt;My first page&lt;/title&gt;</out>
+    </tam-cmd>
+  <tam-init>Try: grep title index.html</tam-init>
+  <tam-hint after="1">Type cat index.html to see the whole sample page.</tam-hint>
+  <tam-hint after="2">Use cat style.css to see the two style rules.</tam-hint>
+  <tam-fallback>Try cat index.html, or grep title index.html (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The <code>title</code> names the document in the browser tab and in results; the <code>h1</code> is the visible top heading. The <code>note</code> class connects the paragraph to a CSS rule. These files are sample source held in the sandbox, not files on your machine.</p>
 <h3>Try it</h3>
-<p>Add a second paragraph with <code>class="note"</code> and change <code>h1 { color: ... }</code> to a different colour. Open the file in a browser and confirm both paragraphs change.</p>
+<p>Run <code>cat style.css</code>. The selector <code>h1</code> targets the heading; <code>.note</code> targets any element with that class.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>The page shows raw tags</dt><dd>The file is not named with an <code>.html</code> suffix, or the server is sending the wrong content type.</dd>
-<dt>CSS does not appear</dt><dd>Check that <code>style.css</code> sits beside the HTML file and that the selector matches the class or tag exactly.</dd>
+<dt>grep returned the whole head line.</dt><dd>The sample source keeps head elements on one line, so grep prints that line.</dd>
+<dt>I expected a rendered page.</dt><dd>The sandbox shows source files. A browser renders them after parsing the HTML and applying the CSS.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why keep HTML and CSS in separate files?</summary>
-<p>One page of structure can wear several styles, and one stylesheet can give many pages the same look. Browsers can also cache the stylesheet, so later pages load faster.</p>
+<summary><i>Where does the browser tab title come from?</i></summary>
+<p>The title element inside head.</p>
+</details>
+<details class="q">
+<summary><i>What does a class selector start with?</i></summary>
+<p>A dot, as in .note.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Documents, boxes, and cascade</h2>
+<h2>Reference: semantics and cascade</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Concept</th><th>Rule</th></tr>
-<tr><td>Parser</td><td>HTML is tokenized and tree-built with error recovery; invalid markup still produces a document.</td></tr>
-<tr><td>Box model</td><td>Each element has content, padding, border, and margin. <code>box-sizing: border-box</code> includes padding and border in a declared width.</td></tr>
-<tr><td>Cascade</td><td>Origin, importance, specificity, then source order decide which declaration wins.</td></tr>
-<tr><td>Layout</td><td>Normal flow, flexbox, and grid place boxes; <code>position</code> can remove a box from flow.</td></tr>
+<tr><th>Concept</th><th>Meaning</th><th>Note</th></tr>
+<tr><td>Semantic element</td><td>Element with meaning, such as <code>nav</code></td><td>Helps assistive technology</td></tr>
+<tr><td>Selector specificity</td><td>Rule for which CSS wins</td><td>Decides conflicts</td></tr>
+<tr><td>Cascade</td><td>Order of origin, specificity and source order</td><td>Explains surprising results</td></tr>
+<tr><td><a href="bibliography/wcag.html">WCAG</a></td><td>Accessibility guidance</td><td>Contrast and keyboard access</td></tr>
 </table>
 <h3>How it works</h3>
-<p>A browser parses HTML into a tree, combines it with styles, and builds a render tree. CSS selectors match elements in that tree. Values such as <code>1rem</code> resolve against the root font size, while <code>em</code> resolves against the current element. Media queries let one stylesheet respond to width, colour preference, or motion preference. A valid document gives assistive technology a reliable structure; <cite data-ref="wcag"><a href="bibliography/wcag.html">WCAG</a></cite> adds testable accessibility requirements.</p>
-<h3>Advanced usage</h3>
-<pre data-risk="scratch">
-:root { color-scheme: light dark; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; }
-}
-</pre>
-<p>Illustrative snippet: modern CSS can express user preferences without JavaScript. Use <code>!important</code> sparingly because it changes the ordinary cascade.</p>
+<p>The parser builds a DOM, resolves CSS rules against it, computes styles, then lays out boxes. MarkUp must be well-formed enough for the browser's recovery rules, but HTML is not XML. Author style, user style and browser defaults combine through the cascade.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
-<li>Missing <code>&lt;meta charset="utf-8"&gt;</code> can corrupt non-ASCII text.</li>
-<li>Fixed pixel layouts break when text is enlarged or translated.</li>
-<li>A selector with many IDs can become brittle; prefer meaningful classes.</li>
-<li>Using a <code>div</code> for a button loses keyboard and assistive-technology behaviour that a real <code>button</code> supplies.</li>
+<li>Malformed nesting produces a different DOM than the source suggests.</li>
+<li>Inherited properties and shorthand rules interact in non-obvious ways.</li>
+<li>Font loading changes layout after first paint.</li>
+<li>Colour alone should not convey meaning.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Two rules match the same paragraph. One has a class selector, the other an element selector and appears later. Which wins?</summary>
-<p>The class selector wins because specificity is compared before source order. Model answer: origin and importance come first, then specificity, then order. Later source order only breaks a tie in specificity.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p>See <cite data-ref="whatwg-html"><a href="bibliography/whatwg-html.html">the WHATWG HTML and DOM standards</a></cite> and <cite data-ref="mdn-web"><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a></cite>.</p>
+<p><a href="bibliography/whatwg-html.html">the WHATWG HTML and DOM standards</a>; <a href="bibliography/mdn-web-docs.html">MDN Web Docs</a>; <a href="programming/web-development/browser-engines-and-dom.html">Browser engines and the DOM</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="programming/web-development/javascript.html?level=2">JavaScript and its history</a>, <a href="programming/web-development/browser-engines-and-dom.html?level=2">Browser engines and the DOM</a>, <a href="programming/web-development/web-security.html">Web security</a>.</p>
 </section>
 
 <h2>Where next</h2>
@@ -128,4 +124,5 @@ $ wc -c index.html style.css
 <li><a href="glossary/h/html.html">HTML glossary entry</a> &mdash; the term in one paragraph.</li>
 <li><a href="glossary/c/css.html">CSS glossary entry</a> &mdash; the styling language in one paragraph.</li>
 </ul>
-</body></html>
+</body>
+</html>

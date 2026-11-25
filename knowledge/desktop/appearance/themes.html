@@ -50,22 +50,32 @@
 <aside class="first-time">
 <p>The <code>$</code> at the start of a command line represents your shell prompt. Do not type the <code>$</code>. Paths starting with <code>~</code> refer to your personal home directory (such as <code>/home/alex</code>).</p>
 </aside>
-<h3>Worked example: inspect the active theme</h3>
-<pre class="session" data-risk="read-only">
-$ tam-theme-current
-tamarack-dark
+<h3>Explore: inspect the active theme</h3>
+<tam-sandbox
+  title="Try it: inspect the active theme"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Inspect the active theme">
+  <tam-cmd match="tam-theme-current" hint="Look for the value that answers the task.">
+    <out>tamarack-dark</out>
+  </tam-cmd>
+  <tam-cmd match="readlink ~/.local/state/tamlinux/current/theme">
+    <out>/home/alex/.local/state/tamlinux/theme-generations/tamarack-dark.4b1a8f...</out>
+  </tam-cmd>
+  <tam-cmd match="tam-theme-color background">
+    <out>#131a15</out>
+  </tam-cmd>
+  <tam-cmd match="tam-theme-color foreground" goal="true">
+    <out>#e4ece6</out>
+  </tam-cmd>
+  <tam-init>Try: tam-theme-current</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-theme-current (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-$ readlink ~/.local/state/tamlinux/current/theme
-/home/alex/.local/state/tamlinux/theme-generations/tamarack-dark.4b1a8f...
-
-$ tam-theme-color background
-#131a15
-
-$ tam-theme-color foreground
-#e4ece6
-</pre>
-
-<p>Captured on a Tamlinux workstation. Your active theme and generation hashes will match your local configuration.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>tam-theme-current</code> reads the active theme name recorded in Tamlinux&apos;s state directory. The default theme is <strong>Tamarack Dark</strong>, a high-contrast dark green palette designed specifically for Tamlinux.</li>
@@ -111,6 +121,27 @@ head -n 12 ~/.local/state/tamlinux/current/theme/colors.toml
 <p>No. The theme engine only updates application color schemes, stylesheets, and desktop state links. Personal documents, code repositories, and user files remain completely untouched.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for ls -la ~/.local/state/tamlinux/current/"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for ls -la ~/.local/state/tamlinux/current/">
+<tam-cmd match="ls -la ~/.local/state/tamlinux/current/" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>total 16
+drwx------ 2 alex alex 4096 Nov  1 05:00 .
+drwx------ 5 alex alex 4096 Nov  1 05:00 ..
+lrwxrwxrwx 1 alex alex   72 Nov  1 05:00 background -&gt; /home/alex/...
+lrwxrwxrwx 1 alex alex   68 Nov  1 05:00 theme -&gt; /home/alex/.local/state/tamlinux/theme-generations/tamarack-dark.4b1a8f...
+-rw------- 1 alex alex   14 Nov  1 05:00 theme.name</out>
+  </tam-cmd>
+  <tam-init>Try: ls -la ~/.local/state/tamlinux/current/</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try ls -la ~/.local/state/tamlinux/current/ (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Tamlinux theme engine internals, transactional safety and future work</h2>
@@ -213,15 +244,7 @@ def solid_png(color):
 
 <p>Inspect the active theme generation directory and verify the atomic symlink structure using read-only commands:</p>
 
-<pre class="session" data-risk="read-only">
-$ ls -la ~/.local/state/tamlinux/current/
-total 16
-drwx------ 2 alex alex 4096 Nov  1 05:00 .
-drwx------ 5 alex alex 4096 Nov  1 05:00 ..
-lrwxrwxrwx 1 alex alex   72 Nov  1 05:00 background -&gt; /home/alex/...
-lrwxrwxrwx 1 alex alex   68 Nov  1 05:00 theme -&gt; /home/alex/.local/state/tamlinux/theme-generations/tamarack-dark.4b1a8f...
--rw------- 1 alex alex   14 Nov  1 05:00 theme.name
-</pre>
+
 
 <p>Notice that <code>theme</code> is a single symlink pointing to an immutable generation directory. The generation contains the full suite of generated application configs.</p>
 

@@ -61,44 +61,64 @@
                    back: swap again, nothing copied
 </pre>
 <p>A <em>bundle id</em> joins the name, the version and the first twelve characters of the bundle's hash, for example <code>demo-1-198a107655aa</code>. The <code>MANIFEST</code> file lists every directory, file and link with its mode and, for a file, its <a href="glossary/s/sha-256.html">SHA-256</a> hash. <code>BUNDLE</code> holds the name, version, overall hash and the sources and tools it was built from.</p>
-<h3>Worked example: two versions, one rollback</h3>
-<pre class="session" data-risk="scratch">
-$ d=$(mktemp -d); cd "$d"
-$ tb() { tam-bundle --slot "$d/slot" --state "$d/state" "$@"; }
-$ mkdir -p v1/bin v2/bin
-$ printf '#!/bin/sh\necho one\n' &gt; v1/bin/hello
-$ printf '#!/bin/sh\necho two\n' &gt; v2/bin/hello
-$ chmod 755 v1/bin/hello v2/bin/hello
-$ tam-bundle seal v1 --name demo --version 1
-sealed v1 as demo-1-198a107655aa (2 entries)
-$ tam-bundle seal v2 --name demo --version 2
-sealed v2 as demo-2-77c79880491c (2 entries)
-$ cat v1/MANIFEST
-format 1
+<h3>Explore: two versions, one rollback</h3>
+<tam-sandbox
+  title="Try it: two versions, one rollback"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Two versions, one rollback">
+  <tam-cmd match="d=$(mktemp -d); cd &quot;$d&quot;" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="tb() { tam-bundle --slot &quot;$d/slot&quot; --state &quot;$d/state&quot; &quot;$@&quot;; }"></tam-cmd>
+  <tam-cmd match="mkdir -p v1/bin v2/bin"></tam-cmd>
+  <tam-cmd match="printf &#x27;#!/bin/sh\necho one\n&#x27; &gt; v1/bin/hello"></tam-cmd>
+  <tam-cmd match="printf &#x27;#!/bin/sh\necho two\n&#x27; &gt; v2/bin/hello"></tam-cmd>
+  <tam-cmd match="chmod 755 v1/bin/hello v2/bin/hello"></tam-cmd>
+  <tam-cmd match="tam-bundle seal v1 --name demo --version 1">
+    <out>sealed v1 as demo-1-198a107655aa (2 entries)</out>
+  </tam-cmd>
+  <tam-cmd match="tam-bundle seal v2 --name demo --version 2">
+    <out>sealed v2 as demo-2-77c79880491c (2 entries)</out>
+  </tam-cmd>
+  <tam-cmd match="cat v1/MANIFEST">
+    <out>format 1
 d 0755 - bin
-f 0755 sha256:f5dd87fa1cf3d592ff0ba84641abfe39bacecaad5e003c74aa181ccb54c2cc9a bin/hello
-$ tb switch v1
-switched /tmp/tmp.gZGWeCbGMw/slot to demo-1-198a107655aa (from -): 0 files reused, 1 copied
-$ tb switch v2
-switched /tmp/tmp.gZGWeCbGMw/slot to demo-2-77c79880491c (from demo-1-198a107655aa): 0 files reused, 1 copied
-$ slot/current/bin/hello
-two
-$ tb back
-switched /tmp/tmp.gZGWeCbGMw/slot back to demo-1-198a107655aa (from demo-2-77c79880491c)
-$ slot/current/bin/hello
-one
-$ tb status
-slot:      /tmp/tmp.gZGWeCbGMw/slot
+f 0755 sha256:f5dd87fa1cf3d592ff0ba84641abfe39bacecaad5e003c74aa181ccb54c2cc9a bin/hello</out>
+  </tam-cmd>
+  <tam-cmd match="tb switch v1">
+    <out>switched /tmp/tmp.gZGWeCbGMw/slot to demo-1-198a107655aa (from -): 0 files reused, 1 copied</out>
+  </tam-cmd>
+  <tam-cmd match="tb switch v2">
+    <out>switched /tmp/tmp.gZGWeCbGMw/slot to demo-2-77c79880491c (from demo-1-198a107655aa): 0 files reused, 1 copied</out>
+  </tam-cmd>
+  <tam-cmd match="slot/current/bin/hello">
+    <out>two</out>
+  </tam-cmd>
+  <tam-cmd match="tb back">
+    <out>switched /tmp/tmp.gZGWeCbGMw/slot back to demo-1-198a107655aa (from demo-2-77c79880491c)</out>
+  </tam-cmd>
+  <tam-cmd match="slot/current/bin/hello">
+    <out>one</out>
+  </tam-cmd>
+  <tam-cmd match="tb status">
+    <out>slot:      /tmp/tmp.gZGWeCbGMw/slot
 state:     /tmp/tmp.gZGWeCbGMw/state
 live:      demo-1-198a107655aa
 previous:  demo-2-77c79880491c
 kept:      demo-2-77c79880491c (previous)
-last:      2026-11-10T02:45:54Z back demo-1-198a107655aa from demo-2-77c79880491c ok 0.0s
-$ tb where $PWD/slot/current/bin/hello
-/tmp/tmp.gZGWeCbGMw/slot/current/bin/hello
+last:      2026-11-10T02:45:54Z back demo-1-198a107655aa from demo-2-77c79880491c ok 0.0s</out>
+  </tam-cmd>
+  <tam-cmd match="tb where $PWD/slot/current/bin/hello" goal="true">
+    <out>/tmp/tmp.gZGWeCbGMw/slot/current/bin/hello
   bundle:  demo-1-198a107655aa (demo 1)
-  record:  f sha256:f5dd87fa1cf3d592ff0ba84641abfe39bacecaad5e003c74aa181ccb54c2cc9a
-</pre>
+  record:  f sha256:f5dd87fa1cf3d592ff0ba84641abfe39bacecaad5e003c74aa181ccb54c2cc9a</out>
+  </tam-cmd>
+  <tam-init>Try: d=$(mktemp -d); cd "$d"</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try d=$(mktemp -d); cd "$d" (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <p>Captured with <code>tam-bundle</code> 0.4.0 on an Arch Linux workstation, 2026-11-09. Your temporary folder name and times will differ. The file hashes will match if your files match byte for byte; the bundle ids also depend on the <code>tam-bundle</code> version, which <code>BUNDLE</code> records.</p>
 <h3>What just happened</h3>
 <ol>

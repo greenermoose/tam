@@ -39,15 +39,19 @@
 <h2>Follow a finished frame</h2>
 <p><strong>Goal:</strong> you will be able to explain how an application's picture reaches the screen and how input returns in a Wayland session.</p>
 <p><strong>Learner path:</strong> back: <a href="desktop/windowing/x11.html?level=2">How X11 draws windows</a>; next: <a href="desktop/windowing/comparison.html?level=2">Why Linux moved from X11 to Wayland</a>.</p>
-<h3>Worked example</h3>
-<p>Trace one refreshed window:</p>
-<ol>
-<li>The application allocates a buffer, either in <a href="glossary/s/shared-memory.html">shared memory</a> or through <a href="glossary/d/dma-buf.html">DMA-BUF</a> for <a href="glossary/g/gpu.html">GPU</a> memory.</li>
-<li>It paints into that buffer and attaches it to a <a href="glossary/w/wl-surface.html">wl_surface</a>, using <a href="glossary/x/xdg-shell.html">xdg-shell</a> to say that the surface is a toplevel window.</li>
-<li>A commit tells the compositor that the surface state is ready.</li>
-<li>The compositor combines it with other surfaces and presents the result on an output, then sends input events back through the focused seat.</li>
-</ol>
-<p>The application never sends "draw this rectangle" commands to a display server; it hands over a finished picture.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Trace the active Wayland session indicators"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Trace the active Wayland session indicators">
+  <tam-cmd match="echo WAYLAND_DISPLAY" goal="true">
+    <out>wayland-1</out>
+  </tam-cmd>
+  <tam-init>Try: echo WAYLAND_DISPLAY</tam-init>
+  <tam-hint after="1">The socket name identifies a connection endpoint.</tam-hint>
+  <tam-hint after="2">Native clients connect to the compositor through that socket.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>In a graphical terminal, run <code>printf '%s\n' "$WAYLAND_DISPLAY" "$XDG_SESSION_TYPE"</code>. A value such as <code>wayland-1</code> plus <code>wayland</code> means native Wayland clients can connect. A blank first line with <code>x11</code> means you are in an X11 session; see the session-checks page for a fuller read-only check.</p>
 <h3>If it goes wrong</h3>

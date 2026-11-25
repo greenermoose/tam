@@ -41,13 +41,22 @@
 <p><strong>Goal:</strong> you will be able to read an installed package version and distinguish inspection from an update.</p>
 
 
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ pacman -Q bash
-bash 5.3.20-1
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-10-21. Output differs when a different version is installed.</p>
 
+<tam-sandbox
+  title="Try it: Explore pacman output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore pacman output">
+  <tam-cmd match="pacman -Q bash" goal="true" hint="Look for the value that answers the task.">
+    <out>bash 5.3.20-1</out>
+  </tam-cmd>
+  <tam-init>Try: pacman -Q bash</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try pacman -Q bash (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The <code>-Q</code> option tells the package manager to query the local database of installed software.</li>
@@ -82,6 +91,43 @@ bash 5.3.20-1
 <p>No. It only checks the specific queried package against the local installation database.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for work=$(mktemp -d)"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for work=$(mktemp -d)">
+<tam-cmd match="work=$(mktemp -d)" hint="Read the labels and connect each value to the task."></tam-cmd>
+<tam-cmd match="printf &#x27;old\n&#x27; &gt; &quot;$work/active.txt&quot;"></tam-cmd>
+<tam-cmd match="exec 3&lt; &quot;$work/active.txt&quot;"></tam-cmd>
+<tam-cmd match="printf &#x27;new\n&#x27; &gt; &quot;$work/next.txt&quot; &amp;&amp; mv &quot;$work/next.txt&quot; &quot;$work/active.txt&quot;"></tam-cmd>
+<tam-cmd match="cat &quot;$work/active.txt&quot;; cat &lt;&amp;3">
+    <out>new
+old</out>
+  </tam-cmd>
+<tam-cmd match="exec 3&lt;&amp;-; rm -- &quot;$work/active.txt&quot; &amp;&amp; rmdir -- &quot;$work&quot;" goal="true"></tam-cmd>
+  <tam-init>Try: work=$(mktemp -d)</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try work=$(mktemp -d) (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
+<h3>Find which package owns a file</h3>
+<tam-sandbox
+  title="Try it: find the package that owns a file"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Identify the installed package that provides a file">
+  <tam-cmd match="pacman -Qo /usr/bin/bash" goal="true">
+    <out>Sample: /usr/bin/bash is owned by bash 5.3.20-1</out>
+  </tam-cmd>
+  <tam-init>Try: pacman -Qo /usr/bin/bash</tam-init>
+  <tam-hint after="1">The -Qo option asks about ownership of a path.</tam-hint>
+  <tam-hint after="2">This query reads the local package database.</tam-hint>
+  <tam-fallback>Try pacman -Qo /usr/bin/bash (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 
 <section data-level="expert">
@@ -95,24 +141,10 @@ bash 5.3.20-1
 </table>
 
 <h3>Illustrative reference</h3>
-<pre class="session" data-risk="read-only">
-$ pacman -Qo /usr/bin/bash
-/usr/bin/bash is owned by bash 5.3.20-1
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-10-21. <code>-Qo</code> identifies the package responsible for a specific filesystem path.</p>
+<p><code>-Qo</code> identifies the installed package responsible for a specific filesystem path.</p>
 
-<p>To compare a filesystem name against an open file descriptor (explaining how an already-running process keeps old code after an on-disk replacement), run this read-only-to-system scratch experiment:</p>
-<pre class="session" data-risk="scratch">
-$ work=$(mktemp -d)
-$ printf 'old\n' &gt; "$work/active.txt"
-$ exec 3&lt; "$work/active.txt"
-$ printf 'new\n' &gt; "$work/next.txt" &amp;&amp; mv "$work/next.txt" "$work/active.txt"
-$ cat "$work/active.txt"; cat &lt;&amp;3
-new
-old
-$ exec 3&lt;&amp;-; rm -- "$work/active.txt" &amp;&amp; rmdir -- "$work"
-</pre>
-<p>Captured on Arch Linux. Descriptor 3 still refers to the unlinked original inode while opening <code>active.txt</code> by name reaches the replacement inode.</p>
+<p>The learner sandbox above compares a filesystem name against an open file descriptor. After an on-disk replacement, an already-running process can keep using the old inode.</p>
+
 
 <h3>Sources</h3>
 <ul><li><a href="man:pacman(8)">pacman(8)</a>: package manager utility.</li>

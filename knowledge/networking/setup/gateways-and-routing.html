@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/setup/index.html">Network setup</a> / Gateways and routing</p></nav>
 
-<p>A routing table tells a computer which door to use for each destination; the default route is the door used when no more specific rule applies.</p>
-<h2>Before this</h2><p><a href="networking/setup/adding-a-connection.html">Adding a connection</a> shows where the gateway setting comes from.</p>
+<p>A gateway is the next router on the path to another network. The routing table tells the kernel which gateway or interface to use for each destination.</p>
 
 <section data-level="novice">
 <h2>The signpost at every crossroads</h2>
@@ -49,75 +48,53 @@ any other destination          --&gt; send to gateway 192.168.1.1 on enp1s0
 </section>
 
 <section data-level="learner">
-<h2>Ask the kernel which path it would take</h2>
-<p><strong>Goal:</strong> you will be able to read a routing table, explain each column, and use <code>ip route get</code> to find the path for a destination without sending traffic.</p>
-
-<p><strong>Before you start:</strong> both commands below only read the table and compute a decision. Nothing is added or removed.</p>
-
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ip route
-default via 192.168.1.1 dev enp1s0 proto dhcp src 192.168.1.26 metric 100
-172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown
-192.168.1.0/24 dev enp1s0 proto kernel scope link src 192.168.1.26 metric 100
-$ ip route get 1.1.1.1
-1.1.1.1 via 192.168.1.1 dev enp1s0 src 192.168.1.26 uid 1000
-    cache
-$ ip route get 192.168.1.1
-192.168.1.1 dev enp1s0 src 192.168.1.26 uid 1000
-    cache
-</pre>
-<p>Captured on a wired Arch Linux workstation on 2026-11-21. Your addresses, interface names and metrics will differ.</p>
-
+<h2>Ask which path a destination would take</h2>
+<p><strong>Goal:</strong> read a sample route decision and name the gateway and outgoing device.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read a route decision"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the gateway for 192.0.2.50 in sample output">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="ip route get 192.0.2.50" goal="true" hint="via is the next router and dev is the outgoing interface.">
+      <out>192.0.2.50 via 192.0.2.1 dev enp1s0 src 192.0.2.26 uid 1000</out>
+      <out>    cache</out>
+    </tam-cmd>
+    <tam-cmd match="ip route" hint="The default route is a fallback; the local route covers this sample subnet.">
+      <out>default via 192.0.2.1 dev enp1s0 proto dhcp src 192.0.2.26 metric 100</out>
+      <out>192.0.2.0/24 dev enp1s0 proto kernel scope link src 192.0.2.26 metric 100</out>
+    </tam-cmd>
+    <tam-cmd match="ip rule" hint="Rules select which routing table is consulted.">
+      <out>0:      from all lookup local</out>
+      <out>32766:  from all lookup main</out>
+      <out>32767:  from all lookup default</out>
+    </tam-cmd>
+  <tam-init>Sample route: 192.0.2.50 via 192.0.2.1 dev enp1s0.</tam-init>
+  <tam-hint after="1">Try ip route get 192.0.2.50 first.</tam-hint>
+  <tam-hint after="2">Now try ip route to see the table behind the decision.</tam-hint>
+  <tam-fallback>Try ip route get 192.0.2.50, ip route or ip rule (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li>The <code>default</code> route has no prefix restriction, so it matches every destination that no other route claims.</li>
-<li><code>via 192.168.1.1</code> is the next hop: the packet carries the remote destination but is sent to the gateway's hardware address on the wire.</li>
-<li>The <code>192.168.1.0/24</code> route was added by the kernel from the interface's own address; it needs no gateway because that prefix is on the link.</li>
-<li><code>proto dhcp</code> on the default route means a <a href="glossary/d/dhcp.html">DHCP</a> server supplied the gateway; <code>proto kernel</code> means the kernel derived the route from an address.</li>
-<li><code>metric 100</code> is a preference. When two routes match equally, the lower metric wins.</li>
-<li><code>ip route get 1.1.1.1</code> uses the default route; <code>ip route get 192.168.1.1</code> shows a direct delivery because the gateway is on the local prefix.</li>
-</ol>
-
+<p>The sample decision names <code>192.0.2.1</code> as the next router and <code>enp1s0</code> as the outgoing device. The routing table shows why: a local route covers the subnet and a default route handles everything else. These lines are authored sample output.</p>
 <h3>Try it</h3>
-<p>Run <code>ip route get 8.8.8.8</code> and <code>ip -6 route</code>. The first reports the chosen next hop for a public <a href="glossary/i/ipv4.html">IPv4</a> address. The second shows <a href="glossary/i/ipv6.html">IPv6</a> routes, including a default route learned from a router advertisement when one is present. Both are read-only.</p>
-
+<p>Compare the two <code>ip route get</code> answers in your head: a destination inside the local subnet would not need <code>via</code>, while an outside one does. On a real machine the same command reports the kernel’s current choice.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>No line begins with <code>default</code></dt>
-<dd>There is no route outside the directly connected prefixes. Check the profile's gateway or whether DHCP supplied one.</dd>
-<dt>Two default routes appear with different metrics</dt>
-<dd>Both are valid; the lower metric is preferred. This is normal when a wired and a wireless connection, or a <a href="glossary/v/vpn.html">VPN</a>, are active at once.</dd>
-<dt>The gateway is not on any local prefix</dt>
-<dd>The kernel cannot reach the next hop, so the route cannot be used. Correct the gateway or the prefix length.</dd>
-<dt>A route shows <code>linkdown</code></dt>
-<dd>The configuration exists but the interface has no carrier. Reconnect the cable or <a href="glossary/w/wi-fi.html">Wi-Fi</a>; the route becomes usable when the link returns.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Tamlinux leaves routing to NetworkManager and the kernel. The connection status command chooses the device by asking <code>ip route get 1.1.1.1</code> rather than guessing from the first interface in a list; that detail is recorded in the public <code>tamlinux</code> repository under <code>commands/tam-network-status</code>.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>Why does a packet to a remote address carry the gateway's hardware address?</i></summary>
-<p><a href="glossary/e/ethernet.html">Ethernet</a> delivers frames within one link using hardware addresses. The IP destination stays the remote server, but the frame must be addressed to the next hop that can forward it, which is the gateway.</p>
-</details>
-<details class="q">
-<summary><i>A host has routes for 10.0.0.0/8 and 10.1.2.0/24. Which wins for 10.1.2.5?</i></summary>
-<p>The <code>/24</code> route, because longest-prefix match chooses the most specific network that contains the destination.</p>
-</details>
-<details class="q">
-<summary><i>Predict the route get output when no default route exists.</i></summary>
-<p>A numeric public destination such as <code>1.1.1.1</code> produces a "Network is unreachable" result, while a destination on the local prefix still resolves to a direct delivery.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What does the default route do?</i></summary><p>It is the fallback path for destinations not covered by a more specific route.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: route selection and route types</h2>
-
 <h3>Reference</h3>
 <table>
 <tr><th>Route type</th><th>Effect</th><th>Typical source</th></tr>
@@ -134,22 +111,7 @@ $ ip route get 192.168.1.1
 <p>Routing and <a href="glossary/n/nat.html">NAT</a> are different functions. A router forwards a packet without changing its addresses; a NAT gateway rewrites the source or destination as it crosses a boundary. A VPN adds a virtual interface and usually a more specific set of routes plus a default route with a lower metric, while leaving the physical interface's local route intact.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ ip -j route get 1.1.1.1 | python3 -m json.tool
-{
-    "1.1.1.1": {
-        "via": "192.168.1.1",
-        "dev": "enp1s0",
-        "src": "192.168.1.26",
-        "uid": 1000,
-        "cache": true
-    }
-}
-$ ip rule
-0:      from all lookup local
-32766:  from all lookup main
-32767:  from all lookup default
-</pre>
+
 <p>The <a href="glossary/j/json.html">JSON</a> form and the rule list show the same decision from two angles: the route that was chosen, and the tables that were eligible to supply it.</p>
 
 <h3>Edge cases</h3>
@@ -161,13 +123,7 @@ $ ip rule
 <li>Reverse-path filtering drops packets whose source address would not be reachable through the interface they arrived on; it is a defense against spoofing that can surprise users of multiple interfaces.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why might a VPN connection work for some destinations but not others?</summary>
-<p>The VPN may add specific routes for its own networks without replacing the default route, or its default route may have a higher metric than the local one. Check <code>ip route</code> and <code>ip route get</code> for the failing destination to see which path was selected.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <p><a href="man:ip-route(8)">ip-route(8)</a>, <a href="man:ip-rule(8)">ip-rule(8)</a>, <a href="man:nmcli(1)">nmcli(1)</a> and <a href="man:NetworkManager(8)">NetworkManager(8)</a>.</p>
@@ -175,6 +131,19 @@ $ ip rule
 <h3>Improve it</h3>
 <p>When adding a multi-path example, capture <code>ip route get</code> for each destination rather than inferring the winner from the table.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="networking/setup/adding-a-connection.html">Adding a connection</a></li>
+<li><a href="glossary/d/dhcp.html">DHCP</a></li>
+<li><a href="glossary/i/ipv4.html">IPv4</a></li>
+<li><a href="glossary/i/ipv6.html">IPv6</a></li>
+<li><a href="glossary/v/vpn.html">VPN</a></li>
+<li><a href="glossary/w/wi-fi.html">Wi-Fi</a></li>
+<li><a href="glossary/e/ethernet.html">Ethernet</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="networking/setup/name-resolution.html">Name resolution</a> &mdash; turn the names people use into the addresses these routes deliver.</p>
 <h2>Related</h2><ul><li><a href="networking/connections.html">Network connections and DNS</a> &mdash; the short diagnostic guide for a connection that is already configured.</li><li><a href="paths/network-setup.html">Set up a network connection</a> &mdash; the full reading order.</li></ul>

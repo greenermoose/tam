@@ -7,7 +7,7 @@
 <meta name="topic" content="documents-and-pdf">
 <meta name="summary" content="Open PDF documents with Tamlinux viewers and check local printer setup before printing">
 <meta name="keywords" content="pdf, documents, zathura, evince, tam-open, print, cups, printing">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/apps/index.html">
 <meta name="paths" content="files-and-apps:6">
@@ -39,12 +39,24 @@
 <p><strong>Goal:</strong> check which PDF viewer and print queues are active on your machine read-only before opening or printing documents.</p>
 <p><strong>Before you start:</strong> checking installed commands and print queue status is read-only and prints nothing to paper.</p>
 
-<h3>Worked example</h3>
+
 <p>Check which PDF viewers are currently on your <code>PATH</code> and whether CUPS (Common <a href="glossary/u/unix.html">Unix</a> Printing System) has configured queues:</p>
-<pre class="session" data-risk="read-only">
-$ command -v zathura evince chromium
-$ lpstat -p 2>/dev/null || echo "No printer queues configured"
-</pre>
+<tam-sandbox
+  title="Try it: Explore command output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore command output">
+  <tam-cmd match="command -v zathura evince chromium" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="lpstat -p 2&gt;/dev/null || echo &quot;No printer queues configured&quot;" goal="true">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: command -v zathura evince chromium</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try command -v zathura evince chromium (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <p>When a PDF viewer such as <code>zathura</code> or <code>evince</code> is installed, <code>tam-open report.pdf</code> launches it directly in a graphical session; if neither dedicated viewer is installed, <code>tam-open</code> falls back to Chromium to display the PDF.</p>
 
 <h3>Try it</h3>
@@ -75,7 +87,10 @@ $ lpstat -p 2>/dev/null || echo "No printer queues configured"
 </details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Reference and system behavior</h2>
+<p>PDF preserves page layout, while text documents can reflow or carry editable structure. Treat downloaded documents as untrusted input and keep the reader updated.</p>
+</section>
 <h2>Next</h2><p><a href="desktop/apps/media.html">Viewing photos, playing audio/video, and converting media</a> &mdash; images, video playback, and transcoding.</p>
 <h2>Related</h2><ul><li><a href="desktop/apps/browser.html">Opening the web browser</a> &mdash; handling links and web-based forms.</li></ul>
 

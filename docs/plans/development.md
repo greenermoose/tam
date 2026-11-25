@@ -1591,6 +1591,18 @@ captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
 
+### 2026-11-25 — Corpus-wide interactive examples (corpus 0.128.0)
+
+The developer asked to review static Worked examples across the corpus and
+make computer-use examples interactive. Learner walkthroughs now use the
+simulated sandbox with a goal, progressive hints and fallback. All 229 pages
+in scope have sandboxes; each declares novice, learner and expert sections.
+The opening paragraphs were reviewed, with seven overlong openings shortened.
+Advanced illustrative commands remain static in Expert sections where the
+corpus rules allow them. The authoring and pedagogy guides now document this
+contract. This is corpus content only; command version and stage promotion
+remain unchanged.
+
 ### 2026-11-25 — Kernel lifecycle and interrupts (corpus 0.127.0)
 
 The developer asked to explain on the kernel page how the kernel starts and

@@ -16,189 +16,93 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / Writing instructions your computer can repeat</p></nav>
 
-
-<p>This page explains how to write reusable instructions for your computer.</p>
-<h2>Before this</h2><p><a href="terminal/shell/index.html">Giving your computer written instructions</a> · <a href="systems/storage/hierarchy.html">Files and folders</a></p>
-<p>A script is a set of written instructions that a computer can follow. This page introduces practices that help those instructions work reliably.</p>
+<p>A script is a short program you can run again. Careful scripts check their inputs and stop early when a step fails.</p>
 
 <section data-level="novice">
-<h2>What makes a shell script defensive?</h2>
-<p>A shell script is a plain-text file containing a sequence of terminal commands that run automatically from top to bottom. Writing a script <em>defensively</em> means adding safeguards so it stops right away if a step fails or a variable is unexpectedly empty.</p>
+<h2>A recipe the computer repeats</h2>
+<p>A <a href="glossary/s/script.html">script</a> is a text file of commands. A <a href="glossary/s/shebang.html">shebang</a> on the first line tells the system which interpreter should read it.</p>
 <h3>Why it matters</h3>
-<p>By default, a shell script keeps running even after a command fails, and an empty variable can turn a file path into the wrong folder. Defensive habits catch mistakes early before they cause damage.</p>
+<p>Repeating a task by hand invites typos. A script records the steps so the same work happens the same way each time.</p>
 <h3>How to think about it</h3>
-<p>Think of a defensive script like a pre-flight checklist with automatic circuit breakers: if a required input is missing or an earlier step fails, the script halts immediately instead of blindly charging into the next step.</p>
-<h3>New words</h3>
-<dl>
-<dt><a href="glossary/s/shebang.html">Shebang</a></dt>
-<dd>The <code>#!</code> line at the top of a script telling the system which interpreter should run it.</dd>
-<dt><a href="glossary/e/errexit.html">Errexit</a></dt>
-<dd>A shell option that stops a script immediately when a command returns an error.</dd>
-<dt><a href="glossary/n/nounset.html">Nounset</a></dt>
-<dd>A shell option that treats an undefined variable as an error instead of silently expanding it to empty text.</dd>
-</dl>
+<p>A script is a recipe card. The shebang names the cook; the remaining lines are the steps in order.</p>
 </section>
 
 <section data-level="learner">
-<h2>The defensive Bash script template</h2>
-<p><strong>Goal:</strong> you will be able to write a defensive Bash script with strict execution flags that catches silent errors, uninitialized variables, and pipeline failures.</p>
-<p><strong>Before you start:</strong> open a terminal. Scripting requires basic familiarity with pipelines (<a href="terminal/shell/pipelines.html">Shell Pipelines</a>) and execution permissions (<a href="security/permissions.html">File Permissions and Ownership</a>). We will test scripts in disposable scratch directories.</p>
-<aside class="first-time">
-<p>A shell script is a plain text file containing terminal commands. The top line (called the <em>shebang</em>, like <code>#!/usr/bin/env bash</code>) tells the operating system which program executes the file. Before you can run a script directly with <code>./myscript.sh</code>, you must give it execution permissions using <code>chmod +x myscript.sh</code>.</p>
-</aside>
-<h3>Mental model</h3>
-<pre>
-$*       --> "arg1 arg2 arg3"               (concatenates into single string)
-$@       --> arg1 arg2 arg3                 (unquoted: splits on internal whitespace)
-"$@"     --> "arg1" "arg with space" "arg3" (preserves exact argument boundaries)
-trap ... EXIT --> attempt cleanup when the shell can execute the handler
-</pre>
+<h2>Read a trace and spot the guard</h2>
+<p><strong>Goal:</strong> say how <code>set -euo pipefail</code> changes a script's behaviour.</p>
+<tam-sandbox
+  title="Try it: inspect a traced script"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Show the successful traced run">
+  <tam-fs>
+<dir name="/home/alex"></dir>
+  </tam-fs>
+    <tam-cmd match="bash -x test-unbound.sh Tamlinux" goal="true" hint="Correct: -x prints each step, and the strict flags guard failures and unset variables.">
+      <out>+ set -euo pipefail</out>
+      <out>+ target=Tamlinux</out>
+      <out>+ echo 'Hello, Tamlinux!'</out>
+      <out>Hello, Tamlinux!</out>
+    </tam-cmd>
+    <tam-cmd match="bash -x missing.sh" hint="nounset stops the script when a variable has not been set.">
+      <out>+ set -euo pipefail</out>
+      <out>+ echo "$UNSET_VARIABLE"</out>
+      <out>line 3: UNSET_VARIABLE: unbound variable</out>
+    </tam-cmd>
+  <tam-init>Try: bash -x test-unbound.sh Tamlinux</tam-init>
+  <tam-hint after="1">Type bash -x missing.sh to see the unbound-variable guard.</tam-hint>
+  <tam-fallback>Try one of the two sample commands, or type help.</tam-fallback>
+</tam-sandbox>
 
-<p>When handling filenames passed by users, never expand bare <code>$*</code> or unquoted <code>$@</code>. Unquoted expansions split filenames containing spaces (such as <code>"Quarterly Report.pdf"</code>) into multiple separate words. Always use double-quoted <code>"$@"</code>. For arrays, read loops and <a href="glossary/n/nul.html">NUL</a>-delimited streams, see <a href="programming/robust-shell-data.html">Handling real data safely</a>.</p>
-<h3>Worked example: Write and run a safe script</h3>
-<p>Run the entire block in a terminal. It creates one script in a fresh temporary directory and removes that known file and the empty directory afterward.</p>
-<pre data-risk="scratch">if scratch=$(mktemp -d); then
-    cat &gt; "$scratch/safe-greet.sh" &lt;&lt; 'SCRIPT'
-#!/usr/bin/env bash
-set -euo pipefail
-target="${1:-world}"
-printf 'Hello, %s!\n' "$target"
-SCRIPT
-    chmod u+x "$scratch/safe-greet.sh"
-    "$scratch/safe-greet.sh" Tamlinux
-    rm -- "$scratch/safe-greet.sh"
-    rmdir -- "$scratch"
-else
-    printf '%s\n' 'Could not create a temporary directory.'
-fi</pre>
-<p>On success it prints <code>Hello, Tamlinux!</code>. If cleanup fails, inspect the reported directory; do not remove unexpected contents recursively.</p>
-
-<ol>
-<li><code>#!/usr/bin/env bash</code> locates the <code>bash</code> executable portably across <a href="glossary/n/nix.html">Nix</a>, Arch, and standard Linux distributions.</li>
-<li><code>set -e</code> (errexit) can exit on a failing command, but has exceptions in conditionals, pipelines and other contexts; consult Bash documentation and test the actual control flow.</li>
-<li><code>set -u</code> (nounset) treats references to unset variables as fatal errors, preventing accidental operations on empty or mistyped paths.</li>
-<li><code>set -o pipefail</code> prevents pipeline masking: the return value of a pipeline is the status of the last command to fail, not the last command executed.</li>
-<li><code>${1:-world}</code> uses parameter expansion to supply a safe default value if the first argument was omitted.</li>
-</ol>
+<h3>What just happened</h3>
+<p><code>-e</code> stops on a failed command, <code>-u</code> stops on an unset variable, and <code>pipefail</code> makes a failed pipeline step count as failure. <code>-x</code> prints each step for debugging. The traces are sample output; the sandbox does not execute Bash scripts.</p>
 <h3>Try it</h3>
-<p>Verify that <code>set -u</code> catches uninitialized variables in a temporary scratch directory:</p>
-
-<pre class="session" data-risk="scratch">
-$ scratch=$(mktemp -d)
-$ cat << 'EOF' > "$scratch/test-unbound.sh"
-#!/usr/bin/env bash
-set -euo pipefail
-echo "Result: $UNSET_VARIABLE"
-EOF
-$ chmod +x "$scratch/test-unbound.sh"
-$ "$scratch/test-unbound.sh" || true
-/tmp/tmp.XUNFNpUmdw/test-unbound.sh: line 3: UNSET_VARIABLE: unbound variable
-$ rm -- "$scratch/test-unbound.sh"
-$ rmdir -- "$scratch"
-</pre>
-
-<p>Captured on Arch Linux, 2026-10-27. Your temporary path differs. This script stops at the unset variable; read the message and check the name. If creating the temporary directory fails, stop before continuing.</p>
+<p>Think about a script that copies a file then deletes the original. With <code>set -e</code>, a failed copy stops the script before deletion.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> shared commands use the <code>tam-</code> prefix; personal helper commands use <code>fred-</code>. Development installs stay under your home directory.</p></aside>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>unbound variable error</dt>
-<dd>A variable was referenced before being assigned. Check spelling, or provide a default fallback such as <code>${var:-default}</code>.</dd>
-<dt>Permission denied when running <code>./script.sh</code></dt>
-<dd>The script lacks executable permissions. Run <code>chmod +x script.sh</code>.</dd>
-<dt><a href="glossary/s/script.html">Script</a> exits immediately on a non-critical command</dt>
-<dd>With <code>set -e</code>, a nonzero status may abort execution depending on context. If a command is expected to return 1 (such as <code>grep</code> without matches), append <code>|| true</code> or test it in an <code>if</code> conditional.</dd>
+<dt>The sandbox did not run my script.</dt><dd>Only the two trace samples are scripted. Run your own script with a real shell.</dd>
+<dt>I expected an error in the first run.</dt><dd>All variables are set there. The second sample shows the unbound case.</dd>
 </dl>
-<aside class="tamlinux">
-<p>On Tamlinux, public tools strictly follow the <code>tam-*</code> prefix, must support <code>--help</code> and <code>--version</code>, and must operate cleanly in non-interactive pipelines without hardcoding user home directories. Personal user scripts follow the <code>fred-*</code> prefix in <code>~/.local/bin/</code>.</p>
-</aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>Why is <code>set -o pipefail</code> critical when chaining commands like <code>curl -s ... | grep pattern</code>?</i></summary>
-<p>Without pipefail, Bash only reports the exit status of the final command in the pipeline (grep). If <code>curl</code> fails due to network disconnection or a 404 error, the pipeline could still return 0 if grep matches an empty string or error message, masking the network failure.</p>
+<summary><i>What does pipefail add?</i></summary>
+<p>A pipeline reports failure if any stage fails, not only the last stage.</p>
 </details>
 <details class="q">
-<summary><i>What can <code>set -u</code> detect if a script reads a variable that was never set?</i></summary>
-<p>It reports an unbound variable in ordinary expansions. It does not validate an empty but set variable or make destructive operations safe.</p>
+<summary><i>Why trace a script with -x?</i></summary>
+<p>To see the commands and expansions actually executed while debugging.</p>
 </details>
 </section>
 </section>
+
 <section data-level="expert">
-<h2>Tool namespaces, descriptor contracts, and <a href="glossary/p/posix.html">POSIX</a> exit semantics</h2>
-
-<p><strong>Reference:</strong> Tamlinux commands respect standard POSIX exit status conventions and maintain an explicit architectural boundary between public product utilities and personal user scripts.</p>
-
-<h3>The Tamlinux command namespace contract</h3>
-
+<h2>Reference: contracts and execution</h2>
+<h3>Reference</h3>
 <table>
-<tr><th>Prefix</th><th>Ownership</th><th>Scope and Design Rules</th></tr>
-<tr><td><code>tam-*</code></td><td>Tamlinux Product</td><td>Portable, system-wide commands developed in public repositories (e.g. <code>tam-work</code>, <code>tam-update</code>). They must never contain hardcoded user home directories. Individual tools define their own <a href="glossary/c/cli.html">CLI</a> arguments and behavior: complex utilities support flags like <code>--help</code>, while focused wrappers may forward arguments directly to underlying applications. Interactive menu wrappers use <code>tam-show-logo</code> for banners and <code>tam-show-done</code> for completion pauses.</td></tr>
-<tr><td><code>fred-*</code></td><td>Personal Machine</td><td>Private, user-specific scripts tailored to a single user's workstation, local aliases, or specific hardware setups.</td></tr>
+<tr><th>Flag</th><th>Name</th><th>Effect</th></tr>
+<tr><td><code>-e</code></td><td><a href="glossary/e/errexit.html">errexit</a></td><td>Exit on an unhandled failed command</td></tr>
+<tr><td><code>-u</code></td><td><a href="glossary/n/nounset.html">nounset</a></td><td>Treat unset variables as errors</td></tr>
+<tr><td><code>pipefail</code></td><td>Pipeline status</td><td>Use the rightmost failed stage</td></tr>
+<tr><td><code>-x</code></td><td>Trace</td><td>Print commands as they run</td></tr>
 </table>
-
-<h3>Exit code conventions and predicate semantics</h3>
-
-<table>
-<tr><th>Exit code</th><th>Common convention</th><th>Predicate semantics and stream variations</th></tr>
-<tr><td><code>0</code></td><td>Success</td><td>Standard command success, or affirmative result in predicates (e.g. <code>tam-sudo-docker</code> returns 0 when sudo is needed).</td></tr>
-<tr><td><code>1</code></td><td>General error / Negative result</td><td>Runtime failure, or normal negative result in silent status predicates (e.g. <code>tam-toggle-enabled</code> or <code>tam-sudo-docker</code>). Some utilities emit usage notices on exit 1.</td></tr>
-<tr><td><code>2</code></td><td>Usage error / Invalid syntax</td><td>Command-line argument error or invalid option in tools adhering strictly to utility conventions (e.g. <code>tam-notification-wait</code>).</td></tr>
-<tr><td><code>126</code></td><td>Command cannot execute</td><td><a href="glossary/t/target.html">Target</a> file exists but lacks executable permission or valid architecture.</td></tr>
-<tr><td><code>127</code></td><td>Command not found</td><td><a href="glossary/b/binary.html">Binary</a> or utility not found anywhere on <code>PATH</code>.</td></tr>
-<tr><td><code>128+N</code></td><td>Fatal signal <code>N</code></td><td>Process terminated by signal (e.g. 130 for <code>SIGINT</code> / Ctrl+C, 137 for <code>SIGKILL</code>).</td></tr>
-</table>
-
-<h3>How it works: execution environments and descriptors</h3>
-
-<p>When Bash runs an external command, it invokes <code>fork()</code> and <code>execve()</code>. File descriptors 0 (stdin), 1 (stdout), and 2 (stderr) are inherited by the child process unless redirected. In subshells (commands enclosed in parentheses <code>( ... )</code>), the shell forks a child Bash process that inherits environment variables, shell options, and open descriptors, but modifications to variables or traps inside the subshell do not propagate back to the parent.</p>
-
-<p>Under <code>set -e</code>, subshell behavior has subtle rules defined by POSIX: if a command fails inside a subshell that is part of an <code>if</code>, <code>while</code>, or <code>until</code> test, <code>errexit</code> is temporarily disabled for that command list. Tamlinux scripts make conditional checks explicit using <code>if command; then ...; fi</code> rather than relying on uninspected subshell side-effects.</p>
-
-<h3>Why Tamlinux chose this</h3>
-
-<p>Defensive Bash options and documented exit codes help callers detect failures, but option behavior depends on context. Test failure paths and report errors explicitly.</p>
-
+<h3>How it works</h3>
+<p>The kernel starts an interpreter through <a href="man:execve(2)">execve(2)</a>, which reads the shebang. Strict flags turn silent mistakes into visible failures. A script should define its exit-code contract: zero for success, distinct non-zero values for distinct failures.</p>
 <h3>Edge cases and failure modes</h3>
-
 <ul>
-<li><strong>Traps inside functions:</strong> A trap set inside a function has global shell scope unless <code>set -o functrace</code> and local traps are explicitly enabled. Always declare script-level traps at the top-level script scope.</li>
-<li><strong>Variable localization:</strong> Always declare internal helper variables inside functions using <code>local var="..."</code> to avoid polluting the global execution namespace.</li>
-<li><strong>Subshell exit codes:</strong> Pipelines run in separate subshells in standard Bash. Assignments made inside a <code>cat file | while read -r line; do ...; done</code> loop are lost when the subshell terminates; use process substitution <code>while read -r line; do ...; done < <(cat file)</code> instead.</li>
+<li><code>-e</code> is ignored in conditions such as <code>if cmd; then</code>.</li>
+<li>Arithmetic with an unset variable under <code>-u</code> can still evaluate as zero.</li>
+<li>A cleanup trap may change the final exit status.</li>
+<li>POSIX sh lacks arrays and pipefail, so portability needs care.</li>
 </ul>
-
-<h3>Explore: Trace execution with bash -x and strace</h3>
-
-<p>Trace variable expansions and execution branches of any script using <code>bash -x</code>:</p>
-
-<pre class="session" data-risk="read-only">
-$ bash -x ./safe-greet.sh Tamlinux
-+ set -euo pipefail
-+ target=Tamlinux
-+ echo 'Hello, Tamlinux!'
-Hello, Tamlinux!
-</pre>
-
-<p>To inspect child process creation and system calls directly, trace execution with <code>strace -f -e trace=clone,execve ./safe-greet.sh Tamlinux</code>.</p>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Why will <code>count=0; cat file | while read l; do ((count++)); done; echo $count</code> print 0 even if the file had 10 lines?</i></summary>
-<p>In standard Bash, each element of a pipeline runs in a separate child subshell. The <code>while</code> loop incremented <code>count</code> inside a child process whose memory was discarded upon loop completion. The parent shell's <code>count</code> remained 0.</p>
-</details>
-</section>
-
 <h3>Sources</h3>
+<p><a href="man:bash(1)">bash(1)</a>; <a href="programming/robust-shell-data.html">Handling real data safely</a>; <a href="tamlinux/development/tam.html">The tam command</a>.</p>
 
-<ul>
-<li><a href="man:bash(1)">bash(1)</a> &mdash; <a href="glossary/g/gnu.html">GNU</a> Bourne-Again SHell reference manual.</li>
-<li><a href="man:execve(2)">execve(2)</a> &mdash; execute program and descriptor inheritance semantics.</li>
-</ul>
-
-<h3>Improve it</h3>
-
-<p>New workstation utility scripts and command contributions are developed in public repositories under <code>tamlinux/commands/</code> following the path-claim and testing rules in <a href="tamlinux/development/tam.html">The tam command</a>.</p>
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="terminal/shell/index.html">Giving your computer written instructions</a>, <a href="systems/storage/hierarchy.html">Files and folders</a>, <a href="terminal/shell/pipelines.html">Shell Pipelines</a>, <a href="security/permissions.html">File Permissions and Ownership</a>, <a href="glossary/n/nul.html">NUL</a>, <a href="glossary/n/nix.html">Nix</a>, <a href="glossary/p/posix.html">POSIX</a>, <a href="glossary/c/cli.html">CLI</a>, <a href="glossary/t/target.html">Target</a>, <a href="glossary/b/binary.html">Binary</a>, <a href="glossary/g/gnu.html">GNU</a>, <a href="programming/c/toolchains.html">Native toolchains and multi-agent workflows</a>, <a href="terminal/configuration.html">Terminal and editor ergonomics</a>, <a href="tamlinux/development/index.html">Extending and improving</a>, <a href="bibliography/index.html">bibliography</a>.</p>
 </section>
 
 <h2>Next</h2><p><a href="programming/c/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; native C compilation and sharing one clone between agents.</p>

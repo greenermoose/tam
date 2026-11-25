@@ -5,7 +5,7 @@
 <meta name="topic" content="ai">
 <meta name="summary" content="AI assistance under human direction, with public provenance">
 <meta name="keywords" content="ai, agents, claude, codex, gemini, agy, opencode, cursor, provenance, blame, ai-blame, supervision, openclaw, hermes">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="tamlinux">
 <meta name="parent" content="tamlinux/development/index.html">
 <meta name="kind" content="explanation">
@@ -14,8 +14,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/development/index.html">Developing Tamlinux</a> / Artificial intelligence and human choice</p></nav>
 
-
-<p>This page explains how people can use artificial intelligence while keeping control of their work.</p>
+<p>Tamlinux uses AI assistants under human direction and records tool, model and verification in public provenance files.</p>
 <section data-level="novice">
 <h2>How does Tamlinux treat AI assistance?</h2>
 <p>Tamlinux uses AI tools as assistants during development while keeping human judgment in charge of every design decision, release stage, and public record.</p>
@@ -31,57 +30,57 @@
 </section>
 
 <section data-level="learner">
-<h2>Trace AI-assisted work</h2>
-<p><strong>Goal:</strong> explain the boundary between human direction, an AI tool and public provenance.</p>
-<h3>Mental model</h3>
-<p>A person directs work; the tool assists; records describe what happened. These are separate roles.</p>
-<h3>Worked example</h3>
-<p>Find the provenance file named below and identify the tool, task and verification it records.</p>
+<h2>Read the roles in a provenance record</h2>
+<p><strong>Goal:</strong> find the tool line in a fixed commit-record sample</p>
 
-<p>AI coding assistants help build Tamlinux. They work under human direction:
-a person sets the goals, reviews the results, and decides what is tested,
-deployed, and released. Developers can configure or launch their selected
-assistant using <code>tam-agent</code>.</p>
-
-<h2>Public provenance</h2>
-
-<ul>
-<li>Every public Tamlinux repository keeps an <code>AI-BLAME.md</code> file and a <code>work/</code> folder. Each session writes a <code>W&lt;n&gt;-&lt;name&gt;</code> record there and revises <code>WHATNOW</code>; older records are read-only history under <code>work/history/</code>.</li>
-<li>Each record names the tool and its version, the model, the guiding prompts, and the commits it produced, so anyone can see how a piece of code came to be.</li>
-<li>Commits made with AI assistance carry trailers naming the tool and model.</li>
-</ul>
-
-<h2>Respecting upstream projects</h2>
-
-<p>Many open source projects now do not accept AI-assisted contributions. 
-Fred does not submit AI-written work and instead publishes fixes on public forks; see
-<a href="tamlinux/development/patches.html">Carried patches</a>.</p>
-
-<h2>Agents in the product</h2>
-
-<p>Tamlinux's desktop lets you choose a default AI agent to launch.</p>
-
-<h2>Tools used in development</h2>
-
-<table>
- <tr><td><strong><code>Antigravity CLI (<code>agy</code>)</strong></td><td>Google</td></tr>
- <tr><td><strong><code>claude</code></strong></td><td>Anthropic</td></tr>
- <tr><td><strong><code>codex</code></strong></td><td>OpenAI</td></tr>
- <tr><td><strong><code>cursor</code></strong></td><td>SpaceX</td></tr>
- <tr><td><strong><code>opencode</code></strong></td><td>Anomaly Innovations</td></tr>
-</table>
-
-<p>Each repository's <code>AI-BLAME.md</code> file and <code>work/</code> records show which tool did which work.</p>
+<tam-sandbox
+  title="Try it: read a provenance trailer"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the AI-Tool line in commit.txt">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="commit.txt" size="150">Prompt: Fix a quoting bug in the guide.
+AI-Tool: opencode 1.2.3
+AI-Model: big-pickle
+Verification: corpus tests passed; human reviewed diff.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="grep AI-Tool commit.txt" goal="true" hint="The tool name is evidence of assistance, not proof of review.">
+    <out>AI-Tool: opencode 1.2.3</out>
+  </tam-cmd>
+  <tam-cmd match="cat commit.txt" hint="Identify which line names the request and which records the checks.">
+    <out>Prompt: Fix a quoting bug in the guide.
+AI-Tool: opencode 1.2.3
+AI-Model: big-pickle
+Verification: corpus tests passed; human reviewed diff.</out>
+  </tam-cmd>
+  <tam-init>A fixed sample separates the human request, tool and verification.</tam-init>
+   <tam-hint after="1">The tool name is evidence of assistance, not proof of review.</tam-hint>
+  <tam-hint after="2">Identify which line names the request and which records the checks.</tam-hint>
+  <tam-fallback>Try cat commit.txt, then grep AI-Tool commit.txt.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The sample labels the human request, assisting tool, model and verification separately. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. A model name never substitutes for review.</p>
 <h3>Try it</h3>
-<p>Name which part of a record states the human request and which describes verification.</p><details class="solution"><p>The guiding prompt records the human request; the verification section records the checks. Neither substitutes for reviewing the resulting change.</p></details>
+<p>Name the line that records the human request and the line that records verification.</p>
 <h3>If it goes wrong</h3>
-<dl>
-<dt>The result is empty or unexpected</dt>
-<dd>Re-read the lesson. These pages explain design; they do not require changing the system to practice.</dd>
-</dl>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a model name establish that its change passed review?</i></summary><p>No. A model identifies the tool used; review and verification are separate evidence.</p></details><details class="q"><summary><i>What evidence separates a proposed change from a delivered one?</i></summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section>
+<p>If an upstream project does not accept AI-assisted work, publish a fix on a public fork rather than submitting it upstream.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary><i>Does a model name establish that review happened?</i></summary><p>No. Review and verification are separate recorded evidence.</p></details>
+</section>
 </section>
 
+
+<section data-level="expert">
+<h2>Provenance boundaries</h2>
+
+<p>Public records carry tool identity, model identity, guiding prompts and commit trailers. Private session identifiers and transcript locations stay in the private ledger. Older records are read-only history; each new session writes one work record and revises the handoff file. Upstream engagement follows the receiving project's policy.</p>
+
+<p><strong>Further reading in this topic:</strong> <a href="tamlinux/development/patches.html">Carried patches</a>.</p>
+</section>
 
 <h2>Sources and further reading</h2>
 <p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>

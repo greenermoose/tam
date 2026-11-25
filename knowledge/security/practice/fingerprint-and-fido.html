@@ -15,8 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/practice/index.html">Protect your computer</a> / Fingerprints and FIDO2 security keys</p></nav>
 
-
-<p>This page explains how to register a fingerprint reader or hardware FIDO2 key so you can approve administrator prompts with a quick touch while keeping your password as fallback.</p>
+<p>Fingerprint sensors and FIDO2 keys can replace typed passwords at authorization prompts, using a local match or a hardware-backed key held by the token.</p>
 
 <section data-level="novice">
 <h2>Unlocking prompts with a touch</h2>
@@ -40,44 +39,47 @@
 </section>
 
 <section data-level="learner">
-<h2>Check hardware readiness, enroll, and remove</h2>
-<p><strong>Goal:</strong> verify whether your hardware has a supported fingerprint sensor or USB FIDO2 token before modifying PAM rules, and know the exact undo command.</p>
-<p><strong>Before you start:</strong> enrolling hardware changes <code>/etc/pam.d/sudo</code> and <code>/etc/pam.d/polkit-1</code> and installs driver packages if needed. Keep your user password handy and test in a second terminal before closing the first.</p>
-
-<h3>Worked example</h3>
-<p>Check read-only whether a supported fingerprint reader is detected and whether PAM currently checks <code>pam_fprintd</code> or <code>pam_u2f</code>:</p>
-<pre class="session" data-risk="read-only">
-$ tam-hw-fingerprint && echo "fingerprint reader present" || echo "no fingerprint reader"
-$ grep -E 'pam_(fprintd|u2f)\.so' /etc/pam.d/sudo /etc/pam.d/polkit-1 2>/dev/null
-</pre>
-<p>To enroll a fingerprint (installing <code>fprintd</code> and adding the clamshell lid gate), use the menu under <strong>Setup &rarr; Security &rarr; Fingerprint</strong> or run <code>tam-setup-security-fingerprint</code>. To register a FIDO2 key (installing <code>libfido2</code> and <code>pam-u2f</code>, writing <code>/etc/fido2/fido2</code>), use <code>tam-setup-security-fido2</code>.</p>
-
+<h2>Read a sample hardware-readiness check</h2>
+<p><strong>Goal:</strong> name the PAM modules and hardware signals in a sample fingerprint and FIDO check.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: check authenticator readiness"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the FIDO PAM module in sample output">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="tam-hw-fingerprint" goal="true" hint="This sample reports a reader without inspecting your hardware.">
+      <out>fingerprint reader present</out>
+    </tam-cmd>
+    <tam-cmd match="grep -E &#x27;pam_(fprintd|u2f)\.so&#x27; /etc/pam.d/sudo /etc/pam.d/polkit-1" hint="PAM modules are ordered in a stack; sufficient means success can satisfy that stage.">
+      <out>/etc/pam.d/sudo:auth sufficient pam_fprintd.so</out>
+      <out>/etc/pam.d/polkit-1:auth sufficient pam_u2f.so</out>
+    </tam-cmd>
+    <tam-cmd match="fido2-token -L" hint="Sample token listing; the vendor and product are invented.">
+      <out>/dev/hidraw1: vendor 0x1234, product 0x5678 (Example FIDO2 key)</out>
+    </tam-cmd>
+  <tam-init>Sample: fingerprint reader present; pam_u2f in polkit-1.</tam-init>
+  <tam-hint after="1">Try tam-hw-fingerprint first.</tam-hint>
+  <tam-hint after="2">Now try the grep command for PAM modules.</tam-hint>
+  <tam-hint after="3">Finally try fido2-token -L.</tam-hint>
+  <tam-fallback>Try tam-hw-fingerprint, the grep command or fido2-token -L (or type help).</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The sample reader is present and both PAM stacks include an authenticator module. A FIDO2 token holds a private key that never leaves the device; a fingerprint match is local biometric evidence. All replies here are authored samples.</p>
 <h3>Try it</h3>
-<p>Run the read-only <code>tam-hw-fingerprint</code> predicate in a terminal. Notice it exits quietly with status <code>0</code> when hardware is present or <code>1</code> when none is found, without modifying configuration.</p>
-
+<p>Keep a fallback password or key. Hardware can be lost, sensors can fail, and an enrollment should have a documented removal path before it is added.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>Fingerprint prompt blocks while docked with the laptop lid shut</dt>
-<dd><code>tam-setup-security-fingerprint</code> inserts a clamshell gate reading <code>/proc/acpi/button/lid/*/state</code> so closed-lid sessions skip the sensor and ask for your password directly.</dd>
-<dt>Want to undo fingerprint or FIDO2 registration cleanly</dt>
-<dd>Run <code>tam-remove-security-fingerprint</code> or <code>tam-remove-security-fido2</code> (or use Menu &rarr; Remove &rarr; Security).</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Screen locking uses <code>hyprlock</code>, which talks to <code>fprintd</code> directly rather than modifying lock-screen PAM files; password authentication always stays available as fallback.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary><i>What happens to your normal account password after registering a FIDO2 key or fingerprint?</i></summary>
-<p>Your password stays enabled as fallback if the sensor is unavailable, you leave the USB key behind, or the laptop lid is closed.</p>
-</details>
-<details class="q">
-<summary><i>Which commands cleanly remove PAM rules added by hardware authentication setup?</i></summary>
-<p><code>tam-remove-security-fingerprint</code> and <code>tam-remove-security-fido2</code>.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why keep a fallback when using a hardware token?</i></summary><p>So a lost or failed token does not lock you out of the account or an authorized action.</p></details>
 </section>
 </section>
 
@@ -103,6 +105,8 @@ $ grep -E 'pam_(fprintd|u2f)\.so' /etc/pam.d/sudo /etc/pam.d/polkit-1 2>/dev/nul
 <li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>pam(8)</code> and <code>pam_u2f(8)</code>.</li>
 </ul>
 </section>
+
+
 
 <h2>Next</h2><p><a href="security/hardware-authentication.html">Hardware Security and Privilege Management</a> &mdash; <code>tam-sudo-docker</code> and timed elevation details.</p>
 <h2>Related</h2><ul><li><a href="security/practice/passwords.html">Passwords, sudo, and keeping secrets safe</a> &mdash; privilege prompts and password hygiene.</li></ul>

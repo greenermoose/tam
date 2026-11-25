@@ -16,88 +16,90 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Space complexity and memory use</p></nav>
 
-<p><a href="glossary/s/space-complexity.html">Space complexity</a> describes how much memory an algorithm needs as input grows. Fast code can still be unusable if it needs too much memory.</p>
+<p>Space complexity describes how memory use grows when input grows. Code that looks fast can still fail if it needs a second copy of a huge file.</p>
 
 <section data-level="novice">
-<h2>Memory is a cost too</h2>
-<p>An algorithm may run quickly but need extra room to store copies, tables, or intermediate results. On a small input that is fine; on a large input it can exhaust memory or slow down because data no longer fits in fast caches.</p>
-<h3>Two common questions</h3>
-<ul>
-<li><strong>Total space:</strong> How much memory is used overall, including the input?</li>
-<li><strong>Auxiliary space:</strong> How much extra memory beyond the input does the algorithm need?</li>
-</ul>
-<p>When people say an algorithm is "in-place", they usually mean it uses O(1) or very small auxiliary space.</p>
+<h2>Extra memory counts</h2>
+<p>Space complexity asks how much working memory a method needs as the input grows. <a href="glossary/s/space-complexity.html">Auxiliary space</a> is the extra memory beyond the input itself.</p>
+<h3>Why it matters</h3>
+<p>A method that copies a list uses roughly as much extra memory as the list. If the list is enormous, the copy may fail even though the method is fast.</p>
+<h3>How to think about it</h3>
+<p>Adding a column of numbers needs only a running total. Photocopying the whole sheet before adding needs a second stack of paper. Both give the same answer, but the second uses more room.</p>
 </section>
 
 <section data-level="learner">
-<h2>Counting extra memory</h2>
-<p><strong>Goal:</strong> identify common sources of memory use in algorithms.</p>
-<h3>Common patterns</h3>
-<table>
-<tr><th>Pattern</th><th>Typical auxiliary space</th><th>Example</th></tr>
-<tr><td>Fixed number of variables</td><td>O(1)</td><td>Finding a maximum by scanning</td></tr>
-<tr><td>Copy of input</td><td>O(n)</td><td>Merge sort's merge buffer (typical array form)</td></tr>
-<tr><td>Lookup table / hash set</td><td>O(n)</td><td>Memoization or duplicate detection</td></tr>
-<tr><td>Recursion depth</td><td>O(depth)</td><td>Recursive DFS or quicksort call stack</td></tr>
-</table>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ python3 - &lt;&lt;'PY'
-# O(1) auxiliary space
-def sum_list(xs):
-    total = 0
-    for x in xs:
-        total += x
-    return total
+<h2>Constant or growing memory?</h2>
+<p><strong>Goal:</strong> tell a one-pass sum from a method that builds a new list.</p>
+<tam-sandbox
+  title="Try it: compare extra space"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Show the method whose extra space grows with n">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="memory.txt" size="57">sum-list extra slots 1
+doubled-list extra slots n</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat memory.txt" hint="One row stays at 1; the other grows with the input size n.">
+      <out>sum-list extra slots 1</out>
+      <out>doubled-list extra slots n</out>
+    </tam-cmd>
+    <tam-cmd match="grep n memory.txt" goal="true" hint="Correct: building a new list needs O(n) auxiliary space.">
+      <out>doubled-list extra slots n</out>
+    </tam-cmd>
+  <tam-init>Try: cat memory.txt, then grep n memory.txt</tam-init>
+  <tam-hint after="1">Type grep n memory.txt to find the row that grows.</tam-hint>
+  <tam-fallback>Try cat memory.txt, or grep n memory.txt (or type help).</tam-fallback>
+</tam-sandbox>
 
-# O(n) auxiliary space (new list)
-def doubled(xs):
-    return [x*2 for x in xs]
-
-print(sum_list([1,2,3]))
-print(doubled([1,2,3]))
-PY
-6
-[2, 4, 6]
-</pre>
-<p>The first function keeps only a few variables. The second creates a new list proportional to the input.</p>
+<h3>What just happened</h3>
+<p>Summing into one variable uses constant extra space. Returning a new list with twice as many elements uses space proportional to the input. The table is sample data, not a measurement of your machine's memory.</p>
+<h3>Try it</h3>
+<p>Run <code>grep 1 memory.txt</code>. That row is the one-pass sum: no matter how long the list is, it needs the same small amount of extra room.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>grep found nothing.</dt><dd>Type grep n memory.txt with a lowercase n. It matches the row containing n.</dd>
+<dt>I expected a running program.</dt><dd>The sandbox compares sample space counts. It does not allocate memory in your session.</dd>
+</dl>
 <section class="quiz">
 <h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>Can a recursive algorithm use extra memory even if it creates no new arrays?</i></summary>
-<p>Yes. Each recursive call uses stack space for parameters, local variables, and return address. A recursion depth of n means O(n) stack space in the usual model.</p>
+<summary><i>Does input storage count as auxiliary space?</i></summary>
+<p>Usually no. Auxiliary space is the extra working storage; the input is counted separately unless stated.</p>
+</details>
+<details class="q">
+<summary><i>Can recursion use extra space?</i></summary>
+<p>Yes. Each pending call occupies a stack frame, so recursion depth contributes to space complexity.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: memory models and trade-offs</h2>
+<h2>Reference: space accounting</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Concept</th><th>Meaning</th><th>Why it matters</th></tr>
-<tr><td>Auxiliary space</td><td>Extra space beyond input (and sometimes output)</td><td>Separates algorithm overhead from problem data</td></tr>
-<tr><td>Total space</td><td>All memory used during execution</td><td>Relevant to system limits and containers</td></tr>
-<tr><td>In-place</td><td>O(1) auxiliary space, by common convention</td><td>Useful on constrained memory; may complicate stability or clarity</td></tr>
-<tr><td>Time-space trade-off</td><td>Use more memory to save time, or vice versa</td><td>Caches, memoization, precomputation, compression</td></tr>
+<tr><th>Term</th><th>Meaning</th><th>Example</th></tr>
+<tr><td>Input space</td><td>Storage for the data you were given</td><td>The original array</td></tr>
+<tr><td>Auxiliary space</td><td>Extra working storage</td><td>A temporary buffer</td></tr>
+<tr><td>In-place</td><td>O(1) extra space</td><td>Swapping elements in an array</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Space analysis counts memory cells or bytes as a function of input size under a chosen model. It includes data structures, buffers, recursion stack, and sometimes output. Real programs also pay allocator metadata, object headers, padding, and fragmentation costs not captured by simple asymptotic notation.</p>
-<h3>Edge cases</h3>
+<p>State clearly whether you count stack frames, output storage and temporary buffers. A method may be in-place with respect to working memory yet still return a large new result. Time and space trade off: caching precomputed values speeds lookups but consumes memory.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li><strong>Output space:</strong> some definitions exclude output; others include it. State the convention.</li>
-<li><strong>Tail recursion:</strong> can be optimized to O(1) stack in some languages/compilers, but not guaranteed in all Python/C implementations unless specified.</li>
-<li><strong>Cache locality:</strong> an algorithm with smaller asymptotic memory may still be slower if its access pattern causes cache misses.</li>
-<li><strong>Shared memory/copy-on-write:</strong> measuring "memory used" in modern OSes requires care (RSS, VSZ, shared pages).</li>
+<li>Small constants can dominate asymptotic advantage for tiny inputs.</li>
+<li>Virtual memory overcommit can hide a real out-of-memory failure.</li>
+<li>Copy-on-write sharing changes the practical cost of an apparent copy.</li>
+<li>Recursive algorithms can overflow the stack before memory is exhausted.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why might you choose an O(n) extra-space algorithm over an in-place O(1) one?</summary>
-<p>If it gives better time complexity, simpler correctness, stability (as in merge sort vs quicksort variants), better parallelism, or safer behavior. The right choice depends on input size, memory limits, latency requirements, and correctness properties.</p>
-</details>
-</section>
 <h3>Sources</h3>
 <p><a href="https://en.wikipedia.org/wiki/Space_complexity">Space complexity</a>; <a href="https://en.wikipedia.org/wiki/In-place_algorithm">In-place algorithm</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="algorithms/measuring-performance.html">Measuring algorithm performance</a>, <a href="algorithms/sorting-algorithms.html">Sorting algorithms</a>, <a href="paths/algorithm-analysis.html">Analyzing algorithms</a>.</p>
 </section>
 
 <h2>Where next</h2>

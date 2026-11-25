@@ -46,33 +46,67 @@
 <p><strong>Goal:</strong> you will be able to display storage hardware information and test transfer throughput safely without administrative privileges.</p>
 
 
-<h3>Worked example</h3>
+
 <ol>
-<li>Inspect host architecture and hardware identity (captured on Bosgame Mini PC, 2026-11-06; your output will differ):
-<pre class="session" data-risk="read-only">
-$ tam-hardware
-Architecture: x86_64
+<li>Inspect host architecture and hardware identity (sample output; your output may differ):
+<tam-sandbox
+  title="Try it: Inspect host architecture and hardware identity"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Inspect host architecture and hardware identity">
+  <tam-cmd match="tam-hardware" goal="true" hint="Look for the value that answers the task.">
+    <out>Architecture: x86_64
 CPU:          AMD Ryzen 7 5700U with Radeon Graphics
 Cores:        8 physical, 16 logical
 Product:      EffiZen Series
-Board:        ACB19D / Bosgame
-</pre>
+Board:        ACB19D / Bosgame</out>
+  </tam-cmd>
+  <tam-init>Try: tam-hardware</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-hardware (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 </li>
-<li>Discover drive device names and inspect disk and partition details (captured on Bosgame Mini PC, 2026-11-06; your output will differ):
-<pre class="session" data-risk="read-only">
-$ lsblk -dno NAME,TYPE
-nvme0n1 disk
-$ tam-drive-info /dev/nvme0n1
-/dev/nvme0n1 (953.9G) - KINGSTON OM3PGP41024P-A0 [vfat, unknown, ntfs, ntfs, crypto_LUKS, vfat(/boot), ext4(/data)]
-</pre>
+<li>Discover drive device names and inspect disk and partition details (sample output; your output may differ):
+<tam-sandbox
+  title="Try it: Inspect a drive and its partitions"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Discover drive device names and inspect disk and partition details">
+  <tam-cmd match="lsblk -dno NAME,TYPE" hint="Look for the value that answers the task.">
+    <out>nvme0n1 disk</out>
+  </tam-cmd>
+  <tam-cmd match="tam-drive-info /dev/nvme0n1" goal="true">
+    <out>/dev/nvme0n1 (953.9G) - KINGSTON OM3PGP41024P-A0 [vfat, unknown, ntfs, ntfs, crypto_LUKS, vfat(/boot), ext4(/data)]</out>
+  </tam-cmd>
+  <tam-init>Try: lsblk -dno NAME,TYPE</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try lsblk -dno NAME,TYPE (or type help).</tam-fallback>
+</tam-sandbox>
+
 </li>
-<li>Measure disk read and write speeds with a non-destructive benchmark (captured on Bosgame Mini PC, 2026-11-06; your output will differ):
-<pre class="session" data-risk="scratch">
-$ tam-disk-speedtest
-disk KINGSTON OM3PGP41024P-A0
+<li>Measure disk read and write speeds with a non-destructive benchmark (sample output; your output may differ):
+<tam-sandbox
+  title="Try it: Measure disk read and write speeds"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Measure disk read and write speeds with a non-destructive benchmark">
+  <tam-cmd match="tam-disk-speedtest" goal="true" hint="Look for the value that answers the task.">
+    <out>disk KINGSTON OM3PGP41024P-A0
 read 2850
-write 1420
-</pre>
+write 1420</out>
+  </tam-cmd>
+  <tam-init>Try: tam-disk-speedtest</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-disk-speedtest (or type help).</tam-fallback>
+</tam-sandbox>
+
 </li>
 </ol>
 

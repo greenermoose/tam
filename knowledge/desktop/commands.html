@@ -7,12 +7,20 @@
 <meta name="topic" content="desktop-commands">
 <meta name="summary" content="Hand-checked commands for screenshots, sound, Bluetooth, displays, input, locking, and night light">
 <meta name="keywords" content="desktop commands, tam commands, volume, bluetooth, brightness, screenshot, clipboard, lock, night light, cheat sheet">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/index.html">
 </head>
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / Desktop commands</p></nav>
+<section data-level="novice">
+<h2>Command helpers</h2>
+<p>These are the commands behind the everyday desktop pages. They adjust settings and controls in your session.</p>
+</section>
+<section data-level="learner">
+<h2>Use the command reference</h2>
+<p><strong>Goal:</strong> read a command and predict its effect before trying its simulated example.</p>
+<p>A command reference groups small controls by the job they perform. The examples are simulations, so you can inspect the command and its sample result without changing your desktop.</p>
 
 
 
@@ -28,10 +36,17 @@
 <tr><td><code>tam-capture-screenrecording --stop-recording</code></td><td>Stop the recording that is running</td></tr>
 <tr><td><code>tam-capture-edit &lt;image&gt;</code></td><td>Open a saved picture in the annotator</td></tr>
 </table>
-<pre class="session" data-risk="user">
-$ tam-capture-screenshot fullscreen
-$ tam-capture-edit ~/Pictures/screenshot-2026-11-02_14-30-00-AbCdEf.png
-</pre>
+<tam-sandbox title="Try it: tam-capture-screenshot fullscreen"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-capture-screenshot fullscreen"></tam-cmd>
+<tam-cmd match="tam-capture-edit ~/Pictures/screenshot-2026-11-02_14-30-00-AbCdEf.png" goal="true"></tam-cmd>
+  <tam-init>Try: tam-capture-screenshot fullscreen</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-capture-screenshot fullscreen (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; no desktop setting or system package changes.</p>
 
 <h2>Clipboard and notifications</h2>
 <table>
@@ -41,10 +56,17 @@ $ tam-capture-edit ~/Pictures/screenshot-2026-11-02_14-30-00-AbCdEf.png
 <tr><td><code>tam-notification-send "Headline" "Description" --exec program arg</code></td><td>Show a notification that runs a program when clicked</td></tr>
 <tr><td><code>tam-toggle-notification-silencing</code></td><td>Silence notifications, or turn them back on</td></tr>
 </table>
-<pre class="session" data-risk="user">
-$ tam-notification-send "Tea is ready" "Take the kettle off the heat"
-$ tam-notification-send "Guide" "Click to open" --exec tam show desktop/tasks/notifications
-</pre>
+<tam-sandbox title="Try it: tam-notification-send &quot;Tea is ready&quot; &quot;Take the ket"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-notification-send &quot;Tea is ready&quot; &quot;Take the kettle off the heat&quot;"></tam-cmd>
+<tam-cmd match="tam-notification-send &quot;Guide&quot; &quot;Click to open&quot; --exec tam show desktop/tasks/notifications" goal="true"></tam-cmd>
+  <tam-init>Try: tam-notification-send "Tea is ready" "Take the kettle off the heat"</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-notification-send "Tea is ready" "Take the kettle off the heat" (or type help).</tam-fallback>
+</tam-sandbox>
+
 
 <h2>Sound</h2>
 <table>
@@ -58,11 +80,19 @@ $ tam-notification-send "Guide" "Click to open" --exec tam show desktop/tasks/no
 <tr><td><code>tam-audio-input-mute</code></td><td>Mute or unmute the microphone</td></tr>
 <tr><td><code>tam-restart-audio</code></td><td>Restart the sound service</td></tr>
 </table>
-<pre class="session" data-risk="user">
-$ tam-audio-output-volume +10
-$ tam-audio-output-sink
-alsa_output.usb-C-Media_Electronics_Inc._Lenovo_USB-A_Wired_Stereo_On-Ear_Headset-00.analog-stereo
-</pre>
+<tam-sandbox title="Try it: tam-audio-output-volume +10"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-audio-output-volume +10"></tam-cmd>
+<tam-cmd match="tam-audio-output-sink" goal="true">
+    <out>alsa_output.usb-C-Media_Electronics_Inc._Lenovo_USB-A_Wired_Stereo_On-Ear_Headset-00.analog-stereo</out>
+  </tam-cmd>
+  <tam-init>Try: tam-audio-output-volume +10</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-audio-output-volume +10 (or type help).</tam-fallback>
+</tam-sandbox>
+
 
 <h2>Bluetooth</h2>
 <table>
@@ -75,11 +105,18 @@ alsa_output.usb-C-Media_Electronics_Inc._Lenovo_USB-A_Wired_Stereo_On-Ear_Headse
 <tr><td><code>tam-bluetooth-device forget &lt;address&gt;</code></td><td>Disconnect and remove a device</td></tr>
 <tr><td><code>tam-restart-bluetooth</code></td><td>Restart the Bluetooth service</td></tr>
 </table>
-<pre class="session" data-risk="user">
-$ tam-bluetooth-power on
-$ bluetoothctl devices
-$ tam-bluetooth-device connect AA:BB:CC:DD:EE:FF
-</pre>
+<tam-sandbox title="Try it: tam-bluetooth-power on"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-bluetooth-power on"></tam-cmd>
+<tam-cmd match="bluetoothctl devices"></tam-cmd>
+<tam-cmd match="tam-bluetooth-device connect AA:BB:CC:DD:EE:FF" goal="true"></tam-cmd>
+  <tam-init>Try: tam-bluetooth-power on</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-bluetooth-power on (or type help).</tam-fallback>
+</tam-sandbox>
+
 <p>The address above is an example, not a real device. Use the address printed by <code>bluetoothctl devices</code>.</p>
 
 <h2>Displays and text size</h2>
@@ -92,14 +129,22 @@ $ tam-bluetooth-device connect AA:BB:CC:DD:EE:FF
 <tr><td><code>tam-display-text-size 14</code></td><td>Set text size from 9 to 20</td></tr>
 <tr><td><code>tam-display-text-size reset</code></td><td>Return to 12 px, scale 1.0, and a 9 pt terminal font</td></tr>
 </table>
-<pre class="session" data-risk="user">
-$ tam-display-text-size
-text size: 12 px
+<tam-sandbox title="Try it: tam-display-text-size"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-display-text-size">
+    <out>text size: 12 px
 gtk text-scaling-factor: 1.0
-terminal font: 9 pt
-$ tam-display-text-size 14
-$ tam-display-text-size reset
-</pre>
+terminal font: 9 pt</out>
+  </tam-cmd>
+<tam-cmd match="tam-display-text-size 14"></tam-cmd>
+<tam-cmd match="tam-display-text-size reset" goal="true"></tam-cmd>
+  <tam-init>Try: tam-display-text-size</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-display-text-size (or type help).</tam-fallback>
+</tam-sandbox>
+
 
 <h2>Input devices</h2>
 <table>
@@ -109,10 +154,17 @@ $ tam-display-text-size reset
 <tr><td><code>tam-toggle-input-device touchpad on</code></td><td>Enable the touchpad</td></tr>
 <tr><td><code>tam-toggle-input-device touchscreen off</code></td><td>Disable a touchscreen</td></tr>
 </table>
-<pre class="session" data-risk="user">
-$ tam-toggle-input-device touchpad off
-$ tam-toggle-input-device touchpad on
-</pre>
+<tam-sandbox title="Try it: tam-toggle-input-device touchpad off"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-toggle-input-device touchpad off"></tam-cmd>
+<tam-cmd match="tam-toggle-input-device touchpad on" goal="true"></tam-cmd>
+  <tam-init>Try: tam-toggle-input-device touchpad off</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-toggle-input-device touchpad off (or type help).</tam-fallback>
+</tam-sandbox>
+
 
 <h2>Locking and idle</h2>
 <table>
@@ -123,10 +175,18 @@ $ tam-toggle-input-device touchpad on
 <tr><td><code>tam-toggle-idle stay-awake</code></td><td>Turn Stay Awake on</td></tr>
 <tr><td><code>tam-toggle-idle allow-idle</code></td><td>Turn Stay Awake off</td></tr>
 </table>
-<pre class="session" data-risk="read-only">
-$ tam-toggle-idle status
-{"enabled":false,"class":"disabled","tooltip":"Stay Awake"}
-</pre>
+<tam-sandbox title="Try it: tam-toggle-idle status"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-toggle-idle status" goal="true">
+    <out>{"enabled":false,"class":"disabled","tooltip":"Stay Awake"}</out>
+  </tam-cmd>
+  <tam-init>Try: tam-toggle-idle status</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-toggle-idle status (or type help).</tam-fallback>
+</tam-sandbox>
+
 <p>In that output, <code>"enabled"</code> refers to Stay Awake, and the tooltip names the action the key would take next. Use <code>status</code> when you want an unambiguous answer; the words printed by <code>stay-awake</code> and <code>allow-idle</code> describe idle locking instead.</p>
 
 <h2>Night light</h2>
@@ -136,14 +196,29 @@ $ tam-toggle-idle status
 <tr><td><code>tam-toggle-nightlight --status</code></td><td>Print whether the filter is on and its temperature</td></tr>
 <tr><td><code>tam-restart-hyprsunset</code></td><td>Restart the night-light program</td></tr>
 </table>
-<pre class="session" data-risk="user">
-$ tam-toggle-nightlight --status
-{"enabled":false,"temperature":null}
-$ tam-toggle-nightlight
-$ tam-toggle-nightlight --status
-{"enabled":true,"temperature":4000}
-</pre>
+<tam-sandbox title="Try it: tam-toggle-nightlight --status"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-toggle-nightlight --status">
+    <out>{"enabled":false,"temperature":null}</out>
+  </tam-cmd>
+<tam-cmd match="tam-toggle-nightlight"></tam-cmd>
+<tam-cmd match="tam-toggle-nightlight --status" goal="true">
+    <out>{"enabled":true,"temperature":4000}</out>
+  </tam-cmd>
+  <tam-init>Try: tam-toggle-nightlight --status</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-toggle-nightlight --status (or type help).</tam-fallback>
+</tam-sandbox>
 
+
+
+</section>
+<section data-level="expert">
+<h2>Reference and safety</h2>
+<p>The reference tables list packaged Tamlinux helpers and their effects. Some commands change live session state; confirm the target and save work before using them outside this simulated lesson.</p>
+</section>
 <h2>Next</h2><p><a href="desktop/tasks/screenshots.html">Taking a screenshot or recording the screen</a></p>
 <h2>Related</h2><ul><li><a href="desktop/tasks/clipboard.html">Finding something you copied earlier</a></li><li><a href="desktop/tasks/audio.html">Changing the volume and choosing speakers or headphones</a></li><li><a href="desktop/tasks/bluetooth.html">Connecting Bluetooth headphones or a mouse</a></li><li><a href="desktop/tasks/displays.html">Arranging your screens and changing brightness</a></li><li><a href="desktop/tasks/lock-and-idle.html">Locking the screen and keeping it awake</a></li><li><a href="desktop/tasks/night-light.html">Making the screen warmer at night</a></li></ul>
 

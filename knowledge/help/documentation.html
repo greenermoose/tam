@@ -5,7 +5,7 @@
 <meta name="topic" content="documentation">
 <meta name="summary" content="Navigate the guide and choose Guide, tldr, man, or Info references">
 <meta name="keywords" content="documentation, guide, manual, man, info, tldr, search, navigation">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="help">
 <meta name="parent" content="help/index.html">
 <meta name="kind" content="how-to">
@@ -46,10 +46,19 @@
 <p><strong>Before you start:</strong> these actions only navigate the reader. No shell or system changes are required.</p>
 <aside class="first-time"><p>Start in the Guide; follow links with the reader and press Left Arrow to return through history. At a terminal, do not type a leading dollar sign shown as a prompt.</p></aside>
 
-<h3>Worked example</h3>
-<p>Follow <a href="tam:search">Search this guide</a>, then select and follow Start a Guide search. Type <code>streams</code> and press Enter. Select a result with Tab or <code>]</code>, then press Enter to open it. Press Left Arrow to return to the results. This return follows the pages you visited, not necessarily the page's parent.</p>
-<p>Outcome: you found a guide topic, opened it, and returned through history.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Find the detailed explanation for a command"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Find the detailed explanation for a command">
+  <tam-cmd match="info coreutils" goal="true">
+    <out>Sample: GNU Coreutils manual — ls invocation</out>
+  </tam-cmd>
+  <tam-init>Try: info coreutils</tam-init>
+  <tam-hint after="1">Info pages are organized into linked nodes.</tam-hint>
+  <tam-hint after="2">Use node links to follow related sections.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>Search listed matching guide pages.</li>
@@ -80,7 +89,10 @@
 <p>Read the result and the relevant documentation, then check the input and prerequisites before changing anything.</p></details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Expert reference</h2>
+<p>Info nodes can link to other nodes; man pages use numbered sections.</p>
+</section>
 <h2>Sources and further reading</h2>
 <p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
 </body>

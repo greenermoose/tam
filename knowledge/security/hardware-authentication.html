@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / Administrative privileges</p></nav>
 
-
-<p>This page explains when a program can act as an administrator and how to inspect that authority.</p>
-<h2>Before this</h2><p><a href="terminal/shell/index.html">Giving your computer written instructions</a></p>
+<p>Administrative privileges let a user change system-wide state, so authorization should be narrow, explicit and reversible rather than a permanent password-free shortcut.</p>
 
 <section data-level="novice">
 <h2>What is administrative privilege?</h2>
@@ -27,44 +25,45 @@
 <h3>How to think about it</h3><p>Your account is your everyday identity; administrator access grants additional authority. A temporary grant still gives broad power while it lasts.</p>
 <h3>New words</h3><p><a href="glossary/p/privilege.html">Privilege</a> means permission to perform an operation. <a href="glossary/s/sudo.html">Sudo</a> can run a command with another user's authority.</p>
 </section>
+
 <section data-level="learner">
-<h2>Inspect administrative authority safely</h2>
-<p><strong>Goal:</strong> you will be able to check privilege configurations and understand the scope of temporary authorization.</p>
-
-
-<h3>Worked example</h3>
-<ol>
-<li>Check whether your current session requires sudo to interact with Docker:
-<pre class="session" data-risk="read-only">
-$ tam-sudo-docker; echo "Exit status: $?"
-Exit status: 0
-</pre>
-This silent predicate returns exit 0 when sudo is required, or exit 1 when Docker is directly accessible.
-</li>
-<li>When performing temporary administrative maintenance, you can enable a bounded passwordless sudo window (for example, 15 minutes):
-<pre class="session" data-risk="system">
-$ tam-sudo-passwordless 15
-</pre>
-Note that during this active window, any process running as your user can execute any root command without prompting; the timeout limits only the duration, not the scope of authority.
-</li>
-<li>In scripts requiring repeated administrative actions, <code>tam-sudo-keepalive</code> keeps the authorization token fresh in the background while the parent script runs.</li>
-</ol>
-
+<h2>Read a sample privilege check</h2>
+<p><strong>Goal:</strong> identify what a bounded privilege command reports before a container-related change.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: inspect a privilege boundary"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Read the sample Docker privilege check">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="tam-sudo-docker --configured" goal="true" hint="This sample reports configuration, not a live system check.">
+      <out>docker group configured: no</out>
+      <out>tam-sudo-docker: available</out>
+    </tam-cmd>
+    <tam-cmd match="tam-sudo-docker" hint="A zero exit status means the bounded command completed in this sample.">
+      <out>Exit status: 0</out>
+    </tam-cmd>
+  <tam-init>Sample: Docker group not configured; tam-sudo-docker available.</tam-init>
+  <tam-hint after="1">Try tam-sudo-docker --configured first.</tam-hint>
+  <tam-hint after="2">Now try tam-sudo-docker to see the sample exit status.</tam-hint>
+  <tam-fallback>Try tam-sudo-docker --configured or tam-sudo-docker (or type help).</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The sample check distinguishes a configured group from the availability of a bounded command. A zero exit status is not proof that every privilege is safe; the scope of the allowed action still matters. These are authored replies.</p>
 <h3>Try it</h3>
-<p>Run <code>tam-sudo-docker --configured; echo $?</code> in your terminal. With <code>--configured</code>, it checks account group membership rather than the live socket, returning exit 0 if the user will need sudo after logging in or exit 1 if the docker group is configured.</p>
-
-<h3>If it goes wrong</h3><p>If authorization fails, stop and check which account and command are involved. Do not broaden permissions to hide the error. For a failed hardware prompt, see <a href="security/practice/fingerprint-and-fido.html">fingerprint and FIDO2 authentication</a>; use your normal account password as fallback.</p>
-
-<aside class="tamlinux">
-<p>Every privileged step in Tamlinux requires explicit authorization; always record a rollback point before modifying system authentication configurations.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary><i>What command checks if Docker requires sudo?</i></summary>
-<p><code>tam-sudo-docker</code>.</p></details>
-<details class="q"><summary><i>How long does a temporary tam-sudo-passwordless window last by default?</i></summary>
-<p>15 minutes, with automatic native cleanup.</p></details>
+<p>On a real machine, read the command’s help before granting group access. Membership in <code>docker</code> can be equivalent to root, so it belongs in the same category as administrative privilege.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
+</dl>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why is a bounded privilege command safer than a passwordless broad rule?</i></summary><p>It authorises one narrow action and leaves less power available if a mistake or compromise occurs.</p></details>
 </section>
 </section>
 
@@ -86,6 +85,13 @@ Note that during this active window, any process running as your user can execut
 </table>
 <p>Hardware authentication and <a href="glossary/s/ssh.html">SSH</a> setup have their own procedures. See <a href="security/practice/fingerprint-and-fido.html">hardware authentication</a> and <a href="security/practice/ssh.html">SSH access</a> before changing those boundaries.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="terminal/shell/index.html">Giving your computer written instructions</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="systems/storage/drives.html">Storage drives and encryption</a> — full disk encryption and <a href="glossary/l/luks.html">LUKS</a> passphrases.</p>
 <h2>Related</h2><ul><li><a href="systems/recovery/recovery.html">System recovery</a> — emergency access and rollback points.</li><li><a href="desktop/session/config.html">Desktop configuration</a> — application defaults and settings preservation.</li></ul>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <title>Using the tam guide command</title>
-<meta name="topic" content="tam-learning"><meta name="summary" content="Open, navigate, search, and return from Tamlinux documentation"><meta name="keywords" content="tam, guide, show, search, topics, man, info, help"><meta name="level" content="novice, learner"><meta name="track" content="help">
+<meta name="topic" content="tam-learning"><meta name="summary" content="Open, navigate, search, and return from Tamlinux documentation"><meta name="keywords" content="tam, guide, show, search, topics, man, info, help"><meta name="level" content="novice, learner, expert"><meta name="track" content="help">
 <meta name="parent" content="help/index.html">
 <meta name="kind" content="how-to">
 <meta name="paths" content="build-and-contribute:1">
@@ -31,10 +31,19 @@
 <p><strong>Goal:</strong> choose a tam entry point and navigate back to the Guide.</p>
 <p><strong>Before you start:</strong> The example displays help without changing files.</p>
 <aside class="first-time"><p><strong>New to this?</strong> Start in the Guide; follow links with the reader and press Left Arrow to return through history. At a terminal, do not type a leading dollar sign shown as a prompt.</p></aside>
-<h3>Worked example</h3>
-<p>At a terminal, run tam --help. On an Arch Linux workstation on 2026-10-27, its first line was "tam - the Tamlinux command". Your installed version may differ.</p>
-
-<p>The <code>tam</code> command includes offline guide and documentation readers. Use this page to choose an entry point; implementation and development details remain in <a href="tamlinux/development/tam.html">The tam command</a>.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Check which reader and corpus are installed"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Check which reader and corpus are installed">
+  <tam-cmd match="tam --version" goal="true">
+    <out>tam 0.69.7 (corpus 0.127.0)</out>
+  </tam-cmd>
+  <tam-init>Try: tam --version</tam-init>
+  <tam-hint after="1">The command reports both component versions.</tam-hint>
+  <tam-hint after="2">The reader and corpus versions can change independently.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h2>Open and find material</h2>
 <ul><li><code>tam show</code> opens the guide root, and <a href="tam:paths">dynamic learning paths</a> track your active topic path across pages.</li><li><code>tam show terminal/shell/pipelines?level=novice</code> opens a topic at a supported depth.</li><li><code>tam search "permissions"</code> searches the guide; in the reader choose <a href="tam:search">Search</a> to enter a query.</li><li><code>tam explain --level expert</code> lists topics with that depth.</li><li><code>tam where /usr/bin/bash</code> shows bundle or native package ownership read-only.</li></ul>
 <h2>Use references</h2>
@@ -46,8 +55,10 @@
 <p>If tam is not found, check whether it is installed and which command path your shell uses; do not install a copy just to complete this lesson.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does tam search execute the commands it finds?</i></summary><p>No. It searches guide content; reading a result is separate from executing an example.</p></details><details class="q"><summary><i>What should you do when a result differs from the example?</i></summary><p>Read the result and the relevant documentation, then check the input and prerequisites before changing anything.</p></details></section>
 </section>
-
-
+<section data-level="expert">
+<h2>Expert reference</h2>
+<p>The command and bundled corpus have independent version numbers.</p>
+</section>
 <h2>Sources and further reading</h2>
 <p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
 </body></html>

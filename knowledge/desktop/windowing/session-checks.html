@@ -39,16 +39,19 @@
 <h2>Read the labels</h2>
 <p><strong>Goal:</strong> you will be able to distinguish a Wayland session, an X11 session and an X11 compatibility display using read-only output.</p>
 <p><strong>Learner path:</strong> back: <a href="desktop/windowing/toolkits.html?level=2">How graphical toolkits build interfaces</a>; next: <a href="paths/windowing-systems.html?level=2">From pixels to desktop applications</a>.</p>
-<h3>Worked example</h3>
-<p>In a graphical terminal on the session used to check this page, the following command printed:</p>
-<pre><code>$ printf 'session=%s wayland=%s display=%s\n' "$XDG_SESSION_TYPE" "$WAYLAND_DISPLAY" "$DISPLAY"
-session=wayland wayland=wayland-1 display=:0</code></pre>
-<p>That says the session type is Wayland and a native Wayland socket is available. The <code>DISPLAY=:0</code> value tells X11 applications where to connect; it does not by itself make the session X11. Then:</p>
-<pre><code>$ loginctl show-session "$XDG_SESSION_ID" -p Type -p Active -p State
-Type=wayland
-Active=yes
-State=active</code></pre>
-<p>The login manager agrees that the session is Wayland and active.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Check the basic display-session environment"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Check the basic display-session environment">
+  <tam-cmd match="echo XDG_SESSION_TYPE" goal="true">
+    <out>wayland</out>
+  </tam-cmd>
+  <tam-init>Try: echo XDG_SESSION_TYPE</tam-init>
+  <tam-hint after="1">The protocol type should match the expected session.</tam-hint>
+  <tam-hint after="2">Environment checks are clues; inspect compositor logs to diagnose failures.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>Run both commands in a terminal inside the graphical desktop, not in a text console or an SSH shell. Compare the result with what you expect from your desktop's compositor. If a value is blank, say so rather than guessing.</p>
 <h3>If it goes wrong</h3>

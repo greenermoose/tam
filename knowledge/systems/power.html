@@ -54,12 +54,22 @@ display blanking -------------------------------------> display power
 </pre>
 <p>The lines are separate. Kernel capability, a selected mode, policy approval
 and a successful wake are four different claims.</p>
-<h3>Worked example: Read available labels</h3>
-<pre class="session">
-$ cat /sys/power/state
-freeze mem disk
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-10-22. Your list may differ.</p>
+<h3>Explore: Read available labels</h3>
+<tam-sandbox
+  title="Try it: Read available labels"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Read available labels">
+  <tam-cmd match="cat /sys/power/state" goal="true" hint="Look for the value that answers the task.">
+    <out>freeze mem disk</out>
+  </tam-cmd>
+  <tam-init>Try: cat /sys/power/state</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try cat /sys/power/state (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <ol><li><code>freeze</code> names suspend-to-idle.</li>
 <li><code>mem</code> requests the suspend variant selected through
 <code>mem_sleep</code>, explained at Learner.</li>

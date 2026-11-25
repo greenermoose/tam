@@ -16,98 +16,90 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/numeric/index.html">Numbers in computers</a> / Fractions, decimals and floating point</p></nav>
 
-<p>A binary memory can hold a fraction by agreeing that some bit positions count for less than one.</p>
-<p>Whole numbers were covered on the previous page. This page moves the place value past the ones column.</p>
+<p>Computers can store fractions with a fixed decimal point, with floating point, or as exact ratios. Each choice trades range, precision and speed.</p>
 
 <section data-level="novice">
-<h2>Places smaller than one</h2>
-<p>In decimal, the first place after the point is tenths, then hundredths. In binary, the first place after the point is halves, then quarters, then eighths. A <dfn><a href="glossary/f/fixed-point.html">fixed-point</a></dfn> value puts the point in an agreed position. A <dfn><a href="glossary/f/floating-point.html">floating-point</a></dfn> value stores where the point belongs along with the digits.</p>
+<h2>Bits below the point</h2>
+<p>In <a href="glossary/f/fixed-point.html">fixed point</a>, a set number of bits sit after the point. In <a href="glossary/f/floating-point.html">floating point</a>, an <a href="glossary/e/exponent.html">exponent</a> moves the point, much like scientific notation.</p>
 <h3>Why it matters</h3>
-<p>Sizes, temperatures, prices and measurements are rarely whole numbers. A representation has to say which fractions are available and how much error is acceptable when a value is stored.</p>
+<p>Fixed point is predictable but has a narrow range. Floating point covers huge and tiny values but can round in surprising ways.</p>
 <h3>How to think about it</h3>
-<p>Think of a ruler. A ruler marked in millimetres cannot show half a millimetre. Binary memory is similar: it has a finite set of marks. Some decimal fractions, such as one tenth, do not land on a binary mark exactly, so the nearest mark is stored instead.</p>
-<h3>New words</h3>
-<dl>
-<dt>Fixed point</dt><dd>A number with a set number of bits reserved for the fractional part. See <a href="glossary/f/fixed-point.html">fixed-point</a>.</dd>
-<dt>Floating point</dt><dd>A number stored as digits plus an <a href="glossary/e/exponent.html">exponent</a>, so the point can move. See <a href="glossary/f/floating-point.html">floating-point</a>.</dd>
-<dt><a href="glossary/r/rounding.html">Rounding</a></dt><dd>Choosing the nearest representable value when the exact one does not fit.</dd>
-<dt><a href="glossary/b/bcd.html">BCD</a></dt><dd>A way of storing each decimal digit separately, often used when decimal exactness matters.</dd>
-</dl>
+<p>Fixed point is a ruler marked in millimetres. Floating point is a label that says how big the marks are for this particular measurement.</p>
 </section>
 
 <section data-level="learner">
-<h2>Store a fraction and see the rounding</h2>
-<p><strong>Goal:</strong> you will be able to explain a binary fraction, store one with fixed point, and predict why 0.1 cannot be exact in ordinary floating point.</p>
-<p><strong>Learner path:</strong> previous: <a href="programming/numeric/integers.html?level=2">whole numbers in binary memory</a>; next: <a href="programming/numeric/analog-and-digital.html?level=2">analog values and digital approximations</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ python3 -c "scale=256; v=int(1.5*scale); print(v, format(v,'016b'), v/scale)"
-384 0000000110000000 1.5
-$ python3 -c "print(format(0.1, '.20f')); print(0.1+0.2, (0.1+0.2)==0.3); from fractions import Fraction; print(Fraction(13,32))"
-0.10000000000000000555
-0.30000000000000004 False
-13/32
-</pre>
-<p>Captured on a Linux system with Python 3, 2026-11-24. Your output will match for these values.</p>
+<h2>See a rounding surprise</h2>
+<p><strong>Goal:</strong> explain why <code>0.1 + 0.2</code> is not stored as exactly <code>0.3</code>.</p>
+<tam-sandbox
+  title="Try it: inspect a floating-point sum"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the sample sum of 0.1 and 0.2">
+  <tam-fs>
+<dir name="/home/alex"></dir>
+  </tam-fs>
+    <tam-cmd match="python3 -c &quot;print(0.1 + 0.2)&quot;" goal="true" hint="Correct: binary floating point cannot store 0.1 exactly.">
+      <out>0.30000000000000004</out>
+    </tam-cmd>
+    <tam-cmd match="python3 -c &quot;print(format(0.1, &#x27;.20f&#x27;))&quot;" hint="The stored value is close to, but not exactly, one tenth.">
+      <out>0.10000000000000000555</out>
+    </tam-cmd>
+    <tam-cmd match="python3 -c &quot;from fractions import Fraction; print(Fraction(13,32))&quot;" hint="An exact ratio keeps numerator and denominator instead.">
+      <out>13/32</out>
+    </tam-cmd>
+  <tam-init>Try: python3 -c "print(0.1 + 0.2)"</tam-init>
+  <tam-hint after="1">The other two sample commands show the stored value and an exact fraction.</tam-hint>
+  <tam-fallback>Try the printed python3 sample command, or type help.</tam-fallback>
+</tam-sandbox>
+
 <h3>What just happened</h3>
-<ol>
-<li>The first command used a scale of 256. The stored integer 384 means 384 divided by 256, which is exactly 1.5. Eight fractional bits give steps of 1/256.</li>
-<li>The second command printed the stored binary <a href="glossary/f/floating-point.html">floating-point</a> approximation of 0.1. It is close, not exact.</li>
-<li>Adding 0.1 and 0.2 gives 0.30000000000000004, so an exact equality check against 0.3 fails. Fraction 13/32 is exact because 32 is a power of two.</li>
-</ol>
+<p>Binary floating point stores a <a href="glossary/s/significand.html">significand</a> and exponent. Common decimal fractions such as 0.1 have no exact finite binary form, so the sum lands a little above 0.3. All output lines are samples from a Python interpreter; the sandbox does not run Python.</p>
 <h3>Try it</h3>
-<p>In a scratch directory, repeat the fixed-point command for 0.5, 0.25 and 0.1. Which values come back exactly? Then check whether <code>0.1 + 0.1 + 0.1 == 0.3</code> is true.</p>
+<p>Predict what <code>Fraction(1,10) + Fraction(2,10)</code> gives: <code>3/10</code> exactly, because rational arithmetic keeps the ratio instead of rounding to a binary float.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>A fixed-point result is slightly off</dt><dd>The scale may not divide the value evenly. Increase the scale or use an exact fraction type when the value must be exact.</dd>
-<dt>A money total drifts</dt><dd>Binary floating point is the wrong tool for currency. Use fixed integer minor units or an exact decimal type.</dd>
+<dt>The sandbox did not run Python.</dt><dd>Only the three sample commands are scripted. Use a real interpreter to experiment further.</dd>
+<dt>I expected 0.3.</dt><dd>That is the decimal ideal. The binary stored value is slightly different.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Which is exact in binary: 1/8 or 1/10? Why?</summary>
-<p>1/8 is exact because 8 is a power of two, so it is 0.001 in binary. 1/10 has a repeating binary expansion, so it can only be approximated in a finite word. Decimal notation and binary notation have different sets of exact fractions.</p>
+<summary><i>Why is 0.1 not exact in binary?</i></summary>
+<p>Its exact value needs a repeating binary fraction, but a float has finitely many significand bits.</p>
+</details>
+<details class="q">
+<summary><i>When might fixed point be preferable?</i></summary>
+<p>When the range is known and predictable rounding matters more than covering huge magnitudes.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>IEEE 754 and exact decimal alternatives</h2>
+<h2>Reference: representations</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Format</th><th>Fields</th><th>Exactness</th><th>Typical use</th></tr>
-<tr><td>Fixed point with scale S</td><td>One signed integer</td><td>Exact when the value is a multiple of 1/S</td><td>Money, sensor readings, fixed hardware cost</td></tr>
-<tr><td>IEEE 754 binary32</td><td>Sign, <a href="glossary/numeric/8-bit.html">8-bit</a> exponent, 23-bit stored significand</td><td>Approximate for most decimal fractions</td><td>Graphics, storage where size matters</td></tr>
-<tr><td>IEEE 754 binary64</td><td>Sign, 11-bit exponent, 52-bit stored significand</td><td>Approximate, about 15-17 decimal digits</td><td>General scientific and systems work</td></tr>
-<tr><td>Decimal or BCD</td><td>Decimal digits, sometimes with an exponent</td><td>Exact for chosen decimal values</td><td>Financial totals and standards requiring decimal rounding</td></tr>
+<tr><th>Format</th><th>Strengths</th><th>Limits</th></tr>
+<tr><td>Fixed point</td><td>Fast, predictable steps</td><td>Fixed range and resolution</td></tr>
+<tr><td><a href="glossary/i/ieee-754.html">IEEE 754</a> float</td><td>Huge dynamic range</td><td>Rounding, <a href="glossary/s/subnormal.html">subnormals</a>, <a href="glossary/n/nan.html">NaN</a></td></tr>
+<tr><td>Rational</td><td>Exact ratios</td><td>Growing numerator and denominator</td></tr>
+<tr><td><a href="glossary/b/bcd.html">BCD</a></td><td>Human-readable decimals</td><td>Wastes bit patterns</td></tr>
 </table>
 <h3>How it works</h3>
-<p><a href="glossary/i/ieee-754.html">IEEE 754</a> stores a value as sign times significand times two to the exponent. The <a href="glossary/s/significand.html">significand</a> carries the digits; the <a href="glossary/e/exponent.html">exponent</a> sets the scale, much like <a href="glossary/s/scientific-notation.html">scientific notation</a> in decimal. Normal binary values have an implicit leading 1 bit, which saves one bit of storage. <a href="glossary/s/subnormal.html">Subnormal</a> values give up that leading 1 to represent numbers very close to zero. Special patterns represent infinity and <a href="glossary/n/nan.html">NaN</a>.</p>
-<p>Rounding is required whenever a real value falls between representable values. IEEE 754 defines several modes; round-to-nearest, ties-to-even is the default. <a href="glossary/p/precision.html">Precision</a> is the number of digits carried; it is not the same as accuracy, which describes how close a value is to the true quantity. <a href="glossary/o/overflow.html">Overflow</a> produces infinity in the default mode, while <a href="glossary/u/underflow.html">underflow</a> can produce zero or a subnormal.</p>
-<h3>Advanced usage</h3>
-<pre class="session" data-risk="scratch">
-$ python3 -c "import struct; print(struct.pack('>f',13.5).hex()); print(struct.unpack('>f',bytes.fromhex('41580000'))[0])"
-41580000
-13.5
-</pre>
-<p>Illustrative sequence: 13.5 is exactly representable because it is 1.6875 times 2^3, and 1.6875 has a short binary expansion. Most decimal fractions do not.</p>
-<h3>Edge cases</h3>
+<p>A binary float is roughly sign &times; significand &times; 2<sup>exponent</sup>. <a href="glossary/r/rounding.html">Rounding</a> occurs whenever the exact result needs more bits than the format holds. Overflow and <a href="glossary/u/underflow.html">underflow</a> move results outside the representable range.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li>Comparing floating-point values for exact equality is usually wrong. Compare within a tolerance chosen for the problem.</li>
-<li>Adding a very small value to a very large one can lose the small value entirely; the exponent must shift before the digits can align.</li>
-<li>Java, Python, SQL and hardware decimal units may use different decimal rules. A format name alone does not define rounding for money.</li>
-<li>Catastrophic cancellation occurs when subtracting nearly equal values: leading digits cancel and the remaining digits carry mostly previous rounding error.</li>
+<li>Comparing floats for equality is fragile after arithmetic.</li>
+<li>Catastrophic cancellation loses digits when nearby values are subtracted.</li>
+<li>Subnormal handling varies with hardware and compiler settings.</li>
+<li>Decimal types help with money but still need defined rounding rules.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A program stores money in binary64. What can go wrong, and what would you change first?</summary>
-<p>Two tenths may not be exact, so repeated additions can leave a total such as 0.30000000000000004. Equality and rounding to cents can then fail. First change the representation: store integer cents or use a decimal type with an explicit rounding rule, then keep the scale fixed throughout the calculation.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p>IEEE 754 defines the binary and decimal floating-point formats and rounding rules. See the <a href="bibliography/index.html">bibliography</a>.</p>
+<p><a href="programming/numeric/integers.html">Whole numbers in binary memory</a>; <a href="glossary/p/precision.html">Precision</a>; <a href="glossary/q/quantization.html">Quantization</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="programming/numeric/integers.html?level=2">whole numbers in binary memory</a>, <a href="programming/numeric/analog-and-digital.html?level=2">analog values and digital approximations</a>, <a href="glossary/numeric/8-bit.html">8-bit</a>, <a href="glossary/s/scientific-notation.html">scientific notation</a>, <a href="glossary/o/overflow.html">Overflow</a>, <a href="bibliography/index.html">bibliography</a>, <a href="programming/numeric/analog-and-digital.html">Analog values and digital approximations</a>, <a href="programming/numeric/fast-numerical-computing.html">Fast numerical computing</a>, <a href="paths/numeric-systems.html">Numbers and how computers use them</a>.</p>
 </section>
 
 <h2>Where next</h2>
@@ -120,4 +112,5 @@ $ python3 -c "import struct; print(struct.pack('>f',13.5).hex()); print(struct.u
 <li><a href="paths/numeric-systems.html">Numbers and how computers use them</a> &mdash; the five-stage path.</li>
 <li><a href="glossary/q/quantization.html">Quantization</a> &mdash; the same rounding idea in signal conversion.</li>
 </ul>
-</body></html>
+</body>
+</html>

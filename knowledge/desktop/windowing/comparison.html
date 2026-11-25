@@ -39,14 +39,20 @@
 <h2>Compare one action</h2>
 <p><strong>Goal:</strong> you will be able to explain why Linux desktops changed display systems without claiming that Wayland is universally faster or simpler for every task.</p>
 <p><strong>Learner path:</strong> back: <a href="desktop/windowing/wayland.html?level=2">How Wayland draws windows</a>; next: <a href="desktop/windowing/other-systems.html?level=2">Windowing on other operating systems</a>.</p>
-<h3>Worked example</h3>
-<p>Consider a malicious keylogger in each model:</p>
-<ol>
-<li>On X11, a client with access to the display can usually request global key events, even when another window has focus.</li>
-<li>On Wayland, the compositor sends keyboard events only to the focused client. A keylogger must be given a special compositor interface or run inside the target application.</li>
-<li>Screen capture follows the same pattern: X11 offers broad access by default; Wayland uses a compositor decision or a portal, usually with a user prompt.</li>
-</ol>
-<p>That is the security argument in one example: remove ambient access to other clients' input and pixels.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Compare the client and display-server boundary"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Compare the client and display-server boundary">
+  <tam-cmd match="printf &#x27;X11: server-mediated drawing and input; Wayland: clients submit buffers to a compositor&#x27;" goal="true">
+    <out>X11: server-mediated drawing and input
+Wayland: clients submit buffers to a compositor</out>
+  </tam-cmd>
+  <tam-init>Try: printf 'X11: server-mediated drawing and input; Wayland: clients submit buffers to a compositor'</tam-init>
+  <tam-hint after="1">Both systems deliver input and display application content.</tam-hint>
+  <tam-hint after="2">Wayland clients submit completed buffers for composition.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>On paper, make two columns headed X11 and Wayland. Put "window manager", "display server", "drawing requests", "finished surfaces" and "screen capture" into the column where each idea belongs. Use the expert table below to check.</p>
 <h3>If it goes wrong</h3>

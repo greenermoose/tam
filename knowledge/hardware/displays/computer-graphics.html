@@ -82,19 +82,29 @@ Geometric Primitives (Vertices, Lines, Triangles in 3D Space)
 </pre>
 
 <p>Computer graphics fall into two fundamental paradigms: <strong>vector graphics</strong> and <strong>raster graphics</strong>. Vector graphics represent images mathematically using geometric formulas (coordinates, lines, curves, and fills), as seen in <a href="glossary/s/svg.html">SVG</a> files, PostScript printers, and TrueType fonts. Raster graphics represent images as explicit matrices of colored pixels, as seen in PNGs, JPEGs, and the final monitor image. The bridge between the two is <dfn><a href="glossary/r/rasterization.html">rasterization</a></dfn>: evaluating which pixels belong inside each geometric shape.</p>
-<h3>Worked example: query screen resolution and framebuffer parameters</h3>
-<pre class="session" data-risk="read-only">
-$ cat /sys/class/graphics/fb0/virtual_size
-1920,1080
+<h3>Explore: query screen resolution and framebuffer parameters</h3>
+<tam-sandbox
+  title="Try it: query screen resolution and framebuffer parameters"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Query screen resolution and framebuffer parameters">
+  <tam-cmd match="cat /sys/class/graphics/fb0/virtual_size" hint="Look for the value that answers the task.">
+    <out>1920,1080</out>
+  </tam-cmd>
+  <tam-cmd match="cat /sys/class/graphics/fb0/bits_per_pixel">
+    <out>32</out>
+  </tam-cmd>
+  <tam-cmd match="cat /sys/class/graphics/fb0/name" goal="true">
+    <out>amdgpudrmfb</out>
+  </tam-cmd>
+  <tam-init>Try: cat /sys/class/graphics/fb0/virtual_size</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try cat /sys/class/graphics/fb0/virtual_size (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-$ cat /sys/class/graphics/fb0/bits_per_pixel
-32
-
-$ cat /sys/class/graphics/fb0/name
-amdgpudrmfb
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-01. Your screen resolution and graphics driver name will reflect your specific hardware.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>virtual_size</code> reports the dimensions of the active framebuffer: 1920 horizontal pixels by 1080 vertical pixels (standard Full HD resolution).</li>
@@ -131,6 +141,26 @@ amdgpudrmfb
 <p>The extra 8 bits either store an Alpha (transparency) channel for window blending, or act as padding so that each pixel aligns to a natural 32-bit memory boundary, allowing CPU and memory controllers to transfer pixels faster.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for inspect graphics hardware and framebuff"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for inspect graphics hardware and framebuffers">
+<tam-cmd match="ls -l /sys/class/graphics/" hint="Read the labels and connect each value to the task.">
+    <out>total 0
+lrwxrwxrwx 1 root root 0 Nov  1 11:00 fb0 -&gt; ../../devices/pci0000:00/0000:00:08.1/0000:05:00.0/drm/card1/card1-DP-1/fb0</out>
+  </tam-cmd>
+<tam-cmd match="cat /sys/class/graphics/fb0/stride" goal="true">
+    <out>7680</out>
+  </tam-cmd>
+  <tam-init>Try: ls -l /sys/class/graphics/</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try ls -l /sys/class/graphics/ (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Framebuffer memory architecture, double-buffering, and presentation</h2>
@@ -178,14 +208,7 @@ amdgpudrmfb
 
 <h3>Explore: inspect graphics hardware and framebuffers</h3>
 
-<pre class="session" data-risk="read-only">
-$ ls -l /sys/class/graphics/
-total 0
-lrwxrwxrwx 1 root root 0 Nov  1 11:00 fb0 -> ../../devices/pci0000:00/0000:00:08.1/0000:05:00.0/drm/card1/card1-DP-1/fb0
 
-$ cat /sys/class/graphics/fb0/stride
-7680
-</pre>
 
 <p>The symlink confirms that the legacy framebuffer device is mapped directly to the active Direct Rendering Manager <a href="glossary/p/pci.html">PCI</a> device and output port, with a stride of exactly 7,680 bytes per row.</p>
 

@@ -15,7 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Link layer</p></nav>
 
-<p>The link layer is the part of the network stack that moves data across the local network link, such as Ethernet or Wi-Fi, using frames and hardware addresses.</p>
+<p>The link layer moves frames across one local network using hardware addresses, before a router sends the packet toward another network.</p>
 
 <section data-level="novice">
 <h2>What the link layer does</h2>
@@ -27,36 +27,45 @@
 </section>
 
 <section data-level="learner">
-<h2>See link-layer information on Linux</h2>
-<p><strong>Goal:</strong> Identify a link-layer address, a neighbor entry, and a network interface.</p>
-<p><strong>Before you start:</strong> Read <a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ip link show
-$ ip neigh
-</pre>
-<p><code>ip link</code> shows interfaces and their hardware (<a href="glossary/m/mac-address.html">MAC</a>) addresses. <code>ip neigh</code> shows the neighbor table, which maps local IP addresses to link-layer addresses.</p>
-
+<h2>Match an address to a hardware neighbour</h2>
+<p><strong>Goal:</strong> find the hardware address beside a local IP address in sample neighbour data.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read the neighbour table"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the hardware address for 192.0.2.1">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">interface: enp1s0 state UP
+address: 192.0.2.26/24
+neighbour: 192.0.2.1 lladdr 10:0c:6b:20:34:e6 REACHABLE</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep neighbour clues.txt" goal="true" hint="Try grep neighbour clues.txt to see the mapping.">
+      <out>neighbour: 192.0.2.1 lladdr 10:0c:6b:20:34:e6 REACHABLE</out>
+    </tam-cmd>
+    <tam-cmd match="ip neigh show dev enp1s0" hint="Sample neighbour-table output for the same mapping.">
+      <out>192.0.2.1 lladdr 10:0c:6b:20:34:e6 REACHABLE</out>
+    </tam-cmd>
+  <tam-init>Sample neighbour: 192.0.2.1 maps to a hardware address.</tam-init>
+  <tam-hint after="1">Try grep neighbour clues.txt to see the mapping.</tam-hint>
+  <tam-hint after="2">Now try grep interface clues.txt for the local link.</tam-hint>
+  <tam-fallback>Try grep neighbour clues.txt, grep interface clues.txt or ip neigh show dev enp1s0 (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<p>To send an IP packet on a local Ethernet or Wi-Fi network, the system needs the link-layer address of the next hop. IPv4 usually uses <a href="glossary/a/arp.html">ARP</a>; IPv6 uses <a href="glossary/n/ndp.html">NDP</a>. The result is cached in the neighbor table.</p>
-
+<p>The neighbour record maps a local IP address to a hardware address. That mapping lets the interface build a frame for the next hop. The <code>ip neigh</code> reply is sample output, not a reading from your machine.</p>
 <h3>Try it</h3>
-<p>Run <code>ip -br link</code> to list interfaces briefly. Then run <code>ip neigh</code> after contacting another local device to see if a neighbor entry appears.</p>
-
+<p>Use <code>cat clues.txt</code> to see the interface and its address too. Predict what happens when a neighbour entry becomes stale: the host asks again for the hardware address before sending a frame.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>No neighbor entry</dt>
-<dd>The host may not have tried to reach that neighbor yet, or local link resolution failed. Check connectivity and interface state.</dd>
-<dt>Interface is DOWN</dt>
-<dd>The link layer cannot send frames until the interface is up and connected to a link.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>What is the difference between an IP address and a MAC address?</i></summary>
-<p>An IP address is an internet-layer address used for routing across networks. A MAC address is a link-layer address used for delivery on the local network segment.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why is a hardware address needed if the packet already has an IP destination?</i></summary><p>The local link delivers frames using hardware addresses; the IP destination may be on another network and require a router as the next hop.</p></details>
 </section>
 </section>
 
@@ -75,10 +84,7 @@ $ ip neigh
 <p>The link layer encapsulates an IP packet in a frame with source and destination link addresses and a frame check sequence. It also defines how nodes share the medium, detect errors, and handle local delivery. In the four-layer internet model, the physical signaling details are often included in the link layer; in the OSI model, physical signaling is Layer 1 and framing/addressing is Layer 2.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ ip -d link show
-$ ip neigh show nud reachable
-</pre>
+
 <p>Detailed link output shows MTU, queueing, and driver information. Neighbor states reveal whether local resolution is fresh, stale, or failed.</p>
 
 <h3>Edge cases</h3>
@@ -88,17 +94,21 @@ $ ip neigh show nud reachable
 <li><strong>Shared media:</strong> Wi-Fi and switched Ethernet have very different collision, retry, and latency behavior despite serving the same layer role.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary><i>Why does the internet model group physical and data-link concerns together?</i></summary>
-<p>The internet model focuses on interoperable packet delivery across heterogeneous networks. Grouping local media details into one link layer keeps the model simple while allowing Ethernet, Wi-Fi, and other link technologies to carry IP packets.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <p><a href="man:ip-link(8)">ip-link(8)</a>, <a href="man:ip-neighbour(8)">ip-neighbour(8)</a>, and RFC 826 for ARP.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a></li>
+<li><a href="glossary/m/mac-address.html">MAC</a></li>
+<li><a href="glossary/a/arp.html">ARP</a></li>
+<li><a href="glossary/n/ndp.html">NDP</a></li>
+</ul>
+
+
 
 <h2>Where next</h2>
 <ul>

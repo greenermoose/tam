@@ -37,7 +37,7 @@
 <pre>device -&gt; controller -&gt; CPU -&gt; kernel handler -&gt; program continues
 </pre>
 <p>A hardware device raises an <a href="glossary/i/irq.html">IRQ</a>. An interrupt controller decides which CPU core receives it. The CPU saves a little state, runs the kernel's handler, then returns to the program it was running. A timer also interrupts regularly even when no device needs attention; that gives the kernel a chance to decide which task should run next.</p>
-<h3>Worked example</h3>
+
 <p>Type the command in the sandbox to see the shape of the kernel's interrupt record.</p>
 <tam-sandbox
   title="Worked example: read interrupt counts"

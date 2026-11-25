@@ -75,18 +75,28 @@
 <tr><td><strong>HarfBuzz</strong></td><td>the universal text shaping engine. Simple Latin scripts require little shaping, but complex scripts (such as Arabic, Devanagari, or connected cursives) require contextual glyph substitution and positional anchoring. HarfBuzz turns a sequence of <a href="glossary/u/unicode.html">Unicode</a> codepoints into positioned glyph indices.</td></tr>
 <tr><td><strong>Pango / Qt</strong></td><td>high-level layout libraries that break paragraphs into lines, handle bidirectional text flow, call HarfBuzz for shaping, and invoke FreeType or Cairo to draw the glyphs onto surfaces.</td></tr>
 </table>
-<h3>Worked example: query the active monospace font</h3>
-<pre class="session" data-risk="read-only">
-$ fc-match monospace
-AtkinsonHyperlegibleMono-Regular.ttf: "Atkinson Hyperlegible Mono" "Regular"
-
-$ fc-list : family | grep -i "atkinson" | head -n 3
-Atkinson Hyperlegible
+<h3>Explore: query the active monospace font</h3>
+<tam-sandbox
+  title="Try it: query the active monospace font"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Query the active monospace font">
+  <tam-cmd match="fc-match monospace" hint="Look for the value that answers the task.">
+    <out>AtkinsonHyperlegibleMono-Regular.ttf: "Atkinson Hyperlegible Mono" "Regular"</out>
+  </tam-cmd>
+  <tam-cmd match="fc-list : family | grep -i &quot;atkinson&quot; | head -n 3" goal="true">
+    <out>Atkinson Hyperlegible
 Atkinson Hyperlegible Mono
-AtkinsonHyperlegibleMono Nerd Font
-</pre>
+AtkinsonHyperlegibleMono Nerd Font</out>
+  </tam-cmd>
+  <tam-init>Try: fc-match monospace</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try fc-match monospace (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-<p>Captured on a Tamlinux workstation. Your installed versions and font paths may differ.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>fc-match monospace</code> asks the system font matching library, <dfn><a href="glossary/p/program.html">Fontconfig</a></dfn>, which font file will be chosen when an application asks for a generic &ldquo;monospace&rdquo; font. It prints the filename, the family name, and the style variant.</li>
@@ -133,6 +143,22 @@ tam-font-current
 <p>No. Early Unix X11 systems used a network font server, but modern desktop environments use client-side font discovery (Fontconfig) and client-side rasterization (FreeType), meaning each application or <a href="glossary/g/gui.html">UI</a> toolkit renders its own text.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Check which font matches a generic family"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Check which font matches a generic family">
+<tam-cmd match="fc-match sans-serif" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>Sample: Atkinson Hyperlegible Mono</out>
+  </tam-cmd>
+  <tam-init>Try: fc-match sans-serif</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try fc-match sans-serif (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Tamlinux font architecture, table rewriting and leanness</h2>
@@ -143,9 +169,7 @@ tam-font-current
 
 <p>In Tamlinux, font management is coordinated by the theme engine implemented in Python under the Tamlinux product repository. The primary font management function, <code>font_set</code>, resides in the theme engine and is invoked through the command wrapper <code>tam-font-set</code>:</p>
 
-<pre class="session" data-risk="read-only">
-$ tam-font-set "AtkinsonHyperlegibleMono Nerd Font"
-</pre>
+
 
 <p>When this command runs, the engine executes the following verification and update transaction:</p>
 

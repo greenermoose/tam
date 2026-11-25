@@ -7,7 +7,7 @@
 <meta name="topic" content="night-light">
 <meta name="summary" content="Turn the blue-light filter on or off and check its state">
 <meta name="keywords" content="night light, nightlight, blue light, warm screen, colour temperature, hyprsunset, eye strain">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/tasks/index.html">
 <meta name="paths" content="make-it-yours:5, everyday-desktop:9">
@@ -43,7 +43,7 @@
 <aside class="first-time">
 <p>Press <code>Meta + Ctrl + J</code>. The screen becomes noticeably warmer. Press the same keys again to return to normal colours. If nothing seems to happen, check the status command below; the filter has no pop-up message.</p>
 </aside>
-<h3>Worked example</h3>
+
 <ol>
 <li>Look at a white window or this guide's background.</li>
 <li>Press <code>Meta + Ctrl + J</code>. The white becomes warm, like early evening light.</li>
@@ -51,11 +51,21 @@
 <li>Open a terminal with <code>Meta + Return</code> and run <code>tam-toggle-nightlight --status</code>.</li>
 </ol>
 
-<pre class="session" data-risk="read-only">
-$ tam-toggle-nightlight --status
-{"enabled":false,"temperature":null}
-</pre>
-<p>Captured on 2026-11-02 with the filter off. When it is on, the same command reports <code>"enabled":true</code> and a temperature of <code>4000</code>.</p>
+<tam-sandbox
+  title="Try it: Explore tam-toggle-nightlight output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore tam-toggle-nightlight output">
+  <tam-cmd match="tam-toggle-nightlight --status" goal="true" hint="Look for the value that answers the task.">
+    <out>{"enabled":false,"temperature":null}</out>
+  </tam-cmd>
+  <tam-init>Try: tam-toggle-nightlight --status</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-toggle-nightlight --status (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The key started the night-light program if it was not already running.</li>
@@ -87,7 +97,9 @@ $ tam-toggle-nightlight --status
 </details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Reference and system behavior</h2>
+<p>A night-light filter changes the display color transform in the compositor. It affects rendered pixels, not the color data saved in an image.</p>
 <h2>Night-light commands</h2>
 <table>
 <tr><th>Command or keys</th><th>What it does</th></tr>
@@ -96,7 +108,7 @@ $ tam-toggle-nightlight --status
 <tr><td><code>tam-toggle-nightlight --status</code></td><td>Print whether the filter is on and its temperature</td></tr>
 <tr><td><code>tam-restart-hyprsunset</code></td><td>Restart the night-light program if it stops responding</td></tr>
 </table>
-
+</section>
 <h2>Next</h2><p><a href="desktop/tasks/displays.html">Arranging your screens</a> &mdash; brightness and text size.</p>
 <h2>Related</h2><ul><li><a href="desktop/tasks/screenshots.html">Taking a screenshot</a> &mdash; go back to the start of this desktop set.</li></ul>
 

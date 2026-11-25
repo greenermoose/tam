@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / IP packets and forwarding</p></nav>
 
-<p>This page explains how an IP packet carries its destination, how routers decide where to send it next, and what happens when a packet is too large for one link.</p>
+<p>An IP packet carries addresses and a hop limit; routers read that header, choose a next hop and pass the packet on until it reaches the destination network.</p>
 
 <section data-level="novice">
 <h2>What is an IP packet?</h2>
@@ -39,59 +39,51 @@
 </section>
 
 <section data-level="learner">
-<h2>Read a route decision and a hop count</h2>
-<p><strong>Goal:</strong> you will be able to ask the kernel which next hop it chooses, and explain what the hop count in a reply tells you.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ip -4 route show default
-default via 192.168.1.1 dev enp1s0 proto dhcp src 192.168.1.26 metric 100
-
-$ ip route get 1.1.1.1
-1.1.1.1 via 192.168.1.1 dev enp1s0 src 192.168.1.26 uid 1000
-    cache
-
-$ ping -c 2 -W 2 1.1.1.1
-PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=48 time=20.1 ms
-64 bytes from 1.1.1.1: icmp_seq=2 ttl=48 time=20.0 ms
-
---- 1.1.1.1 ping statistics ---
-2 packets transmitted, 2 received, 0% packet loss, time 1001ms
-rtt min/avg/max/mdev = 20.034/20.067/20.101/0.033 ms
-</pre>
-<p>Captured on a Tamlinux workstation, 2026-11-21. Your gateway, interface and hop count will differ.</p>
+<h2>Read a hop limit from a sample reply</h2>
+<p><strong>Goal:</strong> find the gateway and the decreasing hop limit in sample forwarding data.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: forwarding and hop limit"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the TTL value in the sample ping reply">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">route: default via 192.0.2.1 dev enp1s0
+packet: src 192.0.2.26 dst 192.0.2.50 ttl 64
+reply: 64 bytes from 192.0.2.50 icmp_seq=1 ttl=48 time=20.1 ms</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep ttl clues.txt" goal="true" hint="Try grep ttl clues.txt to compare the two values.">
+      <out>packet: src 192.0.2.26 dst 192.0.2.50 ttl 64</out>
+      <out>reply: 64 bytes from 192.0.2.50 icmp_seq=1 ttl=48 time=20.1 ms</out>
+    </tam-cmd>
+    <tam-cmd match="ping -c 1 192.0.2.50" hint="Sample ping output; the TTL fell as the packet crossed routers.">
+      <out>64 bytes from 192.0.2.50: icmp_seq=1 ttl=48 time=20.1 ms</out>
+      <out>1 packets transmitted, 1 received, 0% packet loss</out>
+    </tam-cmd>
+  <tam-init>Sample forwarding data: initial ttl 64, reply ttl 48.</tam-init>
+  <tam-hint after="1">Try grep ttl clues.txt to compare the two values.</tam-hint>
+  <tam-hint after="2">Now try grep route clues.txt for the next hop.</tam-hint>
+  <tam-fallback>Try grep ttl clues.txt, grep route clues.txt or ping -c 1 192.0.2.50 (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li>The default route says: for anything not on a more specific local route, send to the gateway <code>192.168.1.1</code> through <code>enp1s0</code>.</li>
-<li><code>ip route get</code> applies that rule to one destination and reports the same next hop and source address.</li>
-<li>The reply's <code>ttl=48</code> started at 64 when it left the remote host. Each router subtracted one, so the packet crossed 16 routers on the way back.</li>
-<li>The round trip of about 20 milliseconds is the time for the whole exchange, not a property of any single router.</li>
-</ol>
+<p>The outgoing packet starts with a hop limit of 64 in this sample. The reply shows 48 because routers along the path reduced it. The <code>ping</code> reply is authored sample output, not traffic from your machine.</p>
 <h3>Try it</h3>
-<p>Run <code>ip route get 1.1.1.1</code> and then <code>ping -c 2 -W 2 1.1.1.1</code>. Compare the starting hop limit (usually 64 on Linux) with the value in the reply. If your machine has <a href="glossary/i/ipv6.html">IPv6</a> connectivity, repeat with <code>ip -6 route get 2606:4700:4700::1111</code>.</p>
+<p>Use <code>cat clues.txt</code> to read all three records. If a packet’s hop limit reached zero before arrival, a router would discard it and report an ICMP time-exceeded message.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>RTNETLINK answers: Network is unreachable</code></dt>
-<dd>No route matches that destination. Check <code>ip route</code> for a default route and <code>ip -br addr</code> for an address on the outgoing interface.</dd>
-<dt>A ping reply shows a very low hop count</dt>
-<dd>The path has many routers, or another host is rewriting the hop limit. Use <code>traceroute</code> to see the individual routers.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>A packet's hop limit reaches zero at a router. What happens, and who finds out?</i></summary>
-<p>The router drops the packet and sends an <a href="glossary/i/icmp.html">ICMP</a> Time Exceeded (or ICMPv6 Time Exceeded) message back to the source. <code>traceroute</code> deliberately sends packets with increasing hop limits to collect those messages and learn each router on the path.</p>
-</details>
-<details class="q">
-<summary><i>Why does a computer send a packet for a distant address to its gateway instead of directly to the destination?</i></summary>
-<p>The destination is outside the local prefix. The kernel has no on-link route for it, so it uses the default route: the gateway's hardware address goes in the frame, while the original destination IP stays in the packet.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why does an IP packet need a hop limit?</i></summary><p>So a misrouted packet cannot loop forever; each router reduces the limit and drops the packet when it reaches zero.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: header fields and forwarding rules</h2>
 <h3>Reference</h3>
 <table>
 <tr><th>Field</th><th><a href="glossary/i/ipv4.html">IPv4</a></th><th><a href="glossary/i/ipv6.html">IPv6</a></th><th>Purpose</th></tr>
@@ -108,20 +100,7 @@ rtt min/avg/max/mdev = 20.034/20.067/20.101/0.033 ms
 <p>Forwarding is a longest-prefix match over the kernel's routing table. For each candidate destination the router compares the packet's destination with the route's prefix; the route with the most matching leading bits wins, and the zero-length prefix is the default. The router decrements the hop limit, recomputes the header checksum for <a href="glossary/i/ipv4.html">IPv4</a>, resolves the next hop to a hardware address with <a href="glossary/a/arp.html">ARP</a> or <a href="glossary/n/ndp.html">NDP</a>, and sends the frame onward. The original source and destination IP addresses do not change; only the link-layer addresses change at each hop, except when a <a href="glossary/n/nat.html">NAT</a> device rewrites them.</p>
 <p>Path MTU discovery starts with a packet sized to the interface MTU and sets the Don't Fragment bit. A router that cannot forward it sends ICMP "Fragmentation Needed" (<a href="glossary/i/ipv4.html">IPv4</a>) or ICMPv6 "Packet Too Big" (<a href="glossary/i/ipv6.html">IPv6</a>) with the smaller MTU. The sender caches that result per destination. <a href="glossary/i/ipv4.html">IPv4</a> routers may fragment when the bit is clear; <a href="glossary/i/ipv6.html">IPv6</a> routers never do, so the sender must fragment in an extension header before sending.</p>
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ ip -j route get 1.1.1.1 | jq .
-[
-  {
-    "dst": "1.1.1.1",
-    "gateway": "192.168.1.1",
-    "dev": "enp1s0",
-    "prefsrc": "192.168.1.26",
-    "flags": [],
-    "uid": 1000,
-    "cache": []
-  }
-]
-</pre>
+
 <p>Illustrative route decision from the workstation used above. Policy routing with <code>ip rule</code> selects among multiple tables before the longest-prefix match, and equal-cost multipath routes spread packets across several next hops.</p>
 <h3>Edge cases</h3>
 <ul>
@@ -130,16 +109,17 @@ $ ip -j route get 1.1.1.1 | jq .
 <li>Asymmetric paths make a reply take a different route from the request, which reverse-path filtering can mistake for spoofing.</li>
 <li>Offloading can make a packet appear larger in a capture than the application wrote; the NIC performs segmentation after the capture point.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why can't an <a href="glossary/i/ipv6.html">IPv6</a> router fragment a packet that is too large for the next link, and how does the sender recover?</summary>
-<p><a href="glossary/i/ipv6.html">IPv6</a> removes in-path fragmentation to keep router forwarding simple and fast. The router drops the packet and returns an ICMPv6 Packet Too Big message naming the link's MTU. The sender lowers its estimate for that destination, fragments at the source if needed, and retransmits. A firewall that drops Packet Too Big breaks this loop and leaves large transfers hanging.</p>
-</details>
-</section>
+
 <h3>Sources</h3>
 <p><cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite>, <cite data-ref="rfc8200"><a href="bibliography/rfc8200.html">RFC 8200</a></cite>, and <a href="man:ip-route(8)">ip-route(8)</a>, <a href="man:ping(8)">ping(8)</a> and <a href="man:traceroute(8)">traceroute(8)</a>.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/i/icmp.html">ICMP</a></li>
+</ul>
+
+
 
 <h2>Where next</h2>
 <ul>

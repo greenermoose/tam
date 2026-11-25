@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / A comfortable place to type and edit text</p></nav>
 
-
-<p>This page explains ways to make typing and editing text on your computer more comfortable.</p>
+<p>A comfortable terminal setup pairs a fast terminal with an editor whose save and quit shortcuts you already know.</p>
 <h2>Before this</h2><p><a href="tamlinux/development/index.html">Developing Tamlinux</a> · <a href="terminal/shell/index.html">Giving your computer written instructions</a></p>
 <p>A terminal is a place where you type instructions and read replies. Tamlinux also provides a text editor called micro. Check your installed editor and settings before relying on a particular behavior.</p>
 
@@ -40,60 +39,42 @@
 </section>
 
 <section data-level="learner">
-<h2>Intuitive terminal editing with Micro</h2>
-<p><strong>Goal:</strong> you will be able to edit text files and configuration documents in the terminal using standard, universal keyboard shortcuts with the Micro editor.</p>
-<p><strong>Before you start:</strong> open a terminal (<a href="terminal/shell/index.html">The Shell and Streams</a>). We will edit files in an isolated scratch directory without altering any personal configuration.</p>
-<aside class="first-time">
-<p>When you launch <code>micro filename</code>, the editor takes over your terminal window. The status line at the bottom shows the file name and cursor position. You can click with the mouse to move the cursor or select text. To quit at any time, press <code>Ctrl+Q</code>. If you have unsaved changes, Micro prompts <code>Save changes to filename? (y, n, esc)</code>.</p>
-</aside>
-<h3>Mental model</h3>
-<p>An editor may have an in-memory buffer and a separate file on disk. A change to one does not by itself prove the other is updated. <a href="glossary/j/json.html">JSON</a> syntax, supported settings and actual runtime behavior are separate checks.</p>
-<h3>Worked example: Create and edit a scratch note</h3>
-<p>Run each command separately. If <code>mktemp</code> fails, stop before creating or removing anything.</p>
-
-<pre class="session" data-risk="scratch">
-$ scratch=$(mktemp -d)
-$ echo "Initial note content" > "$scratch/note.md"
-$ micro "$scratch/note.md"
-$ cat "$scratch/note.md"
-Initial note content
-Appended line saved with Ctrl+S.
-$ rm -- "$scratch/note.md"
-$ rmdir -- "$scratch"
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
-
-<ol>
-<li><code>scratch=$(mktemp -d)</code> creates a private temporary directory in <code>/tmp</code> so your work stays contained.</li>
-<li><code>echo "Initial note content" > "$scratch/note.md"</code> writes initial text into a Markdown file.</li>
-<li><code>micro "$scratch/note.md"</code> opens the file in Micro's full-screen terminal interface.</li>
-<li>Typing a new line and pressing <code>Ctrl+S</code> writes the updated buffer to disk immediately.</li>
-<li>Pressing <code>Ctrl+Q</code> exits the editor cleanly and returns control to your shell prompt.</li>
-</ol>
+<h2>Separate the editor buffer from the file</h2>
+<p><strong>Goal:</strong> read a scratch file after a save to confirm what reached disk</p>
+<p><strong>Before you start:</strong> <a href="terminal/shell/index.html">The shell and streams</a>.</p>
+<tam-sandbox
+  title="Try it: check a saved note"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="paths"
+  goal="Print the note after saving">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="note.md" size="30">Initial note
+Saved line</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="cat note.md" goal="true" hint="Ctrl+S writes the buffer to disk; quitting alone would not prove a save.">
+    <out>Initial note
+Saved line</out>
+  </tam-cmd>
+  <tam-cmd match="ls -l note.md" hint="The listing confirms the file exists.">
+    <out>-rw-r--r-- 1 alex alex 30 note.md</out>
+  </tam-cmd>
+  <tam-init>The sandbox shows the file on disk, not the editor screen.</tam-init>
+   <tam-hint after="1">Ctrl+S writes the buffer to disk; quitting alone would not prove a save.</tam-hint>
+  <tam-hint after="2">The listing confirms the file exists.</tam-hint>
+  <tam-fallback>Type cat note.md, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The file content shows what the editor wrote. The simulated view does not reproduce Micro’s full-screen interface. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine.</p>
 <h3>Try it</h3>
-<p>Create a temporary file in a scratch directory, open it with <code>micro</code>, press <code>Ctrl+E</code> to open the editor command prompt, type <code>help defaultkeys</code>, and press Enter to browse all standard keyboard shortcuts. Press <code>Ctrl+Q</code> to dismiss the help view.</p>
+<p>Open the same kind of scratch file in Micro, add a line, save with Ctrl+S, then cat it from the shell.</p>
 <h3>If it goes wrong</h3>
-<dl>
-<dt>Pressing <code>Ctrl+C</code> does not exit the editor</dt>
-<dd>In Micro, <code>Ctrl+C</code> is the standard shortcut to copy selected text to the clipboard. Press <code>Ctrl+Q</code> to quit.</dd>
-<dt>Micro asks "Save changes to ...? (y, n, esc)" on exit</dt>
-<dd>The buffer has modifications that have not been written to disk. Press <code>y</code> to save, <code>n</code> to discard changes, or <code>Esc</code> to continue editing.</dd>
-<dt><a href="glossary/t/terminal.html">Terminal</a> mouse clicks do not position the cursor</dt>
-<dd>Verify that your terminal emulator supports mouse tracking. Standard <code>foot</code> on Tamlinux supports mouse selection, dragging, and wheel scrolling out of the box.</dd>
-</dl>
-<aside class="tamlinux"><p><strong>On Tamlinux:</strong> settings can be supplied by a package or by a user configuration. Inspect the actual selected file before editing and preserve user changes.</p></aside>
+<p>If Micro asks about unsaved changes on exit, answer y to save, n to discard, or Esc to keep editing.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Which shortcut saves changes to the current file in Micro without closing the editor?</i></summary>
-<p><code>Ctrl+S</code> writes the buffer changes directly to disk immediately, leaving the file open for further edits.</p>
-</details>
-<details class="q">
-<summary><i>How do you open Micro's internal command prompt to view help or adjust options?</i></summary>
-<p>Press <code>Ctrl+E</code>. An interactive prompt opens at the bottom where you can type commands like <code>help</code>, <code>set</code>, or <code>vsplit</code>.</p>
-</details>
+<details class="q"><summary><i>Which shortcut saves without quitting Micro?</i></summary><p>Ctrl+S writes the buffer to disk and leaves the editor open.</p></details>
 </section>
 </section>
 <section data-level="expert">
@@ -133,28 +114,7 @@ $ rmdir -- "$scratch"
 
 <p>Benchmark your interactive shell startup latency using <code>time</code>:</p>
 
-<pre class="session" data-risk="read-only">
-$ time bash --norc -i -c exit
-exit
 
-real	0m0.003s
-user	0m0.000s
-sys	0m0.003s
-$ ls -la "$XDG_RUNTIME_DIR"/wayland-*
-srwxr-xr-x 1 user user 0 Oct 25 08:00 /run/user/1000/wayland-1
--rw-r----- 1 user user 0 Oct 25 08:00 /run/user/1000/wayland-1.lock
-</pre>
-
-<p>Notice that the clean interactive shell exits in approximately 3 milliseconds, well within Tamlinux's 10ms budget. The Wayland socket file descriptor provides the direct communication conduit to the compositor.</p>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q open">
-<summary>Why does placing <code>$(git branch 2&gt;/dev/null)</code> inside <code>~/.bashrc</code> violate the Tamlinux shell latency budget?</summary>
-<p>Every time an interactive shell launches or a prompt renders, Bash must fork a child process, execute <code>git</code>, query the filesystem, and capture stdout through an internal pipe. This fork/exec sequence adds 20 to 60 milliseconds of latency, violating the sub-10ms shell startup budget.</p>
-</details>
-</section>
 
 <h3>Sources</h3>
 
@@ -167,6 +127,7 @@ srwxr-xr-x 1 user user 0 Oct 25 08:00 /run/user/1000/wayland-1
 <h3>Improve it</h3>
 
 <p>Terminal configuration is defined in <code>~/.config/foot/foot.ini</code>, and desktop terminal shortcuts are coordinated in the public repository under <code>tamlinux/desktop/</code>.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/j/json.html">JSON</a> · <a href="glossary/t/terminal.html">Terminal</a>.</p>
 </section>
 
 <h2>Next</h2><p><a href="terminal/terminfo-and-termcap.html">How terminals display text</a> &mdash; terminfo, termcap, <code>TERM</code>, and escape sequences.</p>

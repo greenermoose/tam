@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/development/index.html">Developing Tamlinux</a> / Keeping track of software versions</p></nav>
 
-
-<p>This page explains how Tamlinux identifies the software it installs and keeps track of changes.</p>
+<p>A version name can identify a whole cultivar, a component binary, a corpus or an exact pinned source in a recorded delivery.</p>
 <h2>Before this</h2><p><a href="tamlinux/components.html">Understanding the whole system</a> · <a href="systems/packages/packaging.html">How software is delivered</a></p>
 <p>A Tamlinux release has its own version, and the tools that make it up have their own versions. Recording the exact choices makes it possible to identify and reproduce a release.</p>
 
@@ -40,78 +39,44 @@
 </section>
 
 <section data-level="learner">
-<h2>Product versions versus component versions</h2>
-<p><strong>Goal:</strong> you will be able to query installed package versions, compare product cultivars with component versions, and inspect active assembly status.</p>
-<p><strong>Before you start:</strong> open a terminal. Inspecting package versions and deployed assembly status uses read-only commands that require no administrative privileges. See <a href="systems/packages/packaging.html">Software packaging and delivery</a> for package management basics.</p>
-<aside class="first-time">
-<p>A version number identifies an exact release of a program. On Tamlinux, cultivar names like KBN WB represent overall workstation milestones, while individual tools like <code>tam</code> have their own version numbers. The <dfn><a href="glossary/c/cultivar.html">cultivar</a></dfn> is the Tamlinux software release; it sits on a <dfn><a href="glossary/r/rootstock.html">rootstock</a></dfn> (today Arch Linux; Void and a smaller microkernel base are planned). Commands like <code>tam --version</code> query active program versions directly. See <a href="tamlinux/design/distros.html">distributions and rootstocks</a> for the longer design story.</p>
-</aside>
-<h3>Mental model</h3>
-<pre>
-tamlinux source lock (pinned Git commits)
-  |-- libtam:         pinned commit
-  |-- tam:            pinned commit
-  |-- tamlinux:       pinned commit
-  +-- tamlinux-tools: pinned commit
-            |
-            v  (make -&gt; staged manifest with SHA-256 digests)
-  Cultivar Install (/usr/bin, /usr/lib/tamlinux/source/):
-    /usr/bin/tam
-    /usr/lib/tamlinux/source/...
-            |
-  Local Developer Override (optional, precedes /usr/bin on PATH):
-    ~/.local/bin/tam  (make install PREFIX=$HOME/.local)
-</pre>
+<h2>Read four decoupled versions</h2>
+<p><strong>Goal:</strong> match each version line in a fixed report to its component</p>
 
-<p>Tamlinux does not install floating package versions from remote repositories at deploy time. Instead, a dedicated repository named <code>tamlinux-packages</code> serves as the central bill of materials (<a href="glossary/b/bom.html">BOM</a>), locking every dependency down to the exact commit and cryptographic tree hash.</p>
-<h3>Worked example: Inspect active versions and cultivar</h3>
-<pre class="session" data-risk="read-only">
-$ tam --version
-tam command 0.48.1 (dev 4788787)
+<tam-sandbox
+  title="Try it: inspect version metadata"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Print a fixed tam version report">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="tam --version" goal="true" hint="Command and corpus versions advance on separate schedules.">
+    <out>tam command 0.48.1 (dev 4788787)
 knowledge corpus 0.59.0 (dev 4788787)
 libtam 0.4.0
-Tamlinux cultivar KBN WB 0.6.1
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-02. Your build hash may differ.</p>
+Tamlinux cultivar KBN WB 0.6.1</out>
+  </tam-cmd>
+  <tam-cmd match="type -a tam" hint="A local override appears before the packaged binary.">
+    <out>/home/alex/.local/bin/tam
+/usr/bin/tam</out>
+  </tam-cmd>
+  <tam-init>A fixed report separates command, corpus, library and cultivar versions.</tam-init>
+   <tam-hint after="1">Command and corpus versions advance on separate schedules.</tam-hint>
+  <tam-hint after="2">A local override appears before the packaged binary.</tam-hint>
+  <tam-fallback>Type tam --version, or type help.</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>tam --version</code> printed the four version tiers of the running environment: the C command binary (<code>0.48.1</code>), the offline knowledge corpus (<code>0.59.0</code>), the shared integration library <code>libtam</code> (<code>0.4.0</code>), and the overall workstation milestone cultivar name and release (<code>KBN WB 0.6.1</code>).</li>
-<li>The <code>(dev 4788787)</code> suffix indicates that the command and corpus are executing from a local development build installed in the user prefix (<code>~/.local/bin</code>) matching that <a href="glossary/g/git.html">Git</a> short hash.</li>
-<li>Released cultivar builds omit the <code>(dev ...)</code> suffix and reflect the exact version declared in the active installed cultivar.</li>
-</ol>
+<p>The four lines name distinct tiers: the C command, the HTML corpus, libtam and the workstation cultivar. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. A (dev ...) suffix indicates a user-local build in this teaching sample.</p>
 <h3>Try it</h3>
-<p>Check which binary your shell resolves first and compare its version:</p>
-
-<pre class="session" data-risk="read-only">
-$ type -a tam
-$ tam --version
-</pre>
-
-<p>If <code>~/.local/bin/tam</code> appears ahead of <code>/usr/bin/tam</code>, you are running a local development override rather than the installed cultivar binary.</p>
+<p>Read the type rule and explain which executable a new shell would start.</p>
 <h3>If it goes wrong</h3>
-<dl>
-<dt>tam prints (dev ...) suffix unexpectedly</dt>
-<dd>A development build in <code>~/.local/bin</code> precedes the packaged binary on <code>PATH</code>. Remove it with <code>make -C ~/src/tam uninstall PREFIX=$HOME/.local</code> and run <code>hash -r</code>.</dd>
-<dt>command and corpus versions differ</dt>
-<dd>Tamlinux command and corpus version independently. Content additions in the documentation corpus bump its version without needing a command binary recompile.</dd>
-<dt>Installed binary differs from checkout</dt>
-<dd>The installed <code>tam</code> reads its installed corpus unless <code>TAM_KNOWLEDGE_DIR=knowledge</code> is set explicitly when testing from a source checkout.</dd>
-</dl>
-<aside class="tamlinux">
-<p>On Tamlinux, production software reaches the workstation exclusively through a recorded candidate delivery built from pinned Git sources (or a recorded transitional bundle), never from an unrecorded checkout or copied payload. Development overrides in <code>~/.local</code> are reversible and removed once the candidate is installed. See the <cite data-ref="deployment"><a href="bibliography/deployment.html">deployment contract</a></cite>.</p>
-</aside>
+<p>If the command and corpus versions differ, that is expected; documentation can change without recompiling the binary.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>What does <code>(dev ...)</code> indicate when appended to a version number in <code>tam --version</code>?</i></summary>
-<p>It indicates that the running executable was compiled and installed locally into <code>~/.local/bin</code> from the indicated Git commit, overriding the installed cultivar binary in <code>/usr/bin</code> on <code>PATH</code>.</p>
-</details>
-<details class="q">
-<summary><i>Why do <code>tam command</code> and <code>knowledge corpus</code> maintain independent version numbers?</i></summary>
-<p>The command utility (C binary) and documentation corpus develop on separate cadences. Authoring new guide pages or updating documentation increments the corpus version while leaving the compiled command binary untouched.</p>
-</details>
+<details class="q"><summary><i>Why are command and corpus versions independent?</i></summary><p>Pages can be revised without rebuilding the C executable.</p></details>
 </section>
 </section>
 <section data-level="expert">
@@ -136,10 +101,6 @@ $ tam --version
 <ol>
 <li><strong>Component Development and Override:</strong>
 Work in the component checkout on the <code>dev</code> branch. Install a development build directly into the user prefix:
-<pre data-risk="read-only">
-make -C ~/src/tam test
-make -C ~/src/tam install PREFIX=$HOME/.local
-</pre>
 Because <code>~/.local/bin</code> sits first on the shell <code>PATH</code>, this binary immediately overrides the packaged version for interactive testing without root privileges or modifying system files.</li>
 
 <li><strong>Component Verification, Version Bump, and Commit:</strong>
@@ -156,7 +117,7 @@ Update the component lock to the exact pushed commit hashes, run <code>make pref
 <li><strong>Promotion to Test, Run, and Dev Override Cleanup:</strong>
 <table>
 <tr><td><strong>Test</strong></td><td>On the developer's explicit "Test" instruction, promote the candidate commit to the <code>test</code> branch (fast-forward only). Install the recorded candidate stage on the target host following the approved deployment procedure.</td></tr>
-<tr><td><strong>Clean up the dev override</strong></td><td>Right after the deploy that delivers the pinned version, remove the development override: <pre data-risk="read-only"> make -C ~/src/tam uninstall PREFIX=$HOME/.local hash -r </pre> Confirm <code>type -a tam</code> points back to <code>/usr/bin/tam</code>.</td></tr>
+<tr><td><strong>Clean up the dev override</strong></td><td>Right after the deploy that delivers the pinned version, remove the development override: Confirm <code>type -a tam</code> points back to <code>/usr/bin/tam</code>.</td></tr>
 <tr><td><strong>Run</strong></td><td>After thorough daily-driver testing, on the developer's explicit "Run" instruction, promote the exact same tested commit to <code>main</code> and promote the identical verified stage to Run.</td></tr>
 <tr><td><strong>Release</strong></td><td>When all planned steps for the version are accepted, tag the release on GitHub with release notes on the developer's explicit "Release" instruction.</td></tr>
 </table>
@@ -166,6 +127,7 @@ Update the component lock to the exact pushed commit hashes, run <code>make pref
 <h3>Why Tamlinux chose this</h3>
 
 <p>Separating product cultivar milestones from independent component versions enables fast, focused iteration on individual utilities without triggering massive system-wide builds. Pinning components via exact Git commit hashes and staged SHA-256 manifests eliminates runtime drift, guaranteeing that any developer or machine building a candidate produces identical software. Placing local development builds first on <code>PATH</code> allows safe, unprivileged testing while maintaining pristine package integrity in the rootstock.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/r/rootstock.html">rootstock</a> · <a href="tamlinux/design/distros.html">distributions and rootstocks</a> · <a href="glossary/b/bom.html">BOM</a> · <a href="glossary/g/git.html">Git</a>.</p>
 </section>
 
 <h2>Sources and further reading</h2><ul><li><a href="bibliography/deployment.html">Tamlinux package deployment contract</a></li></ul>

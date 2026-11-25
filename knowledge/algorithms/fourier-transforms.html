@@ -15,110 +15,104 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Fourier transforms</p></nav>
 
-<p>A Fourier transform describes a signal as a combination of waves. Instead of asking "what is the value at each moment?", it asks "how much of each frequency is present?"</p>
+<p>A Fourier transform rewrites a signal as amounts of different frequencies. It is useful because many tasks are easier when you work with frequencies instead of moments in time.</p>
 
 <section data-level="novice">
-<h2>The big idea</h2>
-<p>Many complicated signals are made by adding simpler waves together. A musical chord is several notes at once. A picture edge is a sharp change that can be described by many spatial frequencies. A Fourier transform is a mathematical way to move between the time view and the frequency view.</p>
+<h2>From waves to ingredients</h2>
+<p>A sound or radio signal changes over time. A <a href="glossary/f/fourier-transform.html">Fourier transform</a> asks which steady waves, at which strengths, add up to that changing signal.</p>
 <h3>Why it matters</h3>
-<p>The frequency view makes some problems easier. Noise can be reduced by removing unwanted frequencies. Audio formats can compress sound by keeping the frequencies humans notice most. Images, radio, medical scans, and scientific measurements all use Fourier ideas.</p>
+<p>Finding a loud tone, removing noise, or compressing audio becomes simpler when the signal is described by its frequency ingredients.</p>
 <h3>How to think about it</h3>
-<p>Imagine a smoothie. In the time view, you taste the blended drink at each sip. In the frequency view, you know how much strawberry, banana, and yogurt went in. The Fourier transform is the recipe-finding step: it tells you how much of each ingredient wave appears in the mixture.</p>
-<h3>New words</h3>
-<dl>
-<dt><a href="glossary/f/fourier-transform.html">Fourier transform</a></dt>
-<dd>A transform that represents a signal by the frequencies it contains.</dd>
-<dt>Frequency</dt>
-<dd>How often a repeating pattern occurs, such as cycles per second (hertz).</dd>
-<dt>Spectrum</dt>
-<dd>The amount of signal present at each frequency.</dd>
-<dt>Signal</dt>
-<dd>Data that changes over time or space, such as sound, voltage, or pixel brightness.</dd>
-</dl>
+<p>Think of a recipe written two ways: one lists actions over time, the other lists ingredient amounts. Both describe the same dish. The transform changes the description, not the signal.</p>
 </section>
 
 <section data-level="learner">
-<h2>From time samples to frequency bins</h2>
-<p><strong>Goal:</strong> understand what the Discrete Fourier Transform (DFT) computes and how to interpret its output.</p>
-<h3>Worked example</h3>
-<p>A computer usually has samples, not a continuous wave. If you sample a signal <code>N</code> times, the DFT produces <code>N</code> frequency values. Each value says how strongly a particular frequency matches the signal.</p>
-<pre class="session" data-risk="read-only">
-$ python3 - &lt;&lt;'PY'
-import math
-N = 8
-# signal = 1.0*sin(2*pi*1*k/N) + 0.5*sin(2*pi*2*k/N)
-x = [math.sin(2*math.pi*1*k/N) + 0.5*math.sin(2*math.pi*2*k/N) for k in range(N)]
-for m in range(N):
-    re = sum(x[k]*math.cos(2*math.pi*m*k/N) for k in range(N))
-    im = -sum(x[k]*math.sin(2*math.pi*m*k/N) for k in range(N))
-    mag = math.hypot(re, im)
-    print(f"bin {m}: magnitude {mag:.3f}")
-PY
-bin 0: magnitude 0.000
-bin 1: magnitude 4.000
-bin 2: magnitude 2.000
-bin 3: magnitude 0.000
-bin 4: magnitude 0.000
-bin 5: magnitude 0.000
-bin 6: magnitude 2.000
-bin 7: magnitude 4.000
-</pre>
-<p>Illustrative output from a simple DFT calculation. Bins 1 and 7 mirror each other for a real signal, as do bins 2 and 6.</p>
+<h2>Find the hidden tones</h2>
+<p><strong>Goal:</strong> read a sample spectrum and identify which frequencies carry the signal.</p>
+<tam-sandbox
+  title="Try it: read a spectrum"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Find the strongest bins in the sample spectrum">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="spectrum.txt" size="126">bin 0 magnitude 0.000
+bin 1 magnitude 4.000
+bin 2 magnitude 2.000
+bin 3 magnitude 0.000
+bin 4 magnitude 0.000
+bin 5 magnitude 0.000
+bin 6 magnitude 2.000
+bin 7 magnitude 4.000</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat spectrum.txt" hint="Look for the largest magnitudes. Bins come in mirror pairs for a real signal.">
+      <out>bin 0 magnitude 0.000</out>
+      <out>bin 1 magnitude 4.000</out>
+      <out>bin 2 magnitude 2.000</out>
+      <out>bin 3 magnitude 0.000</out>
+      <out>bin 4 magnitude 0.000</out>
+      <out>bin 5 magnitude 0.000</out>
+      <out>bin 6 magnitude 2.000</out>
+      <out>bin 7 magnitude 4.000</out>
+    </tam-cmd>
+    <tam-cmd match="grep 4.000 spectrum.txt" goal="true" hint="Correct: bins 1 and 7 are the strongest pair.">
+      <out>bin 1 magnitude 4.000</out>
+      <out>bin 7 magnitude 4.000</out>
+    </tam-cmd>
+  <tam-init>Try: grep 4.000 spectrum.txt</tam-init>
+  <tam-hint after="1">Type cat spectrum.txt to see all bins.</tam-hint>
+  <tam-hint after="2">Try grep 2.000 spectrum.txt for the quieter tone.</tam-hint>
+  <tam-fallback>Try cat spectrum.txt, or grep 4.000 spectrum.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
 <h3>What just happened</h3>
-<ol>
-<li>The input had two sine waves: one at frequency 1 and a weaker one at frequency 2.</li>
-<li>The DFT compared the signal against sine and cosine waves at each bin.</li>
-<li>Large magnitudes appeared at the matching bins, showing which frequencies were present.</li>
-<li>The mirrored bins are normal for real-valued input; the useful information is in the first half plus the Nyquist details when applicable.</li>
-</ol>
+<p>The strongest pair is bins 1 and 7; the quieter pair is bins 2 and 6. For real-valued samples, bins above the midpoint mirror lower bins. The magnitudes are sample numbers from an eight-point transform, not a live calculation on your machine.</p>
 <h3>Try it</h3>
-<p>Change the signal to use only frequency 2, or add a constant offset. Notice how the spectrum changes. Keep <code>N</code> small so you can inspect every bin.</p>
+<p>Run <code>grep 2.000 spectrum.txt</code>. The two remaining non-zero bins tell you a second, softer wave is present.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>The strongest bin is not where you expect</dt>
-<dd>Check that the frequency is an integer number of cycles over <code>N</code> samples. If it is not, energy spreads across nearby bins; this is called spectral leakage.</dd>
-<dt>You see unexpected symmetry</dt>
-<dd>Real input signals produce conjugate-symmetric DFT output. That is expected, not an error.</dd>
+<dt>I expected only one strong bin.</dt><dd>Real signals produce mirror pairs. Both bin 1 and bin 7 describe the same tone.</dd>
+<dt>grep found nothing.</dt><dd>Type the decimal point exactly: grep 4.000 spectrum.txt.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>If a signal is made of two pure tones, what should its DFT magnitude show?</i></summary>
-<p>Strong peaks at the bins corresponding to those two tones (and their mirror bins for a real signal), with small or zero magnitude elsewhere if the tones align neatly with the sample window.</p>
+<summary><i>What does a large magnitude mean?</i></summary>
+<p>That frequency is present with a large amplitude in the signal.</p>
+</details>
+<details class="q">
+<summary><i>Why do bins 1 and 7 both light up?</i></summary>
+<p>For real-valued input, the transform has conjugate symmetry; the upper bin mirrors the lower one.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: DFT, properties, and limits</h2>
+<h2>Reference: bins and symmetry</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Concept</th><th>Meaning</th><th>Why it matters</th></tr>
-<tr><td>DFT</td><td><code>X[k] = Σ x[n] * e^(-2πi*k*n/N)</code></td><td>Transforms N samples into N frequency coefficients</td></tr>
-<tr><td>Inverse DFT</td><td><code>x[n] = (1/N) Σ X[k] * e^(2πi*k*n/N)</code></td><td>Reconstructs the signal from its spectrum</td></tr>
-<tr><td>Nyquist frequency</td><td>Half the sampling rate</td><td>Frequencies above it alias into lower frequencies</td></tr>
-<tr><td>Convolution theorem</td><td>Convolution in time becomes multiplication in frequency</td><td>Enables fast filtering and correlation</td></tr>
+<tr><th>Item</th><th>Meaning</th><th>Note</th></tr>
+<tr><td>Bin k</td><td>Frequency k cycles per transform window</td><td>Spacing depends on sample rate and window length</td></tr>
+<tr><td>Magnitude</td><td>sqrt(re&sup2; + im&sup2;)</td><td>Amplitude estimate, scaled by the implementation</td></tr>
+<tr><td>Phase</td><td>Angle of the complex bin</td><td>Encodes where the wave sits in time</td></tr>
 </table>
 <h3>How it works</h3>
-<p>The DFT projects a sampled signal onto complex exponentials. Each coefficient measures correlation with one basis frequency. The transform is linear and invertible, so no information is lost for the sampled signal. In practice, windowing, sampling rate, and finite precision determine what you can reliably observe.</p>
-<h3>Edge cases</h3>
+<p>The discrete transform sums each sample multiplied by a complex exponential. A fast algorithm such as the <a href="algorithms/fast-fourier-transform.html">FFT</a> computes the same bins with fewer operations. Windowing reduces spectral leakage when the signal does not repeat exactly inside the sampled window.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li><strong>Aliasing:</strong> sampling too slowly folds high frequencies into lower ones.</li>
-<li><strong>Leakage:</strong> a frequency not aligned to a DFT bin spreads energy across bins; windows trade leakage for main-lobe width.</li>
-<li><strong>DC and Nyquist bins:</strong> for real input, bin 0 and bin N/2 (when N is even) are special and not mirrored the same way as other bins.</li>
-<li><strong>Scaling conventions:</strong> libraries differ in where they place the 1/N factor; check documentation before comparing results.</li>
+<li>Real inputs give conjugate symmetry; only about half the bins are independent.</li>
+<li>Finite windows smear energy into neighbouring bins.</li>
+<li>Bin spacing is sample rate divided by window length.</li>
+<li>Zero padding interpolates the display but adds no new information.</li>
 </ul>
-<h3>Advanced usage</h3>
-<p>For large N, computing the DFT directly costs O(N^2). The <a href="algorithms/fast-fourier-transform.html">Fast Fourier Transform</a> computes the same DFT in O(N log N), making frequency-domain methods practical for audio, images, radar, and scientific computing.</p>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why is the convolution theorem important for performance?</summary>
-<p>Direct convolution of long signals is expensive. The convolution theorem lets you transform both signals, multiply pointwise in the frequency domain, and transform back. With an FFT, this can be much faster than direct convolution for sufficiently large inputs.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p><a href="https://en.wikipedia.org/wiki/Fourier_transform">Fourier transform</a> and <a href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform">Discrete Fourier transform</a> provide background; numerical libraries document their scaling and ordering conventions.</p>
+<p><a href="https://en.wikipedia.org/wiki/Fourier_transform">Fourier transform</a>; <a href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform">Discrete Fourier transform</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="paths/algorithms.html">Important algorithms for modern computing</a>.</p>
 </section>
 
 <h2>Where next</h2>

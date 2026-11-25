@@ -15,9 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/input/index.html">How a key press becomes input</a> / Other places keys are handled</p></nav>
 
-
-
-<p>This page maps the places that can take a key press before the program you are looking at, and shows how to find out which one took it.</p>
+<p>The same key can be taken by the compositor, terminal, line discipline, shell or application, so dispatch order matters.</p>
 <h2>Before this</h2><p><a href="terminal/input/index.html">How a key press becomes input</a></p>
 
 <section data-level="novice">
@@ -50,80 +48,41 @@
 </section>
 
 <section data-level="learner">
-<h2>Find the layer that took the key</h2>
+<h2>Find the layer that owns a chord</h2>
+<p><strong>Goal:</strong> read a fixed shell binding for Ctrl+A</p>
 
-<p><strong>Goal:</strong> you will be able to trace one chord through desktop, terminal, shell and program, and identify which layer consumed it.</p>
-
-<h3>Worked example</h3>
-
-<p>Take <code>Ctrl + Shift + C</code>. In foot it copies the selection, because foot binds it. The bytes never reach the program in the window.</p>
-
-<pre class="session" data-risk="read-only">
-$ man 5 foot.ini | col -b | grep -A2 '^     clipboard-copy'
-     clipboard-copy
-	 Copies  the  current  selection  into  the  clipboard.  Default:  Con‐
-	 trol+Shift+c XF86Copy.
-</pre>
-
-<p>Now compare with <code>Ctrl + C</code>, which foot does not bind as a shortcut. foot sends <code>0x03</code>, the line discipline turns it into <code>SIGINT</code>, and the foreground command stops. The same physical <code>C</code> key, with a different modifier set, is handled at a different layer.</p>
-
-<table>
-<tr><th>Chord</th><th>Layer that acts</th><th>What the program receives</th></tr>
-<tr><td>Desktop shortcut, such as a workspace switch</td><td>compositor</td><td>nothing</td></tr>
-<tr><td><code>Ctrl + Shift + C</code> in foot</td><td>terminal emulator</td><td>nothing</td></tr>
-<tr><td><code>Ctrl + C</code> at a prompt</td><td>line discipline</td><td><code>SIGINT</code>, not a byte</td></tr>
-<tr><td><code>Ctrl + A</code> at a Bash prompt</td><td>Readline inside the shell</td><td>the shell moves the cursor</td></tr>
-<tr><td><code>Ctrl + K</code> in a full-screen editor</td><td>the editor</td><td>the editor deletes to end of line</td></tr>
-<tr><td>An ordinary letter</td><td>the program</td><td>one byte</td></tr>
-</table>
-
-<p>The order of the layers is what makes this predictable. A key travels from the compositor inward, and each layer either consumes it or passes it on.</p>
-
+<tam-sandbox
+  title="Try it: inspect a binding table"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find Ctrl+A in a fixed bind report">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="bind -p | grep &#x27;\C-a&#x27;" goal="true" hint="This is the shell layer, below the terminal and above the line discipline.">
+    <out>"\C-a": beginning-of-line</out>
+  </tam-cmd>
+  <tam-cmd match="man 5 foot.ini | col -b | grep -A2 &#x27;^     clipboard-copy&#x27;" hint="A terminal can also claim a chord before the shell sees it.">
+    <out>     clipboard-copy
+	 Copies  the  current  selection  into  the  clipboard.</out>
+  </tam-cmd>
+  <tam-init>A fixed bind -p excerpt names the command for Ctrl+A.</tam-init>
+   <tam-hint after="1">This is the shell layer, below the terminal and above the line discipline.</tam-hint>
+  <tam-hint after="2">A terminal can also claim a chord before the shell sees it.</tam-hint>
+  <tam-fallback>Try bind -p | grep '\C-a', or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>In this sample the shell binds Ctrl+A to beginning-of-line. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. If the terminal consumes the same chord for selection or clipboard, the shell may never receive it.</p>
 <h3>Try it</h3>
-
-<p>Test one chord at a time. These commands are read-only and do not change any bindings.</p>
-
-<pre class="session" data-risk="read-only">
-$ bind -p | grep -E '\\C-a|\\C-h|\\C-k|\\C-l' | head
-$ cat -v
-</pre>
-
-<p>With <code>cat -v</code> running, press <code>Ctrl + A</code> and then Enter. You see <code>^A</code>, because <code>cat</code> does not bind <code>Ctrl + A</code>; the byte was passed through. Exit and press <code>Ctrl + A</code> at the prompt: the cursor jumps to the start of the line, because Bash's Readline took it. Then try <code>Ctrl + Shift + C</code> inside <code>cat -v</code>: nothing appears, because foot took it before the program saw anything.</p>
-
+<p>Read the foot.ini rule and explain why a key can behave differently in a terminal and in a shell.</p>
 <h3>If it goes wrong</h3>
-
-<dl>
-<dt>A desktop shortcut fires instead of the program</dt>
-<dd>The compositor consumed the chord. Choose a different chord for the program, or change the desktop binding if the program's need is stronger.</dd>
-<dt>A chord does nothing anywhere</dt>
-<dd>Something consumed it silently. Check the terminal's key bindings, then the desktop's, then any multiplexer or editor that is running.</dd>
-<dt>A tmux session ignores normal typing</dt>
-<dd>A prefix key is pending. Press the prefix twice to send it literally, or press <code>Escape</code> to cancel the pending command.</dd>
-<dt>Keys work locally but not over <a href="glossary/s/ssh.html">SSH</a></dt>
-<dd>The byte pipeline is: Client OS &rarr; client terminal emulator (translates keys to bytes) &rarr; <code>ssh</code> (transparent byte pipe) &rarr; remote <code>sshd</code> + <a href="glossary/p/pty.html">PTY</a> &rarr; <a href="glossary/t/tui.html">TUI</a> in raw mode. Standalone <code>ssh</code> does not alter key codes; the client terminal emulator (or an all-in-one client such as PuTTY) does. Check <code>echo $TERM</code> on both sides, whether the session has a tty, and whether the remote client sends <code>0x08</code> instead of <code>0x7F</code> for Backspace.</dd>
-<dt>Function keys insert literal <code>OP</code> or <code>[[A</code> over a slow SSH link</dt>
-<dd>Network jitter split the leading <code>0x1B</code> byte from the rest of the sequence, so the program's <code>Esc</code> timeout fired early. Use a single-byte fallback such as <code>Ctrl + G</code> for Help, or increase the program's <code>Esc</code> delay.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> desktop shortcuts belong to the compositor and are configured in its bindings, while terminal shortcuts belong to foot's own configuration. The two sets are separate, and a chord can appear in both. Check the compositor first, because it sees the key first.</p>
-</aside>
-
+<p>Use a key tracer tool on the real machine when order matters; a static sample cannot prove dispatch.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Why does <code>Ctrl + Shift + C</code> not stop a running command in foot?</i></summary>
-<p>foot binds that chord to copying the selection and consumes it. The program never receives <code>0x03</code>. <code>Ctrl + C</code> without Shift is not bound by foot, so it reaches the line discipline and becomes <code>SIGINT</code>.</p>
-</details>
-<details class="q">
-<summary><i>Who handles a key first: the shell or the compositor?</i></summary>
-<p>The compositor. It receives the key from the kernel, applies layout and modifier state, and checks its own shortcuts before delivering the key to the focused window. The shell only sees bytes that survive the layers in between.</p>
-</details>
-<details class="q">
-<summary><i>Does SSH forward key presses to the server?</i></summary>
-<p>No. The local terminal turns keys into bytes, and SSH forwards those bytes through a pseudo-terminal on the server. The server's programs read bytes under the server's <code>TERM</code>, so a terminal mismatch changes what the remote program believes about the keyboard.</p>
-</details>
+<details class="q"><summary><i>Which layer sees a key before the shell?</i></summary><p>The compositor and terminal emulator can intercept it first.</p></details>
 </section>
 </section>
 
@@ -172,15 +131,6 @@ $ cat -v
 
 <p>These commands observe each layer without changing it.</p>
 
-<pre class="session" data-risk="read-only">
-$ wev
-$ libinput debug-events --show-keycodes
-$ bind -p | grep -c .
-$ tmux list-keys | head
-$ foot --version
-$ printf 'TERM=%s\n' "$TERM"
-</pre>
-
 <p><code>wev</code> shows what reaches a Wayland surface, including keycodes and modifier masks, so it distinguishes "the compositor took it" from "the window received it". <code>libinput debug-events</code> shows the layer below the compositor. <code>bind -p</code> lists Readline bindings, <code>tmux list-keys</code> lists the multiplexer's, and the last two commands identify the terminal and its advertised type.</p>
 
 <h3>Edge cases</h3>
@@ -195,17 +145,10 @@ $ printf 'TERM=%s\n' "$TERM"
 <li><strong>Suspended jobs.</strong> A stopped job keeps the terminal settings it had at the moment it stopped. Resuming it restores those settings, which can undo a change made in between.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A user reports that <code>Ctrl + Shift + R</code> does nothing in an editor running inside tmux inside foot, although the editor's documentation says it reloads the file. Give an ordered diagnosis.</summary>
-<p>Start at the outermost layer. In foot, <code>Control+Shift+r</code> starts scrollback search by default, so the chord is probably consumed before the pty; confirm with <code>wev</code> and by testing the same chord in a plain foot window without tmux. If foot passes it, check tmux: it has its own key table, and the chord may be bound or swallowed by the prefix handling; <code>tmux list-keys</code> answers that. Then check whether tmux forwards the extended encoding the editor needs, and whether the inner <code>TERM</code> supports it. Only after those should you look at the editor, for example whether it enabled the keyboard protocol it uses for that chord. Each step names one layer, so the first layer that blocks the chord is the one to change.</p>
-</details>
-</section>
-
 <h3>Sources</h3>
 
 <p><a href="man:foot.ini(5)">foot.ini(5)</a>, <a href="man:tmux(1)">tmux(1)</a>, <a href="man:ssh(1)">ssh(1)</a>, <a href="man:readline(3)">readline(3)</a>, <a href="man:wev(1)">wev(1)</a>, <a href="man:libinput-debug-events(1)">libinput-debug-events(1)</a>, and the Wayland keyboard protocol documentation.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/s/ssh.html">SSH</a> · <a href="glossary/p/pty.html">PTY</a> · <a href="glossary/t/tui.html">TUI</a>.</p>
 </section>
 
 <h2>Next</h2><p><a href="terminal/input/choosing-keys.html">Choosing a keybinding</a> &mdash; picking chords that survive these layers.</p>

@@ -7,7 +7,7 @@
 <meta name="topic" content="network-commands">
 <meta name="summary" content="Hand-checked Tamlinux commands for connection status, Wi-Fi passwords and QR codes, speed tests, DNS, and Wi-Fi restarts">
 <meta name="keywords" content="network commands, tam-network-status, tam-network-password, tam-network-qr, tam-network-speedtest, tam-dns, tam-restart-wifi">
-<meta name="level" content="learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="networking">
 <meta name="parent" content="networking/index.html">
 <meta name="paths" content="command-line-fluency:9">
@@ -15,38 +15,99 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / Network commands</p></nav>
 
+<p>Networking commands report the active connection, DNS settings and Wi-Fi state. Read-only checks and state changes have different boundaries.</p>
 
-<p>These hand-checked Tamlinux commands inspect your active connection, inspect or share <a href="glossary/w/wi-fi.html">Wi-Fi</a> details, check <a href="glossary/d/dns.html">DNS</a> resolvers, and restart Wi-Fi when needed.</p>
+<section data-level="novice">
+<h2>Commands that report on the network</h2>
+<p>A network command can answer a narrow question: which connection is active, which router carries traffic, which <a href="glossary/d/dns.html">DNS</a> servers are configured, or whether a Wi-Fi radio has stalled. Reading that state is different from changing it.</p>
+<h3>Why it matters</h3>
+<p>When a page will not load, a specific answer is more useful than guessing. A status report separates a missing link from a bad address or a failed name lookup, and it gives you something clear to tell someone who helps you.</p>
+<h3>How to think about it</h3>
+<p>Think of these commands as cautions on a dashboard. Most only display what the system already knows. A few change settings, so they record the old state first and ask for authorization before writing.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/w/wi-fi.html">Wi-Fi</a></dt><dd>A wireless local network.</dd>
+<dt><a href="glossary/s/ssid.html">SSID</a></dt><dd>The public name of a Wi-Fi network.</dd>
+<dt><a href="glossary/p/polkit.html">Polkit</a></dt><dd>The authorization check used for privileged desktop actions.</dd>
+</dl>
+</section>
 
-<h2>Connection status and diagnostics</h2>
+<section data-level="learner">
+<h2>Read the network state safely</h2>
+<p><strong>Goal:</strong> identify the active interface, its address and gateway from a sample status report.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read network status"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Read sample network status with tam-network-status --verbose">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="tam-network-status --verbose" goal="true" hint="These are sample key/value lines. The gateway is the router beyond the local network.">
+      <out>iface             enp1s0</out>
+      <out>ip                192.168.1.26</out>
+      <out>prefix            24</out>
+      <out>gateway           192.168.1.1</out>
+      <out>type              ethernet</out>
+      <out>router_ping_ms    0.684</out>
+      <out>internet_ping_ms  20.2</out>
+    </tam-cmd>
+    <tam-cmd match="tam-dns" hint="A bare tam-dns only reports the current provider.">
+      <out>Current DNS provider: DHCP</out>
+      <out>Servers: 192.168.1.1</out>
+    </tam-cmd>
+    <tam-cmd match="tam-network-band" hint="Band commands report the radio choice; a pin is a separate change.">
+      <out>band: 5 GHz</out>
+      <out>available: 2.4, 5, 6</out>
+      <out>selected: auto</out>
+    </tam-cmd>
+  <tam-init>Sample network report: status, DNS and band are separate commands.</tam-init>
+  <tam-hint after="1">Try tam-dns to see the configured resolver.</tam-hint>
+  <tam-hint after="2">Now try tam-network-band to see the radio band.</tam-hint>
+  <tam-fallback>Try tam-network-status --verbose, tam-dns or tam-network-band (or type help).</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The report names the interface, address, prefix and gateway. The two ping fields are round-trip samples; a blank value means no reply arrived in that sample. <code>tam-dns</code> and <code>tam-network-band</code> answer narrower questions and do not change anything when used without arguments.</p>
+<h3>Try it</h3>
+<p>Run <code>tam-dns</code> and <code>tam-network-band</code> after the status command. Each answer comes from one authority: resolver configuration for DNS, and the Wi-Fi profile for the band. In a real terminal these commands read the live system.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
+</dl>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Which command would change DNS to DHCP?</i></summary><p><code>tam-dns DHCP</code>. A bare <code>tam-dns</code> only reports the current provider.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Command reference and boundaries</h2>
+<p>The status commands are read-only. <code>tam-dns</code> with an argument and <code>tam-restart-wifi</code> change state; the first preserves the previous DNS files and the second briefly drops active Wi-Fi. Treat them as distinct operations, not as variants of the same check.</p>
+<h3>Command families</h3>
 <table>
-<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
-<tr><td><code>tam-network-status</code></td><td>Print active type (ethernet, wifi, disconnected), <a href="glossary/s/ssid.html">SSID</a>, signal, and frequency</td><td>Read-only</td><td><code>commands/tam-network-status/tam-network-status</code></td></tr>
-<tr><td><code>tam-network-status --verbose</code></td><td>Print detailed route, link, and gateway ping key/value lines</td><td>Read-only</td><td><code>commands/tam-network-status/tam-network-status</code></td></tr>
-<tr><td><code>tam-network-band</code></td><td>Print the active Wi-Fi radio band</td><td>Read-only</td><td><code>commands/tam-network-band/tam-network-band</code></td></tr>
-<tr><td><code>tam-network-speedtest</code></td><td>Measure live internet speed in one direction</td><td>User (network transfer)</td><td><code>commands/tam-network-speedtest/tam-network-speedtest</code></td></tr>
+<tr><th>Command</th><th>Reads or changes</th><th>Boundary</th></tr>
+<tr><td><code>tam-network-status [--verbose]</code></td><td>Default route, link, Wi-Fi details and ping samples</td><td>Read-only; verbose form sends one small test message to 1.1.1.1</td></tr>
+<tr><td><code>tam-network-band [auto|2.4|5|6]</code></td><td>Wi-Fi radio band</td><td>A failed reconnect restores the previous band</td></tr>
+<tr><td><code>tam-network-password &lt;interface&gt;</code></td><td>Saved PSK or WEP key</td><td>Refuses enterprise Wi-Fi; writes the secret only to standard output</td></tr>
+<tr><td><code>tam-network-qr [--meta] [interface]</code></td><td>Saved profile rendered as a matrix</td><td>Displays the Wi-Fi key on screen</td></tr>
+<tr><td><code>tam-network-speedtest down|up</code></td><td>Interface byte counters during a transfer</td><td>Uses a network transfer; reports one direction</td></tr>
+<tr><td><code>tam-dns [Cloudflare|Google|DHCP|Custom]</code></td><td>Current or configured DNS provider</td><td>Changes require authorization and a recorded snapshot</td></tr>
+<tr><td><code>tam-restart-wifi</code></td><td>Radio and NetworkManager state</td><td>Drops active Wi-Fi briefly</td></tr>
 </table>
-<pre class="session" data-risk="read-only">
-$ tam-network-status --verbose
-</pre>
-
-<h2>Wi-Fi credentials and sharing</h2>
-<table>
-<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
-<tr><td><code>tam-network-password</code></td><td>Print the active Wi-Fi connection password locally</td><td>Read-only (handles secret locally)</td><td><code>commands/tam-network-password/tam-network-password</code></td></tr>
-<tr><td><code>tam-network-qr</code></td><td>Render a terminal QR matrix for the active Wi-Fi network</td><td>Read-only (screen displays Wi-Fi key)</td><td><code>commands/tam-network-qr/tam-network-qr</code></td></tr>
-</table>
-
-<h2>DNS configuration and Wi-Fi restart</h2>
-<table>
-<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
-<tr><td><code>tam-dns</code></td><td>Show the current system DNS configuration without changing it</td><td>Read-only</td><td><code>commands/tam-dns/tam-dns</code></td></tr>
-<tr><td><code>tam-dns &lt;Cloudflare|Google|DHCP|Custom&gt;</code></td><td>Set system DNS via <code>pkexec</code> <a href="glossary/p/polkit.html">Polkit</a> prompt (<code>20-tamlinux-dns.conf</code>); undo with <code>tam-dns DHCP</code></td><td>System (privileged prompt)</td><td><code>commands/tam-dns/tam-dns</code></td></tr>
-<tr><td><code>tam-restart-wifi</code></td><td>Unblock and restart Wi-Fi connectivity when the radio stalls</td><td>System (drops active Wi-Fi briefly)</td><td><code>commands/tam-restart-wifi/tam-restart-wifi</code></td></tr>
-</table>
-<pre class="session" data-risk="read-only">
-$ tam-dns
-</pre>
+<h3>Why the split matters</h3>
+<p>NetworkManager owns device and connection state; systemd-resolved owns name resolution. The Tamlinux commands read those authorities rather than keeping a second copy. A DNS change writes a drop-in, rewrites resolved configuration, reloads both services and reapplies active profiles before it is complete. A status command asks the kernel which device would carry traffic to a numeric address so that link, address and name failures stay separate.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Enterprise Wi-Fi has no shareable password, so the sharing commands refuse it.</li>
+<li>A band pin takes effect only after reassociation.</li>
+<li>Multiple default routes can exist; <code>ip route get</code> names the winner for a destination.</li>
+<li>A VPN or captive portal can intercept traffic without changing the default route.</li>
+</ul>
+</section>
 
 <h2>Next</h2><p><a href="networking/connections.html">Network connections and DNS</a> &mdash; diagnose link, <a href="glossary/i/ip-address.html">IP address</a>, and name-resolution faults step by step.</p>
 <h2>Related</h2><ul><li><a href="networking/quick-check.html">Check the network recipe</a> &mdash; quick checklist before changing DNS or restarting services.</li><li><a href="help/commands.html">Command reference hub</a> &mdash; desktop, packages, and system command lists.</li></ul>

@@ -16,94 +16,92 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/numeric/index.html">Numbers in computers</a> / Whole numbers in binary memory</p></nav>
 
-<p>A fixed group of bits can hold a whole number, and the way its patterns are interpreted decides whether negative values are available.</p>
+<p>A fixed group of bits can store a whole number. Whether negative values exist depends on how the bit patterns are interpreted.</p>
 
 <section data-level="novice">
-<h2>Two ways to read the same bits</h2>
-<p>When every pattern means a positive count, the value is unsigned. When half the patterns are reserved for negative counts, the value is signed. Almost every modern computer uses <dfn><a href="glossary/t/twos-complement.html">two's complement</a></dfn> for signed whole numbers.</p>
+<h2>Bit patterns as numbers</h2>
+<p>Eight bits give 256 patterns. If one pattern group is reserved for negative values, the range changes. <a href="glossary/t/twos-complement.html">Two's complement</a> is the common way computers represent signed integers.</p>
 <h3>Why it matters</h3>
-<p>Programs need both counts, such as the number of bytes in a file, and changes that can go below zero, such as a bank balance or a temperature. Two's complement lets one <a href="glossary/a/alu.html">arithmetic logic unit</a> add both kinds of numbers with the same circuit.</p>
+<p>Adding one past the largest value wraps around. That is <a href="glossary/o/overflow.html">overflow</a>, and it can produce a valid-looking but wrong answer.</p>
 <h3>How to think about it</h3>
-<p>Imagine a three-digit odometer that wraps from 999 back to 000. For signed numbers, split the circle: 000 through 499 are positive, and 500 through 999 stand for -500 through -1. The last digit still counts upward; only the label changes when you cross the halfway point.</p>
-<h3>New words</h3>
-<dl>
-<dt>Sign bit</dt><dd>The leftmost bit of a signed two's complement value. It is 1 for negative values and 0 for non-negative ones.</dd>
-<dt>Overflow</dt><dd>When a result is too large or too small for the chosen width. See <a href="glossary/o/overflow.html">overflow</a>.</dd>
-<dt>Arbitrary precision</dt><dd>A representation that grows to hold larger values instead of using a fixed width. See <a href="glossary/a/arbitrary-precision.html">arbitrary precision</a>.</dd>
-</dl>
+<p>Think of a car odometer with a fixed number of wheels. Past the last digit it rolls back to zero rather than growing another wheel.</p>
 </section>
 
 <section data-level="learner">
-<h2>Recognise a negative value</h2>
-<p><strong>Goal:</strong> you will be able to write a small negative number in eight-bit two's complement and explain what happens at the ends of the range.</p>
-<p><strong>Learner path:</strong> previous: <a href="programming/numeric/number-systems.html?level=2">number systems and bases</a>; next: <a href="programming/numeric/fractions-and-floating-point.html?level=2">fractions and floating point</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ python3 -c "for v in (5, -5): print(f'{v:6d} -> {v & 0xff:08b}')"
-     5 -> 00000101
-    -5 -> 11111011
-</pre>
-<p>Output captured on a Linux system with Python 3, 2026-11-24. Your output will match.</p>
+<h2>Decode two's complement</h2>
+<p><strong>Goal:</strong> read a signed bit pattern and spot an overflow result.</p>
+<tam-sandbox
+  title="Try it: decode a small pattern"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the negative bit pattern">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="bits.txt" size="72">5 -> 00000101
+-5 -> 11111011
+255+1 -> 00000000 overflow</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat bits.txt" hint="The top bit of the negative pattern is 1. The last row wraps around.">
+      <out>5 -&gt; 00000101</out>
+      <out>-5 -&gt; 11111011</out>
+      <out>255+1 -&gt; 00000000 overflow</out>
+    </tam-cmd>
+    <tam-cmd match="grep 11111011 bits.txt" goal="true" hint="Correct: in eight-bit two’s complement, 11111011 means -5.">
+      <out>-5 -&gt; 11111011</out>
+    </tam-cmd>
+  <tam-init>Try: grep 11111011 bits.txt</tam-init>
+  <tam-hint after="1">Type cat bits.txt to see all three patterns.</tam-hint>
+  <tam-fallback>Try cat bits.txt, or grep 11111011 bits.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
 <h3>What just happened</h3>
-<ol>
-<li>The expression <code>v &amp; 0xff</code> keeps the low eight bits, the width of one <a href="glossary/b/byte.html">byte</a>.</li>
-<li>Positive 5 needs no special treatment: 00000101 is 4 + 1.</li>
-<li>Negative 5 becomes 11111011. Invert the bits of 00000101 to get 11111010, then add one to get 11111011. Adding 5 and -5 in eight bits gives 00000000, with the extra carry discarded.</li>
-</ol>
+<p>The pattern <code>11111011</code> represents -5 in eight-bit two's complement. The highest bit acts as a sign weight of -128. Adding one to the largest unsigned eight-bit value gives zero with overflow. The table is sample data, not a live calculation.</p>
 <h3>Try it</h3>
-<p>In a scratch directory, use the same command for -1, -128 and 127. Check that -1 is all ones, and that 127 is the largest positive eight-bit value.</p>
+<p>Run <code>grep overflow bits.txt</code>. Overflow is not an error the bits can record by themselves; the program must check for it or use a wider type.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>The result has more than eight bits</dt><dd>The mask <code>0xff</code> was left out. Without it Python shows an infinite string of leading ones for negative numbers.</dd>
-<dt>127 plus 1 gives -128</dt><dd>That is signed eight-bit <a href="glossary/o/overflow.html">overflow</a>. The pattern 10000000 means -128, not 128.</dd>
+<dt>grep returned nothing.</dt><dd>Type grep 11111011 bits.txt exactly. The pattern is eight ones and zeros.</dd>
+<dt>I expected a calculator.</dt><dd>The sandbox shows decoded sample patterns. It does not perform arithmetic for you.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why is the range of eight-bit two's complement -128 to 127 rather than -127 to 127?</summary>
-<p>Zero needs only one pattern. That frees 10000000, the pattern with the sign bit set and no positive partner, to represent -128. The positive half still runs from 0 to 127, so the total is 256 patterns.</p>
+<summary><i>What does the top bit mean in two's complement?</i></summary>
+<p>It acts as a negative weight, so patterns with that bit set represent negative values.</p>
+</details>
+<details class="q">
+<summary><i>What is overflow?</i></summary>
+<p>A result outside the range the fixed bit width can represent, which wraps or is flagged.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Widths, ranges and wrapping</h2>
+<h2>Reference: widths and interpretation</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Width</th><th>Unsigned range</th><th>Two's complement range</th></tr>
-<tr><td>8 bits</td><td>0 to 255</td><td>-128 to 127</td></tr>
-<tr><td>16 bits</td><td>0 to 65,535</td><td>-32,768 to 32,767</td></tr>
-<tr><td>32 bits</td><td>0 to 4,294,967,295</td><td>-2,147,483,648 to 2,147,483,647</td></tr>
-<tr><td>64 bits</td><td>0 to 18,446,744,073,709,551,615</td><td>-9,223,372,036,854,775,808 to 9,223,372,036,854,775,807</td></tr>
+<tr><th>Width</th><th>Unsigned range</th><th>Signed two's-complement range</th></tr>
+<tr><td><a href="glossary/numeric/8-bit.html">8-bit</a></td><td>0 to 255</td><td>-128 to 127</td></tr>
+<tr><td><a href="glossary/numeric/32-bit.html">32-bit</a></td><td>0 to 2&sup3;&sup2;-1</td><td>-2&sup3;&sup1; to 2&sup3;&sup1;-1</td></tr>
+<tr><td><a href="glossary/numeric/64-bit.html">64-bit</a></td><td>0 to 2&sup6;&sup4;-1</td><td>-2&sup6;&sup3; to 2&sup6;&sup3;-1</td></tr>
 </table>
-<h3>Program width</h3>
-<p>The widths in this table describe stored values. An <a href="glossary/numeric/8-bit.html">8-bit</a>, <a href="glossary/numeric/32-bit.html">32-bit</a> or <a href="glossary/numeric/64-bit.html">64-bit</a> program also names the <a href="glossary/a/abi.html">ABI</a> it was built for: pointer width, register mode, calling convention and libraries. That is why a 64-bit operating system can run a 32-bit program when compatibility libraries are installed, while a 32-bit system cannot run a 64-bit program.</p>
 <h3>How it works</h3>
-<p>For a width of k bits, unsigned values use 0 through 2^k - 1. Two's complement values use -2^(k-1) through 2^(k-1) - 1. Negation is bitwise inversion plus one, modulo 2^k. Addition, subtraction and multiplication use the same low-bit result for signed and unsigned operands; only the interpretation of the sign bit and the overflow test differ. This is why one adder serves both cases.</p>
-<p>Fixed-width arithmetic wraps modulo 2^k. That is useful for counters and cryptography, but surprising for ordinary arithmetic. Languages differ on what they guarantee when signed overflow occurs, so check the language rule before relying on wrapping. <a href="glossary/a/arbitrary-precision.html">Arbitrary precision</a> integers avoid the bound by allocating more words as needed, at the cost of extra work and memory.</p>
-<h3>Advanced usage</h3>
-<pre class="session" data-risk="scratch">
-$ python3 -c "u=0xff; print(u+1, (u+1) & 0xff); print((-5) & 0xff, ((-5) & 0xff)-256)"
-256 0
-251 -5
-</pre>
-<p>Illustrative sequence: the mathematical sum and the stored eight-bit result differ. Interpreting 251 as signed recovers -5 by subtracting 256, which is 2^8.</p>
-<h3>Edge cases</h3>
+<p>The same bit pattern can be read as signed or unsigned; the <a href="glossary/a/abi.html">ABI</a> and type decide which. Two's complement makes addition and subtraction use the same hardware as unsigned values. <a href="glossary/a/arbitrary-precision.html">Arbitrary precision</a> libraries avoid fixed-width overflow at the cost of speed.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li>Shifting a signed negative value right can fill on the left with ones (arithmetic shift) or zeros (logical shift), depending on the language and type.</li>
-<li>Byte order affects storage and interchange, not the arithmetic result once the value is loaded into a register.</li>
-<li>Converting between widths needs sign extension for signed values and zero extension for unsigned values. Getting this wrong changes negative numbers into large positive ones.</li>
+<li>Shifting negative signed values has language-defined behaviour.</li>
+<li>Converting between signed and unsigned widths can sign-extend or truncate.</li>
+<li>Sanitizers catch some signed overflow, not every wrap.</li>
+<li>Serialization must agree on width and byte order.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>You receive one byte 0xff and must interpret it. What are the two possible values, and how do you decide?</summary>
-<p>As unsigned it is 255; as eight-bit two's complement it is -1. The byte alone cannot settle it. A format, protocol or variable type must say whether the value is signed and how wide it is.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p>Processor architecture manuals define integer width and wrapping; language standards define signed overflow behaviour. See the <a href="bibliography/index.html">bibliography</a>.</p>
+<p><a href="programming/numeric/number-systems.html">Number systems and bases</a>; <a href="glossary/a/alu.html">Arithmetic logic unit</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="programming/numeric/number-systems.html?level=2">number systems and bases</a>, <a href="programming/numeric/fractions-and-floating-point.html?level=2">fractions and floating point</a>, <a href="glossary/b/byte.html">byte</a>, <a href="bibliography/index.html">bibliography</a>, <a href="programming/numeric/fractions-and-floating-point.html">Fractions, decimals and floating point</a>, <a href="programming/numeric/analog-and-digital.html">Analog values and digital approximations</a>, <a href="paths/numeric-systems.html">Numbers and how computers use them</a>.</p>
 </section>
 
 <h2>Where next</h2>
@@ -116,4 +114,5 @@ $ python3 -c "u=0xff; print(u+1, (u+1) & 0xff); print((-5) & 0xff, ((-5) & 0xff)
 <li><a href="programming/numeric/number-systems.html">Number systems and bases</a> &mdash; the notation used in these bit patterns.</li>
 <li><a href="paths/numeric-systems.html">Numbers and how computers use them</a> &mdash; the five-stage path.</li>
 </ul>
-</body></html>
+</body>
+</html>

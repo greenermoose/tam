@@ -41,8 +41,19 @@
 <aside class="first-time"><p>If the graphical desktop stops responding, try Ctrl + Alt + F2 (or another Fn key) for a text console. Exact numbers depend on the installation.</p></aside>
 <h3>Mental model</h3>
 <p>A Wayland compositor presents application surfaces and manages placement and input. The desktop shell (panels, menus) is separate. Tamlinux runs <strong>Hyprland</strong> today and is writing its own compositor, <code>tam-pane</code>, for later integration. Sway and wlroots are not part of the plan.</p>
-<h3>Worked example</h3>
-<p>From a working desktop, press Meta + K and confirm keybindings still list Meta + Return. That shows the compositor is receiving keys. If nothing responds, move to a virtual console instead of forcing power off.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Identify the active desktop session"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Identify the active desktop session">
+  <tam-cmd match="tam-desktop-mode" goal="true">
+    <out>Sample: Wayland session on Hyprland</out>
+  </tam-cmd>
+  <tam-init>Try: tam-desktop-mode</tam-init>
+  <tam-hint after="1">The session type names the display protocol.</tam-hint>
+  <tam-hint after="2">The compositor owns workspace layout and window placement.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>Press Meta + Return to open a terminal, then Meta + Q to close only that empty window.</p>
 <h3>If it goes wrong</h3>

@@ -5,7 +5,7 @@
 <meta name="topic" content="people-and-security">
 <meta name="summary" content="User accounts, passwords and keys, elevated privileges, network and disk boundaries, and trusted system updates.">
 <meta name="keywords" content="path, people-and-security, people-and-security-path, accounts, passwords, ssh, sudo, security, trust">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="paths">
 <meta name="parent" content="paths/index.html">
 <meta name="kind" content="path">
@@ -14,14 +14,54 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / People and security</p></nav>
 
-<p>This path explains who you are on the machine, how secrets and keys work, which doors are open, and how to keep software changes recoverable. It suits anyone who uses a shared or portable computer.</p>
-<p>Every exercise here is read-only: no account, password, key, firewall rule or disk is changed. Changing authentication or disk settings is privileged work that needs its own recovery point and explicit approval.</p>
+<p>This path covers accounts, secrets, keys, network boundaries, privileges and trusted updates through small read-only audits and change notes.</p>
 
-<h2>Stage 1: Identity and secrets</h2>
-<ol>
-<li><a href="security/practice/passwords.html?level=1">Passwords, sudo, and keeping secrets safe</a> &mdash; why your daily account has limits, and where secrets must not be written.</li>
-<li><a href="security/accounts.html?level=1">User accounts and groups</a> &mdash; identify your account, home folder and groups, and plan a second account.</li>
-</ol>
+<section data-level="novice">
+<p>Every exercise here is read-only: no account, password, key, firewall rule or disk is changed. Changing authentication or disk settings is privileged work that needs its own recovery point and explicit approval.</p>
+<h2>People, secrets and boundaries</h2>
+
+<p>Security is built from boundaries: who you are, what secret proves it, which devices hold keys, and which programs may cross a privilege boundary. A read-only audit names those boundaries before a change is proposed.</p>
+<p>Think of it as a diary with a lock, a key and a guest list. Knowing which drawer the key opens matters more than merely knowing that a key exists.</p>
+
+</section>
+
+<section data-level="learner">
+<h2>Read an account boundary</h2>
+<p><strong>Goal:</strong> interpret a fixed identity report without exposing secrets</p>
+
+<tam-sandbox
+  title="Try it: inspect an identity report"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Print the sample id report">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="id" goal="true" hint="Groups describe membership; they do not grant a passwordless privilege window.">
+    <out>uid=1000(alex) gid=1000(alex) groups=1000(alex),998(wheel)</out>
+  </tam-cmd>
+  <tam-cmd match="id -Gn" hint="The same groups can be listed by name.">
+    <out>alex wheel</out>
+  </tam-cmd>
+  <tam-init>A fixed report shows the user, group and wheel membership.</tam-init>
+   <tam-hint after="1">Groups describe membership; they do not grant a passwordless privilege window.</tam-hint>
+  <tam-hint after="2">The same groups can be listed by name.</tam-hint>
+  <tam-fallback>Type id, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The report names an ordinary user and the groups it belongs to. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. Group membership is evidence about account boundaries, not proof that privilege escalation is enabled.</p>
+<h3>Try it</h3>
+<p>Run id -Gn and compare the named groups with the numeric report.</p>
+<h3>If it goes wrong</h3>
+<p>If your own output differs, record the values you actually saw; do not copy teaching identities into a real change note.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary><i>Does wheel membership prove passwordless privilege?</i></summary><p>No. Configuration and policy decide how a group is used.</p></details>
+</section>
+<h3>Path checkpoints</h3>
 <section class="quiz">
 <h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <p>Answer these before you go on.</p>
@@ -34,12 +74,6 @@
 <p><code>id -Gn</code> prints group names; <code>id</code> also shows the numeric user and group IDs.</p>
 </details>
 </section>
-
-<h2>Stage 2: Keys and hardware tokens</h2>
-<ol>
-<li><a href="security/practice/ssh.html?level=1">SSH keys and remote access</a> &mdash; generate a key, connect to another machine, and inspect the local server state.</li>
-<li><a href="security/practice/fingerprint-and-fido.html?level=1">Fingerprints and FIDO2 security keys</a> &mdash; check hardware readiness and see which <a href="glossary/p/pam.html">PAM</a> modules are enrolled.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -52,12 +86,6 @@
 <p>The PAM stacks under <code>/etc/pam.d/</code>, for example <code>sudo</code> and <code>polkit-1</code>. Reading them needs no change.</p>
 </details>
 </section>
-
-<h2>Stage 3: Network and disk boundaries</h2>
-<ol>
-<li><a href="security/practice/firewall.html?level=1">Checking and managing the host firewall</a> &mdash; inspect the active firewall before changing a rule.</li>
-<li><a href="security/practice/disk-encryption.html?level=1">Disk encryption and LUKS passphrases</a> &mdash; what full-disk encryption protects and when the drive is unlocked.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -70,12 +98,6 @@
 <p><code>systemctl is-active nftables.service</code>. It prints the state and exits non-zero when the service is not active.</p>
 </details>
 </section>
-
-<h2>Stage 4: Privilege and file permissions</h2>
-<ol>
-<li><a href="security/hardware-authentication.html?level=1">Hardware Security and Privilege Management</a> &mdash; how tokens, PAM and polkit authorize an administrative action.</li>
-<li><a href="security/permissions.html?level=1">Who can use a file</a> &mdash; read, write and execute bits, and directory traversal.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -88,11 +110,6 @@
 <p>No. <a href="glossary/o/owner.html">Owner</a>, group and other bits combine with directory traversal permission, and a privileged process can bypass ordinary checks.</p>
 </details>
 </section>
-
-<h2>Stage 5: Trusted change</h2>
-<ol>
-<li><a href="systems/maintenance/updates.html?level=1">Checking and updating your software</a> &mdash; identify the owner and prepare recovery before changing software.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -105,40 +122,47 @@
 <p>No. Package recovery and your own data are separate. Documents need their own backup or documented recovery method.</p>
 </details>
 </section>
+</section>
 
-<h2>Capstone: Audit your account and write a change note, read-only</h2>
-<p>Collect a short, read-only picture of your account and this machine's security boundaries: your identity and groups, whether a password is set, how many public SSH keys exist, whether the SSH server is enabled, whether the firewall is active, and whether a disk is encrypted. Then write a four-line note for a future software update.</p>
-<details class="solution">
-<p>Run these commands as your ordinary user. None of them changes anything, and none prints a private key.</p>
-<pre class="session" data-risk="read-only">
-$ id
-uid=1000(alex) gid=1000(alex) groups=1000(alex),998(wheel)
-$ id -Gn
-alex wheel
-$ passwd --status
-alex P 2026-09-03 -1 -1 -1 -1
-$ ls -la ~/.ssh/*.pub
--rw-r--r-- 1 alex alex 102 Sep  4 10:09 /home/alex/.ssh/id_ed25519_work.pub
-$ systemctl is-enabled sshd.service
-enabled
-$ systemctl is-active nftables.service
-inactive
-$ lsblk -f -o NAME,FSTYPE,FSVER,LABEL
-NAME        FSTYPE      FSVER LABEL
-nvme0n1
-├─nvme0n1p1 vfat        FAT32  EFI
-└─nvme0n1p2 crypto_LUKS 2
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-11-13; your output will differ. <code>P</code> in the password status means a password is set. <code>crypto_LUKS</code> identifies an encrypted device; it does not mean the disk is unlocked or that the passphrase is known.</p>
-<p>Now write the note. Keep it to four lines:</p>
+<section data-level="expert">
+<h2>Account and security reading map</h2>
+
+<p>Follow the linked stages for identity and secrets, keys and hardware tokens, network and disk boundaries, privileges and trusted change. Keep the audit read-only: no private key, enabled service or firewall change is needed to write a useful four-line change note.</p>
+
+<h2>Stage 1: Identity and secrets</h2>
 <ol>
-<li><strong><a href="glossary/c/current.html">Current</a> state:</strong> the values you just collected, one per line or grouped.</li>
-<li><strong>Owner:</strong> who or what supplies the change, for example the native package manager or a recorded Tamlinux assembly.</li>
-<li><strong>Verification:</strong> the command you will run afterwards and the value you expect.</li>
-<li><strong>Recovery:</strong> the exact checkpoint or backup you would need, or <em>unknown</em>.</li>
+<li><a href="security/practice/passwords.html?level=1">Passwords, sudo, and keeping secrets safe</a> &mdash; why your daily account has limits, and where secrets must not be written.</li>
+<li><a href="security/accounts.html?level=1">User accounts and groups</a> &mdash; identify your account, home folder and groups, and plan a second account.</li>
 </ol>
-<p>If the recovery line says <em>unknown</em>, the real change stays pending. Do not invent a checkpoint identifier, and do not enable a passwordless privilege window to make the exercise easier. The audit itself is the deliverable.</p>
-</details>
+
+
+<h2>Stage 2: Keys and hardware tokens</h2>
+<ol>
+<li><a href="security/practice/ssh.html?level=1">SSH keys and remote access</a> &mdash; generate a key, connect to another machine, and inspect the local server state.</li>
+<li><a href="security/practice/fingerprint-and-fido.html?level=1">Fingerprints and FIDO2 security keys</a> &mdash; check hardware readiness and see which <a href="glossary/p/pam.html">PAM</a> modules are enrolled.</li>
+</ol>
+
+
+<h2>Stage 3: Network and disk boundaries</h2>
+<ol>
+<li><a href="security/practice/firewall.html?level=1">Checking and managing the host firewall</a> &mdash; inspect the active firewall before changing a rule.</li>
+<li><a href="security/practice/disk-encryption.html?level=1">Disk encryption and LUKS passphrases</a> &mdash; what full-disk encryption protects and when the drive is unlocked.</li>
+</ol>
+
+
+<h2>Stage 4: Privilege and file permissions</h2>
+<ol>
+<li><a href="security/hardware-authentication.html?level=1">Hardware Security and Privilege Management</a> &mdash; how tokens, PAM and polkit authorize an administrative action.</li>
+<li><a href="security/permissions.html?level=1">Who can use a file</a> &mdash; read, write and execute bits, and directory traversal.</li>
+</ol>
+
+
+<h2>Stage 5: Trusted change</h2>
+<ol>
+<li><a href="systems/maintenance/updates.html?level=1">Checking and updating your software</a> &mdash; identify the owner and prepare recovery before changing software.</li>
+</ol>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/c/current.html">Current</a>.</p>
+</section>
 
 <h2>Next paths</h2>
 <ul>

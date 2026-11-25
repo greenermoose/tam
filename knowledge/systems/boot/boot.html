@@ -52,13 +52,22 @@ early userspace, root selection and later mounts. A Unified Kernel Image
 (<a href="glossary/u/uki.html">UKI</a>) combines a UEFI stub and kernel with optional initrd, command line and
 other sections. One file simplifies distribution and signing; it does not
 make an entire package transaction or root-filesystem update atomic.</p>
-<h3>Worked example: One observable fact</h3>
-<pre class="session" data-risk="read-only">
-$ if test -d /sys/firmware/efi; then printf 'Firmware interface: UEFI\n'; else printf 'Firmware interface: not exposed\n'; fi
-Firmware interface: UEFI
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-10-21. Your output will differ
-if the interface is unavailable, including in some containers.</p>
+<h3>Explore: One observable fact</h3>
+<tam-sandbox
+  title="Try it: One observable fact"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="One observable fact">
+  <tam-cmd match="if test -d /sys/firmware/efi; then printf &#x27;Firmware interface: UEFI\n&#x27;; else printf &#x27;Firmware interface: not exposed\n&#x27;; fi" goal="true" hint="Look for the value that answers the task.">
+    <out>Firmware interface: UEFI</out>
+  </tam-cmd>
+  <tam-init>Try: if test -d /sys/firmware/efi; then printf 'Firmware interface: UEFI\n'; else printf 'Firmware interface: not exposed\n'; fi</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try if test -d /sys/firmware/efi; then printf 'Firmware interface: UEFI\n'; else printf 'Firmware interface: not exposed\n'; fi (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <ol><li><code>test -d</code> checks for a directory exposed by the kernel.</li>
 <li>The shell prints which branch it took.</li><li>UEFI exposure says nothing
 about which loader file ran, the ESP mount point or whether a fallback works.</li></ol>

@@ -46,21 +46,43 @@
 <p><strong>Goal:</strong> you will be able to identify connected monitors and view their scaling factors without changing hardware settings.</p>
 
 
-<h3>Worked example</h3>
+
 <ol>
 <li>Open a terminal and run <code>tam-monitor list</code> to see connected display connectors.</li>
-<li>Check the focused monitor's current scaling factor (captured on Bosgame Mini PC, 2026-11-06; your output will differ):
-<pre class="session" data-risk="read-only">
-$ tam-hyprland-monitor-scaling
-1
-</pre>
+<li>Check the focused monitor's current scaling factor (sample output; your output may differ):
+<tam-sandbox
+  title="Try it: Check the focused monitor&#x27;s current scaling factor"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Check the focused monitor&#x27;s current scaling factor">
+  <tam-cmd match="tam-hyprland-monitor-scaling" goal="true" hint="Look for the value that answers the task.">
+    <out>1</out>
+  </tam-cmd>
+  <tam-init>Try: tam-hyprland-monitor-scaling</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-hyprland-monitor-scaling (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 </li>
 <li>To adjust scaling incrementally, pass <code>up</code> or <code>down</code>, then read back the updated factor:
-<pre class="session" data-risk="user">
-$ tam-hyprland-monitor-scaling up
-$ tam-hyprland-monitor-scaling
-1.25
-</pre>
+<tam-sandbox
+  title="Try it: To adjust scaling incrementally, pass up or down , then read b"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="To adjust scaling incrementally, pass up or down , then read back the updated factor">
+  <tam-cmd match="tam-hyprland-monitor-scaling up" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="tam-hyprland-monitor-scaling" goal="true">
+    <out>1.25</out>
+  </tam-cmd>
+  <tam-init>Try: tam-hyprland-monitor-scaling up</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-hyprland-monitor-scaling up (or type help).</tam-fallback>
+</tam-sandbox>
+
 </li>
 <li>Press <kbd>Meta + Ctrl + D</kbd> (or run <code>tam-shell tamlinux-shell toggle fred.monitor</code>) to toggle the display settings panel.</li>
 </ol>

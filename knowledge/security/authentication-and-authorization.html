@@ -15,8 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / Authentication, Authorization, and Linux Access Control</p></nav>
 
-
-<p>How a computer decides who you are, how it decides what you are allowed to touch, and how Linux enforces those rules from <a href="glossary/p/pam.html">PAM</a> logins down to kernel system calls.</p>
+<p>Authentication answers who you are; authorization answers what you may do. Linux combines account records, PAM, capabilities and policy checks to enforce both.</p>
 
 <section data-level="novice">
 <h2>Who you are vs. what you are allowed to do</h2>
@@ -53,74 +52,58 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspecting PAM, Linux capabilities, and process credentials</h2>
-<p><strong>Goal:</strong> inspect how Linux represents your user identity, capabilities, and PAM authentication stacks without changing system configuration.</p>
-<p><strong>Before you start:</strong> Linux separates authentication (handled in user space by PAM or D-<a href="glossary/b/bus.html">Bus</a> helpers like <a href="glossary/p/polkit.html">Polkit</a>) from authorization (enforced by the kernel on every file open, socket bind, or syscall).</p>
-
-<h3>Worked example</h3>
-<p>List the active PAM service files under <code>/etc/pam.d/</code> and inspect your process capability bounding set with <code>capsh --print</code>:</p>
-<pre class="session" data-risk="read-only">
-$ ls -la /etc/pam.d/ | head -n 10
-total 100
-drwxr-xr-x 1 nobody nobody  396 Oct 23 13:41 .
-drwxr-xr-x 1 nobody nobody 3880 Nov 13 05:34 ..
--rw-r--r-- 1 nobody nobody  234 Sep 21 07:54 chfn
--rw-r--r-- 1 nobody nobody  103 Jul 30 06:04 chpasswd
--rw-r--r-- 1 nobody nobody  234 Sep 21 07:54 chsh
--rw-r--r-- 1 nobody nobody   87 Oct  5 12:50 cups
--rw-r--r-- 1 nobody nobody  126 Sep  4 01:31 hyprlock
--rw-r--r-- 1 nobody nobody  222 Sep 21 07:54 login
--rw-r--r-- 1 nobody nobody  103 Jul 30 06:04 newusers
-$ capsh --print | head -n 6
-Current: =
-Bounding set =
-Ambient set =
-Current IAB: !cap_chown,!cap_dac_override,!cap_dac_read_search,!cap_fowner,!cap_fsetid,!cap_kill,!cap_setgid,!cap_setuid,!cap_setpcap,!cap_linux_immutable,!cap_net_bind_service,!cap_net_broadcast,!cap_net_admin,!cap_net_raw,!cap_ipc_lock,!cap_ipc_owner,!cap_sys_module,!cap_sys_rawio,!cap_sys_chroot,!cap_sys_ptrace,!cap_sys_pacct,!cap_sys_admin,!cap_sys_boot,!cap_sys_nice,!cap_sys_resource,!cap_sys_time,!cap_sys_tty_config,!cap_mknod,!cap_lease,!cap_audit_write,!cap_audit_control,!cap_setfcap,!cap_mac_override,!cap_mac_admin,!cap_syslog,!cap_wake_alarm,!cap_block_suspend,!cap_audit_read,!cap_perfmon,!cap_bpf,!cap_checkpoint_restore
-Securebits: 00/0x0/1'b0 (no-new-privs=1)
- secure-noroot: no (unlocked)
-</pre>
-<p>In a normal desktop shell, <code>Current: =</code> means your shell holds zero elevated Linux capabilities. When a program only needs to bind a low-numbered network port, an administrator can grant just <code>CAP_NET_BIND_SERVICE</code> instead of full root power.</p>
-<p>Across larger systems, authorization policies follow distinct models:</p>
-<table>
-<tr><td><strong>DAC</strong></td><td>file owners set permissions (<code>chmod</code>, <a href="glossary/p/posix.html">POSIX</a> ACLs).</td></tr>
-<tr><td><strong>MAC</strong></td><td>kernel LSMs (SELinux, AppArmor) enforce administrator-locked labels.</td></tr>
-<tr><td><strong><a href="glossary/r/rbac.html">RBAC</a> (Role-Based Access Control)</strong></td><td>permissions attach to roles (such as <code>auditor</code> or <code>wheel</code>) rather than individual names.</td></tr>
-<tr><td><strong><a href="glossary/a/abac.html">ABAC</a> (Attribute-Based Access Control)</strong></td><td>rules evaluate subject, resource, and context attributes (time, device posture, network).</td></tr>
-<tr><td><strong>ReBAC (Relationship-Based Access Control)</strong></td><td>access follows graph edges (such as "owner of folder containing document", popularized by Google Zanzibar).</td></tr>
-</table>
-
+<h2>Read a sample credential record</h2>
+<p><strong>Goal:</strong> name the UID, effective capabilities and no-new-privileges flag in sample process data.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: inspect process credentials"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find NoNewPrivs in the sample process status">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep -E &#x27;^(Uid|Gid|NoNewPrivs|Seccomp|CapEff):&#x27; /proc/self/status" goal="true" hint="These fields describe one process’s identity and restrictions.">
+      <out>Uid:    1000  1000  1000  1000</out>
+      <out>Gid:    1000  1000  1000  1000</out>
+      <out>CapEff: 0000000000000000</out>
+      <out>NoNewPrivs: 1</out>
+      <out>Seccomp: 2</out>
+    </tam-cmd>
+    <tam-cmd match="ls -la /etc/pam.d" hint="PAM stacks live in /etc/pam.d; this is a shortened sample listing.">
+      <out>total 8</out>
+      <out>drwxr-xr-x 2 root root 4096 .</out>
+      <out>-rw-r--r-- 1 root root  234 login</out>
+      <out>-rw-r--r-- 1 root root  222 sudo</out>
+    </tam-cmd>
+    <tam-cmd match="capsh --print" hint="Sample capability summary; it is not a reading from your machine.">
+      <out>Current: =</out>
+      <out>Bounding set =</out>
+      <out>Securebits: 00/0x0/1'b0 (no-new-privs=1)</out>
+    </tam-cmd>
+  <tam-init>Sample credentials: UID 1000, CapEff 0, NoNewPrivs 1.</tam-init>
+  <tam-hint after="1">Try the grep command on /proc/self/status first.</tam-hint>
+  <tam-hint after="2">Now try capsh --print for the capability view.</tam-hint>
+  <tam-fallback>Try grep -E ... /proc/self/status, capsh --print or ls -la /etc/pam.d (or type help).</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The sample status shows four UID values: real, effective, saved and filesystem. <code>NoNewPrivs</code> and <code>Seccomp</code> restrict what the process may do even if code tries to gain privileges. These are authored sample values.</p>
 <h3>Try it</h3>
-<p>Run <code>id</code> and <code>capsh --print | head -n 4</code> in your terminal to see your numeric <a href="glossary/u/uid.html">UID</a>, group memberships, and capability sets.</p>
-
+<p>Use the expert section to connect these fields to PAM and Polkit. On a real machine capabilities vary by process, and a root process can have a non-empty effective set.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>Adding a user to a privileged group (like <code>wheel</code> or <code>docker</code>) does not seem to take effect</dt>
-<dd>Group memberships are loaded at login time into the process credential structure. Log out and back in (or start a fresh login session) for new group memberships to apply.</dd>
-<dt>Granting <code>docker</code> group membership casually</dt>
-<dd>A user who can instruct a root-owned daemon to bind-mount <code>/</code> effectively has root access. Prefer rootless containers or explicit <code>sudo</code> wrappers such as <code>tam-sudo-docker</code>.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Tamlinux keeps desktop elevation explicit: <code>sudo</code> and <code>polkit</code> share PAM hardware-token rules when enrolled, while unprivileged user sessions carry zero ambient capabilities.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary><i>What is the difference between authentication and authorization?</i></summary>
-<p>Authentication verifies who a principal is (for example, checking a password hash or FIDO2 signature); authorization decides whether that principal is allowed to perform a requested action.</p>
-</details>
-<details class="q">
-<summary><i>Why are Linux capabilities safer than making a helper binary full root?</i></summary>
-<p>Capabilities split root's omnipotence into fine-grained privileges (such as <code>CAP_NET_RAW</code> or <code>CAP_NET_BIND_SERVICE</code>), limiting what a compromised binary can do.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What is the difference between authentication and authorization?</i></summary><p>Authentication establishes an identity; authorization decides which actions that identity may perform.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Password KDFs, PAM state machines, Linux credentials, and modern authorization architectures</h2>
-
 <h3>Reference: credential storage and password KDFs</h3>
 <p>Local password authentication never stores plaintext passwords. Modern Linux <code>/etc/shadow</code> entries use memory-hard key derivation functions—principally <strong>Argon2id</strong> (<a href="glossary/r/rfc.html">RFC</a> 9106, winner of the Password Hashing Competition) or <strong>yescrypt</strong>—parameterized by memory cost <code>m</code>, time cost <code>t</code>, and parallelism <code>p</code> alongside a per-user 128-bit random salt. Memory hardness forces <a href="glossary/g/gpu.html">GPU</a>/<a href="glossary/a/asic.html">ASIC</a> brute-force crackers to pay <a href="glossary/d/dram.html">DRAM</a> bandwidth and area costs rather than only <a href="glossary/a/alu.html">ALU</a> cycles. Verification must compare derived digests in constant time to avoid timing side channels.</p>
 
@@ -151,6 +134,18 @@ Securebits: 00/0x0/1'b0 (no-new-privs=1)
 <li><cite data-ref="saltzer-schroeder"><a href="bibliography/saltzer-schroeder.html">Saltzer &amp; Schroeder (1975)</a></cite> &mdash; The Protection of Information in Computer Systems.</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/b/bus.html">Bus</a></li>
+<li><a href="glossary/p/polkit.html">Polkit</a></li>
+<li><a href="glossary/p/posix.html">POSIX</a></li>
+<li><a href="glossary/r/rbac.html">RBAC</a></li>
+<li><a href="glossary/a/abac.html">ABAC</a></li>
+<li><a href="glossary/u/uid.html">UID</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="security/permissions.html">Understanding file permissions</a> &mdash; Step 4 on the Security Protocols and Access Control path.</p>
 <h2>Related</h2><ul><li><a href="security/hardware-authentication.html">Hardware Security and Privilege Management</a> &mdash; Step 5 on the path.</li><li><a href="paths/security-protocols-and-access-control.html?level=1">Security Protocols and Access Control path</a> &mdash; full learning sequence.</li></ul>

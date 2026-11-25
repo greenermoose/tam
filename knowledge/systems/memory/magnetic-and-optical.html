@@ -14,7 +14,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/memory/index.html">Memory technology</a> / Magnetic and optical storage</p></nav>
 
-<p>Magnetic and optical media store data by changing physical properties of a material: magnetization for disks and tape, and light-reflecting patterns for CDs, DVDs, and Blu-ray discs. They made large, relatively inexpensive storage possible, but each technology has its own speed limits, wear modes, and environmental risks.</p>
+<p>Magnetic and optical media store data as physical patterns, using magnetism or reflected light. Disks, tape and optical discs have different speed and wear limits.</p>
 
 <section data-level="novice">
 <h2>Spinning disks and shiny discs</h2>
@@ -53,9 +53,19 @@
 </tbody>
 </table>
 
-<h3>Worked example: read the human-scale delay</h3>
-<p>A hard drive with 10 ms access latency sounds fast. On the 1 ns = 1 second scale from the <a href="systems/memory/index.html">series overview</a>, that same 10 ms becomes 115.7 days. A 100 µs SSD access becomes about 1 day 3 hours. This is why SSDs feel much more responsive than spinning disks even when both are called "storage."</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Compare seek delay with transfer time"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Compare seek delay with transfer time">
+  <tam-cmd match="python3 -c &quot;print(8.0 + 0.01)&quot;" goal="true">
+    <out>Sample seek-plus-transfer delay: 8.01 ms</out>
+  </tam-cmd>
+  <tam-init>Try: python3 -c "print(8.0 + 0.01)"</tam-init>
+  <tam-hint after="1">The seek is the larger part of this small read.</tam-hint>
+  <tam-hint after="2">A long seek can dominate even when data transfer is fast.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>On Linux, <code>lsblk</code> shows block devices, and <code>udisksctl status</code> or <code>smartctl -a /dev/sdX</code> can show disk information when available. For optical media, <code>lsblk</code> may show a <code>sr0</code> device when a disc is present.</p>
 

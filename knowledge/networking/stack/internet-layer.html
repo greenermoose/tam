@@ -15,7 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Internet layer</p></nav>
 
-<p>The internet layer is the part of the network stack that gives packets source and destination addresses and moves them across connected networks toward their destination.</p>
+<p>The internet layer gives packets source and destination addresses and decides which next hop carries them toward a destination across multiple networks.</p>
 
 <section data-level="novice">
 <h2>What the internet layer does</h2>
@@ -34,36 +34,50 @@
 </section>
 
 <section data-level="learner">
-<h2>See internet-layer decisions on Linux</h2>
-<p><strong>Goal:</strong> Identify an IP address, a route, and a next hop as internet-layer information.</p>
-<p><strong>Before you start:</strong> Read <a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ip -br addr show
-$ ip route get 1.1.1.1
-</pre>
-<p><code>ip -br addr</code> shows addresses assigned to interfaces. <code>ip route get</code> asks the kernel which next hop it would use for a destination. Both commands read state only.</p>
-
+<h2>Read an internet-layer address and route</h2>
+<p><strong>Goal:</strong> find the local address and the next-hop decision in sample records.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: address and next hop"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the route decision in the sample internet-layer records">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">interface: enp1s0
+address: 192.0.2.26/24
+next-hop: 192.0.2.1
+destination: 192.0.2.50
+icmp: echo reply from 192.0.2.1</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep next-hop clues.txt" goal="true" hint="Try grep address clues.txt to find the source.">
+      <out>next-hop: 192.0.2.1</out>
+    </tam-cmd>
+    <tam-cmd match="grep icmp clues.txt" hint="ICMP carries diagnostic messages, not application payload.">
+      <out>icmp: echo reply from 192.0.2.1</out>
+    </tam-cmd>
+    <tam-cmd match="ip route get 192.0.2.50" hint="Sample route decision matching the prepared record.">
+      <out>192.0.2.50 via 192.0.2.1 dev enp1s0 src 192.0.2.26</out>
+    </tam-cmd>
+  <tam-init>Sample internet-layer data: address, next hop and ICMP reply.</tam-init>
+  <tam-hint after="1">Try grep address clues.txt to find the source.</tam-hint>
+  <tam-hint after="2">Now try grep next-hop clues.txt for the forwarding choice.</tam-hint>
+  <tam-fallback>Try grep address clues.txt, grep next-hop clues.txt or grep icmp clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<p>The kernel looked up the destination in its routing table. If the destination is on the local network, it can send directly. If not, it sends the packet to a <a href="glossary/g/gateway.html">gateway</a> (next-hop router). The internet layer chooses the path; the <a href="networking/stack/link-layer.html">link layer</a> handles delivery on the local link.</p>
-
+<p>The address line identifies this interface, the next-hop line names the router, and the ICMP line is a diagnostic reply. The <code>ip route get</code> reply is authored sample output that matches the prepared record.</p>
 <h3>Try it</h3>
-<p>Run <code>ip route</code> and find the line starting with <code>default</code>. That default route is the internet-layer path used when no more specific route matches.</p>
-
+<p>Use <code>cat clues.txt</code> to see all five lines. Predict what would happen if the next-hop router were missing: packets to the destination would have no path out of the local network.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>No default route</dt>
-<dd>Your machine may be able to reach local addresses but not remote networks. Check the connection configuration and local link first.</dd>
-<dt>Wrong interface or source address</dt>
-<dd>The kernel chooses routes based on its routing table and rules. Use <code>ip route get &lt;address&gt;</code> to see the chosen path.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>Why is an IP address called a Layer 3 locator in OSI terms?</i></summary>
-<p>In the OSI model, Layer 3 is the network layer. IP addresses identify where a packet should be routed across networks, so they are Layer 3 locators. In the internet protocol stack, this is the internet layer.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What does a router change when it forwards an IP packet?</i></summary><p>It chooses the next hop and decrements the hop limit; source and destination addresses normally stay the same across routers.</p></details>
 </section>
 </section>
 
@@ -82,10 +96,7 @@ $ ip route get 1.1.1.1
 <p>The internet layer wraps transport data in an IP header containing source and destination addresses, hop limit/<a href="glossary/t/ttl.html">TTL</a>, next-protocol field, and fragmentation or flow-related fields depending on version. Routers perform longest-prefix-match forwarding on the destination address. They do not maintain end-to-end application state; they forward each packet based on routing information. <a href="glossary/i/ipv4.html">IPv4</a> is defined by <cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite> and <a href="glossary/i/ipv6.html">IPv6</a> by <cite data-ref="rfc8200"><a href="bibliography/rfc8200.html">RFC 8200</a></cite>.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ ip -j route get 1.1.1.1
-$ ip -6 route show
-</pre>
+
 <p>Use structured output for scripts and inspect IPv6 routing separately, because IPv6 link-local addresses and scope rules affect next-hop selection.</p>
 
 <h3>Edge cases</h3>
@@ -95,17 +106,19 @@ $ ip -6 route show
 <li><strong>Policy routing:</strong> Linux can choose routes based on rules beyond destination address, such as source address or firewall marks.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary><i>What does the internet layer guarantee, and what does it leave to higher layers?</i></summary>
-<p>It provides addressing and best-effort forwarding across networks. It does not guarantee delivery, ordering, duplicate suppression, or application-level meaning; transport and application protocols handle those needs when required.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <p><cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite>, <cite data-ref="rfc8200"><a href="bibliography/rfc8200.html">RFC 8200</a></cite>, <a href="man:ip(8)">ip(8)</a>.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a></li>
+<li><a href="glossary/g/gateway.html">gateway</a></li>
+</ul>
+
+
 
 <h2>Where next</h2>
 <ul>

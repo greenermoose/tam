@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/cryptography/index.html">Cryptography</a> / Foundations of Cryptography</p></nav>
 
-
-<p>This page explains how mathematics turns a short secret key into a shield that keeps messages private and proves they have not been altered.</p>
-<h2>Before this</h2><p><a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a></p>
+<p>Cryptography studies how to keep messages secret and detect tampering even when the method is public, so security rests on keys and hard problems rather than hidden rules.</p>
 
 <section data-level="novice">
 <h2>Keeping secrets without hiding the rules</h2>
@@ -45,56 +43,42 @@
 </section>
 
 <section data-level="learner">
-<h2>Generating and testing cryptographic randomness</h2>
-<p><strong>Goal:</strong> you will be able to generate unpredictable random keys from the Linux kernel entropy pool and explain why predictability breaks every cipher.</p>
-<p><strong>Before you start:</strong> generating random bytes with <code>openssl rand</code> is read-only to the system and safe to run in any terminal.</p>
-
-<aside class="first-time">
-<p><strong>New to this?</strong> The <code>$</code> sign marks the shell prompt; do not type it. <a href="glossary/h/hexadecimal.html">Hexadecimal</a> (base-16) uses digits <code>0-9</code> and letters <code>a-f</code>, so two hex characters represent one 8-bit byte.</p>
-</aside>
-
-<h3>Worked example</h3>
-<p>Generate two 128-bit (16-byte) random values using OpenSSL, which reads from the kernel's cryptographic random number generator:</p>
-<pre class="session" data-risk="read-only">
-$ openssl rand -hex 16
-656fe5d8272a1d3b9bd038cd972aeaf0
-$ openssl rand -hex 16
-2d358d280579afa3edc8bd324b668a40
-</pre>
-<p>Captured on Arch Linux, 2026-11-14; your output will differ every time.</p>
-
+<h2>Inspect sample random values</h2>
+<p><strong>Goal:</strong> explain why random bytes in a sample output are not reusable secrets.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read random bytes"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Generate a sample random hex value">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="openssl rand -hex 16" goal="true" hint="Sixteen bytes appear as 32 hexadecimal characters.">
+      <out>656fe5d8272a1d3b9bd038cd972aeaf0</out>
+    </tam-cmd>
+    <tam-cmd match="openssl rand -hex 16" hint="A second call gives a different sample value.">
+      <out>2d358d280579afa3edc8bd324b668a40</out>
+    </tam-cmd>
+  <tam-init>Sample random output: two different 16-byte hex strings.</tam-init>
+  <tam-hint after="1">Try openssl rand -hex 16 once.</tam-hint>
+  <tam-hint after="2">Run it again to see a different authored sample.</tam-hint>
+  <tam-fallback>Try openssl rand -hex 16 (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>openssl rand -hex 16</code> requested 16 random bytes (128 bits) from the operating system's cryptographic generator (<code>getrandom(2)</code>) and printed them as 32 hexadecimal characters.</li>
-<li>Running the exact same command a second time produced a completely unrelated 128-bit value. Even an attacker who saw the first output cannot predict the next bit of the second output.</li>
-</ol>
-
+<p>Sixteen random bytes are written as 32 hexadecimal characters. The two sample calls differ, which is the point: a fresh random value should not be predictable from the previous one. These strings are authored samples, not fresh randomness from your machine.</p>
 <h3>Try it</h3>
-<p>Run <code>openssl rand -base64 32</code> to generate a 256-bit key in Base64, then inspect <code>cat /proc/sys/kernel/random/entropy_avail</code> to see the Linux kernel's current entropy estimate (typically 256 bits on modern kernels).</p>
-
+<p>Never reuse a value printed in a lesson as a real key. Randomness is a security resource: a weak generator can make an otherwise sound cipher easy to attack.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>openssl: command not found</code></dt>
-<dd>Install the <code>openssl</code> package with your native package manager, or read 16 bytes directly with <code>head -c 16 /dev/urandom | od -tx1 -An</code>.</dd>
-<dt>A script uses <code>$RANDOM</code> in Bash for a key</dt>
-<dd>Do not use shell <code>$RANDOM</code> or <code>rand()</code> in C for secrets: they are non-cryptographic linear generators whose entire state can be recovered from a few outputs.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, kernel <code>getrandom(2)</code> and <code>/dev/urandom</code> draw from a ChaCha20-based <a href="glossary/c/csprng.html">CSPRNG</a> seeded from hardware timing, interrupt jitter, and <a href="glossary/c/cpu.html">CPU</a> <a href="glossary/r/rng.html">RNG</a> instructions when available; never read <code>/dev/random</code> in scripts expecting it to "have higher quality" on modern Linux, as both interfaces share the same seeded pool.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>According to Kerckhoffs's principle, what happens if an attacker obtains the exact source code of your encryption program?</i></summary>
-<p>Your encrypted messages remain safe as long as your secret key remains secret and unpredictable. Security must never depend on hiding the algorithm.</p>
-</details>
-<details class="q">
-<summary><i>Why is a 128-bit key considered unguessable by brute force, whereas a 32-bit key is weak?</i></summary>
-<p>Each extra bit doubles the search space. A 32-bit key has about 4 billion possibilities (seconds on a laptop), whereas a 128-bit key has 2^128 (~3.4 * 10^38) possibilities.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What does Kerckhoffs’s principle say about secrecy?</i></summary><p>The system should remain secure even if the method is public; secrecy belongs in the key.</p></details>
 </section>
 </section>
 
@@ -122,13 +106,7 @@ $ openssl rand -hex 16
 <li><strong>Concrete vs. asymptotic bounds:</strong> A scheme proved secure up to <code>q² / 2^128</code> fails at <code>q = 2^64</code> queries (birthday bound) regardless of asymptotic notation; block-size limits (e.g., 64-bit blocks in legacy 3DES/Blowfish, Sweet32) fail far earlier than key-size limits.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why is IND-CPA alone insufficient for real-world network protocols, and what concrete attack exploits IND-CPA-only encryption?</summary>
-<p>IND-CPA does not prevent an attacker from modifying ciphertexts in flight or abusing a server as a decryption/padding oracle. Classic <a href="glossary/c/cbc.html">CBC</a>-mode padding oracle attacks (Vaudenay, 2002) and malleability attacks against unauthenticated CTR mode exploit IND-CPA schemes to recover full plaintext byte-by-byte without knowing the key. Real protocols require IND-CCA2 / Authenticated Encryption (<a href="glossary/i/int-ctxt.html">INT-CTXT</a>).</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <ul>
@@ -136,5 +114,18 @@ $ openssl rand -hex 16
 <li><cite data-ref="boneh-shoup"><a href="bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapters 2, 5, 9: Shannon secrecy, PRFs, authenticated encryption).</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a></li>
+<li><a href="glossary/h/hexadecimal.html">Hexadecimal</a></li>
+<li><a href="glossary/c/csprng.html">CSPRNG</a></li>
+<li><a href="glossary/c/cpu.html">CPU</a></li>
+<li><a href="glossary/r/rng.html">RNG</a></li>
+<li><a href="glossary/c/cbc.html">CBC</a></li>
+<li><a href="glossary/i/int-ctxt.html">INT-CTXT</a></li>
+</ul>
+
+
 </body>
 </html>

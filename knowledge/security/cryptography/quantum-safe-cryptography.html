@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/cryptography/index.html">Cryptography</a> / Quantum Computing and Quantum-Safe Cryptography</p></nav>
 
-
-<p>This page explains why future quantum computers threaten today's public-key locks and how quantum-safe algorithms protect data before those machines arrive.</p>
-<h2>Before this</h2><p><a href="security/cryptography/public-key-cryptography.html">Public-Key Cryptography, Elliptic Curves, and PKI</a></p>
+<p>Large quantum computers would break today’s RSA and elliptic-curve schemes, so post-quantum cryptography is moving to problems believed to resist both classical and quantum attacks.</p>
 
 <section data-level="novice">
 <h2>Why quantum computers change the rules</h2>
@@ -43,62 +41,54 @@
 </section>
 
 <section data-level="learner">
-<h2>Checking quantum-safe hybrid algorithms on Tamlinux</h2>
-<p><strong>Goal:</strong> you will be able to inspect the post-quantum and hybrid algorithms already active in OpenSSL and OpenSSH on your workstation.</p>
-<p><strong>Before you start:</strong> querying supported algorithms with <code>openssl list</code> and <code>ssh -Q</code> is read-only and changes nothing.</p>
-
-<h3>Worked example</h3>
-<p>Check the post-quantum Key Encapsulation Mechanisms (KEMs) and signature algorithms available in OpenSSL 3.6.5, and the hybrid key exchanges in OpenSSH:</p>
-<pre class="session" data-risk="read-only">
-$ openssl list -kem-algorithms | grep -iE 'ml-?kem'
-  { 2.16.840.1.101.3.4.4.1, id-alg-ml-kem-512, ML-KEM-512, MLKEM512 } @ default
-  { 2.16.840.1.101.3.4.4.2, id-alg-ml-kem-768, ML-KEM-768, MLKEM768 } @ default
-  { 2.16.840.1.101.3.4.4.3, id-alg-ml-kem-1024, ML-KEM-1024, MLKEM1024 } @ default
-  X25519MLKEM768 @ default
-  X448MLKEM1024 @ default
-  SecP256r1MLKEM768 @ default
-  SecP384r1MLKEM1024 @ default
-
-$ openssl list -signature-algorithms | grep -iE 'ml-?dsa|slh-dsa' | head -n 6
-  { 2.16.840.1.101.3.4.3.17, id-ml-dsa-44, ML-DSA-44, MLDSA44 } @ default
-  { 2.16.840.1.101.3.4.3.18, id-ml-dsa-65, ML-DSA-65, MLDSA65 } @ default
-  { 2.16.840.1.101.3.4.3.19, id-ml-dsa-87, ML-DSA-87, MLDSA87 } @ default
-  { 2.16.840.1.101.3.4.3.20, id-slh-dsa-sha2-128s, SLH-DSA-SHA2-128s } @ default
-  { 2.16.840.1.101.3.4.3.21, id-slh-dsa-sha2-128f, SLH-DSA-SHA2-128f } @ default
-  { 2.16.840.1.101.3.4.3.22, id-slh-dsa-sha2-192s, SLH-DSA-SHA2-192s } @ default
-</pre>
-<p>Captured on Arch Linux (OpenSSL 3.6.5), 2026-11-14; algorithm names reflect your installed OpenSSL version.</p>
-
+<h2>Recognise post-quantum algorithm names</h2>
+<p><strong>Goal:</strong> find ML-KEM and ML-DSA in sample OpenSSL algorithm listings.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read algorithm listings"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find ML-KEM in the sample algorithm list">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">ML-KEM-512 @ default
+ML-KEM-768 @ default
+ML-KEM-1024 @ default
+X25519MLKEM768 @ default
+ML-DSA-65 @ default
+SLH-DSA-SHA2-128s @ default</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep ML-KEM clues.txt" goal="true" hint="Try grep ML-KEM clues.txt for key establishment.">
+      <out>ML-KEM-512 @ default</out>
+      <out>ML-KEM-768 @ default</out>
+      <out>ML-KEM-1024 @ default</out>
+    </tam-cmd>
+    <tam-cmd match="grep DSA clues.txt" hint="ML-DSA and SLH-DSA are signature families.">
+      <out>ML-DSA-65 @ default</out>
+      <out>SLH-DSA-SHA2-128s @ default</out>
+    </tam-cmd>
+    <tam-cmd match="openssl list -kem-algorithms | grep -i ml-kem" hint="Sample OpenSSL listing line; not a check of your installed build.">
+      <out>{ 2.16.840.1.101.3.4.4.2, id-alg-ml-kem-768, ML-KEM-768, MLKEM768 } @ default</out>
+    </tam-cmd>
+  <tam-init>Sample algorithms: ML-KEM for key agreement, ML-DSA for signatures.</tam-init>
+  <tam-hint after="1">Try grep ML-KEM clues.txt for key establishment.</tam-hint>
+  <tam-hint after="2">Now try grep DSA clues.txt for signatures.</tam-hint>
+  <tam-fallback>Try grep ML-KEM clues.txt, grep DSA clues.txt or grep ML clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li>OpenSSL lists NIST's standardized <code>ML-KEM</code>, <code>ML-DSA</code>, and <code>SLH-DSA</code> primitives directly in the <code>default</code> provider.</li>
-<li>Hybrid groups such as <code>X25519MLKEM768</code> combine classical X25519 with post-quantum <a href="glossary/m/ml-kem.html">ML-KEM</a>-768 so an attacker must break <em>both</em> algorithms to recover the session key.</li>
-</ol>
-
+<p>ML-KEM is a key-encapsulation method and ML-DSA is a signature method. Hybrid names such as X25519MLKEM768 combine a classical exchange with a post-quantum one. The listings are authored sample output.</p>
 <h3>Try it</h3>
-<p>Run <code>ssh -G localhost | grep '^kexalgorithms'</code> to verify that your OpenSSH client already places <code>mlkem768x25519-sha256</code> and <code>sntrup761x25519-sha512</code> ahead of classical-only ECDH.</p>
-
+<p>Use <code>cat clues.txt</code> to see the whole list. On a real machine algorithm availability depends on the installed OpenSSL build, so the sample must not be read as a capability check.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>Older remote server rejects hybrid <a href="glossary/k/kex.html">KEX</a> or <a href="glossary/t/tls.html">TLS</a> <code>X25519MLKEM768</code></dt>
-<dd>Middleboxes with tiny <a href="glossary/t/tcp.html">TCP</a> initial buffers occasionally drop large post-quantum ClientHello packets (~1.2 <a href="glossary/b/byte.html">KB</a>). Updating the server or middlebox is the proper fix; never permanently disable PQ hybrids globally.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, OpenSSH 10.6+ and OpenSSL 3.6+ already negotiate <code>mlkem768x25519-sha256</code> and <code>X25519MLKEM768</code> by default, mitigating Harvest-Now-Decrypt-Later risks transparently.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Why do protocols deploy hybrid key exchange like <code>X25519MLKEM768</code> instead of switching solely to ML-KEM overnight?</i></summary>
-<p>Hybrid key exchange combines a battle-tested classical primitive (X25519) with a newer post-quantum primitive (ML-KEM-768). Even if a subtle mathematical flaw were discovered in ML-KEM, the session remains classically secure—and vice versa against a quantum computer.</p>
-</details>
-<details class="q">
-<summary><i>Does <a href="glossary/a/aes-256.html">AES-256</a> need to be replaced by a lattice cipher to stay quantum-safe?</i></summary>
-<p>No. Quantum computers do not break AES in polynomial time; Grover's algorithm only offers a quadratic speedup, reducing AES-256 from 2^256 to roughly 2^128 quantum operations, which remains secure.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why are hybrid exchanges used during the transition?</i></summary><p>They keep the classical security guarantee while adding a post-quantum component if one of the assumptions fails.</p></details>
 </section>
 </section>
 
@@ -129,13 +119,7 @@ $ openssl list -signature-algorithms | grep -iE 'ml-?dsa|slh-dsa' | head -n 6
 <li><strong>Statefulness hazard in <a href="glossary/x/xmss.html">XMSS</a>/<a href="glossary/l/lms.html">LMS</a> vs. SLH-DSA:</strong> Stateful hash-based schemes (XMSS/LMS) catastrophically lose security if an index is ever reused (e.g., VM snapshot rollback); stateless SLH-DSA avoids this via randomized signing and a large hypertree.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why does Module-LWE remain secure against Shor's algorithm even though it uses algebraic rings?</summary>
-<p>Shor's algorithm solves the Hidden Subgroup Problem (<a href="glossary/h/hsp.html">HSP</a>) over abelian groups where the secret is a global periodic subgroup. LWE and Module-LWE inject small non-algebraic error terms e into modular linear equations; the noise destroys exact periodicity, and no efficient quantum reduction to an abelian HSP is known.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <ul>
@@ -143,5 +127,19 @@ $ openssl list -signature-algorithms | grep -iE 'ml-?dsa|slh-dsa' | head -n 6
 <li><cite data-ref="boneh-shoup"><a href="bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Post-quantum KEM and lattice foundations).</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="security/cryptography/public-key-cryptography.html">Public-Key Cryptography, Elliptic Curves, and PKI</a></li>
+<li><a href="glossary/m/ml-kem.html">ML-KEM</a></li>
+<li><a href="glossary/k/kex.html">KEX</a></li>
+<li><a href="glossary/t/tls.html">TLS</a></li>
+<li><a href="glossary/t/tcp.html">TCP</a></li>
+<li><a href="glossary/b/byte.html">KB</a></li>
+<li><a href="glossary/a/aes-256.html">AES-256</a></li>
+<li><a href="glossary/h/hsp.html">HSP</a></li>
+</ul>
+
+
 </body>
 </html>

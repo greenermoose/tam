@@ -14,8 +14,7 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/shell/index.html">Giving your computer written instructions</a> / IFS and splitting</p></nav>
 
-<p>This page shows how IFS decides where an unquoted value is divided into separate arguments.</p>
-
+<p>IFS controls how unquoted shell expansions are split, and a non-whitespace separator can preserve empty fields.</p>
 <section data-level="novice">
 <h2>A list of separators</h2>
 <p>IFS is a small list of characters stored by the shell. The shell uses the characters in that list as places where an unquoted value can be cut into pieces. The usual list contains a space, a tab and a new line. If you change the list to a comma, the shell cuts at commas instead.</p>
@@ -36,52 +35,42 @@
 </section>
 
 <section data-level="learner">
-<h2>Change the separators</h2>
-<p><strong>Goal:</strong> you will be able to split a comma-separated value with IFS and keep a value whole with quotes.</p>
-
+<h2>Split a comma-separated value</h2>
+<p><strong>Goal:</strong> read the fields produced by a fixed comma IFS example</p>
 <p><strong>Learning path:</strong> <a href="paths/shell-text-and-ifs.html?level=2">Start</a> · <a href="terminal/shell/expansion.html?level=2">Back</a> · <a href="programming/robust-shell-data.html?level=2">Next</a></p>
-
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ IFS=,; v=',a,,b,'
-$ printf '[%s]\n' $v
+<tam-sandbox
+  title="Try it: use a comma separator"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="quoting"
+  goal="Print the fields of one,,three">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="IFS=,; v=&#x27;one,,three&#x27;; printf &#x27;[%s]\n&#x27; $v" goal="true" hint="The empty brackets are a real empty field.">
+    <out>[one]
 []
-[a]
-[]
-[b]
-$ printf '[%s]\n' "$v"
-[,a,,b,]
-$ printf 'one,two,three\n' | { IFS=, read -r a b c; printf 'a=&lt;%s&gt; b=&lt;%s&gt; c=&lt;%s&gt;\n' "$a" "$b" "$c"; }
-a=&lt;one&gt; b=&lt;two&gt; c=&lt;three&gt;
-</pre>
-<p>Captured on Arch Linux, 2026-11-22. The brackets make the number of fields visible; the empty brackets are real empty fields.</p>
-
+[three]</out>
+  </tam-cmd>
+  <tam-cmd match="IFS=,; v=&#x27;one,,three&#x27;; printf &#x27;[%s]\n&#x27; &quot;$v&quot;" hint="Double quotes keep the original value as one field.">
+    <out>[one,,three]</out>
+  </tam-cmd>
+  <tam-init>A fixed IFS=, example shows the empty middle field.</tam-init>
+   <tam-hint after="1">The empty brackets are a real empty field.</tam-hint>
+  <tam-hint after="2">Double quotes keep the original value as one field.</tam-hint>
+  <tam-fallback>Try IFS=,; v='one,,three'; printf '[%s]\n' $v, or type help.</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li>Setting IFS to a comma made comma the only separator for this shell.</li>
-<li>The leading and trailing commas produced empty fields, and so did the pair of commas in the middle.</li>
-<li>Double quotes protected the whole value from splitting.</li>
-<li><code>IFS=, read -r</code> applied the comma separator to one input line instead of changing the shell's IFS.</li>
-</ol>
-
+<p>With IFS set to comma, two adjacent commas leave an empty field. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. Quoting the expansion suppresses splitting entirely.</p>
 <h3>Try it</h3>
-<p>Repeat the example with a value such as <code>one,,three</code>. Predict how many fields the unquoted expansion will produce. Then add double quotes around the expansion and confirm that the number changes to one.</p>
-
+<p>Predict the number of bracketed lines before running the goal rule.</p>
 <h3>If it goes wrong</h3>
-<dl>
-<dt>Empty fields disappear</dt><dd>Spaces, tabs and newlines in IFS are treated as runs, so repeated whitespace does not create empty fields. Use a non-whitespace separator such as a comma when empty fields matter.</dd>
-<dt>Every test command now splits at commas</dt><dd>You changed IFS in the current shell. Start a new shell or restore the default with <code>IFS=$' \t\n'</code>.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p>The usual interactive shell on Tamlinux is <code>bash</code>, described in <a href="tamlinux/components.html">Tamlinux components</a>. It starts with IFS set to space, tab and newline; the portable rules are in <cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>.</p>
-</aside>
-
+<p>If every later command starts splitting at commas, you changed IFS too widely; restore the default.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide before revealing the explanation.</p>
-<details class="q"><summary><i>Why does a comma-separated expansion produce empty fields where a space-separated one does not?</i></summary><p>Comma is a non-whitespace IFS character. Each occurrence terminates a field, so two adjacent commas leave an empty field between them. Runs of IFS whitespace are collapsed instead.</p></details>
-<details class="q"><summary><i>Why put IFS=, on the read command instead of setting it for the whole shell?</i></summary><p>A prefix assignment applies to that command only, so later commands keep the normal separators. It avoids surprising behaviour elsewhere in the script.</p></details>
+<details class="q"><summary><i>Why does comma preserve an empty field but a space not?</i></summary><p>Runs of IFS whitespace collapse; non-whitespace separators terminate each field.</p></details>
 </section>
 </section>
 
@@ -102,13 +91,7 @@ a=&lt;one&gt; b=&lt;two&gt; c=&lt;three&gt;
 <p>The shell scans only the parts of a field that came from unquoted expansion. Literal characters from the original word stay attached to the candidate. An IFS whitespace character ends the current candidate and is discarded; more whitespace is skipped before a new candidate begins. A non-whitespace IFS character also ends the candidate, but it delimits a field even when the candidate is empty. At the end of the input, a non-empty candidate becomes a field. If no field was delimited at all, the result is zero fields rather than one empty field.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="scratch">
-$ show() { printf 'unquoted $*: '; printf '[%s]' $*; printf '\n'; printf 'quoted "$*": '; printf '[%s]' "$*"; printf '\n'; }
-$ show 'a b' c
-unquoted $*:  [a][b][c]
-quoted "$*":   [a b c]
-</pre>
-<p>Captured on Arch Linux, 2026-11-22. Unquoted <code>$*</code> loses the boundary between the original arguments and is split again using IFS. Quoted <code>"$*"</code> joins the arguments with the first character of IFS. Only <code>"$@"</code> preserves one argument per original argument.</p>
+
 
 <h3>Edge cases</h3>
 <ul>
@@ -118,14 +101,9 @@ quoted "$*":   [a b c]
 <li><a href="glossary/n/nul.html">NUL</a> bytes cannot be stored in a shell variable or passed in an argument, so splitting cannot represent them.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>A comma-separated line ends with a comma. Why is the final field empty rather than absent?</summary><p>A non-whitespace IFS character terminates a field when it is seen. The candidate after it is empty, but the delimiter still caused a field to be emitted.</p></details>
-<details class="q"><summary>Why is "$@" the safe form when forwarding arguments to another command?</summary><p>Quoted <code>"$@"</code> produces one field per original argument, including arguments that contain IFS characters. Unquoted <code>$*</code> joins and then resplits them, losing the original boundaries.</p></details>
-</section>
-
 <h3>Sources</h3>
 <p><cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>, sections 2.5.2, 2.5.3 and 2.6.5; <cite data-ref="bash"><a href="bibliography/bash.html">Bash manual</a></cite>.</p>
+<p><strong>Further reading in this topic:</strong> <a href="tamlinux/components.html">Tamlinux components</a>.</p>
 </section>
 
 <h2>Where next</h2>

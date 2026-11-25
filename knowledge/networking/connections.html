@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / Network connections and DNS</p></nav>
 
-
-<p>This page explains how your computer reaches the internet and how to tell which part of that path is failing.</p>
-<h2>Before this</h2><p><a href="terminal/shell/index.html">Giving your computer written instructions</a></p>
+<p>A network connection needs a working link, an address and route, and a name resolver. Checking those parts in order turns a vague failure into a specific clue.</p>
 
 <section data-level="novice">
 <h2>What makes a network connection work?</h2>
@@ -55,82 +53,59 @@ link (ethernet or wifi) --> router --> internet
 </section>
 
 <section data-level="learner">
-<h2>Identify the connection you are using</h2>
-<p><strong>Goal:</strong> you will be able to identify the connection your computer is using and report whether it has an address and can reach the internet.</p>
-
-
-<p><strong>Before you start:</strong> open a <dfn><a href="glossary/t/terminal.html">terminal</a></dfn>. The commands below only read network state. <code>tam-network-status --verbose</code> also sends one small test message to 1.1.1.1 to measure internet round-trip time. See <a href="paths/first-steps.html?level=1">First steps</a> if you are new to the command line.</p>
-
-<aside class="first-time">
-<p>Type the command after the <code>$</code> prompt and press Enter. Do not type the <code>$</code>. Your interface name, address and timings will differ from the example. Success means the command finishes and prints a list; it does not change your connection.</p>
-</aside>
-
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ tam-network-status --verbose
-iface             enp1s0
-ip                192.168.1.26
-prefix            24
-gateway           192.168.1.1
-rx_bytes          1134306807
-tx_bytes          2264645693
-type              ethernet
-speed             1000
-duplex            full
-router_ping_ms    0.684
-internet_ping_ms  20.2
-</pre>
-<p>Captured on a wired Arch Linux workstation on 2026-10-31. Your output will differ.</p>
-
+<h2>Separate a link fault from a name fault</h2>
+<p><strong>Goal:</strong> read a sample connection report and name the field that identifies the network card.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read connection state"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Read the sample connection report with tam-network-status --verbose">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="tam-network-status --verbose" goal="true" hint="iface names the card; ip and prefix describe its address; gateway is the next router.">
+      <out>iface             enp1s0</out>
+      <out>ip                192.168.1.26</out>
+      <out>prefix            24</out>
+      <out>gateway           192.168.1.1</out>
+      <out>type              ethernet</out>
+      <out>speed             1000</out>
+      <out>router_ping_ms    0.684</out>
+      <out>internet_ping_ms  20.2</out>
+    </tam-cmd>
+    <tam-cmd match="nmcli device status" hint="This sample shows the same interface as connected.">
+      <out>DEVICE   TYPE      STATE      CONNECTION</out>
+      <out>enp1s0   ethernet  connected  Wired connection 1</out>
+    </tam-cmd>
+    <tam-cmd match="getent ahosts example.com" hint="A name answer is the final step; the sample address is reserved for documentation.">
+      <out>192.0.2.20   STREAM example.com</out>
+      <out>192.0.2.20   DGRAM</out>
+      <out>192.0.2.20   RAW</out>
+    </tam-cmd>
+  <tam-init>Sample report: iface enp1s0, address 192.168.1.26/24.</tam-init>
+  <tam-hint after="1">Try nmcli device status to see the device state.</tam-hint>
+  <tam-hint after="2">Now try getent ahosts example.com for the resolver step.</tam-hint>
+  <tam-fallback>Try tam-network-status --verbose, nmcli device status or getent ahosts example.com (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>iface</code> is the network interface in use.</li>
-<li><code>ip</code> and <code>prefix</code> are the computer's address and local network size.</li>
-<li><code>gateway</code> is the router beyond your local network.</li>
-<li><code>type</code> is <code>ethernet</code> or <code>wifi</code>.</li>
-<li><code>router_ping_ms</code> and <code>internet_ping_ms</code> are round-trip times; a blank value means no reply arrived.</li>
-</ol>
-
+<p><code>iface</code> names the card, <code>ip</code> and <code>prefix</code> describe its address, and <code>gateway</code> is the router beyond the local network. The ping fields are round-trip samples. All replies here are authored sample output, not live readings.</p>
 <h3>Try it</h3>
-<p>Run the short form, <code>tam-network-status</code>, and then <code>ip -4 -br addr</code>. Match the interface name in both outputs. This is read-only and safe to repeat.</p>
-<p>If the short form looks healthy but a browser still fails, separate layers with read-only checks: <code>nmcli device status</code>, <code>ip route</code>, <code>getent ahosts example.com</code>, and <code>ping -c 1 -W 2 1.1.1.1</code>.</p>
-
+<p>In the sandbox, compare the three replies: device state, address and name. On a real machine these are read-only checks. If a numeric address replies but a name fails, the remaining question is DNS.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>The output says <code>disconnected</code> and the fields are empty</dt>
-<dd>No interface has a route to the internet. Check that the <a href="glossary/e/ethernet.html">Ethernet</a> cable is seated, or open the network panel with Meta + CTRL+W and connect to a Wi-Fi network.</dd>
-<dt><code>tam-network-status: command not found</code></dt>
-<dd>The command ships with Tamlinux. Use <code>ip route</code> and <code>nmcli device status</code> instead, and report that the Tamlinux command is missing.</dd>
-<dt><code>router_ping_ms</code> or <code>internet_ping_ms</code> is blank</dt>
-<dd>No reply arrived. Some networks block <a href="glossary/i/icmp.html">ICMP</a> even when web traffic works. Compare with a name lookup and a browser before concluding the connection is down.</dd>
-<dt>A name fails while a numeric address replies</dt>
-<dd>The link and route layers work; check DNS with <code>getent ahosts example.com</code> or <code>resolvectl query example.com</code>.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Tamlinux ships NetworkManager for connection state and systemd-resolved for name resolution. The desktop panel binding is Meta + CTRL+W. DNS changes go through <code>tam-dns</code>, which preserves previous settings before writing.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>Which field in the detailed output names the network card?</i></summary>
-<p><code>iface</code>. The <code>ip</code> field is the address assigned to that card, and <code>gateway</code> is the router beyond it.</p>
-</details>
-<details class="q">
-<summary><i>A computer can ping 1.1.1.1 but cannot open example.com. Which layer should you check first?</i></summary>
-<p>Name resolution. A successful ping to a numeric address proves the link, address and routing layers work.</p>
-</details>
-<details class="q">
-<summary><i>Predict the output when the computer has no connection at all.</i></summary>
-<p><code>tam-network-status</code> prints <code>disconnected</code> with empty fields.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>A machine replies to 1.1.1.1 but cannot open example.com. Which layer is suspect?</i></summary><p>Name resolution. A numeric reply already proves the link, address and routing layers work in that test.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: the commands and the resolver stack</h2>
-
 <h3>Reference</h3>
 
 <table>
@@ -173,21 +148,9 @@ internet_ping_ms  20.2
 <li>ICMP replies are sometimes blocked. A blank ping is evidence, not proof, that the internet is down.</li>
 </ul>
 
-<h3>Explore</h3>
 
-<p>Read the route decision as data: <code>ip -j route get 1.1.1.1 | jq .</code>. Compare the resolver's view with the kernel's view using <code>resolvectl query example.com</code> and <code>getent ahosts example.com</code>. On Wi-Fi, compare <code>iw dev</code> with <code>nmcli -f IN-USE,SIGNAL,FREQ dev wifi list --rescan no</code>. All of these are read-only.</p>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>What breaks if a DNS change writes the NetworkManager drop-in but never reapplies the active connection?</summary>
-<p>The new file is on disk, but the running profile still carries the old per-connection DNS settings. The next reconnect may pick up the new value, which makes the change look delayed or inconsistent. Reapplying the active profiles and asking NetworkManager to publish DNS closes that gap.</p>
-</details>
-<details class="q open">
-<summary>Why does the status command test 1.1.1.1 instead of a name such as example.com?</summary>
-<p>Testing a numeric address isolates the link, address and routing layers from name resolution. If the numeric address replies and a name fails, the remaining fault is in DNS. Using a name would mix two layers in one result.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 
@@ -197,6 +160,17 @@ internet_ping_ms  20.2
 
 <p>Corrections and new diagnostics belong in the public <code>tamlinux</code> repository. The panel's command calls and the DNS recovery path are the places to start when a new field or provider needs to be shown.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="terminal/shell/index.html">Giving your computer written instructions</a></li>
+<li><a href="glossary/t/terminal.html">terminal</a></li>
+<li><a href="paths/first-steps.html?level=1">First steps</a></li>
+<li><a href="glossary/e/ethernet.html">Ethernet</a></li>
+<li><a href="glossary/i/icmp.html">ICMP</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="systems/maintenance/logs.html">Truthful system diagnostics and logs</a> &mdash; use the journal when a connection change leaves a record.</p>
 <h2>Related</h2><ul><li><a href="systems/recovery/rollback.html">Snapshots and generation rollbacks</a> &mdash; undo a system change that affected networking.</li><li><a href="paths/keep-it-healthy.html">Keep it healthy</a> &mdash; fit routine checks into a maintenance habit.</li></ul>

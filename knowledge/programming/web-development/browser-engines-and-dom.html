@@ -19,93 +19,92 @@
 <p>A browser engine turns page files into a live document that a script can inspect and change.</p>
 
 <section data-level="novice">
-<h2>What this is</h2>
-<p>A <dfn><a href="glossary/w/web-browser.html">web browser</a></dfn> is a program that reads web pages. Its engine builds a tree of the page's parts. That tree is called the <dfn><a href="glossary/d/dom.html">document object model</a></dfn>, or DOM.</p>
+<h2>From file to live page</h2>
+<p>A <a href="glossary/w/web-browser.html">web browser</a> reads HTML and builds a tree of objects. That tree is the <a href="glossary/d/dom.html">document object model</a>, or DOM.</p>
 <h3>Why it matters</h3>
-<p>JavaScript does not edit the text file you wrote. It changes the tree in memory, and the browser draws the changed tree on screen.</p>
+<p>Scripts change the DOM, and the browser redraws what changed. Knowing the tree helps you understand why a selector finds one element and not another.</p>
 <h3>How to think about it</h3>
-<p>Imagine a family tree made of page parts. The page has a root, the root has a body, and the body has headings and paragraphs. Script can add a branch or change a label, then the browser repaints that part of the picture.</p>
-<h3>New words</h3>
-<dl>
-<dt>Engine</dt><dd>The part of a browser that parses, lays out, and paints a page.</dd>
-<dt>Node</dt><dd>One item in the document tree, such as an element or a piece of text.</dd>
-<dt>Rendering</dt><dd>Drawing the finished document on the screen.</dd>
-</dl>
-<p><a href="programming/web-development/browser-apis-and-async.html">Next: browser APIs and asynchronous JavaScript</a></p>
+<p>HTML starts as a shopping list; the DOM is the organised set of labelled boxes on the shelf. A script can move a box, and the display follows.</p>
 </section>
 
 <section data-level="learner">
-<h2>Meet the document tree</h2>
-<p><strong>Goal:</strong> you will be able to describe a page as a parent-child tree and explain why script works on the tree rather than on the source text.</p>
-<p><strong>Learner path:</strong> previous: <a href="programming/web-development/html-and-css.html?level=2">HTML and CSS foundations</a>; next: <a href="programming/web-development/browser-apis-and-async.html?level=2">Browser APIs and asynchronous JavaScript</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ python3 -c "...walk the parsed tree of &lt;main&gt;&lt;h1&gt;Hello&lt;/h1&gt;&lt;p&gt;World&lt;/p&gt;&lt;/main&gt;..."
-#document &gt; main
-main &gt; h1
-main &gt; p
-</pre>
-<p>Captured on 2026-11-24 with Python's standard HTML parser. A browser builds a richer tree; this tiny model shows the same parent-child idea.</p>
-<ol>
-<li>The parser creates a node for <code>main</code> under the document.</li>
-<li><code>h1</code> and <code>p</code> become children of <code>main</code>.</li>
-<li>In a browser, <code>document.querySelector('h1')</code> finds that node and <code>.textContent</code> reads or changes its words.</li>
-</ol>
+<h2>Map markup to a tree</h2>
+<p><strong>Goal:</strong> read a sample DOM tree and name its parent-child links.</p>
+<tam-sandbox
+  title="Try it: read a document tree"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Show the child nodes of main">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="tree.txt" size="42">#document > main
+main > h1
+main > p</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat tree.txt" hint="Each line reads parent &gt; child. The document contains main; main contains h1 and p.">
+      <out>#document &gt; main</out>
+      <out>main &gt; h1</out>
+      <out>main &gt; p</out>
+    </tam-cmd>
+    <tam-cmd match="grep main tree.txt" goal="true" hint="Correct: all three lines involve main, as parent or child.">
+      <out>#document &gt; main</out>
+      <out>main &gt; h1</out>
+      <out>main &gt; p</out>
+    </tam-cmd>
+  <tam-init>Try: cat tree.txt</tam-init>
+  <tam-hint after="1">Type grep main tree.txt to see every line that mentions main.</tam-hint>
+  <tam-fallback>Try cat tree.txt, or grep main tree.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The sample tree has one document node containing <code>main</code>, which contains a heading and a paragraph. The browser builds a tree like this from markup. The file is a simplified sample, not a live parse of a page in your browser.</p>
 <h3>Try it</h3>
-<p>In a browser console, run <code>document.querySelectorAll('p').length</code> on any page. Add a paragraph with the browser's element inspector and run it again.</p>
+<p>Run <code>head -n 1 tree.txt</code>. That root line reminds you that even a tiny page lives under a document node.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>A script runs before the elements exist</dt><dd>Place the <code>&lt;script&gt;</code> at the end of the body, or use <code>defer</code> in the head.</dd>
-<dt><code>querySelector</code> returns <code>null</code></dt><dd>No element matched. Check spelling, and remember that a class needs <code>.name</code> while an id needs <code>#name</code>.</dd>
+<dt>grep returned three lines.</dt><dd>That is expected here: main appears as a child in one row and as a parent in two others.</dd>
+<dt>I expected rendered pixels.</dt><dd>The sandbox shows the structure stage before layout and painting.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>After a script changes a heading's text, what has changed: the HTML file or the DOM?</summary>
-<p>The DOM in memory. The source file on disk stays the same. The browser updates its render tree and paints the new text, but nothing is written back unless the page explicitly saves it.</p>
+<summary><i>What is a DOM node?</i></summary>
+<p>An object in the tree representing an element, text, or the document itself.</p>
+</details>
+<details class="q">
+<summary><i>Why can JavaScript change a page?</i></summary>
+<p>It changes DOM objects; the engine then recalculates layout and repaints.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Parsing, engines, and rendering</h2>
+<h2>Reference: parsing and rendering</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Engine</th><th>Best known in</th><th>Notes</th></tr>
-<tr><td>Blink</td><td>Chrome, Chromium-based browsers, Electron</td><td>Forked from WebKit; shares V8 for JavaScript.</td></tr>
-<tr><td>Gecko</td><td>Firefox</td><td>Uses SpiderMonkey.</td></tr>
-<tr><td>WebKit</td><td>Safari</td><td>Uses JavaScriptCore.</td></tr>
+<tr><th>Stage</th><th>Input</th><th>Output</th></tr>
+<tr><td>Parsing</td><td>HTML bytes</td><td>DOM tree</td></tr>
+<tr><td>Style</td><td>CSS rules and DOM</td><td>Computed styles</td></tr>
+<tr><td>Layout</td><td>Tree and styles</td><td>Box geometry</td></tr>
+<tr><td>Paint / composite</td><td>Geometry</td><td>Pixels on screen</td></tr>
 </table>
 <h3>How it works</h3>
-<p>The parser tokenizes bytes into elements and builds a tree with defined error recovery. CSS is parsed into style rules, then each element's computed style is resolved. Layout assigns boxes and positions; paint records drawing commands; compositing puts layers on screen. A JavaScript change to layout geometry can force a reflow, while a colour change may repaint without reflow. <a href="glossary/j/jit.html">JIT</a> engines optimize repeated script paths, but DOM calls cross a boundary into native browser code and can dominate cost.</p>
-<h3>Advanced usage</h3>
-<pre data-risk="scratch">
-const frag = document.createDocumentFragment();
-for (const name of ['Ada', 'Grace', 'Linus']) {
-  const li = document.createElement('li');
-  li.textContent = name;
-  frag.append(li);
-}
-document.querySelector('#people').append(frag);
-</pre>
-<p>Illustrative snippet: build many nodes in a fragment, then insert once. This avoids repeated layout work compared with appending each item directly.</p>
+<p>The parser is tolerant: malformed markup produces a tree anyway, following the error-recovery rules in the <a href="bibliography/whatwg-html.html">HTML standard</a>. A <a href="glossary/j/jit.html">just-in-time compiler</a> speeds up repeated JavaScript work. Touching layout properties in a loop can force repeated reflows.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
-<li>Reading <code>offsetWidth</code> after a write can force synchronous layout; batch reads before writes.</li>
-<li><code>innerHTML</code> with untrusted text creates an injection risk; prefer <code>textContent</code>.</li>
-<li>Custom elements upgrade after definition, so their state can change after first paint.</li>
-<li>Shadow DOM scopes styles and hides nodes from ordinary <code>querySelector</code> calls.</li>
+<li>Text nodes and whitespace affect selectors and layout.</li>
+<li>Shadow DOM creates separate trees with encapsulation.</li>
+<li>Parser-inserted elements may appear where source did not show them.</li>
+<li>Reading layout after writing style can trigger synchronous reflow.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A page feels slow while a script adds 10,000 rows one at a time. What evidence points to the DOM boundary, and what change would you try?</summary>
-<p>Model answer: a profile shows many small style or layout recalculations interleaved with script. Build the rows in a document fragment or virtualized list and insert once; measure again before claiming success.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p>See <cite data-ref="whatwg-html"><a href="bibliography/whatwg-html.html">the WHATWG standards</a></cite> and <cite data-ref="mdn-web"><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a></cite>.</p>
+<p><a href="glossary/d/dom.html">DOM glossary entry</a>; <a href="bibliography/mdn-web-docs.html">MDN Web Docs</a>; <a href="desktop/apps/browser.html">Opening the web browser</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="programming/web-development/browser-apis-and-async.html">Next: browser APIs and asynchronous JavaScript</a>, <a href="programming/web-development/html-and-css.html?level=2">HTML and CSS foundations</a>, <a href="programming/web-development/browser-apis-and-async.html?level=2">Browser APIs and asynchronous JavaScript</a>, <a href="programming/web-development/browser-apis-and-async.html">Browser APIs and asynchronous JavaScript</a>, <a href="programming/web-development/testing-debugging-performance.html">Testing, debugging, and performance</a>.</p>
 </section>
 
 <h2>Where next</h2>
@@ -118,4 +117,5 @@ document.querySelector('#people').append(frag);
 <li><a href="glossary/d/dom.html">DOM glossary entry</a> &mdash; a short definition.</li>
 <li><a href="desktop/apps/browser.html">Opening the web browser</a> &mdash; the browser as a desktop application.</li>
 </ul>
-</body></html>
+</body>
+</html>

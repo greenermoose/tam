@@ -15,95 +15,97 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/numeric/index.html">Numbers in computers</a> / Number systems and bases</p></nav>
 
-<p>A number system is a way of writing a count using digits, and a computer mostly uses binary because its circuits have two stable states.</p>
-<p>This page uses only whole numbers. Fractions and decimal values come later on the path.</p>
+<p>A number system is a way to write counts with digits. Computers mostly use binary because their circuits have two stable states.</p>
 
 <section data-level="novice">
-<h2>Counting with different sets of digits</h2>
-<p>You count in tens because you learned the digits 0 through 9. A <dfn><a href="glossary/b/binary.html">binary</a></dfn> number uses only 0 and 1. A <dfn><a href="glossary/h/hexadecimal.html">hexadecimal</a></dfn> number uses 0 through 9 and then A through F. The <dfn><a href="glossary/r/radix.html">radix</a></dfn>, or base, tells you how many digit values a system has.</p>
+<h2>Different ways to write a count</h2>
+<p><a href="glossary/b/binary.html">Binary</a> uses two digits, octal uses eight, decimal uses ten, and <a href="glossary/h/hexadecimal.html">hexadecimal</a> uses sixteen. They are different notations for the same value.</p>
 <h3>Why it matters</h3>
-<p>Computer memory is made of <a href="glossary/b/bit.html">bits</a>, each holding one of two states. Writing a value in binary shows those states directly. Writing the same value in hexadecimal keeps the same information but makes long strings shorter and easier to check.</p>
+<p>Hexadecimal is a compact way to write bit patterns, which is why memory addresses and colour values often use it.</p>
 <h3>How to think about it</h3>
-<p>Think of an odometer. In a decimal odometer, a wheel rolls over after 9. In a binary odometer, each wheel rolls over after 1. The rightmost wheel is the ones place; each wheel to its left is worth the base times the one before it.</p>
-<h3>New words</h3>
-<dl>
-<dt>Radix (base)</dt><dd>The number of digit values in a system: 2 for binary, 10 for decimal and 16 for hexadecimal. See <a href="glossary/r/radix.html">radix</a>.</dd>
-<dt>Bit</dt><dd>One binary digit, a 0 or a 1. Eight bits make one <a href="glossary/b/byte.html">byte</a>.</dd>
-<dt>Byte order</dt><dd>Which byte of a multi-byte number is stored first in memory. See <a href="glossary/e/endianness.html">endianness</a>.</dd>
-</dl>
+<p>It is like writing the same price in different currencies with fixed exchange rules. The amount is unchanged; only the notation changes.</p>
 </section>
 
 <section data-level="learner">
-<h2>Read and convert a whole number</h2>
-<p><strong>Goal:</strong> you will be able to read a whole number in several bases and check a conversion with a short command.</p>
-<p><strong>Learner path:</strong> <a href="paths/numeric-systems.html?level=2">Start this path</a>; next: <a href="programming/numeric/integers.html?level=2">whole numbers in binary memory</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ printf '%d %o %x\n' 42 42 42
-42 52 2a
-$ python3 -c "print(bin(42), oct(42), hex(42)); print(int('101010', 2), int('2a', 16))"
-0b101010 0o52 0x2a
-42 42
-</pre>
-<p>Captured on a Linux system with Python 3, 2026-11-24. Your output will match when you use the same commands.</p>
+<h2>Read one value in four bases</h2>
+<p><strong>Goal:</strong> match a decimal count to its binary, octal and hexadecimal spellings.</p>
+<tam-sandbox
+  title="Try it: compare base spellings"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the hexadecimal spelling">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="bases.txt" size="56">decimal 42
+binary 101010
+octal 52
+hex 2a</file>
+      <file name="order.txt" size="38">little 78 56 34 12
+big 12 34 56 78</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat bases.txt" hint="All four lines describe the same value. Which one is shortest?">
+      <out>decimal 42</out>
+      <out>binary 101010</out>
+      <out>octal 52</out>
+      <out>hex 2a</out>
+    </tam-cmd>
+    <tam-cmd match="grep hex bases.txt" goal="true" hint="Correct: hex 2a is 2 x 16 + 10 = 42.">
+      <out>hex 2a</out>
+    </tam-cmd>
+  <tam-init>Try: grep hex bases.txt</tam-init>
+  <tam-hint after="1">Type cat bases.txt to see every spelling.</tam-hint>
+  <tam-hint after="2">The other file compares byte order, a separate idea from base.</tam-hint>
+  <tam-fallback>Try cat bases.txt, or grep hex bases.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
 <h3>What just happened</h3>
-<ol>
-<li><code>printf</code> printed one value three ways: decimal 42, octal 52 and hexadecimal 2a.</li>
-<li>Python's <code>bin</code>, <code>oct</code> and <code>hex</code> add prefixes so you can tell the bases apart.</li>
-<li><code>int(text, base)</code> went the other way. Both <code>101010</code> in base 2 and <code>2a</code> in base 16 are 42.</li>
-</ol>
+<p>Each row writes the same count using a different <a href="glossary/r/radix.html">radix</a>. Hex is compact because one digit represents four bits. The second file is a separate sample about <a href="glossary/e/endianness.html">endianness</a>: byte order, not number base.</p>
 <h3>Try it</h3>
-<p>In a scratch directory, print your own age or a room number in decimal, octal and hexadecimal. Then convert one result back to decimal and check that you get the starting value.</p>
+<p>Run <code>cat order.txt</code>. The value is the same in both rows, but the byte sequence reverses. Confusing these two ideas leads to classic binary-format bugs.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>ValueError: invalid literal for int()</code></dt><dd>The digits do not match the base you gave. Hexadecimal <code>g</code> and octal <code>8</code> do not exist.</dd>
-<dt>The prefixes look wrong</dt><dd>Python uses <code>0b</code>, <code>0o</code> and <code>0x</code>. A leading zero alone does not mean octal in Python 3.</dd>
+<dt>grep returned nothing.</dt><dd>Type grep hex bases.txt with the lowercase word hex.</dd>
+<dt>I thought endianness changed the number.</dt><dd>It changes the order bytes are stored, not the value they represent, once the reader knows the order.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why does one hexadecimal digit replace exactly four binary digits?</summary>
-<p>Sixteen is two to the fourth power. Four bits have sixteen possible patterns, from 0000 to 1111, so each pattern maps to one hex digit from 0 to F without gaps or overlap.</p>
+<summary><i>Why is hex convenient for bit patterns?</i></summary>
+<p>One hex digit maps cleanly to four bits, so long binary strings become short.</p>
+</details>
+<details class="q">
+<summary><i>What is endianness?</i></summary>
+<p>The order in which a multi-byte value's bytes are stored or transmitted.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Positional notation and byte order</h2>
+<h2>Reference: radix and byte order</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Base</th><th>Digits</th><th>Place values from the right</th><th>Common use</th></tr>
-<tr><td>2, binary</td><td>0-1</td><td>1, 2, 4, 8, 16</td><td>Logical states and bit fields</td></tr>
-<tr><td>8, octal</td><td>0-7</td><td>1, 8, 64, 512</td><td>Three-bit groups; older permission notation</td></tr>
-<tr><td>10, decimal</td><td>0-9</td><td>1, 10, 100, 1000</td><td>Human arithmetic</td></tr>
-<tr><td>16, hexadecimal</td><td>0-9, A-F</td><td>1, 16, 256, 4096</td><td>Compact display of memory and machine words</td></tr>
+<tr><th>Base</th><th>Digits</th><th>Grouping</th></tr>
+<tr><td>Binary</td><td>0-1</td><td>One bit per digit</td></tr>
+<tr><td>Octal</td><td>0-7</td><td>Three bits per digit</td></tr>
+<tr><td>Hexadecimal</td><td>0-9, a-f</td><td>Four bits per digit</td></tr>
 </table>
 <h3>How it works</h3>
-<p>For radix b, a numeral with digits d_n ... d_0 means the sum of d_i times b^i. Converting a whole number to another base is repeated division: record the remainders from right to left until the quotient is zero. Converting back is repeated multiplication and addition. A byte is eight bits, so it spans two hexadecimal digits; a <a href="glossary/numeric/32-bit.html">32-bit</a> word spans eight.</p>
-<p>Byte order is a separate question from the value. Memory is addressed by byte, so a value wider than one byte must choose which byte goes at the lower address. In <a href="glossary/e/endianness.html">little-endian</a> order the least significant byte comes first; in big-endian order the most significant byte comes first. Network protocols have traditionally used big-endian order, which is why it is often called network byte order.</p>
-<h3>Advanced usage</h3>
-<pre class="session" data-risk="scratch">
-$ python3 -c "import struct; v=0x12345678; print(struct.pack('<I',v).hex(' ')); print(struct.pack('>I',v).hex(' '))"
-78 56 34 12
-12 34 56 78
-</pre>
-<p>Illustrative sequence: the same 32-bit value written to a byte buffer with the two byte orders. Reading with the wrong order gives a different number even though the bytes are unchanged.</p>
-<h3>Edge cases</h3>
+<p>A positional system gives each digit a weight of base<sup>position</sup>. Converting between bases repeatedly divides or groups digits. Endianness applies after a value has been split into <a href="glossary/b/byte.html">bytes</a>; <a href="glossary/e/endianness.html">little-endian</a> stores the least significant byte first.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li>Leading zeros change the width of a display but not the value. They matter when a field has a fixed size.</li>
-<li>A base prefix is notation, not a different kind of number. Arithmetic is the same; only the written digits differ.</li>
-<li>Endianness applies to bytes within a multi-byte value, not to the order of bits inside a byte and not to text characters.</li>
+<li>Leading zeros signal octal in some languages, not decimal.</li>
+<li>Signed values interpreted with the wrong width change meaning.</li>
+<li>Network protocols choose a canonical byte order.</li>
+<li>Unaligned multi-byte loads can be slow or invalid on some architectures.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A file stores the bytes 78 56 34 12. What is the 32-bit integer if it was written little-endian, and what if it was written big-endian?</summary>
-<p>Little-endian reverses the byte list before reading place value, giving 0x12345678. Big-endian reads the list as written, giving 0x78563412. The bytes alone do not tell you the order; the format or protocol must define it.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p><a href="bibliography/index.html">Bibliography</a>; IEEE 754 is the standard for the floating-point formats described later on this path.</p>
+<p><a href="programming/numeric/integers.html">Whole numbers in binary memory</a>; <a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a>; <a href="glossary/numeric/32-bit.html">32-bit</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="glossary/b/bit.html">bits</a>, <a href="paths/numeric-systems.html?level=2">Start this path</a>, <a href="programming/numeric/integers.html?level=2">whole numbers in binary memory</a>, <a href="bibliography/index.html">Bibliography</a>, <a href="programming/numeric/fractions-and-floating-point.html">Fractions, decimals and floating point</a>, <a href="paths/numeric-systems.html">Numbers and how computers use them</a>.</p>
 </section>
 
 <h2>Where next</h2>
@@ -116,4 +118,5 @@ $ python3 -c "import struct; v=0x12345678; print(struct.pack('<I',v).hex(' ')); 
 <li><a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a> &mdash; where the two states come from.</li>
 <li><a href="paths/numeric-systems.html">Numbers and how computers use them</a> &mdash; the five-stage path.</li>
 </ul>
-</body></html>
+</body>
+</html>

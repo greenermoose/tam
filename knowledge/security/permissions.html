@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / Who can use a file</p></nav>
 
-<p>This page explains how to control who can read, modify, or run files stored on your system.</p>
-<h2>Before this</h2><p><a href="systems/storage/hierarchy.html">Files and folders</a></p>
+<p>File permissions decide who may read, write or execute a file. On Linux those checks use the owner, group and mode bits recorded with each file.</p>
 
 <section data-level="novice">
 <h2>Understanding file permissions</h2>
@@ -43,72 +42,45 @@
 </section>
 
 <section data-level="learner">
-<h2>Run your own small script</h2>
-<p><strong>Goal:</strong> you will be able to add execute permission for yourself and confirm the result.</p>
-
-
-<h3>Worked example</h3>
-<p><a href="glossary/m/make.html">Make</a> a new temporary directory and enter it:</p>
-<pre data-risk="scratch">
-work=$(mktemp -d)
-cd "$work"
-</pre>
-<p>Now write a two-line test script and check its permissions:</p>
-<pre class="session" data-risk="scratch">
-$ printf &#x27;%s\n&#x27; &#x27;#!/bin/sh&#x27; &#x27;printf &quot;hello\n&quot;&#x27; &gt; hello.sh
-$ chmod 600 hello.sh
-$ stat -c &#x27;%A %a %n&#x27; hello.sh
--rw------- 600 hello.sh
-$ chmod u+x hello.sh
-$ stat -c &#x27;%A %a %n&#x27; hello.sh
--rwx------ 700 hello.sh
-$ ./hello.sh
-hello
-</pre>
-<p>Captured on Arch Linux, 2026-10-21. <a href="glossary/g/gnu.html">GNU</a> <code>stat</code> omits user names, sizes, and timestamps from this format.</p>
-
+<h2>Change a sample file mode and explain it</h2>
+<p><strong>Goal:</strong> translate between symbolic and numeric modes for a small script.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: mode bits on a script"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the executable mode in the sample stat output">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="stat -c &#x27;%A %a %n&#x27; hello.sh" goal="true" hint="The sample file starts readable and writable only by its owner.">
+      <out>-rw------- 600 hello.sh</out>
+    </tam-cmd>
+    <tam-cmd match="chmod u+x hello.sh" hint="Adding owner execute changes 600 to 700; the script can then be run.">
+      <out>mode changed</out>
+    </tam-cmd>
+    <tam-cmd match="stat -c &#x27;%A %a %n&#x27; hello.sh" hint="The x bit is now set for the owner.">
+      <out>-rwx------ 700 hello.sh</out>
+    </tam-cmd>
+  <tam-init>Sample script: -rw------- 600 before adding owner execute.</tam-init>
+  <tam-hint after="1">Try stat -c '%A %a %n' hello.sh first.</tam-hint>
+  <tam-hint after="2">Now try chmod u+x hello.sh, then stat again.</tam-hint>
+  <tam-fallback>Try stat -c '%A %a %n' hello.sh or chmod u+x hello.sh (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>printf</code> writes a two-line shell script into <code>hello.sh</code>.</li>
-<li><code>chmod 600</code> sets a private mode: only the owner can read and write.</li>
-<li><code>chmod u+x</code> adds execute permission for the user (owner) without changing group or other access.</li>
-<li><code>stat</code> verifies that mode <code>600</code> became <code>700</code> (<code>-rwx------</code>).</li>
-<li>Running <code>./hello.sh</code> executes the script and prints hello.</li>
-</ol>
-
+<p>The sample file begins at mode 600: owner read and write, nobody else. <code>u+x</code> adds owner execute, making it 700. The <code>stat</code> replies are authored sample output, not a reading of your files.</p>
 <h3>Try it</h3>
-<p>In your temporary directory, remove execute permission using <code>chmod u-x hello.sh</code>. Inspect the mode with <code>stat -c '%A %a %n' hello.sh</code>, try running <code>./hello.sh</code>, and notice the error. Then add execute permission back with <code>chmod u+x hello.sh</code>.</p>
-
+<p>Predict what <code>chmod 644 hello.sh</code> would mean: owner read/write and read for group and others, but no execute. Directory execute is different: it allows searching through the directory.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>Permission denied when executing</dt>
-<dd>Check that the file has owner execute permission (<code>-rwx------</code> or mode <code>700</code>). Also verify that you typed <code>./hello.sh</code> to indicate the current directory.</dd>
-<dt>No such file or directory</dt>
-<dd>Check your spelling and use <code>pwd</code> and <code>ls</code> to verify you are still inside the temporary directory.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, permissions follow standard Linux <a href="glossary/p/posix.html">POSIX</a> rules. The Guide lens filters which explanations and exercises are displayed; it does not change permissions on disk.</p>
-</aside>
-
-<h3>Clean up</h3>
-<pre data-risk="scratch">
-rm -- hello.sh
-cd /tmp
-rmdir -- "$work"
-</pre>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary><i>Which command adds execute only for the owner: chmod u+x or chmod a+x?</i></summary>
-<p>chmod u+x. The a form changes owner, group, and others; u changes only the owner class.</p>
-</details>
-<details class="q">
-<summary><i>Does chmod printing no output mean that it failed?</i></summary>
-<p>No. A successful chmod command is normally silent. Inspect the mode with stat; an error message or nonzero exit status indicates failure.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why does a script need an execute bit?</i></summary><p>The kernel checks that bit before it will start the file as a program; read access alone is not enough.</p></details>
 </section>
 </section>
 
@@ -152,15 +124,17 @@ rmdir -- "$work"
 <li><a href="man:stat(1)">stat(1)</a>: display file and filesystem status.</li>
 <li><a href="man:umask(2)">umask(2)</a>: file mode creation mask.</li></ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary><i>Can a user read a file in a directory if they have read permission on the file but no execute (x) on the directory?</i></summary>
-<p>No. Directory execute permission is required to traverse into the directory to reach the file's inode.</p>
-</details>
+
 </section>
-</section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/m/make.html">Make</a></li>
+<li><a href="glossary/g/gnu.html">GNU</a></li>
+<li><a href="glossary/p/posix.html">POSIX</a></li>
+</ul>
+
+
 
 <h2>Next</h2>
 <p><a href="systems/storage/hierarchy.html">Files and folders</a> explains directory structures; switch to level 2 for the step-by-step learning path.</p>

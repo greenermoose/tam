@@ -15,9 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/input/index.html">How a key press becomes input</a> / Choosing a keybinding</p></nav>
 
-
-
-<p>This page turns the rest of the section into a decision: given a program that needs a command, which key should run it, and how do you know the key will arrive intact?</p>
+<p>Choosing a keybinding means checking what the terminal, line discipline and shell already do with that chord before assigning it.</p>
 <h2>Before this</h2><p><a href="terminal/input/index.html">How a key press becomes input</a></p>
 
 <section data-level="novice">
@@ -50,120 +48,40 @@
 </section>
 
 <section data-level="learner">
-<h2>Work through a real conflict</h2>
+<h2>Check the byte behind Backspace</h2>
+<p><strong>Goal:</strong> read a fixed terminfo result for the Backspace key</p>
 
-<p><strong>Goal:</strong> you will be able to test a candidate keybinding against the terminal, the line discipline and the shell, and explain the <code>Ctrl + H</code> help conflict in a libtam editor.</p>
-
-<h3>Worked example</h3>
-
-<p>A text editor built on libtam 0.7.0, named <code>tam-edit</code> and still in development, offers a help command on <code>Ctrl + H</code>. That is the traditional Emacs binding, and it is a trap in a terminal.</p>
-
-<p>Start with what the terminal sends. foot sends <code>0x7F</code> for Backspace and <code>0x08</code> for <code>Ctrl + Backspace</code>; the Linux console also declares <code>0x7F</code> as its Backspace byte. The terminal database records that byte as <code>kbs</code>.</p>
-
-<pre class="session" data-risk="read-only">
-$ TERM=foot tput kbs | od -An -c
- 177
-$ infocmp -1 linux | grep -E '^\s+kbs='
-	kbs=^?,
-$ stty -a | tr ';' '\n' | grep erase
- erase = ^?
-</pre>
-
-<p>Captured on Arch Linux, 2026-11-13. All three agree that Backspace is <code>0x7F</code>. So far <code>0x08</code> looks free.</p>
-
-<p>Now look at what reads the byte. The libtam key decoder in version 0.7.0 maps both <code>0x08</code> and <code>0x7F</code> to the same Backspace event:</p>
-
-<pre>
-/* libtam src/tam_key.c, abbreviated */
-case 0x08:
-case 0x7f:
-    ev.key = TAM_KEY_BACKSPACE;
-    break;
-</pre>
-
-<p>That collapse is reasonable for an editor that only needs a delete action, and it keeps Backspace working on terminals that send BS instead of DEL. It also means that after decoding, the editor cannot distinguish <code>Ctrl + H</code> from Backspace. The help command bound to <code>Ctrl + H</code> therefore fires whenever the reader presses Backspace, if the terminal sends <code>0x08</code> for Backspace or if the reader presses <code>Ctrl + Backspace</code>.</p>
-
-<pre class="session" data-risk="read-only">
-$ printf 'h\010i\nh\177i\n' | od -c
-0000000   h  \b   i  \n   h 177   i  \n
-</pre>
-
-<p>These are different bytes on the wire, but the same event after the decoder. The collision is created by the decoder, not by the terminal.</p>
-
-<p>The shells have already learned this lesson. Bash binds both bytes to the same action and offers no help on either:</p>
-
-<pre class="session" data-risk="read-only">
-$ bind -p | grep -E 'C-h|C-\?'
-"\C-h": backward-delete-char
-"\C-?": backward-delete-char
-</pre>
-
-<p><code>nano</code> takes the other route: its help key is <code>Ctrl + G</code>, and <code>Ctrl + H</code> is left to mean Backspace. That is a useful precedent for any terminal program: do not put a command on a byte the reader expects to delete something.</p>
-
-<p>Each of the three common key families in a terminal program carries a distinct set of tradeoffs:</p>
-
-<table>
-<tr><td><strong><code>Ctrl + &lt;key&gt;</code></strong></td><td>sends a single byte (<code>0x01</code>&ndash;<code>0x1A</code>), has zero <code>Esc</code>-timeout ambiguity, and is rarely intercepted by window managers. However, it suffers from <a href="glossary/a/ascii.html">ASCII</a> control collisions (<code>Ctrl + I</code> = Tab, <code>Ctrl + M</code> = Enter, <code>Ctrl + J</code> = LF, <code>Ctrl + H</code> = <code>0x08</code> / Backspace, <code>Ctrl + [</code> = Esc), cannot distinguish <code>Ctrl + Shift</code> or <code>Ctrl + &lt;punctuation&gt;</code> without an extended protocol such as the kitty keyboard protocol (<code>CSI u</code>), and collides with multiplexer or container detach prefixes (<code>Ctrl + B</code> in tmux, <code>Ctrl + A</code> in screen, <code>Ctrl + P</code> / <code>Ctrl + Q</code> for container detach).</td></tr>
-<tr><td><strong><code>Alt + &lt;key&gt;</code></strong></td><td>avoids ASCII control-byte collisions. However, it is heavily claimed by window managers, compositors, desktop environments and terminals (<code>Alt + Tab</code>, <code>Alt + F4</code>, <code>Alt + 1</code>..<code>9</code>, and tiling window manager <code>Mod1</code> bindings), introduces <code>Esc</code>-prefix (<code>0x1B</code> + <code>&lt;key&gt;</code>) timing ambiguity over slow links, and runs into macOS Option key quirks where Option composes accented characters instead of sending an Escape prefix unless configured otherwise.</td></tr>
-<tr><td><strong>Function keys (<code>F1</code>&ndash;<code>F12</code>)</strong></td><td>never collide with printable text or ASCII control bytes, and <code>F1</code> is the standard Help key (often paired with a single-byte <code>Ctrl + G</code> (<code>0x07</code>) fallback). Their downsides are differing byte sequences across terminals, <code>Esc</code>-timeout split risk over slow links, and kernel VT switching on <code>Alt + F1</code>..<code>F12</code> and <code>Ctrl + Alt + F1</code>..<code>F12</code>.</td></tr>
-</table>
-
+<tam-sandbox
+  title="Try it: inspect a Backspace report"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Print the sample Backspace byte">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="TERM=foot tput kbs | od -An -c" goal="true" hint="The value 177 octal is DEL, the usual Backspace byte.">
+    <out> 177</out>
+  </tam-cmd>
+  <tam-cmd match="stty -a | tr &#x27;;&#x27; &#x27;\n&#x27; | grep erase" hint="The line discipline agrees with the terminal entry here.">
+    <out> erase = ^?</out>
+  </tam-cmd>
+  <tam-init>A fixed terminfo and line-discipline report follows one key.</tam-init>
+   <tam-hint after="1">The value 177 octal is DEL, the usual Backspace byte.</tam-hint>
+  <tam-hint after="2">The line discipline agrees with the terminal entry here.</tam-hint>
+  <tam-fallback>Type TERM=foot tput kbs | od -An -c, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The terminfo entry and stty report agree on DEL. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. A binding that reuses this chord must respect both layers or Backspace will misbehave.</p>
 <h3>Try it</h3>
-
-<p>Check a candidate key at each layer before you adopt it. Choose the chord you are considering and replace <code>C-h</code> below.</p>
-
-<pre class="session" data-risk="read-only">
-$ stty -a | tr ';' '\n' | grep -E 'intr|quit|erase|kill|eof|start|stop|susp|rprnt|werase|lnext|discard'
-$ bind -p | grep -F '\C-h'
-$ infocmp -1 "$TERM" | grep -E '^\s+(kbs|kcuu1|kf1)='
-$ tput kbs | od -An -c
-</pre>
-
-<p>If the chord appears in the first list, the line discipline consumes it before any program sees it. If it appears in the second, the shell consumes it at a prompt. If the byte equals <code>kbs</code> or the first byte of a cursor sequence, the program cannot reliably tell it apart from those keys. A safe choice appears in none of these lists.</p>
-
-<table>
-<tr><th>Candidate</th><th>Arrives as</th><th>Verdict</th></tr>
-<tr><td><code>F1</code></td><td><code>ESC O P</code> or another sequence per terminal</td><td>Good; decode it, do not hard-code one form</td></tr>
-<tr><td><code>?</code></td><td><code>0x3F</code></td><td>Good where text is not being typed</td></tr>
-<tr><td><code>Ctrl + G</code></td><td><code>0x07</code></td><td>Workable; <code>nano</code> uses it for help</td></tr>
-<tr><td><code>Ctrl + H</code></td><td><code>0x08</code></td><td>Poor; collides with Backspace on many terminals</td></tr>
-<tr><td><code>Ctrl + I</code></td><td><code>0x09</code></td><td>Poor; identical to Tab</td></tr>
-<tr><td><code>Ctrl + M</code></td><td><code>0x0D</code></td><td>Poor; identical to Enter</td></tr>
-<tr><td><code>Ctrl + C</code></td><td><code>0x03</code></td><td>Poor; usually a signal</td></tr>
-</table>
-
+<p>Read the stty rule and explain why a shell binding for Ctrl+H could conflict with erase.</p>
 <h3>If it goes wrong</h3>
-
-<dl>
-<dt>Help opens when the reader presses Backspace</dt>
-<dd>The decoder collapsed <code>0x08</code> and <code>0x7F</code>, or the terminal sends <code>0x08</code> for Backspace. Read <code>kbs</code>, treat that byte as Backspace, and move the command.</dd>
-<dt>The chord never reaches the program</dt>
-<dd>The terminal or the desktop consumed it. Read the terminal's key bindings first, then the compositor's.</dd>
-<dt>The chord works in one terminal and not another</dt>
-<dd>The byte differs, or the terminal reports a different <code>kbs</code>. Test with <code>od</code> in both terminals.</dd>
-<dt>The chord works locally but not over <a href="glossary/s/ssh.html">SSH</a> or in a multiplexer</dt>
-<dd>The remote or inner <code>TERM</code> describes a different terminal, or the multiplexer uses the chord itself.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> a program's keybindings are its own; the system does not reserve control bytes for it. The only fixed points are the kernel's line discipline defaults and the terminal's <code>kbs</code> declaration, both of which a program can read rather than assume.</p>
-</aside>
-
+<p>If layers disagree, record each observed value before changing a configuration file.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Why is <code>Ctrl + H</code> a poor choice for a help command in a terminal program?</i></summary>
-<p>It produces <code>0x08</code>, the ASCII BS code, which is also what some terminals send for Backspace and what some key decoders map to the same Backspace event. The command then competes with the most common editing key in the program.</p>
-</details>
-<details class="q">
-<summary><i>What does the <code>kbs</code> capability tell you, and how would you use it?</i></summary>
-<p>It names the byte the terminal sends for Backspace. Read it and treat that byte as Backspace; the other byte of the pair can then be used for a different command, or at least reported as a distinct key. Hard-coding either byte assumes a terminal that may not be in use.</p>
-</details>
-<details class="q">
-<summary><i>Why is <code>F1</code> a safer choice than <code>Ctrl + I</code> even though both are single key presses?</i></summary>
-<p><code>F1</code> arrives as a multi-byte escape sequence that no text character and no line-discipline character uses, so it cannot be confused with typing. <code>Ctrl + I</code> is exactly the Tab byte, and Tab is both a text character and a completion key.</p>
-</details>
+<details class="q"><summary><i>What does 177 in the od output mean?</i></summary><p>Octal DEL (0x7f), the byte many terminals send for Backspace.</p></details>
 </section>
 </section>
 
@@ -251,17 +169,10 @@ if (byte == bs) {
 <li><strong>Accessibility.</strong> Sticky keys and on-screen keyboards change modifier timing and event order. A chord that requires three simultaneous keys is harder to use with those tools.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A reviewer proposes moving the help command to <code>Ctrl + _</code> because it is unused by the line discipline. Evaluate the proposal and give a better one, with the evidence you would require.</summary>
-<p><code>Ctrl + _</code> is <code>0x1F</code>, which the line discipline does not claim by default, so the first objection is weaker than for <code>Ctrl + H</code>. But it is still a control byte with existing meanings: Readline binds it to undo, Emacs treats it as undo, and some terminals use it for other purposes. It is also hard to type on layouts where <code>_</code> requires Shift, and it collides with a common editor action. The stronger choice is a key that is not a text character at all, such as <code>F1</code>, which arrives as an escape sequence and cannot be produced by typing; a <code>?</code> alias is fine where text entry is inactive. Evidence to require: the byte the terminal sends (checked with <code>od</code> in each supported terminal), the terminal's <code>kbs</code>, the shell's <code>bind -p</code>, the desktop and terminal binding lists, and a test over SSH and in a multiplexer. If the program keeps <code>Ctrl + H</code> for compatibility, it must read <code>kbs</code> and document that the binding is unavailable on terminals whose Backspace is <code>0x08</code>.</p>
-</details>
-</section>
-
 <h3>Sources</h3>
 
 <p><a href="man:ascii(7)">ascii(7)</a>, <a href="man:termios(3)">termios(3)</a>, <a href="man:stty(1)">stty(1)</a>, <a href="man:terminfo(5)">terminfo(5)</a>, <a href="man:foot(1)">foot(1)</a>, <a href="man:foot.ini(5)">foot.ini(5)</a>, <a href="man:nano(1)">nano(1)</a>, <a href="man:readline(3)">readline(3)</a>, and libtam <code>src/tam_key.c</code> at version 0.7.0.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/a/ascii.html">ASCII</a> · <a href="glossary/s/ssh.html">SSH</a>.</p>
 </section>
 
 <h2>Next</h2><p><a href="terminal/input/index.html">How a key press becomes input</a> &mdash; return to the section overview.</p>

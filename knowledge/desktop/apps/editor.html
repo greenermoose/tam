@@ -39,18 +39,42 @@
 <p><strong>Goal:</strong> edit and save a scratch text file using <code>micro</code> or <code>tam-launch-editor</code>, and inspect which default editor Tamlinux configures.</p>
 <p><strong>Before you start:</strong> checking <code>tam-default-editor</code> is read-only. Practice saving and undoing in a fresh temporary file before opening real configuration files.</p>
 
-<h3>Worked example</h3>
+
 <p>Check your configured default editor read-only, then open a disposable temporary file inline in your current terminal:</p>
-<pre class="session" data-risk="read-only">
-$ tam-default-editor
-</pre>
-<pre class="session" data-risk="scratch">
-$ work=$(mktemp -d)
-$ printf 'first line\n' &gt; "$work/draft.txt"
-$ tam-launch-editor --inline "$work/draft.txt"
-$ cat "$work/draft.txt"
-$ rm -- "$work/draft.txt" &amp;&amp; rmdir -- "$work"
-</pre>
+<tam-sandbox
+  title="Try it: Explore tam-default-editor output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore tam-default-editor output">
+  <tam-cmd match="tam-default-editor" goal="true" hint="Look for the value that answers the task.">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: tam-default-editor</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-default-editor (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
+<tam-sandbox
+  title="Try it: Explore work=$(mktemp output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore work=$(mktemp output">
+  <tam-cmd match="work=$(mktemp -d)" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="printf &#x27;first line\n&#x27; &gt; &quot;$work/draft.txt&quot;"></tam-cmd>
+  <tam-cmd match="tam-launch-editor --inline &quot;$work/draft.txt&quot;"></tam-cmd>
+  <tam-cmd match="cat &quot;$work/draft.txt&quot;"></tam-cmd>
+  <tam-cmd match="rm -- &quot;$work/draft.txt&quot; &amp;&amp; rmdir -- &quot;$work&quot;" goal="true">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: work=$(mktemp -d)</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try work=$(mktemp -d) (or type help).</tam-fallback>
+</tam-sandbox>
+
 <p>Inside <code>micro</code>, add a line, press <code>Ctrl + S</code> to save, and press <code>Ctrl + Q</code> to exit back to the prompt. Omitting <code>--inline</code> launches terminal editors in their own window via <code>tam-launch-tui</code> (and launches graphical editors directly).</p>
 
 <h3>Try it</h3>

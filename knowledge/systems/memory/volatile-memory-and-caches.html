@@ -14,7 +14,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/memory/index.html">Memory technology</a> / Volatile memory and CPU caches</p></nav>
 
-<p>Volatile memory loses its data when power is removed. Computers use it for fast working storage because electronic memory can be much faster than disks or flash. CPU caches are small volatile memories placed close to processor cores to hide the delay of main memory.</p>
+<p>Volatile memory loses its contents when power is removed. Computers use RAM and small CPU caches as fast working storage.</p>
 
 <section data-level="novice">
 <h2>Fast memory near the work</h2>
@@ -48,16 +48,28 @@
 <h3>Caches on other chips</h3>
 <p>CPUs are not the only chips with caches. GPUs have instruction/data caches, texture caches, and shared caches. Disk controllers and SSDs use RAM caches to buffer reads and writes. Network cards have buffers. Even browsers and operating systems use software caches. The same principle applies: keep frequently used data in a faster, closer layer.</p>
 
-<h3>Worked example: cache hit versus RAM</h3>
+<h3>Explore: cache hit versus RAM</h3>
 <p>Suppose a CPU needs a value that is already in L1 cache: it may get it in about 1 ns. If it misses L1 and L2 but hits L3, it may wait around 40 ns. If it must go to DRAM, it may wait around 100 ns. Using the 1 ns = 1 second scale, that is the difference between 1 second, 40 seconds, and 1 minute 40 seconds for a single access. Repeated millions of times, locality becomes the difference between fast and slow code.</p>
 
 <h3>Try it</h3>
 <p>On Linux, inspect CPU cache sizes with:</p>
-<pre class="session" data-risk="read-only">
-$ lscpu | grep cache
-$ ls /sys/devices/system/cpu/cpu0/cache/
-$ cat /sys/devices/system/cpu/cpu0/cache/index0/size
-</pre>
+<tam-sandbox
+  title="Try it: Explore lscpu output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore lscpu output">
+  <tam-cmd match="lscpu | grep cache" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="ls /sys/devices/system/cpu/cpu0/cache/"></tam-cmd>
+  <tam-cmd match="cat /sys/devices/system/cpu/cpu0/cache/index0/size" goal="true">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: lscpu | grep cache</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try lscpu | grep cache (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <p><code>index0</code>/<code>index1</code> are often L1 data/instruction caches, with higher indexes for L2/L3 depending on the CPU.</p>
 
 <h3>If it goes wrong</h3>

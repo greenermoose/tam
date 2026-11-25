@@ -13,9 +13,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / Understanding the whole system</p></nav>
 
-
-<p>This page shows how the parts of a Tamlinux computer fit together, from the physical machine up to the apps on your screen.</p>
-
+<p>Tamlinux is a workstation layered onto a base operating system; this page maps those layers and shows how to inspect the host read-only.</p>
 <section data-level="novice">
 <h2>Meet your computer, layer by layer</h2>
 
@@ -60,73 +58,43 @@
 </section>
 
 <section data-level="learner">
-<h2>The Tamlinux stack and its choices</h2>
-
-<p><strong>Goal:</strong> you will be able to trace how Tamlinux's current and planned components fit together and inspect what is running on your own machine.</p>
-
-<p>If you have used Linux before, the quickest way to orient yourself is to see which tools Tamlinux picks today—and where it plans to go next. Tamlinux is not a separate distribution built from scratch; it is a curated workstation scion installed onto a lean rootstock.</p>
-
-<table>
-<tr><th>Layer</th><th>Today in Tamlinux</th><th>Planned direction</th></tr>
-<tr><td><strong>Rootstock (base OS)</strong></td><td>Arch Linux (rolling releases, <code>pacman</code>)</td><td>Void Linux (<code>xbps</code>), with antiX Core as fallback; microkernel research beyond that (<a href="tamlinux/design/distros.html">Rootstocks</a>)</td></tr>
-<tr><td><strong><a href="glossary/i/init.html">Init</a> and services</strong></td><td><code>systemd</code></td><td><code>runit</code> (<a href="systems/init.html">Init and service supervision</a>)</td></tr>
-<tr><td><strong>Login and display</strong></td><td><a href="glossary/s/sddm.html">SDDM</a> + <a href="glossary/h/hyprland.html">Hyprland</a> (<a href="glossary/w/wayland.html">Wayland</a>) + <a href="glossary/q/quickshell.html">Quickshell</a></td><td><code>tam-pane</code>, Tamlinux's own compositor (<a href="desktop/session/compositors.html">How windows appear on your screen</a>)</td></tr>
-<tr><td><strong>Terminal and shell</strong></td><td><code>foot</code> terminal + <code>bash</code> + <code>tam</code></td><td>Same curated defaults (<a href="terminal/shell/index.html">Written instructions</a>)</td></tr>
-<tr><td><strong>Packages and delivery</strong></td><td>Arch <code>pacman</code> for ecosystem packages; Tamlinux software built and installed from <a href="glossary/g/git.html">Git</a> sources with <code>make</code> and <code>make install</code>; <code>mise</code> for user-local agent CLIs</td><td>Native <code>xbps-src</code> packages built from the same sources (<a href="systems/packages/index.html">Software packages</a>)</td></tr>
-<tr><td><strong>Tamlinux scion</strong></td><td><code>tam-*</code> commands, <code>fred.*</code> Quickshell plugins, and this offline <code>tam</code> guide</td><td>Continued refinement in <a href="glossary/c/c11.html">C11</a> and clean scripts (<a href="tamlinux/development/tam.html">The tam command</a>)</td></tr>
-</table>
-
-<h3>Why these choices?</h3>
-
-<p>Tamlinux follows a "1 way to do 15 things" rule: instead of handing you ten terminals and five shells to configure yourself, it picks one fast, reliable default for each job so you can get to work without falling into the fiddling trap. It also avoids unnecessary background polling loops, keeps documentation available offline in <code>tam</code>, and uses human-supervised AI assistance to build and test tools cleanly. Read the full story in <a href="tamlinux/design/philosophy.html">Philosophy and principles</a> and <a href="tamlinux/design/language-choices.html">Systems programming philosophy</a>.</p>
-
-<h3>Worked example</h3>
-
-<p>You can ask <code>tam inspect</code> to report the layers it sees on your machine right now without changing a single file:</p>
-
-<pre class="session" data-risk="system">
-$ tam inspect
-Host Information:
+<h2>Map a host report to the layers</h2>
+<p><strong>Goal:</strong> match labels in a sample host report to the Tamlinux stack</p>
+<p><strong>Before you start:</strong> <a href="tamlinux/design/terminology.html">Botanical analogy</a> and <a href="tamlinux/design/philosophy.html">Philosophy</a>.</p>
+<tam-sandbox
+  title="Try it: inspect a host report"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Read a short tam inspect sample">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="tam inspect" goal="true" hint="Match each label to a row in the layer table.">
+    <out>Host Information:
   Operating system:  Arch Linux (rolling)
   Kernel release:    7.2.11-arch1-1.1
-  Architecture:      x86_64
-  Tamlinux cultivar: KBN WB 0.6.30
-
-Installation Capabilities:
-  Init system:       unknown
-  Package tools:     pacman, mise
-  Privilege tool:    pkexec, sudo
-  Root filesystem:   tmpfs
-  Graphics device:   /dev/dri/card1 (available)
-</pre>
-
-<p>Captured on a Tamlinux system, 2026-11-18; your exact kernel, cultivar, and filesystem lines vary by machine.</p>
-
+  Package tools:     pacman, mise</out>
+  </tam-cmd>
+  <tam-cmd match="command -v tam" hint="This shows which executable a new shell would start.">
+    <out>/usr/bin/tam</out>
+  </tam-cmd>
+  <tam-init>A fixed report names OS, kernel, packages and graphics.</tam-init>
+   <tam-hint after="1">Match each label to a row in the layer table.</tam-hint>
+  <tam-hint after="2">This shows which executable a new shell would start.</tam-hint>
+  <tam-fallback>Type tam inspect, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The labels correspond to the rootstock, kernel and package layers. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. Exact values differ by machine; the structure of the report is the teaching point.</p>
 <h3>Try it</h3>
-
-<p>Open a terminal and run <code>tam inspect</code>. Match each line it prints—operating system, kernel release, package tools, and graphics device—to the layers in the table above. Because <code>tam inspect</code> is read-only, it is completely safe to run anytime.</p>
-
+<p>Run the command rule and name which table row each printed label belongs to.</p>
 <h3>If it goes wrong</h3>
-<dl>
-<dt><code>tam: command not found</code></dt>
-<dd>The shell could not find the command. Check with <code>command -v tam</code>; if it prints nothing, <code>tam</code> is not installed or its directory is not on your <a href="glossary/e/environment-variable.html">PATH</a>.</dd>
-<dt>The report differs from the capture above</dt>
-<dd>That is expected. Each line describes the machine you are using, so compare the labels and their order rather than the exact values.</dd>
-<dt>A line reads <code>unknown</code>, <code>unavailable</code> or <code>not deployed</code></dt>
-<dd>The inspection reports only what it can detect on this host. Keep the line as evidence and use the other rows to place it in the stack; nothing was changed.</dd>
-</dl>
-
+<p>A line reading unknown or unavailable is evidence about detection, not a failed command.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>In Tamlinux, what is the difference between the rootstock and the scion?</i></summary>
-<p>The rootstock is the base OS (today Arch Linux) installed on the host. The scion is Tamlinux's own software layered on top—its commands, desktop configuration, plugins, and the <code>tam</code> guide.</p>
-</details>
-<details class="q">
-<summary><i>Why does Tamlinux list Void Linux and <code>tam-pane</code> as "planned" rather than current?</i></summary>
-<p>Today's working Tamlinux workstation runs on Arch Linux with Hyprland and Quickshell. Void Linux (with <code>runit</code>) and Tamlinux's own compositor, <code>tam-pane</code>, are planned direction, not what is running on a current Arch-based host. Sway and wlroots are not planned.</p>
-</details>
+<details class="q"><summary><i>What is the difference between rootstock and scion?</i></summary><p>The rootstock is the base OS; the scion is Tamlinux software layered on top.</p></details>
 </section>
 </section>
 
@@ -153,13 +121,7 @@ Installation Capabilities:
 <li><strong>Stage discipline:</strong> candidate builds move through Develop, Test, Run, and Release only on the developer's explicit instruction.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why does Tamlinux separate the rootstock from the scion instead of maintaining a full custom Linux distribution?</summary>
-<p>Keeping the rootstock minimal and third-party lets Tamlinux rely on upstream kernels, drivers, and security updates while concentrating its own engineering on ergonomic tools, C11 utilities, and desktop polish—making future rootstock transitions (such as Arch to Void) tractable without rewriting the entire OS.</p>
-</details>
-</section>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/i/init.html">Init</a> · <a href="systems/init.html">Init and service supervision</a> · <a href="glossary/s/sddm.html">SDDM</a> · <a href="glossary/h/hyprland.html">Hyprland</a> · <a href="glossary/w/wayland.html">Wayland</a> · <a href="glossary/q/quickshell.html">Quickshell</a> · <a href="desktop/session/compositors.html">How windows appear on your screen</a> · <a href="terminal/shell/index.html">Written instructions</a> · <a href="glossary/g/git.html">Git</a> · <a href="systems/packages/index.html">Software packages</a> · <a href="glossary/c/c11.html">C11</a> · <a href="glossary/e/environment-variable.html">PATH</a>.</p>
 </section>
 
 <h2>Where next</h2>

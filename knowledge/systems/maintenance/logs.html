@@ -47,13 +47,22 @@
 <p><strong>Before you start:</strong> open a terminal. Read <a href="paths/first-steps.html?level=1">First steps</a> if needed. These commands only read logs; they do not restart services or remove evidence.</p>
 <aside class="first-time"><p>Type the command after <code>$</code>, without typing that prompt. <code>--no-pager</code> prints the result and returns to your shell.</p></aside>
 
-<h3>Worked example</h3>
-<pre class="session">
-$ journalctl -b -u systemd-journald.service -n 1 --no-pager -o cat
-Received client request to flush runtime journal.
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-10-22. Your message may differ, or you may have no accessible matching entry.</p>
 
+<tam-sandbox
+  title="Try it: Explore journalctl output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore journalctl output">
+  <tam-cmd match="journalctl -b -u systemd-journald.service -n 1 --no-pager -o cat" goal="true" hint="Look for the value that answers the task.">
+    <out>Received client request to flush runtime journal.</out>
+  </tam-cmd>
+  <tam-init>Try: journalctl -b -u systemd-journald.service -n 1 --no-pager -o cat</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try journalctl -b -u systemd-journald.service -n 1 --no-pager -o cat (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>-b</code> selects the current boot.</li>
@@ -69,11 +78,20 @@ journalctl -b -u systemd-journald.service -n 2 --no-pager
 <p>Tell a helper your symptom, the time and timezone, the command you used, and what you actually saw. Review excerpts for private information before sharing.</p>
 
 <p>When you need a tighter window, combine boot, unit and time. An empty invented unit shows the limit of a filter without causing a failure:</p>
-<pre class="session">
-$ journalctl -b -u tam-lesson-example.service -n 5 --no-pager
--- No entries --
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-10-22. For a real symptom, use the real unit and a time window such as <code>--since</code> / <code>--until</code>.</p>
+<tam-sandbox
+  title="Try it: Explore journalctl output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore journalctl output">
+  <tam-cmd match="journalctl -b -u tam-lesson-example.service -n 5 --no-pager" goal="true" hint="Look for the value that answers the task.">
+    <out>-- No entries --</out>
+  </tam-cmd>
+  <tam-init>Try: journalctl -b -u tam-lesson-example.service -n 5 --no-pager</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try journalctl -b -u tam-lesson-example.service -n 5 --no-pager (or type help).</tam-fallback>
+</tam-sandbox>
 
 <h3>If it goes wrong</h3>
 <dl>

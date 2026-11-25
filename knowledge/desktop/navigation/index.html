@@ -44,15 +44,19 @@
 <p><strong>Before you start:</strong> save work in existing windows and read <a href="welcome.html?level=1">Welcome</a>. Practice only with a new empty terminal.</p>
 <aside class="first-time"><p>Meta is usually the key with a Windows logo. A plus sign means hold the keys together, not type a plus. These keys go to the desktop, not into the terminal text.</p></aside>
 
-<h3>Worked example</h3>
-<ol>
-<li>Note your current window and workspace.</li>
-<li>Press Meta + Return to request a new terminal.</li>
-<li>With that empty terminal focused, press Meta + T to toggle floating/tiling. Press it again to undo.</li>
-<li>Press Meta + Q to close only that empty terminal.</li>
-</ol>
-<p>This walkthrough is checked against the packaged bindings, not a claim that a <a href="glossary/g/gui.html">GUI</a> acceptance test was performed in your session.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Use the live list to locate a desktop action"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Use the live list to locate a desktop action">
+  <tam-cmd match="tam-menu-keybindings" goal="true">
+    <out>Sample: Meta + K opens the keybindings list</out>
+  </tam-cmd>
+  <tam-init>Try: tam-menu-keybindings</tam-init>
+  <tam-hint after="1">Search by the action or key chord.</tam-hint>
+  <tam-hint after="2">The current session is the source of truth when overrides exist.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The terminal launcher opened an application.</li>

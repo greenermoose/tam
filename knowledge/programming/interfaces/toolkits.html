@@ -5,7 +5,7 @@
 <meta name="topic" content="toolkits">
 <meta name="summary" content="Desktop shell and UI: Quickshell, Qt Quick, QML, and the Tamlinux shell">
 <meta name="keywords" content="toolkit, toolkits, quickshell, qt, qml, gtk, tamlinux shell, omarchy, waybar, ags, astal, eww, layer shell, bar, panel">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="programming">
 <meta name="parent" content="programming/interfaces/index.html">
 <meta name="kind" content="explanation">
@@ -14,79 +14,103 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/interfaces/index.html">Application interfaces</a> / The bar and menus around your windows</p></nav>
 
+<p>The bar, menus and controls around your windows are drawn by a desktop shell. It uses toolkits and a compositor to turn program code into the interface you see.</p>
 
-<p>This page explains the software that provides the bar, menus, and other controls around your windows.</p>
 <section data-level="novice">
-<h2>What desktop toolkits does Tamlinux use?</h2>
-<p>A graphical toolkit is the building-block library—providing buttons, text boxes, panels, and menus—that applications and desktop shells use to draw their user interfaces on screen.</p>
+<h2>What draws the desktop</h2>
+<p>A <a href="glossary/c/compositor.html">compositor</a> places windows on the screen. A desktop shell draws extras such as a bar and menus, often with <a href="glossary/q/quickshell.html">Quickshell</a> and <a href="glossary/q/qml.html">QML</a>.</p>
 <h3>Why it matters</h3>
-<p>The top bar, launcher menus, and status panels around your windows come from a desktop shell built on a toolkit. Knowing that the shell is separate from the window compositor makes it clear which piece to inspect or restart if a bar or menu misbehaves.</p>
+<p>Separating the shell from applications means the desktop can change without rewriting every program.</p>
 <h3>How to think about it</h3>
-<p>Think of the compositor as the gallery wall that hangs and frames every window, and the desktop shell toolkit as the carpentry kit used to build the clock, menus, and status bar mounted along the edge of the wall.</p>
+<p>The compositor is the stage, applications are the performers, and the shell is the signage and lighting around them.</p>
 <h3>New words</h3>
 <dl>
-<dt><a href="glossary/c/compositor.html">Compositor</a></dt>
-<dd>The program that arranges and draws windows on screen.</dd>
-<dt><a href="glossary/q/quickshell.html">Quickshell</a></dt>
-<dd>The Qt Quick / <a href="glossary/q/qml.html">QML</a> desktop shell framework Tamlinux uses for its bar, menus, and widgets.</dd>
-<dt><a href="glossary/q/qml.html">QML</a></dt>
-<dd>The declarative user-interface language used to describe Quickshell panels and widgets.</dd>
+<dt><dfn><a href="glossary/w/wayland.html">Wayland</a></dfn></dt><dd>The protocol applications use to talk to the compositor.</dd>
+<dt><dfn><a href="glossary/h/hyprland.html">Hyprland</a></dfn></dt><dd>The compositor that manages windows on Tamlinux.</dd>
 </dl>
 </section>
 
 <section data-level="learner">
-<h2>Separate shell and compositor</h2>
-<p><strong>Goal:</strong> describe how the desktop shell relates to a compositor and its toolkit.</p>
-<h3>Mental model</h3>
-<p>A compositor manages application surfaces; a shell supplies interface elements such as panels; a toolkit helps implement them.</p>
-<h3>Worked example</h3>
-<p>The page below describes Quickshell as the toolkit and the Tamlinux shell as the interface built with it.</p>
+<h2>Place the layers in order</h2>
+<p><strong>Goal:</strong> say where a toolkit, a shell and a compositor sit in the desktop stack.</p>
+<tam-sandbox
+  title="Try it: read a desktop stack"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Find the shell layer in the sample stack">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="stack.txt" size="70">client application
+toolkit Qt Quick
+shell Quickshell
+compositor Hyprland
+protocol Wayland</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat stack.txt" hint="Read from the application down to the protocol.">
+      <out>client application</out>
+      <out>toolkit Qt Quick</out>
+      <out>shell Quickshell</out>
+      <out>compositor Hyprland</out>
+      <out>protocol Wayland</out>
+    </tam-cmd>
+    <tam-cmd match="grep Quickshell stack.txt" goal="true" hint="Correct: the shell draws the bar and menus above the compositor.">
+      <out>shell Quickshell</out>
+    </tam-cmd>
+  <tam-init>Try: grep Quickshell stack.txt</tam-init>
+  <tam-hint after="1">Type cat stack.txt to see all five layers.</tam-hint>
+  <tam-fallback>Try cat stack.txt, or grep Quickshell stack.txt (or type help).</tam-fallback>
+</tam-sandbox>
 
-<p>The desktop shell is the visible interface around your windows: the bar,
-menus, workspace indicators, notifications, and pop-up panels. Tamlinux keeps
-window management (the compositor) separate from this presentation layer and
-builds its own shell, the <strong>Tamlinux shell</strong>, with
-<strong>Quickshell</strong> and <strong>Qt Quick</strong>.</p>
-
-<h2>Why Quickshell</h2>
-
-<p>Quickshell is a toolkit for building desktop shells in QML on top of
-Qt Quick:</p>
-
-<table>
-<tr><td><strong>Declarative and reactive</strong></td><td>QML properties bind directly to system state, so the interface updates when the state changes, without polling.</td></tr>
-<tr><td><strong>Layer-shell panels</strong></td><td>bars and panels anchor to screen edges through the <code>wlr-layer-shell</code> protocol and reserve space for themselves.</td></tr>
-<tr><td><strong>Multiple monitors</strong></td><td>a bar per output follows displays as they are connected and disconnected.</td></tr>
-</table>
-
-<h2>Independence from Omarchy</h2>
-
-<p>The Tamlinux shell began from components ported from Omarchy 4.0.4, keeping
-their MIT notices. Independence from Omarchy as a runtime dependency is complete:
-a Tamlinux desktop installs without Omarchy software, packages, or servers.
-Omarchy remains a peer project that Tamlinux watches for useful ideas and fixes.</p>
-
-<table>
-<tr><td><strong>Standard protocols first</strong></td><td>a shared, compositor-neutral layer reads workspace and output facts from standard <a href="glossary/w/wayland.html">Wayland</a> protocols such as <code>ext-workspace-v1</code> and <code>wl_output</code>; small per-compositor adapters fill only the gaps. This is what lets the same shell move from <a href="glossary/h/hyprland.html">Hyprland</a> to Tamlinux's own compositor, <code>tam-pane</code>.</td></tr>
-<tr><td><strong>Shared components</strong></td><td>plugins use a common hover tooltip and a shared version footer in their panels.</td></tr>
-<tr><td><strong>Copyleft</strong></td><td>the shell is maintained publicly in the <code>tamlinux</code> repository under <a href="glossary/g/gpl-3.html">GPL-3.0</a>-or-later.</td></tr>
-</table>
-
-<h2>Alternatives considered</h2>
-
-<table>
-<tr><td><strong>Waybar</strong></td><td>a capable, lightweight status bar, but focused on bar modules rather than rich interactive panels.</td></tr>
-<tr><td><strong>Astal and <a href="glossary/a/ags.html">AGS</a></strong></td><td><a href="glossary/g/gtk.html">GTK</a> widget frameworks scripted in TypeScript through <a href="glossary/g/gjs.html">GJS</a>.</td></tr>
-<tr><td><strong><a href="glossary/e/eww.html">EWW</a></strong></td><td>a standalone widget engine in Rust with its own configuration language, Yuck.</td></tr>
-</table>
+<h3>What just happened</h3>
+<p>The sample stack puts the application at the top, a toolkit below it for widgets, the shell for desktop chrome, the compositor for windows, and Wayland as the protocol underneath. This is a simplified map, not a live reading from your session.</p>
 <h3>Try it</h3>
-<p>Name the toolkit and the interface in that example.</p><details class="solution"><p>Quickshell is the toolkit; the Tamlinux shell provides the desktop interface. The compositor is a separate component.</p></details>
+<p>Run <code>grep Hyprland stack.txt</code>. The compositor sits below the shell because the shell needs its surfaces and input events.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> the shell is built with Quickshell and Qt Quick; the compositor is Hyprland.</p></aside>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>The result is empty or unexpected</dt>
-<dd>Re-read the lesson. These pages explain design; they do not require changing the system to practice.</dd>
+<dt>grep returned nothing.</dt><dd>Type grep Quickshell stack.txt with that spelling.</dd>
+<dt>I expected a running process list.</dt><dd>The sandbox shows a layered model, not a process listing.</dd>
 </dl>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a toolkit name alone tell you which compositor is running?</i></summary><p>No. Check the actual session and compositor separately.</p></details><details class="q"><summary><i>What evidence separates a proposed change from a delivered one?</i></summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>What does a toolkit provide?</i></summary>
+<p>Ready-made widgets and layout tools for building an interface.</p>
+</details>
+<details class="q">
+<summary><i>What does the compositor do?</i></summary>
+<p>Places windows on screen, handles input and presents the final image.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: shell and toolkit choices</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Name</th><th>Role</th><th>Language</th></tr>
+<tr><td>Quickshell</td><td>Tamlinux desktop shell</td><td>QML / Qt Quick</td></tr>
+<tr><td>Hyprland</td><td>Wayland compositor</td><td>C++ / plugins</td></tr>
+<tr><td><a href="glossary/a/ags.html">AGS</a></td><td>Alternative shell toolkit</td><td>GJS</td></tr>
+<tr><td><a href="glossary/e/eww.html">EWW</a></td><td>Alternative widget system</td><td>Configuration language</td></tr>
+</table>
+<h3>How it works</h3>
+<p>QML describes visual objects and bindings; Qt Quick renders them. The shell creates surfaces that the compositor places alongside ordinary application windows. <a href="glossary/g/gtk.html">GTK</a> and <a href="glossary/g/gjs.html">GJS</a> are other toolkit routes, with different licensing and integration trade-offs.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Compositor plugin ABI changes can break shell plugins after an update.</li>
+<li>Wayland clients cannot read another client's contents without explicit protocols.</li>
+<li>Binding loops in QML produce repeated updates.</li>
+<li>A shell crash should not close applications, but it removes the bar and menus.</li>
+</ul>
+<h3>Sources</h3>
+<p><a href="desktop/windowing/toolkits.html">How graphical toolkits build interfaces</a>; <a href="desktop/windowing/desktops.html">GNOME, KDE Plasma and other desktops</a>; <a href="glossary/g/gpl-3.html">GPL-3.0</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="bibliography/index.html">bibliography</a>.</p>
 </section>
 
 <p>See also <a href="desktop/windowing/toolkits.html">How graphical toolkits build interfaces</a> for a wider comparison of GTK, Qt, web technology and other widget systems, and <a href="desktop/windowing/desktops.html">GNOME, KDE Plasma and other desktops</a> for the layers around them.</p>

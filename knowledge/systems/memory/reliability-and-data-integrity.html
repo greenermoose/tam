@@ -14,7 +14,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/memory/index.html">Memory technology</a> / Reliability and data integrity</p></nav>
 
-<p>All memory technologies can fail. Some failures are sudden, like a dead drive. Others are quiet, like a flipped bit in RAM or a fading charge in flash. Reliable systems use error detection, error correction, testing, monitoring, and redundancy to reduce the chance that bad data is accepted as good.</p>
+<p>Memory can fail suddenly or silently. Error checks, testing and backups help detect damage and protect useful data.</p>
 
 <section data-level="novice">
 <h2>When memory gets it wrong</h2>
@@ -39,10 +39,22 @@
 
 <h3>Testing memory and storage</h3>
 <p>Memory chips and storage devices are tested at manufacture, but problems can appear later. RAM can be tested with tools like <code>memtest86+</code> or kernel memory test features. Disks can be checked with SMART tools and read scans. Filesystems can check metadata and data checksums. SSDs and HDDs also run internal self-tests and remap bad areas.</p>
-<pre class="session" data-risk="system">
-$ sudo smartctl -H /dev/sda
-$ sudo smartctl -t short /dev/sda
-</pre>
+<tam-sandbox
+  title="Try it: Testing memory and storage"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Testing memory and storage">
+  <tam-cmd match="sudo smartctl -H /dev/sda" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="sudo smartctl -t short /dev/sda" goal="true">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: sudo smartctl -H /dev/sda</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try sudo smartctl -H /dev/sda (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <p>These commands ask a drive to report health and run a short self-test. They do not repair physical damage.</p>
 
 <h3>Marking bad sections off limits</h3>
@@ -53,7 +65,7 @@ $ sudo smartctl -t short /dev/sda
 <li><strong>SSDs/flash:</strong> The flash translation layer keeps a map of bad blocks and spare blocks. When a block becomes unreliable, the controller retires it and uses spare area.</li>
 </ul>
 
-<h3>Worked example: a corrected RAM error</h3>
+<h3>Explore: a corrected RAM error</h3>
 <p>A server with ECC RAM logs a corrected single-bit error in one DIMM. The system continues running because ECC repaired the bit, but the log is a warning: the physical memory may be degrading. An administrator monitors for repeated corrected errors, runs memory tests during maintenance, and replaces the DIMM before an uncorrected error causes a crash or silent data corruption.</p>
 
 <h3>Try it</h3>

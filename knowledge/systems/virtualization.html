@@ -65,15 +65,26 @@ Use: Bootloader, kernel, initramfs,     Use: Fast tool/build
 </pre>
 
 <p>Virtual machines emulate full hardware, booting an independent kernel with its own memory and device drivers. Containers isolate user space using Linux kernel namespaces (<a href="glossary/p/pid.html">PID</a>, mount, network, <a href="glossary/i/ipc.html">IPC</a>) and control groups (cgroups), sharing the host kernel for minimal resource overhead and instant startup.</p>
-<h3>Worked example: Check runtime virtualization and <a href="glossary/k/kvm.html">KVM</a> availability</h3>
-<pre class="session" data-risk="read-only">
-$ systemd-detect-virt
-none
-$ ls -l /dev/kvm
-crw-rw-rw- 1 root kvm 10, 232 Oct 23 14:15 /dev/kvm
-</pre>
+<h3>Explore: Check runtime virtualization and <a href="glossary/k/kvm.html">KVM</a> availability</h3>
+<tam-sandbox
+  title="Try it: Check runtime virtualization and KVM availability"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Check runtime virtualization and KVM availability">
+  <tam-cmd match="systemd-detect-virt" hint="Look for the value that answers the task.">
+    <out>none</out>
+  </tam-cmd>
+  <tam-cmd match="ls -l /dev/kvm" goal="true">
+    <out>crw-rw-rw- 1 root kvm 10, 232 Oct 23 14:15 /dev/kvm</out>
+  </tam-cmd>
+  <tam-init>Try: systemd-detect-virt</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try systemd-detect-virt (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>systemd-detect-virt</code> returned <code>none</code>, confirming that the current shell is executing directly on physical bare-metal hardware rather than within a guest virtual machine or container.</li>
@@ -82,10 +93,21 @@ crw-rw-rw- 1 root kvm 10, 232 Oct 23 14:15 /dev/kvm
 <h3>Try it</h3>
 <p>Query <a href="glossary/c/cpu.html">CPU</a> hardware virtualization extension flags (such as Intel VT-x or <a href="glossary/a/amd-v.html">AMD-V</a>) using <code>lscpu</code>:</p>
 
-<pre class="session" data-risk="read-only">
-$ lscpu | grep -i Virtualization
-Virtualization:                          AMD-V
-</pre>
+<tam-sandbox
+  title="Try it: Explore lscpu output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore lscpu output">
+  <tam-cmd match="lscpu | grep -i Virtualization" goal="true" hint="Look for the value that answers the task.">
+    <out>Virtualization:                          AMD-V</out>
+  </tam-cmd>
+  <tam-init>Try: lscpu | grep -i Virtualization</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try lscpu | grep -i Virtualization (or type help).</tam-fallback>
+</tam-sandbox>
+
 
 <p>You can also list all virtualization and container technologies recognized by systemd with <code>systemd-detect-virt --list</code>.</p>
 <h3>If it goes wrong</h3>

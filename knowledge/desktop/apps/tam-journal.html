@@ -7,7 +7,7 @@
 <meta name="topic" content="tam-journal">
 <meta name="summary" content="Capture quick timestamped notes and edit daily YYYY-MM-DD.txt journals in Micro with tam-journal and Meta + Shift + J">
 <meta name="keywords" content="tam-journal, tam-launch-journal, journal, notes, micro, tamlinux-tools">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/apps/index.html">
 <meta name="paths" content="files-and-apps:11">
@@ -39,19 +39,43 @@
 <p><strong>Goal:</strong> open or append to a scratch journal directory via <code>TAM_JOURNAL_DIR</code> and understand how <code>tam-journal</code> handles locks, drafts, and bundle updates.</p>
 <p><strong>Before you start:</strong> checking <code>--help</code> or <code>--version</code> is read-only. Test commands with <code>TAM_JOURNAL_DIR</code> pointing to a temporary directory before opening your real <code>~/Journal</code>.</p>
 
-<h3>Worked example</h3>
+
 <p>Inspect usage and version without creating files:</p>
-<pre class="session" data-risk="read-only">
-$ tam-journal --help
-$ tam-journal --version
-</pre>
+<tam-sandbox
+  title="Try it: Explore tam-journal output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore tam-journal output">
+  <tam-cmd match="tam-journal --help" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="tam-journal --version" goal="true">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: tam-journal --help</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-journal --help (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <p>Open today's file in Micro inside a private scratch folder, or append a blank timestamped note directly from the terminal:</p>
-<pre class="session" data-risk="scratch">
-$ work=$(mktemp -d)
-$ TAM_JOURNAL_DIR="$work" tam-journal add
-$ ls -la "$work"
-$ rm -rf -- "$work"
-</pre>
+<tam-sandbox
+  title="Try it: Explore work=$(mktemp output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore work=$(mktemp output">
+  <tam-cmd match="work=$(mktemp -d)" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="TAM_JOURNAL_DIR=&quot;$work&quot; tam-journal add"></tam-cmd>
+  <tam-cmd match="ls -la &quot;$work&quot;"></tam-cmd>
+  <tam-cmd match="rm -rf -- &quot;$work&quot;" goal="true">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: work=$(mktemp -d)</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try work=$(mktemp -d) (or type help).</tam-fallback>
+</tam-sandbox>
+
 <p>Use <code>--date YYYY-MM-DD</code> to view or append to another calendar day. When invoked from the desktop shortcut (<code>Meta + Shift + J</code>), <code>tam-launch-journal add</code> launches <code>tam-journal add</code> in a floating terminal window.</p>
 
 <h3>Try it</h3>
@@ -82,7 +106,10 @@ $ rm -rf -- "$work"
 </details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Reference and system behavior</h2>
+<p><code>tam-journal</code> keeps personal notes in the user account. Its directory option is useful for tests because it separates sample records from the normal journal.</p>
+</section>
 <h2>Next</h2><p><a href="desktop/apps/editor.html">Opening and editing text files</a> &mdash; saving and undoing in Micro.</p>
 <h2>Related</h2><ul><li><a href="programming/interfaces/tam-file-select.html">Selecting files natively with tam-file-select</a> &mdash; desktop portal file picker utility.</li></ul>
 

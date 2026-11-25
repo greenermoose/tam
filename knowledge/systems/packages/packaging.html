@@ -54,13 +54,22 @@ User Toolchains (Developer / Agent CLIs) --&gt; Mise (~/.local/share/mise)
 </pre>
 
 <p>Each command on your system should have one clear owner. Pacman owns the <dfn><a href="glossary/r/rootstock.html">rootstock</a></dfn> (the base operating system beneath the Tamlinux <dfn><a href="glossary/s/scion.html">scion</a></dfn>; currently Arch Linux, with plans to migrate to Void Linux and later explore a microkernel). Tamlinux builds and installs its own desktop and bespoke tools from pinned Git clones with <code>make</code> and <code>make install</code> (transitioning away from earlier bundle tools; <a href="glossary/n/nix.html">Nix</a> and Home Manager are retired). Fast-moving developer and agent CLIs are owned by <a href="glossary/m/mise.html">Mise</a>.</p>
-<h3>Worked example: Query an installed package</h3>
-<pre class="session" data-risk="read-only">
-$ pacman -Q bash
-bash 5.3.20-1
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-10-25. Your version may differ.</p>
+<h3>Explore: Query an installed package</h3>
+<tam-sandbox
+  title="Try it: Query an installed package"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Query an installed package">
+  <tam-cmd match="pacman -Q bash" goal="true" hint="Look for the value that answers the task.">
+    <out>bash 5.3.20-1</out>
+  </tam-cmd>
+  <tam-init>Try: pacman -Q bash</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try pacman -Q bash (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
 <ol>
 <li><code>pacman</code> is invoked with the <code>-Q</code> query flag.</li>
@@ -91,6 +100,20 @@ bash 5.3.20-1
 <p>The package build revision created by the distribution maintainer, distinct from the upstream software release.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for tam where /usr/bin/bash"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for tam where /usr/bin/bash">
+<tam-cmd match="tam where /usr/bin/bash" goal="true" hint="Read the labels and connect each value to the task."></tam-cmd>
+  <tam-init>Try: tam where /usr/bin/bash</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try tam where /usr/bin/bash (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Packaging architectures, immutable stores, and patch lifecycles</h2>
@@ -124,9 +147,7 @@ bash 5.3.20-1
 
 <p>Trace which layer owns an installed command:</p>
 
-<pre class="session" data-risk="read-only">
-$ tam where /usr/bin/bash
-</pre>
+
 
 <p><code>tam where</code> checks active Tamlinux cultivar paths and manifests first, then queries the rootstock package manager (<code>pacman -Qo</code> on Arch Linux).</p>
 

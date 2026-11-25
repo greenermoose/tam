@@ -5,7 +5,7 @@
 <meta name="topic" content="workspaces">
 <meta name="summary" content="Workspace navigation, scratchpad, and multi-display movement">
 <meta name="keywords" content="workspaces, workspace, monitors, displays, scratchpad, monitor, multi monitor">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/navigation/index.html">
 <meta name="kind" content="how-to">
@@ -41,15 +41,19 @@
 
 <p>Use the active bindings from Meta + K if you have overrides. The example below uses the packaged US <a href="glossary/q/qwerty.html">QWERTY</a> number-row bindings.</p>
 
-<h3>Worked example</h3>
-<ol>
-<li>Record your starting workspace. Open an empty terminal with Meta + Return.</li>
-<li>Choose a known practice destination, for example workspace 2.</li>
-<li>With the empty terminal focused, Meta + Shift + 2 moves it to workspace 2 and follows it.</li>
-<li>Move the same terminal back with Meta + Shift plus the starting workspace key. Close the empty terminal only after confirming focus.</li>
-</ol>
-<p>The sequence is sourced from the binding definitions; live <a href="glossary/g/gui.html">GUI</a> behavior and personal overrides still need human verification.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Check the active desktop layout"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Check the active desktop layout">
+  <tam-cmd match="tam-desktop-mode" goal="true">
+    <out>Sample: current workspace layout is tiled</out>
+  </tam-cmd>
+  <tam-init>Try: tam-desktop-mode</tam-init>
+  <tam-hint after="1">A workspace is a compositor-managed group of windows.</tam-hint>
+  <tam-hint after="2">Moving focus and moving a window are different actions.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>A workspace switch changes which group you are viewing.</li>
@@ -82,7 +86,10 @@
 <p>You may have existing work elsewhere. Recording the start gives a specific undo step.</p></details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Expert reference</h2>
+<p>Workspace state belongs to the compositor; applications do not own placement.</p>
+</section>
 <h2>Next</h2>
 <p><a href="desktop/tasks/index.html">Using Tamlinux</a> collects everyday tasks;
 <a href="skills/index.html">the skills map</a> helps choose the next level.</p>

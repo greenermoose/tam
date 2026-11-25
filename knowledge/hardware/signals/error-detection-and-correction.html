@@ -17,7 +17,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> / <a href="hardware/signals/index.html">Signals and cables</a> / Error detection, correction, and channel reliability</p></nav>
 
 
-<p>This page explains why physical transmission channels corrupt digital data, how mathematical detection algorithms identify corrupted bits, and how forward error correction and retransmission protocols guarantee reliability across imperfect hardware.</p>
+<p>Signals can change while traveling through a cable or radio link. Checksums, error-correcting codes and retransmission help detect or repair damaged data.</p>
 <h2>Before this</h2><p><a href="networking/communication-protocols.html">Communication protocols, framing, and data rates</a> · <a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a></p>
 <p>In a purely theoretical world, a wire conveys 1s and 0s with mathematical perfection. In the physical universe, conductors pass through electromagnetic fields, radio waves encounter atmospheric moisture, and microscopic thermal fluctuations agitate electrons inside semiconductors. Communication engineering assumes that every physical medium is inherently hostile and lossy. By appending structured redundant bits to messages &mdash; ranging from simple parity bits to multi-dimensional Cyclic Redundancy Checks and Forward Error Correction codes &mdash; computers detect errors immediately or reconstruct damaged data in flight without retransmission.</p>
 
@@ -46,12 +46,17 @@
 <aside class="first-time">
 <p><strong>New to this?</strong> Think of a parity bit like a quick count verification. If you pack a box with three apples and write "odd number of apples" on the outside tape, the recipient opens the box and counts them. If they count four apples (or two), they instantly know something went wrong during shipment, even without knowing which apple was damaged.</p>
 </aside>
-<h3>Worked example: calculate even and odd parity for ASCII characters</h3>
+<h3>Explore: calculate even and odd parity for ASCII characters</h3>
 <p>In standard 7-bit ASCII, the uppercase letter <code>'A'</code> has binary code <code>1000001</code> (two 1s). The letter <code>'C'</code> has binary code <code>1000011</code> (three 1s). Let us calculate the required parity bit for both:</p>
 
-<pre class="session" data-risk="read-only">
-$ python3 -c '
-for char in ["A", "C"]:
+<tam-sandbox
+  title="Try it: calculate even and odd parity for ASCII characters"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Calculate even and odd parity for ASCII characters">
+  <tam-cmd match="python3 -c &#x27;" goal="true" hint="Look for the value that answers the task.">
+    <out>for char in ["A", "C"]:
     bits = f"{ord(char):07b}"
     ones = bits.count("1")
     even_p = 0 if ones % 2 == 0 else 1
@@ -59,8 +64,14 @@ for char in ["A", "C"]:
     print(f"Char: {char} | Bits: {bits} (ones: {ones}) | Even parity: {even_p} | Odd parity: {odd_p}")
 '
 Char: A | Bits: 1000001 (ones: 2) | Even parity: 0 | Odd parity: 1
-Char: C | Bits: 1000011 (ones: 3) | Even parity: 1 | Odd parity: 0
-</pre>
+Char: C | Bits: 1000011 (ones: 3) | Even parity: 1 | Odd parity: 0</out>
+  </tam-cmd>
+  <tam-init>Try: python3 -c '</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try python3 -c ' (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
 <p>Understanding the calculation:</p>
 <ol>
@@ -71,17 +82,28 @@ Char: C | Bits: 1000011 (ones: 3) | Even parity: 1 | Odd parity: 0
 <h3>Try it</h3>
 <p>Compute the parity bit for the lowercase character <code>'z'</code> (binary <code>1111010</code>, five 1s) under Even parity. Verify whether an incoming byte with binary <code>11110101</code> passes or fails an Even parity check:</p>
 
-<pre class="session" data-risk="read-only">
-$ python3 -c '
-bits = "1111010"
+<tam-sandbox
+  title="Try it: Explore python3 output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore python3 output">
+  <tam-cmd match="python3 -c &#x27;" goal="true" hint="Look for the value that answers the task.">
+    <out>bits = "1111010"
 ones = bits.count("1")
 even_bit = 1 if ones % 2 != 0 else 0
 incoming = "11110101"
 valid = incoming.count("1") % 2 == 0
 print(f"Calculated parity bit: {even_bit} | Incoming valid under Even Parity: {valid}")
 '
-Calculated parity bit: 1 | Incoming valid under Even Parity: True
-</pre>
+Calculated parity bit: 1 | Incoming valid under Even Parity: True</out>
+  </tam-cmd>
+  <tam-init>Try: python3 -c '</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try python3 -c ' (or type help).</tam-fallback>
+</tam-sandbox>
+
 <h3>If it goes wrong</h3>
 <p>If parity checking fails to catch an error, remember the fundamental limitation of single-bit parity:</p>
 <ul>
@@ -102,6 +124,22 @@ Calculated parity bit: 1 | Incoming valid under Even Parity: True
 <p>Because flipping two bits either increases the count of 1s by 2, decreases it by 2, or keeps it unchanged (if one 0 becomes 1 and one 1 becomes 0). In all three cases, the even/odd mathematical parity of the total sum remains unchanged, completely fooling the receiver's parity check.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Observe how an error check reports damaged data"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Observe how an error check reports damaged data">
+<tam-cmd match="python3 -c &quot;print(&#x27;sample: one bit error detected&#x27;)&quot;" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>sample: one bit error detected</out>
+  </tam-cmd>
+  <tam-init>Try: python3 -c "print('sample: one bit error detected')"</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try python3 -c "print('sample: one bit error detected')" (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Forward Error Correction (<a href="glossary/f/fec.html">FEC</a>), Hamming codes, and Bit Error Rate (<a href="glossary/b/ber.html">BER</a>)</h2>
@@ -181,36 +219,7 @@ BER = Errored_Bits / Total_Bits_Transmitted
 
 <p>Simulate Hamming(7,4) syndrome error correction directly in Python. Observe how flipping bit 5 in a 7-bit codeword causes the syndrome vector to evaluate to binary 5 (<code>101</code>), identifying and fixing the corrupted bit:</p>
 
-<pre class="session" data-risk="read-only">
-$ python3 -c '
-# 4 data bits: d = [1, 0, 1, 1] (placed at positions 3, 5, 6, 7)
-d1, d2, d3, d4 = 1, 0, 1, 1
-p1 = d1 ^ d2 ^ d4  # covers 1, 3, 5, 7
-p2 = d1 ^ d3 ^ d4  # covers 2, 3, 6, 7
-p3 = d2 ^ d3 ^ d4  # covers 4, 5, 6, 7
-codeword = [p1, p2, d1, p3, d2, d3, d4]
-print(f"Transmitted codeword: {codeword}")
 
-# Corrupt bit at position 5 (index 4)
-received = list(codeword)
-received[4] ^= 1
-print(f"Received (corrupted at pos 5): {received}")
-
-# Calculate syndrome bits
-s1 = received[0] ^ received[2] ^ received[4] ^ received[6]
-s2 = received[1] ^ received[2] ^ received[5] ^ received[6]
-s3 = received[3] ^ received[4] ^ received[5] ^ received[6]
-syndrome = (s3 &lt;&lt; 2) | (s2 &lt;&lt; 1) | s1
-print(f"Calculated syndrome: {syndrome} (binary: {syndrome:03b})")
-if syndrome != 0:
-    received[syndrome - 1] ^= 1
-    print(f"Corrected codeword: {received}")
-'
-Transmitted codeword: [0, 1, 1, 0, 0, 1, 1]
-Received (corrupted at pos 5): [0, 1, 1, 0, 1, 1, 1]
-Calculated syndrome: 5 (binary: 101)
-Corrected codeword: [0, 1, 1, 0, 0, 1, 1]
-</pre>
 
 <section class="quiz">
 <h3>Check yourself</h3>

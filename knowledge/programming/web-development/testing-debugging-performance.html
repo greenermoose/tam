@@ -19,92 +19,94 @@
 <p>Tests tell you when behaviour changes, debugging tells you why it changed, and measurement tells you whether a fix helped.</p>
 
 <section data-level="novice">
-<h2>What this is</h2>
-<p>A test is a small program that checks one promise about your code. Debugging is the work of finding where a promise broke. Performance work compares how long something takes before and after a change.</p>
+<h2>Three different clues</h2>
+<p>A test checks an expected result. A <a href="glossary/s/stack-trace.html">stack trace</a> shows the calls that led to a failure. A measurement records time or resource use.</p>
 <h3>Why it matters</h3>
-<p>A page can look fine on one computer and fail for another person. Tests and measurements turn “it works for me” into evidence you can repeat.</p>
+<p>Guessing wastes time. Each clue narrows a different question: what broke, where it broke, and whether the repair worked.</p>
 <h3>How to think about it</h3>
-<p>A test is a smoke alarm: it tells you something is wrong, not where the fire started. A debugger and a trace are the flashlight you use afterwards.</p>
-<h3>New words</h3>
-<dl>
-<dt>Assertion</dt><dd>A statement that a value must match what you expect.</dd>
-<dt><a href="glossary/s/stack-trace.html">Stack trace</a></dt><dd>A list of function calls that led to an error.</dd>
-<dt>Profile</dt><dd>A record of where time was spent while a program ran.</dd>
-</dl>
-<p><a href="programming/web-development/deployment-and-electron.html">Next: deployment and Electron desktop apps</a></p>
+<p>A smoke alarm tells you something is wrong, a map tells you which room to enter, and a stopwatch tells you whether the fix made the journey shorter.</p>
 </section>
 
 <section data-level="learner">
-<h2>Run a test and read a trace</h2>
-<p><strong>Goal:</strong> you will be able to run a small Node test, read its result, and collect a timing measurement you can repeat.</p>
-<p><strong>Learner path:</strong> previous: <a href="programming/web-development/frameworks-and-tooling.html?level=2">Frameworks and tooling</a>; next: <a href="programming/web-development/deployment-and-electron.html?level=2">Deployment and Electron desktop apps</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ node --test --test-reporter=dot sum.test.mjs
-.
-$ node -e "console.error('warning from app')"
-warning from app
-$ node -e "const t=performance.now(); let s=0; for(let i=0;i&lt;1e6;i++) s+=i; console.log('sum',s,'ms',(performance.now()-t).toFixed(1));"
-sum 499999500000 ms 9.5
-</pre>
-<p>Captured on 2026-11-24 with Node.js 24.5.0. The test file defined <code>add(a, b)</code> and asserted that <code>add(2, 3)</code> is <code>5</code>. One dot means one passing test. The loop time depends on your machine; the sum does not.</p>
-<ol>
-<li>Run the test before you change code, so you know the starting state.</li>
-<li>Send diagnostic text to standard error with <code>console.error</code>, leaving normal output clean.</li>
-<li>Time a loop with <code>performance.now</code>, then repeat it; one run is a hint, not a conclusion.</li>
-</ol>
+<h2>Read three tool outputs</h2>
+<p><strong>Goal:</strong> say which question each sample output answers.</p>
+<tam-sandbox
+  title="Try it: compare test, trace and timing"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Show the passing test line in the sample report">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="report.txt" size="69">test sum: PASS
+trace: sum.test.mjs:4
+timing: 9.5 ms</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat report.txt" hint="Read the three lines. Each answers a different question about the same run.">
+      <out>test sum: PASS</out>
+      <out>trace: sum.test.mjs:4</out>
+      <out>timing: 9.5 ms</out>
+    </tam-cmd>
+    <tam-cmd match="grep PASS report.txt" goal="true" hint="Correct: the test result says behaviour still matched the expectation.">
+      <out>test sum: PASS</out>
+    </tam-cmd>
+    <tam-cmd match="grep timing report.txt" hint="The timing answers a different question: how long the sample run took.">
+      <out>timing: 9.5 ms</out>
+    </tam-cmd>
+  <tam-init>Try: cat report.txt</tam-init>
+  <tam-hint after="1">Type grep PASS report.txt to isolate the test result.</tam-hint>
+  <tam-hint after="2">Use grep timing report.txt to see the measurement.</tam-hint>
+  <tam-fallback>Try cat report.txt, grep PASS report.txt, or grep timing report.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The test line answers “does it still behave as expected?”, the trace line points to a place to look, and the timing line records how long a run took. These lines are authored samples in a report file; the sandbox does not run a test suite.</p>
 <h3>Try it</h3>
-<p>In a scratch file, write a test that asserts <code>add(4, 5)</code> is <code>9</code>. Change the expected value to <code>10</code>, run the test, and read the failure. Restore the correct value and confirm the dot returns.</p>
+<p>Imagine the first line said <code>FAIL</code>. The trace would help find the call path, and a fresh timing after the fix would show whether the change helped.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>The test runner reports zero tests</dt><dd>Check the filename. Node discovers files ending in <code>.test.mjs</code> or matching its test patterns.</dd>
-<dt>A browser bug cannot be reproduced in Node</dt><dd>Use the browser's built-in developer tools: inspect the console, the network list, and a performance recording. Node does not have a page tree.</dd>
+<dt>The sandbox did not run the tests.</dt><dd>The report is scripted sample data. Run the real suite in your project.</dd>
+<dt>I expected a browser trace.</dt><dd>This sample points to a test file. The idea is the same: messages narrow the search.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>A test passes but a page is still slow. Why is that not a contradiction?</summary>
-<p>The test checks correctness of one value; speed is a different property. Add a performance check or a recorded trace that measures the path users take. A function can return the right answer after doing far too much work.</p>
+<summary><i>Can a passing test prove code is fast?</i></summary>
+<p>No. It proves an expected behaviour held; speed needs separate measurement.</p>
+</details>
+<details class="q">
+<summary><i>Why read a trace before changing code?</i></summary>
+<p>It shows which path actually ran, so the fix targets the real cause.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Diagnosis and measurement</h2>
+<h2>Reference: evidence and trade-offs</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Signal</th><th>Where to read it</th><th>What it proves</th></tr>
-<tr><th>Console error</th><th>Browser console or standard error</th><td>An exception or explicit diagnostic happened</td></tr>
-<tr><th>Stack trace</th><th>Error output</th><td>The call chain at the failure point</td></tr>
-<tr><th>Network timing</th><th>Developer tools network list</th><td>Where a request spent time</td></tr>
-<tr><th>Long task</th><th>Performance recording</th><td>Main-loop work delayed rendering</td></tr>
+<tr><th>Tool</th><th>Evidence</th><th>Limit</th></tr>
+<tr><td>Unit test</td><td>Small behaviour contract</td><td>Can miss integration faults</td></tr>
+<tr><td>Stack trace</td><td>Call path at failure</td><td>May be shortened by async boundaries</td></tr>
+<tr><td>Profiler</td><td>Where time is spent</td><td>Sampling adds uncertainty</td></tr>
+<tr><td>Tracing</td><td>Timeline across services</td><td>Needs consistent identifiers</td></tr>
 </table>
 <h3>How it works</h3>
-<p>A browser trace records script, style, layout, paint, and network spans on one timeline. The <a href="glossary/e/event-loop.html">event loop</a> cannot paint while a long task runs, so a slow handler appears as a block before the next frame. Network timing separates waiting for a reply from downloading it. Field measures such as Web Vitals describe what real visitors experienced; a local profiling run explains a cause but does not replace field data. Tests belong at several sizes: unit checks for pure functions, integration checks for an HTTP boundary, and end-to-end checks for one complete user task.</p>
-<h3>Advanced usage</h3>
-<pre data-risk="scratch">
-test('rejects an empty title', async (t) =&gt; {
-  await assert.rejects(saveNote({ title: '' }), /title required/);
-});
-</pre>
-<p>Illustrative snippet: a negative test checks the failure path as well as the happy path. Keep it independent of ordering so it can run in parallel with other tests.</p>
+<p>Tests should fail for a clear reason and stay deterministic. Debugger breakpoints pause execution so state can be inspected. Performance work starts with a representative workload, then measures a baseline and a change under the same conditions. <a href="glossary/e/event-loop.html">Event-loop</a> latency matters as much as average CPU time in interactive pages.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
-<li>Timing tests that assert exact milliseconds are flaky on busy machines; assert bounds or compare relative runs.</li>
-<li>End-to-end suites that share one account can fail from leftover state; create fresh data per run.</li>
-<li>A stack trace from minified code points at generated files unless source maps are available.</li>
-<li>Caching can make a second measurement look faster even though the code did not change.</li>
+<li>Flaky tests hide real regressions.</li>
+<li>Optimised builds change line numbers and stack shapes.</li>
+<li>Source maps can misattribute a frame.</li>
+<li>Microbenchmarks may be optimised away entirely.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A slow page has a fast server response and a long browser task. Which measurement rules out the network, and what would you inspect next?</summary>
-<p>Model answer: the network list shows a short time to first byte and small transfer size, so the server and transfer are not the delay. The performance trace then identifies the long task. Inspect its call tree for repeated DOM writes, synchronous parsing, or an oversized framework render before adding caching.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p>See <cite data-ref="node-docs"><a href="bibliography/node-docs.html">the Node.js documentation</a></cite> and <cite data-ref="mdn-web"><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a></cite>.</p>
+<p><a href="bibliography/node-docs.html">the Node.js documentation</a>; <a href="bibliography/mdn-web-docs.html">MDN Web Docs</a>; <a href="programming/web-development/frameworks-and-tooling.html">Frameworks and tooling</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="programming/web-development/deployment-and-electron.html">Next: deployment and Electron desktop apps</a>, <a href="programming/web-development/frameworks-and-tooling.html?level=2">Frameworks and tooling</a>, <a href="programming/web-development/deployment-and-electron.html?level=2">Deployment and Electron desktop apps</a>, <a href="programming/web-development/deployment-and-electron.html">Deployment and Electron desktop apps</a>, <a href="paths/web-development.html">From first page to full-stack web developer</a>, <a href="programming/web-development/browser-engines-and-dom.html">Browser engines and the DOM</a>.</p>
 </section>
 
 <h2>Where next</h2>
@@ -117,4 +119,5 @@ test('rejects an empty title', async (t) =&gt; {
 <li><a href="programming/web-development/browser-engines-and-dom.html">Browser engines and the DOM</a> &mdash; the source of layout and paint work.</li>
 <li><a href="programming/web-development/frameworks-and-tooling.html">Frameworks and tooling</a> &mdash; production builds to test.</li>
 </ul>
-</body></html>
+</body>
+</html>

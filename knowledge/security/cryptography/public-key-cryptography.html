@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/cryptography/index.html">Cryptography</a> / Public-Key Cryptography, Elliptic Curves, and PKI</p></nav>
 
-
-<p>This page explains how two computers agree on a secret over an open network and verify identities using linked public and private keys.</p>
-<h2>Before this</h2><p><a href="security/cryptography/cryptographic-hashes.html">Cryptographic Hash Functions, SHA, HMAC, and Key Derivation</a></p>
+<p>Public-key cryptography uses a private key to sign or decrypt and a public key that anyone can verify or use, which removes the need to meet first to share a secret.</p>
 
 <section data-level="novice">
 <h2>Sharing secrets with strangers without meeting first</h2>
@@ -51,66 +49,45 @@
 </section>
 
 <section data-level="learner">
-<h2>Creating Ed25519 signatures and inspecting X.509 certificates</h2>
-<p><strong>Goal:</strong> you will be able to generate an Ed25519 key pair, sign and verify a scratch file, and inspect the fields inside an X.509 certificate.</p>
-<p><strong>Before you start:</strong> run all key-generation experiments inside a temporary <code>mktemp -d</code> directory and remove it when finished.</p>
-
-<h3>Worked example</h3>
-<p>Generate an Ed25519 private/public key pair, sign a file, verify the signature, and create and inspect a self-signed X.509 certificate:</p>
-<pre class="session" data-risk="scratch">
-$ work=$(mktemp -d) &amp;&amp; cd "$work"
-$ printf 'Secret message for Tamlinux.\n' &gt; msg.txt
-$ openssl genpkey -algorithm Ed25519 -out ed_priv.pem
-$ openssl pkey -in ed_priv.pem -pubout -out ed_pub.pem
-$ openssl pkeyutl -sign -inkey ed_priv.pem -rawin -in msg.txt -out msg.sig
-$ openssl pkeyutl -verify -pubin -inkey ed_pub.pem -rawin -in msg.txt -sigfile msg.sig
-Signature Verified Successfully
-$ openssl req -x509 -new -key ed_priv.pem -subj "/CN=tamlinux.example" -days 30 -out cert.pem
-$ openssl x509 -in cert.pem -noout -subject -issuer -dates -pubkey
-subject=CN=tamlinux.example
-issuer=CN=tamlinux.example
-notBefore=Nov 14 11:41:25 2026 GMT
-notAfter=Dec 14 11:41:25 2026 GMT
------BEGIN PUBLIC KEY-----
-MCowBQYDK2VwAyEAZ5sIPnh5KSAKNreUSd9SkiCm33Uxdl7qtT32huXwHpo=
------END PUBLIC KEY-----
-$ rm -rf "$work"
-</pre>
-<p>Captured on Arch Linux, 2026-11-14; generated keys and timestamps will differ on your system.</p>
-
+<h2>Verify a sample signature</h2>
+<p><strong>Goal:</strong> explain what a successful signature check proves and what it does not.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: verify a signature"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Verify the sample Ed25519 signature">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="openssl pkeyutl -verify -pubin -inkey ed_pub.pem -rawin -in msg.txt -sigfile msg.sig" goal="true" hint="The public key verifies the signature over this file.">
+      <out>Signature Verified Successfully</out>
+    </tam-cmd>
+    <tam-cmd match="openssl x509 -in cert.pem -noout -subject -issuer -dates" hint="A certificate binds a public key to a name for a limited time.">
+      <out>subject=CN=tamlinux.example</out>
+      <out>issuer=CN=tamlinux.example</out>
+      <out>notBefore=Nov 14 11:41:25 2026 GMT</out>
+      <out>notAfter=Dec 14 11:41:25 2026 GMT</out>
+    </tam-cmd>
+  <tam-init>Sample: Ed25519 signature verified; certificate CN=tamlinux.example.</tam-init>
+  <tam-hint after="1">Try the pkeyutl verify command first.</tam-hint>
+  <tam-hint after="2">Now try openssl x509 -in cert.pem -noout -subject -issuer -dates.</tam-hint>
+  <tam-fallback>Try openssl pkeyutl -verify ... or openssl x509 -in cert.pem -noout -subject -issuer -dates (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>openssl genpkey -algorithm Ed25519</code> created a 256-bit Ed25519 private key in <a href="glossary/p/pem.html">PEM</a> format, and <code>openssl pkey -pubout</code> extracted its 32-byte public key.</li>
-<li><code>openssl pkeyutl -sign</code> signed <code>msg.txt</code> with the private key, and <code>-verify</code> proved the file matched using only <code>ed_pub.pem</code>.</li>
-<li><code>openssl x509</code> displayed the certificate's subject, issuer, validity window, and embedded public key. Notice that in a real CA-issued certificate, <code>issuer</code> is the CA rather than the subject itself, and hostnames are listed in the <code>Subject Alternative Name</code> (<a href="glossary/s/san.html">SAN</a>) extension.</li>
-</ol>
-
+<p>A successful check means the message was signed by the holder of the matching private key and has not changed since. It does not make the signer trustworthy by itself. The certificate fields are sample values, not a real certificate from your machine.</p>
 <h3>Try it</h3>
-<p>Before deleting your scratch directory, modify one character of <code>msg.txt</code> and rerun <code>openssl pkeyutl -verify</code> to see signature verification fail immediately.</p>
-
+<p>Compare the subject and issuer in the sample: they are the same because this is a self-signed demonstration. A TLS certificate normally chains to a certificate authority your system trusts.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>Signature Verification Failure</code></dt>
-<dd>The file was altered after signing, the wrong public key was supplied, or the signature file was truncated.</dd>
-<dt>Self-signed certificate rejected by browsers or <code>curl</code></dt>
-<dd>Browsers trust only certificates chained to a root CA in the system trust store (<code>/etc/ssl/certs/</code> on Linux) unless explicitly pinned or trusted.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, system CA trust anchors live under <code>/etc/ca-certificates/</code> and <code>/etc/ssl/certs/</code> (managed via Arch's <code>ca-certificates</code> package), and <a href="glossary/s/ssh.html">SSH</a> (<a href="security/practice/ssh.html">SSH keys</a>) defaults to Ed25519 rather than legacy RSA.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Why do modern systems prefer Ed25519 / X25519 over 2048-bit RSA?</i></summary>
-<p>A 256-bit Ed25519/X25519 key achieves roughly the same 128-bit classical security level as a 3072-bit RSA key while being far faster, immune to RSA padding-oracle pitfalls, and deterministic in signing.</p>
-</details>
-<details class="q">
-<summary><i>If an attacker intercepts your public key, can they derive your private key from it?</i></summary>
-<p>Not with classical computers: deriving the private key requires solving integer factorization (RSA) or the discrete logarithm problem on the group/curve (DH/ECC), which is computationally infeasible for properly sized keys.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>What does a digital signature provide?</i></summary><p>Authenticity and integrity of a message, using a private key to sign and a public key to verify.</p></details>
 </section>
 </section>
 
@@ -139,13 +116,7 @@ $ rm -rf "$work"
 <li><strong>Bleichenbacher's RSA <a href="glossary/p/pkcs.html">PKCS</a>#1 v1.5 oracle (1998):</strong> Server error differences distinguishing valid vs. invalid PKCS#1 v1.5 padding let an attacker decrypt ciphertexts or forge signatures in ~10^6 adaptive queries—and variants (<a href="glossary/r/robot.html">ROBOT</a>, Marvin) continue to resurface. Always prefer X25519/Ed25519 or OAEP/PSS.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why do elliptic curves achieve 128-bit security with 256-bit keys, whereas finite-field Diffie-Hellman and RSA require ~3072-bit keys?</summary>
-<p>In Z_N* and F_p*, subexponential algorithms (Number Field Sieve, index calculus) exploit smooth numbers and algebraic structure in L_N[1/3] time. On well-chosen elliptic curves without special structure (non-supersingular, embedding degree large), no index-calculus subexponential attack is known, leaving generic O(sqrt(q)) Pollard's rho algorithms as the best classical attack.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <ul>
@@ -153,5 +124,16 @@ $ rm -rf "$work"
 <li><cite data-ref="boneh-shoup"><a href="bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapters 10–16: Public-key encryption, signatures, elliptic curves).</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="security/cryptography/cryptographic-hashes.html">Cryptographic Hash Functions, SHA, HMAC, and Key Derivation</a></li>
+<li><a href="glossary/p/pem.html">PEM</a></li>
+<li><a href="glossary/s/san.html">SAN</a></li>
+<li><a href="glossary/s/ssh.html">SSH</a></li>
+<li><a href="security/practice/ssh.html">SSH keys</a></li>
+</ul>
+
+
 </body>
 </html>

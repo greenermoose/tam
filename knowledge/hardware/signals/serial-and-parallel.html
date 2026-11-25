@@ -71,17 +71,27 @@ Clock Skew in Parallel Buses:
 <tr><td><strong>Synchronous communication</strong></td><td>A dedicated physical wire carries a pulsating <strong>clock signal</strong> alongside the data wires. The receiver samples the data wire strictly on the rising or falling edge of that clock pulse. Examples include <a href="glossary/s/spi.html">SPI</a> (Serial Peripheral Interface), I²C, and internal <a href="glossary/c/cpu.html">CPU</a> memory buses.</td></tr>
 <tr><td><strong>Asynchronous communication</strong></td><td>There is no separate clock wire. The transmitter and receiver agree in advance on an exact transmission speed (<a href="glossary/b/baud-rate.html">baud rate</a>). The line rests at high voltage (<a href="glossary/i/idle.html">Idle</a> / Mark). When a byte is sent, the transmitter pulls the line low for one bit duration (the Start bit), which resets and aligns the receiver's internal timer. The receiver then samples the line at precise fractional intervals to read the data bits before returning to line reset (the Stop bit). The classic example is the Universal Asynchronous Receiver-Transmitter (<a href="glossary/u/uart.html">UART</a> / <a href="glossary/r/rs-232.html">RS-232</a>).</td></tr>
 </table>
-<h3>Worked example: inspect terminal serial line settings</h3>
-<pre class="session" data-risk="read-only">
-$ stty -a | head -2
-speed 38400 baud; rows 40; columns 120; line = 0;
-intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = &lt;undef&gt;;
+<h3>Explore: inspect terminal serial line settings</h3>
+<tam-sandbox
+  title="Try it: inspect terminal serial line settings"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Inspect terminal serial line settings">
+  <tam-cmd match="stty -a | head -2" hint="Look for the value that answers the task.">
+    <out>speed 38400 baud; rows 40; columns 120; line = 0;
+intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = &lt;undef&gt;;</out>
+  </tam-cmd>
+  <tam-cmd match="ls -l /dev/ttyS0 /dev/ttyUSB0 2&gt;/dev/null || ls -l /dev/tty0" goal="true">
+    <out>crw--w---- 1 root tty 4, 0 Nov  1 14:15 /dev/tty0</out>
+  </tam-cmd>
+  <tam-init>Try: stty -a | head -2</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try stty -a | head -2 (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-$ ls -l /dev/ttyS0 /dev/ttyUSB0 2&gt;/dev/null || ls -l /dev/tty0
-crw--w---- 1 root tty 4, 0 Nov  1 14:15 /dev/tty0
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-01. The output displays the baud rate and character control flags of the current terminal interface.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>stty -a</code> queries the Linux kernel's terminal driver, reporting an active transmission speed of 38,400 baud.</li>
@@ -116,6 +126,24 @@ crw--w---- 1 root tty 4, 0 Nov  1 14:15 /dev/tty0
 <p>It requires separate, isolated physical pathways for transmission and reception (such as independent Transmit and Receive copper wire pairs or separate optical fibers), allowing concurrent traffic with zero collisions.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for cat /proc/tty/driver/serial"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for cat /proc/tty/driver/serial">
+<tam-cmd match="cat /proc/tty/driver/serial" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>serinfo:1.0 driver revision:
+0: uart:16550A port:000003F8 irq:4 tx:1280 rx:0 RTS|DTR
+1: uart:unknown port:000002F8 irq:3</out>
+  </tam-cmd>
+  <tam-init>Try: cat /proc/tty/driver/serial</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try cat /proc/tty/driver/serial (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>SerDes architecture, clock data recovery, and lane aggregation</h2>
@@ -166,12 +194,7 @@ crw--w---- 1 root tty 4, 0 Nov  1 14:15 /dev/tty0
 
 <p>Inspect active Linux serial driver statistics and error counters across physical hardware ports:</p>
 
-<pre class="session" data-risk="read-only">
-$ cat /proc/tty/driver/serial
-serinfo:1.0 driver revision:
-0: uart:16550A port:000003F8 irq:4 tx:1280 rx:0 RTS|DTR
-1: uart:unknown port:000002F8 irq:3
-</pre>
+
 
 <section class="quiz">
 <h3>Check yourself</h3>

@@ -7,7 +7,7 @@
 <meta name="topic" content="displays">
 <meta name="summary" content="Change brightness and text size, arrange monitors, and turn the laptop screen off or mirror it">
 <meta name="keywords" content="display, monitor, screen, brightness, text size, scaling, resolution, mirror, laptop screen, external monitor">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/tasks/index.html">
 <meta name="paths" content="make-it-yours:4, everyday-desktop:6">
@@ -43,7 +43,7 @@
 <aside class="first-time">
 <p>Press the brightness-down key a few times. An overlay shows the level falling. If the screen is still too bright, open the display panel with <code>Meta + Ctrl + D</code> and use the brightness control for the monitor you are looking at. For larger text everywhere, run <code>tam-display-text-size 14</code> in a terminal.</p>
 </aside>
-<h3>Worked example</h3>
+
 <ol>
 <li>Press the brightness-down key. The overlay shows the new level.</li>
 <li>Press <code>Shift</code> with the brightness-down key to go straight to the minimum, or <code>Shift</code> with brightness-up for the maximum.</li>
@@ -52,13 +52,23 @@
 <li>Run <code>tam-display-text-size reset</code> to return to the default.</li>
 </ol>
 
-<pre class="session" data-risk="read-only">
-$ tam-display-text-size
-text size: 12 px
+<tam-sandbox
+  title="Try it: Explore tam-display-text-size output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore tam-display-text-size output">
+  <tam-cmd match="tam-display-text-size" goal="true" hint="Look for the value that answers the task.">
+    <out>text size: 12 px
 gtk text-scaling-factor: 1.0
-terminal font: 9 pt
-</pre>
-<p>Captured on 2026-11-02. Your values may differ if you or an earlier change set them.</p>
+terminal font: 9 pt</out>
+  </tam-cmd>
+  <tam-init>Try: tam-display-text-size</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-display-text-size (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The brightness keys changed the backlight of the screen with focus.</li>
@@ -92,7 +102,9 @@ terminal font: 9 pt
 </details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Reference and system behavior</h2>
+<p>A display mode combines resolution, refresh rate and scale. The compositor applies layout changes, while the monitor reports the modes it accepts.</p>
 <h2>Display keys and commands</h2>
 <table>
 <tr><th>Keys or command</th><th>What it does</th></tr>
@@ -106,7 +118,7 @@ terminal font: 9 pt
 <tr><td><code>tam-display-text-size 14</code></td><td>Set text size from 9 to 20</td></tr>
 <tr><td><code>tam-display-text-size reset</code></td><td>Return to the default size</td></tr>
 </table>
-
+</section>
 <h2>Next</h2><p><a href="desktop/tasks/keyboard-touchpad.html">Keyboard and touchpad</a> &mdash; input devices and layout.</p>
 <h2>Related</h2><ul><li><a href="desktop/tasks/night-light.html">Making the screen warmer at night</a> &mdash; reduce blue light.</li><li><a href="desktop/commands.html">Desktop commands</a> &mdash; the command behind each display key.</li></ul>
 

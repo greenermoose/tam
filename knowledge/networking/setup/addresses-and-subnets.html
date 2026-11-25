@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/setup/index.html">Network setup</a> / Addresses and subnets</p></nav>
 
-<p>An address says where a machine is on a network, and a prefix length says how much of that address describes the local network rather than the individual machine.</p>
-<h2>Before this</h2><p><a href="networking/setup/how-networks-fit-together.html">How networks fit together</a> introduces the four layers this page explains in detail.</p>
+<p>IP addresses identify interfaces, and a CIDR prefix says how many leading bits describe the local network. Together they tell a host which neighbours it can reach directly.</p>
 
 <section data-level="novice">
 <h2>Street names and house numbers</h2>
@@ -56,70 +55,53 @@ usable:      192.168.1.1 - 192.168.1.254
 </section>
 
 <section data-level="learner">
-<h2>Read and calculate a prefix</h2>
-<p><strong>Goal:</strong> you will be able to take an <code>address/prefix</code> pair, name its subnet and broadcast address, and find the hardware address of a neighbor.</p>
-
-<p><strong>Before you start:</strong> all commands below only read state or do arithmetic locally. Nothing is changed on the network.</p>
-
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ip -4 -br addr show dev enp1s0
-enp1s0           UP             192.168.1.26/24
-$ python3 -c 'import ipaddress; n=ipaddress.ip_network("192.168.1.26/24", strict=False); print(n, n.netmask, n.broadcast_address, n.num_addresses)'
-192.168.1.0/24 255.255.255.0 192.168.1.255 256
-$ ip neigh show dev enp1s0
-192.168.1.1 lladdr 10:0c:6b:20:34:e6 REACHABLE
-192.168.1.2 lladdr 98:ed:5c:a2:c5:1f STALE
-192.168.1.5 lladdr 22:ea:48:a9:d6:3d STALE
-</pre>
-<p>Captured on a wired Arch Linux workstation on 2026-11-21. Your addresses and neighbor list will differ.</p>
-
+<h2>Read a prefix from an address line</h2>
+<p><strong>Goal:</strong> extract the address and prefix length from sample interface output.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read an interface address"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the address and prefix in the sample interface line">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">interface: enp1s0
+address: 192.0.2.26/24
+router: 192.0.2.1
+method: dhcp</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep address clues.txt" goal="true" hint="Try grep address clues.txt to isolate the address.">
+      <out>address: 192.0.2.26/24</out>
+    </tam-cmd>
+    <tam-cmd match="grep router clues.txt" hint="The router is inside the same /24 in this sample.">
+      <out>router: 192.0.2.1</out>
+    </tam-cmd>
+    <tam-cmd match="python3 -c &#x27;import ipaddress; n=ipaddress.ip_network(&quot;192.0.2.26/24&quot;, strict=False); print(n, n.netmask, n.num_addresses)&#x27;" hint="The sample calculation shows the network, mask and block size.">
+      <out>192.0.2.0/24 255.255.255.0 256</out>
+    </tam-cmd>
+  <tam-init>Sample interface record: 192.0.2.26/24 on enp1s0.</tam-init>
+  <tam-hint after="1">Try grep address clues.txt to isolate the address.</tam-hint>
+  <tam-hint after="2">Now try grep router clues.txt to find the next hop.</tam-hint>
+  <tam-fallback>Try grep address clues.txt or grep router clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li>The interface has address <code>192.168.1.26</code> with a <code>/24</code> prefix, so the first 24 bits (the first three groups) name the subnet.</li>
-<li>Holding the last group at zero gives the subnet <code>192.168.1.0/24</code>; holding it at all ones gives the broadcast address <code>192.168.1.255</code>.</li>
-<li>The netmask <code>255.255.255.0</code> is the same fact written as four octets: 255 means all eight bits belong to the prefix.</li>
-<li><code>ip neigh</code> shows the neighbor table: each <a href="glossary/i/ipv4.html">IPv4</a> address on the link paired with the hardware address learned by <a href="glossary/a/arp.html">ARP</a>.</li>
-<li><code>REACHABLE</code> means a recent confirmation; <code>STALE</code> means the entry is still usable but should be refreshed before the next use.</li>
-</ol>
-
+<p>The address line carries both an interface address and a <code>/24</code> prefix. A /24 leaves eight host bits in IPv4, so the sample block has 256 addresses. The router shown is inside that block, which is why it is a local next hop. All values here are sample data.</p>
 <h3>Try it</h3>
-<p>Find your own address with <code>ip -4 -br addr</code>, then substitute it in the Python command above. Change <code>/24</code> to <code>/25</code> and compare: a <code>/25</code> splits the same street into two halves, and <code>192.168.1.26/25</code> belongs to <code>192.168.1.0/25</code>, not <code>192.168.1.128/25</code>.</p>
-
+<p>Use <code>cat clues.txt</code> to see every line, then predict whether changing the prefix to /16 would make the local block larger or smaller. The python rule prints an authored calculation, not a measurement.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>A neighbor has no hardware address, or shows <code>INCOMPLETE</code></dt>
-<dd>ARP has not received a reply. Check that the neighbor is up and on the same link; a firewall can also block ARP.</dd>
-<dt>Two machines report the same address</dt>
-<dd>An address conflict. One machine will log a duplicate-address warning; change one profile, then clear the stale neighbor entry with <code>ip neigh flush dev &lt;interface&gt;</code>.</dd>
-<dt>A device is on the same cable but unreachable at a numeric address</dt>
-<dd>Compare prefix lengths. A <code>/24</code> and a <code>/25</code> on one link can make two hosts disagree about whether they are local.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Tamlinux uses NetworkManager profiles for addresses; the <a href="glossary/d/dns.html">DNS</a> and connection commands in the public <code>tamlinux</code> repository read those profiles and the kernel tables rather than keeping a second copy. The host firewall template documented in the corpus permits local network discovery traffic including mDNS on <a href="glossary/u/udp.html">UDP</a> port 5353.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>How many addresses are in 192.168.1.0/24, and why are two of them special?</i></summary>
-<p>256 addresses, because 32 minus 24 leaves 8 host bits. The all-zero address names the subnet and the all-one address is the broadcast address, so 254 remain for hosts.</p>
-</details>
-<details class="q">
-<summary><i>Why does ip neigh show a <a href="glossary/m/mac.html">MAC</a> address for 192.168.1.1 but not for an internet server?</i></summary>
-<p>ARP resolves only next hops on the local link. A remote server is reached through the gateway, so the neighbor table needs the gateway's hardware address, not the server's.</p>
-</details>
-<details class="q">
-<summary><i>Predict what changes when the prefix becomes /25.</i></summary>
-<p>One more bit moves into the network portion. The subnet becomes either <code>192.168.1.0/25</code> or <code>192.168.1.128/25</code>, with 128 addresses and a broadcast address of <code>.127</code> or <code>.255</code>.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Does an IP address identify a machine or an interface?</i></summary><p>An interface. A machine with Wi-Fi and Ethernet can have a different address on each.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: prefix arithmetic and neighbor resolution</h2>
-
 <h3>Reference</h3>
 <table>
 <tr><th>Prefix</th><th>Netmask</th><th>Addresses</th><th>Common use</th></tr>
@@ -138,18 +120,7 @@ $ ip neigh show dev enp1s0
 <p>On <a href="glossary/i/ipv4.html">IPv4</a>, ARP broadcasts a request asking "who owns this address?" and the owner replies with its hardware address; the result enters the neighbor table. <a href="glossary/i/ipv6.html">IPv6</a> replaces this with ICMPv6 Neighbor Solicitation and Advertisement, adds duplicate address detection before an address is used, and discovers routers through <a href="glossary/r/router.html">Router</a> Advertisements. A gratuitous ARP announcement can also update neighbors after an address move, which is useful for failover but opens the door to spoofing.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ python3 - <<'PY'
-import ipaddress
-for cidr in ('10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '2001:db8::/32'):
-    net = ipaddress.ip_network(cidr)
-    print(f'{net!s:22} {net.version}  {net.num_addresses:>20}  {net.netmask}')
-PY
-10.0.0.0/8             4           16777216  255.0.0.0
-172.16.0.0/12          4            1048576  255.240.0.0
-192.168.0.0/16         4              65536  255.255.0.0
-2001:db8::/32          6  79228162514264337593543950336  ffff:ffff::
-</pre>
+
 <p>The Python <code>ipaddress</code> module performs the same prefix arithmetic as the kernel's address parser, and is convenient for checking a planned layout before applying it.</p>
 
 <h3>Edge cases</h3>
@@ -162,13 +133,7 @@ PY
 <li>Routes with the same prefix length but different metrics are chosen by metric; equal-cost multipath can use several at once.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why must a router be on the same subnet as the hosts it serves?</summary>
-<p>Hosts deliver local traffic using ARP or NDP, which only work on a shared link. The router's next-hop address must therefore be directly reachable; otherwise the host cannot turn it into a hardware address and must send to a different router that can.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <p><a href="man:ip-address(8)">ip-address(8)</a>, <a href="man:ip-neigh(8)">ip-neigh(8)</a>, <a href="man:ip-route(8)">ip-route(8)</a> and <a href="man:python3(1)">python3(1)</a>. The address meanings follow the <a href="glossary/i/ietf.html">IETF</a> <a href="glossary/i/ipv4.html">IPv4</a>, <a href="glossary/i/ipv6.html">IPv6</a>, CIDR, ARP and Neighbor Discovery specifications.</p>
@@ -176,6 +141,15 @@ PY
 <h3>Improve it</h3>
 <p>Check any prefix example with <code>ipaddress</code> before publishing it; an off-by-one broadcast address is easy to miss by reading.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/d/dns.html">DNS</a></li>
+<li><a href="glossary/u/udp.html">UDP</a></li>
+<li><a href="glossary/m/mac.html">MAC</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="networking/setup/adding-a-connection.html">Adding a connection</a> &mdash; put an address into a saved profile and apply it.</p>
 <h2>Related</h2><ul><li><a href="networking/setup/how-networks-fit-together.html">How networks fit together</a> &mdash; place this layer in the four-question model.</li><li><a href="paths/network-setup.html">Set up a network connection</a> &mdash; the full reading order.</li></ul>

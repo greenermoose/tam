@@ -3,7 +3,7 @@
 <meta name="topic" content="work-with-ai-locally">
 <meta name="summary" content="Assess a local model task, run a supported query and check its answer against a source.">
 <meta name="keywords" content="path, work-with-ai-locally, learning, work-with-ai-locally-path">
-<meta name="level" content="learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="paths">
 <meta name="parent" content="paths/index.html">
 <meta name="kind" content="path">
@@ -11,22 +11,77 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Work with AI locally</p></nav>
 
-<p>These readings help you explore artificial intelligence that runs on your own computer.</p>
-<h2>Stage 1: Check headroom</h2>
-<p><a href="tamlinux/development/ai.html?level=2">Artificial intelligence and human choice</a>: what a local model can and cannot decide for you. Then <a href="programming/ai/local-inference.html?level=2">check headroom</a>: read the memory-bandwidth and inference lesson, and note the model size and available resources before running anything.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why is model file size not the whole memory budget?</i></summary><p>Runtime state, context and the operating system also need memory.</p></details></section>
-<h2>Stage 2: Observe resources</h2>
-<p><a href="systems/maintenance/resources.html?level=2">Observe resources</a>: Read how to inspect memory and load. Identify a baseline and a comparable workload.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a high memory number alone establish thrashing?</i></summary><p>No. Compare available memory, pressure and workload behavior; a single value is insufficient.</p></details></section>
-<h2>Stage 3: Understand limits</h2>
-<p><a href="programming/ai/local-inference.html?level=3">Understand limits</a>: Read the quantization and context discussion. If two suitable local models are already available, compare the same question with <code>tam ask --model MODEL --pipe "what is a pipeline"</code>, replacing MODEL with each actual name. Record the model, timing and answer quality; leave the comparison pending if prerequisites are missing.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Is theoretical bandwidth a promise of tokens per second?</i></summary><p>No. Model architecture, computation, memory access and overhead also matter.</p></details></section>
-<h2>Capstone</h2><p>Record available memory and identify a locally available model and running local server. If they are available and you choose to run inference, ask <code>tam ask --pipe "what is a pipeline"</code> and compare the answer with its named Guide source. Record the model, workload and limits. Do not download a model or start a service as part of this exercise; if either is unavailable, leave the query pending.</p>
-<details class="solution"><p>With an already running local server and its required model available, this source-checking example returned:</p><pre class="session" data-risk="read-only">$ tam ask --pipe "what is a pipeline"
-A pipeline passes a stream of bytes from one program to another, allowing the output of one program to be used as input for another.
+<p>This path checks local-model headroom, observes resources and verifies answers against a named Guide source before trusting them.</p>
+
+<section data-level="novice">
+
+<h2>A local assistant is still a tool</h2>
+
+<p>A local model runs on your own hardware, but it does not decide what is true or what ships. You check available memory, recognize the limits, and verify any answer against a named source.</p>
+<p>Think of the model as a fast draftsman with a library card. The draft is useful, but the cited book is where you check the claim.</p>
+
+</section>
+
+<section data-level="learner">
+<h2>Check a cited answer before trusting it</h2>
+<p><strong>Goal:</strong> read a fixed grounded answer and identify the claim and its source</p>
+
+<tam-sandbox
+  title="Try it: read a grounded answer"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Print the sample answer and its source">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="tam ask --pipe &quot;what is a pipeline&quot;" goal="true" hint="The citation is a place to verify, not a guarantee of correctness.">
+    <out>A pipeline passes a stream of bytes from one program to another.
 
 Sources:
-  - terminal/shell/pipelines.html (Shell pipelines)</pre><p>Captured on Arch Linux, 2026-10-27. Generated wording and available models vary. Open the named pipelines lesson to check the claim. A source citation is a place to verify, not a guarantee that the answer is correct. Inference consumes resources even though it makes no guide changes.</p></details>
+  - terminal/shell/pipelines.html (Shell pipelines)</out>
+  </tam-cmd>
+  <tam-cmd match="tam ask --model MODEL --pipe &quot;what is a pipeline&quot;" hint="A placeholder is not an available model.">
+    <out>Leave pending: no actual model name was supplied.</out>
+  </tam-cmd>
+  <tam-init>A fixed answer names the pipelines lesson as its source.</tam-init>
+   <tam-hint after="1">The citation is a place to verify, not a guarantee of correctness.</tam-hint>
+  <tam-hint after="2">A placeholder is not an available model.</tam-hint>
+  <tam-fallback>Type tam ask --pipe "what is a pipeline", or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The sample answer makes a claim and names a lesson to check. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. Generated wording varies with the real model; the citation still needs to be opened and read.</p>
+<h3>Try it</h3>
+<p>Open the named pipelines lesson and compare its explanation with the claim in the sample answer.</p>
+<h3>If it goes wrong</h3>
+<p>If no local server or model is available, leave the query pending; do not download a model or start a service as part of this exercise.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary><i>Is a source citation proof the answer is correct?</i></summary><p>No. It tells you where to check the claim.</p></details>
+</section>
+<h3>Path checkpoints</h3>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why is model file size not the whole memory budget?</i></summary><p>Runtime state, context and the operating system also need memory.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a high memory number alone establish thrashing?</i></summary><p>No. Compare available memory, pressure and workload behavior; a single value is insufficient.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Is theoretical bandwidth a promise of tokens per second?</i></summary><p>No. Model architecture, computation, memory access and overhead also matter.</p></details></section>
+</section>
+
+<section data-level="expert">
+<h2>Local inference limits</h2>
+
+<p>Model file size is only part of the memory budget: runtime state, context and the operating system also need room. Bandwidth is an upper-bound input to a performance estimate, not a promise of tokens per second. Compare models only with the same question, the same available resources and recorded timing.</p>
+
+<h2>Stage 1: Check headroom</h2>
+<p><a href="tamlinux/development/ai.html?level=2">Artificial intelligence and human choice</a>: what a local model can and cannot decide for you. Then <a href="programming/ai/local-inference.html?level=2">check headroom</a>: read the memory-bandwidth and inference lesson, and note the model size and available resources before running anything.</p>
+
+<h2>Stage 2: Observe resources</h2>
+<p><a href="systems/maintenance/resources.html?level=2">Observe resources</a>: Read how to inspect memory and load. Identify a baseline and a comparable workload.</p>
+
+<h2>Stage 3: Understand limits</h2>
+<p><a href="programming/ai/local-inference.html?level=3">Understand limits</a>: Read the quantization and context discussion. If two suitable local models are already available, compare the same question with <code>tam ask --model MODEL --pipe "what is a pipeline"</code>, replacing MODEL with each actual name. Record the model, timing and answer quality; leave the comparison pending if prerequisites are missing.</p>
+</section>
+
 <h2>Next paths</h2><p><a href="paths/keep-it-healthy.html?level=2">Keep it healthy</a>; <a href="paths/index.html">all goal paths</a>.</p>
 
 <h2>Sources and further reading</h2>

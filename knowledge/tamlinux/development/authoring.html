@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/development/index.html">Developing Tamlinux</a> / Authoring Knowledge Pages</p></nav>
 
-
-
-<p>This page explains how knowledge pages are written, structured into learning levels, annotated with interactive quizzes, and verified by build tools.</p>
+<p>This page explains how to write a laddered knowledge page, keep exercises in the learner section and verify the corpus before submitting.</p>
 <h2>Before this</h2><p><a href="tamlinux/development/contributing.html">Contributing to Tamlinux</a></p>
 
 <section data-level="novice">
@@ -55,86 +53,44 @@
 </section>
 
 <section data-level="learner">
-<h2>Write and test a laddered topic page</h2>
+<h2>Recognise the required page anatomy</h2>
+<p><strong>Goal:</strong> find the three level sections in a fixed page sample</p>
 
-<p><strong>Goal:</strong> you will be able to author a valid multi-level knowledge page with interactive quizzes and verify it using corpus tools.</p>
-
-
-<h3>Worked example</h3>
-
-<ol>
-<li>Start from the ladder template in <code>docs/templates/ladder.html</code> and declare standard metadata:
-<pre class="session" data-risk="read-only">
-&lt;meta name="kind" content="tutorial"&gt;
-&lt;meta name="skills" content="contributing.novice, contributing.learner, contributing.expert"&gt;
-&lt;meta name="level" content="novice, learner, expert"&gt;
-&lt;meta name="track" content="tamlinux"&gt;
-&lt;meta name="parent" content="tamlinux/development/index.html"&gt;
-</pre>
-</li>
-<li>Format command walkthroughs with <code>pre.session</code> and an explicit risk level:
-<pre class="session" data-risk="scratch">
-$ mkdir -p /tmp/scratch && cd /tmp/scratch
-$ echo "practice" > test.txt
-</pre>
-</li>
-<li>Add a self-quiz fold at the end of the learner section:
-<pre class="session" data-risk="read-only">
-&lt;section class="quiz"&gt;
-&lt;h3&gt;Check yourself&lt;/h3&gt;
-&lt;details class="q"&gt;
-&lt;summary&gt;Which tag wraps an interactive quiz question?&lt;/summary&gt;
-&lt;p&gt;&lt;code&gt;&amp;lt;details class="q"&amp;gt;&lt;/code&gt; inside &lt;code&gt;&amp;lt;section class="quiz"&amp;gt;&lt;/code&gt;.&lt;/p&gt;
-&lt;/details&gt;
-&lt;/section&gt;
-</pre>
-</li>
-<li>Verify page anatomy, links, and formatting before submitting:
-<pre class="session" data-risk="user">
-$ make corpus-and-test
-</pre>
-</li>
-</ol>
-
+<tam-sandbox
+  title="Try it: check a page skeleton"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="List the data-level lines in sample.html">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="sample.html" size="90">&lt;section data-level="novice"&gt;
+&lt;section data-level="learner"&gt;
+&lt;section data-level="expert"&gt;</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="grep &#x27;data-level&#x27; sample.html" goal="true" hint="The learner section owns sandboxes and practice tasks.">
+    <out>&lt;section data-level="novice"&gt;
+&lt;section data-level="learner"&gt;
+&lt;section data-level="expert"&gt;</out>
+  </tam-cmd>
+  <tam-cmd match="wc -l sample.html" hint="A count is useful only after you know what you are counting.">
+    <out>3 sample.html</out>
+  </tam-cmd>
+  <tam-init>A fixed skeleton contains the three required level sections.</tam-init>
+   <tam-hint after="1">The learner section owns sandboxes and practice tasks.</tam-hint>
+  <tam-hint after="2">A count is useful only after you know what you are counting.</tam-hint>
+  <tam-fallback>Try grep 'data-level' sample.html, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The grep output shows the three ladder rungs. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. Interactive practice belongs in learner; novice stays conceptual and expert carries reference material rather than student tasks.</p>
 <h3>Try it</h3>
-
-<p>Preview any corpus page in the pager at a specific level to observe section filtering and interactive folds:</p>
-<pre class="session" data-risk="read-only">
-$ tam show --level learner tamlinux/development/contributing
-</pre>
-<p>Press <code>r</code> to reveal hidden quiz answers, <code>*</code> to toggle all folds, or <code>0</code> through <code>3</code> to switch the reading level.</p>
-
-<details class="hint">
-<summary>Need a hint on fold controls?</summary>
-<p>Pressing Enter on any highlighted fold link toggles that fold open or closed. Pressing <code>r</code> jumps directly to and expands the next closed quiz answer.</p>
-</details>
-
+<p>Count the lines, then explain why a sandbox placed in novice would break the ladder.</p>
 <h3>If it goes wrong</h3>
-
-<dl>
-<dt>Linter reports <code>QUIZ: details.q requires a summary</code></dt>
-<dd>Ensure every <code>&lt;details class="q"&gt;</code> contains a non-empty <code>&lt;summary&gt;</code> element stating the question.</dd>
-<dt>Linter reports <code>RISK: privileged, package or boot commands require data-risk="system" or "boot"</code></dt>
-<dd>Add <code>data-risk="system"</code> or <code>data-risk="boot"</code> to any <code>&lt;pre&gt;</code> block mentioning <code>sudo</code>, <code>pkexec</code>, <code>pacman</code>, or boot utilities.</dd>
-<dt>Builder reports missing parent or cyclic hierarchy</dt>
-<dd>Check <code>&lt;meta name="parent"&gt;</code>; parent chains must terminate at <code>index.html</code>.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p>Tamlinux pages follow the sourcing rule: every claim about defaults, bindings, or behavior must be verified against actual code or command output, never remembered.</p>
-</aside>
-
+<p>A linter error about details.q means a quiz fold lacks a summary; fix the fold rather than removing the question.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Where do command walkthroughs and practice exercises belong?</i></summary>
-<p>Learner (Level 2) only. Novice sections stay conceptual without <a href="glossary/c/cli.html">CLI</a> examples, while Expert sections show advanced reference examples rather than student tasks.</p>
-</details>
-<details class="q">
-<summary><i>How does the pager behave when you press 'r'?</i></summary>
-<p>It opens the next closed fold at or below the cursor line and scrolls it into view.</p>
-</details>
+<details class="q"><summary><i>Where do practice sandboxes belong?</i></summary><p>In the learner section only.</p></details>
 </section>
 </section>
 
@@ -162,29 +118,11 @@ $ tam show --level learner tamlinux/development/contributing
 
 <p>Wrap self-quizzes in a <code>&lt;section class="quiz"&gt;</code> with an <code>&lt;h3&gt;Check yourself&lt;/h3&gt;</code> heading. Each question is a <code>&lt;details class="q"&gt;</code> containing a mandatory <code>&lt;summary&gt;</code> stating the question and a non-empty answer body. Use <code>class="q open"</code> in expert sections for model answers.</p>
 
-<pre class="session" data-risk="read-only">
-&lt;section class="quiz"&gt;
-&lt;h3&gt;Check yourself&lt;/h3&gt;
-&lt;p&gt;Decide your answer before you reveal it.&lt;/p&gt;
-&lt;details class="q"&gt;
-&lt;summary&gt;Which key reveals the next closed quiz answer?&lt;/summary&gt;
-&lt;p&gt;The &lt;code&gt;r&lt;/code&gt; key jumps to the next closed fold and opens it.&lt;/p&gt;
-&lt;/details&gt;
-&lt;/section&gt;
-</pre>
-
 <p><strong>How it renders:</strong> In the pager, the question displays with a collapsible fold control labeled <code>[+] Answer (-&gt; to show)</code>. Pressing Enter, Right Arrow, <code>r</code>, or <code>*</code> opens the fold to show <code>[-] Answer (&lt;- to hide)</code> and reveals the answer text. In piped output (<code>--pipe</code>), the question appears inline and all answers are collected under an <code>&lt;h3&gt;Answers&lt;/h3&gt;</code> heading at the end of the section.</p>
 
 <h4>2. Hint (details.hint)</h4>
 
 <p>Provide progressive clues or non-essential hints in exercises with <code>&lt;details class="hint"&gt;</code>. A <code>&lt;summary&gt;</code> is optional; if omitted, the console label is used.</p>
-
-<pre class="session" data-risk="read-only">
-&lt;details class="hint"&gt;
-&lt;summary&gt;Need a hint on navigating links?&lt;/summary&gt;
-&lt;p&gt;Use Tab and Shift+Tab to jump between links, or press the number badge shown next to each link.&lt;/p&gt;
-&lt;/details&gt;
-</pre>
 
 <p><strong>How it renders:</strong> In the pager, renders a fold link labeled <code>[+] Hint (-&gt; to show)</code> below the summary line. When expanded, it reveals the clue text. In piped output, the hint text is collected under <code>Answers</code> at the section end.</p>
 
@@ -192,35 +130,17 @@ $ tam show --level learner tamlinux/development/contributing
 
 <p>Novice-level orientation for readers who have never used a Linux terminal belongs in an <code>&lt;aside class="first-time"&gt;</code> within the novice section.</p>
 
-<pre class="session" data-risk="read-only">
-&lt;aside class="first-time"&gt;
-&lt;p&gt;Type commands without the leading dollar sign (&lt;code&gt;$&lt;/code&gt;). The prompt indicates the shell is ready for input.&lt;/p&gt;
-&lt;/aside&gt;
-</pre>
-
 <p><strong>How it renders:</strong> Implemented as a fold by <code>src/fold.c</code>. In the pager, it displays as an interactive fold link labeled <code>[+] New to this? (-&gt; to show)</code>, keeping novice guidance out of the way of experienced readers until expanded. In piped output, it prints <code>New to this?</code> inline and defers the body to <code>Answers</code>.</p>
 
 <h4>4. On Tamlinux (aside.tamlinux)</h4>
 
 <p>Highlight where Tamlinux defaults, keybindings, or tools differ from generic Arch Linux or upstream conventions using <code>&lt;aside class="tamlinux"&gt;</code>.</p>
 
-<pre class="session" data-risk="read-only">
-&lt;aside class="tamlinux"&gt;
-&lt;p&gt;Tamlinux binds &lt;code&gt;Meta&lt;/code&gt; as its primary desktop modifier instead of generic Super.&lt;/p&gt;
-&lt;/aside&gt;
-</pre>
-
 <p><strong>How it renders:</strong> In both the pager and piped mode, <code>src/render.c</code> automatically injects a bold <strong>On Tamlinux:</strong> heading block above the aside content. It is rendered inline as a static callout block rather than an interactive fold.</p>
 
 <h4>5. Peek under the hood (aside.peek)</h4>
 
 <p>Connect beginner simplifications to underlying system internals, source files, or architecture with <code>&lt;aside class="peek"&gt;</code>.</p>
-
-<pre class="session" data-risk="read-only">
-&lt;aside class="peek"&gt;
-&lt;p&gt;Under the hood, fold links use custom URIs of the form &lt;code&gt;tam:fold:&amp;lt;id&amp;gt;&lt;/code&gt; handled internally by &lt;code&gt;src/pager.c&lt;/code&gt;.&lt;/p&gt;
-&lt;/aside&gt;
-</pre>
 
 <p><strong>How it renders:</strong> In both the pager and piped mode, <code>src/render.c</code> automatically injects a bold <strong>Peek under the hood:</strong> heading block above the paragraph. It is rendered inline as a static callout block linking conceptual explanations to implementation details.</p>
 
@@ -235,11 +155,6 @@ $ tam show --level learner tamlinux/development/contributing
 <h3>Advanced usage</h3>
 
 <p>Inspect generated index tables and coverage matrices during build:</p>
-<pre class="session" data-risk="read-only">
-$ python3 tools/report-coverage.py --warnings
-$ python3 tools/report-component-coverage.py --check
-</pre>
-
 <h3>Edge cases</h3>
 
 <ul>
@@ -247,17 +162,10 @@ $ python3 tools/report-component-coverage.py --check
 <li><strong>The public boundary:</strong> Never include real home directories (use <code>alex</code> and <code>/home/alex</code>), private repository names, or internal decision codes.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why are folds numbered before level filtering rather than after?</summary>
-<p>Numbering folds before level filtering ensures each fold's address (such as <code>tam:fold:3</code>) remains stable regardless of which reading lens is active, preventing link invalidation and ensuring consistent history.</p>
-</details>
-</section>
-
 <h3>Sources</h3>
 
 <p>Implemented in <code>src/fold.c</code>, <code>src/depth.c</code>, and <code>docs/corpus-authoring.md</code>.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/c/cli.html">CLI</a>.</p>
 </section>
 
 <h2>Next</h2><p><a href="tamlinux/development/contributing.html">Contributing to Tamlinux</a> &mdash; coordinating claims and making changes.</p>

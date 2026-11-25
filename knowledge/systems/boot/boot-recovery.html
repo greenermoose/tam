@@ -54,14 +54,19 @@ external route:  firmware -> external loader / image -> rescue environment
 <p>These are models, not inventories. Snapshot entries may select different
 images; external media still needs working firmware, hardware support and
 credentials to access encrypted installed storage.</p>
-<h3>Worked example: A desktop failure</h3>
-<p>Scenario: the machine reaches a text login, but the graphical session fails.</p>
-<ol><li>Record “text login reached; graphical session fails” and the time.</li>
-<li><a href="glossary/f/firmware.html">Firmware</a>, loader and enough of Linux to offer that login worked.</li>
-<li>Choose session evidence and the <a href="systems/recovery/recovery.html?level=1">console recovery lesson</a>
-before proposing a boot-file change.</li></ol>
-<p>This is a paper diagnosis, not captured host output or a claim that a
-console will always be available.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Choose the last startup stage known to have worked"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Choose the last startup stage known to have worked">
+  <tam-cmd match="printf &#x27;text login reached; graphical session failed&#x27;" goal="true">
+    <out>Scenario: text login reached; graphical session failed</out>
+  </tam-cmd>
+  <tam-init>Try: printf 'text login reached; graphical session failed'</tam-init>
+  <tam-hint after="1">A text login means Linux reached user space.</tam-hint>
+  <tam-hint after="2">Record the observed screen before choosing recovery steps.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>Change the scenario: firmware runs but cannot find any
 internal loader. Would changing a desktop keybinding help? Name the earlier

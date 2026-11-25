@@ -43,16 +43,19 @@
 <aside class="first-time">
 <p>A notification appears at the edge of the screen and fades after a while. To dismiss the newest one, press <code>Meta + N</code>. To dismiss all of them, press <code>Meta + Shift + N</code>. To silence new notifications, press <code>Meta + Ctrl + N</code>; press the same keys again to turn them back on.</p>
 </aside>
-<h3>Worked example</h3>
-<ol>
-<li>Open a terminal with <code>Meta + Return</code>.</li>
-<li>Type <code>tam-notification-send "Tea is ready" "Take the kettle off the heat"</code> and press <code>Return</code>.</li>
-<li>A notification appears. The terminal prints nothing, because the message is the result.</li>
-<li>Press <code>Meta + N</code> to dismiss it.</li>
-<li>Press <code>Meta + Shift + H</code> to open the notification history and find the same message again.</li>
-</ol>
-
-<p>Captured from the packaged notification commands and keybindings on 2026-11-02. The appearance of the pop-up depends on your desktop theme.</p>
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Send and then find a notification"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Send and then find a notification">
+  <tam-cmd match="tam-notification-send &quot;Tea is ready&quot; &quot;Take the kettle off the heat&quot;" goal="true">
+    <out>Sample: notification shown; action stored in history</out>
+  </tam-cmd>
+  <tam-init>Try: tam-notification-send "Tea is ready" "Take the kettle off the heat"</tam-init>
+  <tam-hint after="1">The command sends a headline and description to the session.</tam-hint>
+  <tam-hint after="2">The pop-up is temporary; history keeps the entry.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>tam-notification-send</code> sent a headline and a description to the session's notification service.</li>

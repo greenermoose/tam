@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/protocols/index.html">Secure protocols</a> / Network, Messaging, and Identity Security Protocols</p></nav>
 
-
-<p>This page explains how modern protocols beyond <a href="glossary/t/tls.html">TLS</a> and <a href="glossary/s/ssh.html">SSH</a> secure <a href="glossary/v/vpn.html">VPN</a> tunnels, end-to-end encrypted chat, internet name lookups, and passwordless logins.</p>
-<h2>Before this</h2><p><a href="security/protocols/ssh-protocol.html">The SSH Protocol Internals</a></p>
+<p>Security protocols wrap familiar tasks such as remote access, messaging and logins in rules that protect confidentiality, integrity and identity in different ways.</p>
 
 <section data-level="novice">
 <h2>Different security tools for different jobs</h2>
@@ -40,50 +38,51 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspecting DNS, WireGuard, and FIDO2 readiness read-only</h2>
-<p><strong>Goal:</strong> you will be able to inspect local kernel WireGuard/FIDO2 readiness and understand how modern protocols compose primitives without changing system configuration.</p>
-<p><strong>Before you start:</strong> checking loaded kernel modules and installed tools is read-only.</p>
-
-<h3>Worked example</h3>
-<p>Check whether the Linux kernel supports WireGuard natively and whether FIDO2/U2F tools are present on the workstation:</p>
-<pre class="session" data-risk="read-only">
-$ modinfo -n wireguard 2&gt;/dev/null || zgrep -s CONFIG_WIREGUARD /proc/config.gz || echo "check kernel config"
-$ command -v wg fido2-token pamu2fcfg || true
-</pre>
-<p>Your output will reflect which optional VPN and hardware-token packages are installed on your machine.</p>
-
+<h2>Check readiness for three protocol families</h2>
+<p><strong>Goal:</strong> read sample readiness lines for WireGuard, FIDO2 and DNS security.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: protocol readiness clues"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find WireGuard in the sample readiness list">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">wireguard: kernel module available
+wg: command available
+fido2-token: command available
+pam_u2f.so: present
+dnssec: supported by resolver</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep wireguard clues.txt" goal="true" hint="Try grep wireguard clues.txt first.">
+      <out>wireguard: kernel module available</out>
+    </tam-cmd>
+    <tam-cmd match="grep fido2 clues.txt" hint="FIDO2 needs both a token tool and PAM integration for prompt use.">
+      <out>fido2-token: command available</out>
+      <out>pam_u2f.so: present</out>
+    </tam-cmd>
+    <tam-cmd match="grep dnssec clues.txt" hint="DNSSEC validation depends on the resolver, not just the domain.">
+      <out>dnssec: supported by resolver</out>
+    </tam-cmd>
+  <tam-init>Sample readiness: WireGuard, FIDO2 and DNSSEC clues.</tam-init>
+  <tam-hint after="1">Try grep wireguard clues.txt first.</tam-hint>
+  <tam-hint after="2">Now try grep fido2 clues.txt for the token tool.</tam-hint>
+  <tam-fallback>Try grep wireguard clues.txt, grep fido2 clues.txt or grep dnssec clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li>Modern Linux kernels include WireGuard directly in-tree, routing encrypted <a href="glossary/u/udp.html">UDP</a> packets via <em>cryptokey routing</em> (mapping each peer's public key to allowed IP ranges).</li>
-<li>Tools like <code>fido2-token</code> and <code>pamu2fcfg</code> bridge hardware FIDO2 keys to local <a href="glossary/p/pam.html">PAM</a> and WebAuthn authenticators.</li>
-</ol>
-
+<p>The prepared lines show three separate families: a VPN protocol, a hardware authentication path and DNS validation. The <code>grep</code> replies come from the prepared file. On a real machine availability depends on the kernel and installed packages.</p>
 <h3>Try it</h3>
-<p>On an online machine with <code>bind</code> tools installed, run <code>dig +dnssec example.com A</code> to observe <code>RRSIG</code> cryptographic signatures returned alongside DNS records.</p>
-
+<p>Use <code>cat clues.txt</code> to see every line. Each protocol answers a different question: protect a link, prove a user, or protect name answers.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>wg: command not found</code></dt>
-<dd>Install <code>wireguard-tools</code> with your native package manager if you plan to inspect or configure WireGuard interfaces.</dd>
-<dt>OAuth2 / <a href="glossary/j/jwt.html">JWT</a> login failures after clock drift</dt>
-<dd>Short-lived tokens (<a href="glossary/k/kerberos.html">Kerberos</a> tickets, JWT <code>exp</code>/<code>nbf</code> claims) reject requests when system clocks drift; verify <a href="glossary/n/ntp.html">NTP</a> synchronization with <code>timedatectl status</code>.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, hardware FIDO2 keys integrate directly with PAM and <a href="glossary/p/polkit.html">Polkit</a> via <code>tam-setup-security-fido2</code> (<a href="security/hardware-authentication.html">Hardware Security and Privilege Management</a>), binding physical presence to local privilege prompts.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>How does FIDO2 / WebAuthn defeat phishing sites that look identical to your bank?</i></summary>
-<p>The browser passes the real origin (e.g. <code>evil-bank.example</code>) in <code>clientDataJSON</code> to the hardware token, which signs only for keys scoped to the legitimate relying-party ID; a signature for a lookalike domain fails verification at the real bank.</p>
-</details>
-<details class="q">
-<summary><i>Why does WireGuard avoid complex cipher-suite negotiation unlike IPsec?</i></summary>
-<p>WireGuard fixes a single modern cryptographic suite (Noise_IKpsk2, Curve25519, ChaCha20-Poly1305, BLAKE2s) with tiny code surface, eliminating downgrade attacks and negotiation state bugs.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why is DNSSEC different from HTTPS?</i></summary><p>DNSSEC authenticates DNS records; HTTPS authenticates and protects the web connection after an address is known.</p></details>
 </section>
 </section>
 
@@ -112,18 +111,30 @@ $ command -v wg fido2-token pamu2fcfg || true
 <li><strong>Needham–Schroeder / Kerberos clock &amp; KDC trust:</strong> The KDC is a total single point of compromise (Golden Ticket attacks if the <code>krbtgt</code> key leaks), and replay caches must cover the full clock-skew window.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>What is the difference between Forward Secrecy and Post-Compromise Security (<a href="glossary/p/pcs.html">PCS</a>) in the Signal Double Ratchet?</summary>
-<p>Forward secrecy guarantees that compromising a device's current state cannot decrypt past messages (achieved by one-way symmetric KDF ratcheting and deleting old message keys). Post-compromise security guarantees that if an attacker steals current state today and stops observing, future fresh DH ratchet exchanges heal the session so the attacker is locked out again.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <ul>
 <li><cite data-ref="boneh-shoup"><a href="bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapters 21–22: Key exchange, Signal/Noise concepts, authentication protocols).</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/t/tls.html">TLS</a></li>
+<li><a href="glossary/s/ssh.html">SSH</a></li>
+<li><a href="glossary/v/vpn.html">VPN</a></li>
+<li><a href="security/protocols/ssh-protocol.html">The SSH Protocol Internals</a></li>
+<li><a href="glossary/u/udp.html">UDP</a></li>
+<li><a href="glossary/p/pam.html">PAM</a></li>
+<li><a href="glossary/j/jwt.html">JWT</a></li>
+<li><a href="glossary/k/kerberos.html">Kerberos</a></li>
+<li><a href="glossary/n/ntp.html">NTP</a></li>
+<li><a href="glossary/p/polkit.html">Polkit</a></li>
+<li><a href="security/hardware-authentication.html">Hardware Security and Privilege Management</a></li>
+<li><a href="glossary/p/pcs.html">PCS</a></li>
+</ul>
+
+
 </body>
 </html>

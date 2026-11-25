@@ -46,29 +46,75 @@
 <p><strong>Goal:</strong> you will be able to query and choose your default browser, terminal, and coding agent without manually editing desktop entry files.</p>
 
 
-<h3>Worked example</h3>
+
 <ol>
 <li>Check your currently configured default web browser:
-<pre class="session" data-risk="read-only">
-$ tam-default-browser
-chromium
-</pre>
+<tam-sandbox
+  title="Try it: Check your currently configured default web browser"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Check your currently configured default web browser">
+  <tam-cmd match="tam-default-browser" goal="true" hint="Look for the value that answers the task.">
+    <out>chromium</out>
+  </tam-cmd>
+  <tam-init>Try: tam-default-browser</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-default-browser (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 </li>
 <li>To change the default browser, pass the supported browser name:
-<pre class="session" data-risk="user">
-$ tam-default-browser firefox
-</pre>
+<tam-sandbox
+  title="Try it: To change the default browser, pass the supported browser name"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="To change the default browser, pass the supported browser name">
+  <tam-cmd match="tam-default-browser firefox" goal="true" hint="Look for the value that answers the task.">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: tam-default-browser firefox</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-default-browser firefox (or type help).</tam-fallback>
+</tam-sandbox>
+
 </li>
 <li>Check your default terminal emulator:
-<pre class="session" data-risk="read-only">
-$ tam-default-terminal
-alacritty
-</pre>
+<tam-sandbox
+  title="Try it: Check your default terminal emulator"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Check your default terminal emulator">
+  <tam-cmd match="tam-default-terminal" goal="true" hint="Look for the value that answers the task.">
+    <out>alacritty</out>
+  </tam-cmd>
+  <tam-init>Try: tam-default-terminal</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-default-terminal (or type help).</tam-fallback>
+</tam-sandbox>
+
 </li>
 <li>Inspect or select your default coding agent:
-<pre class="session" data-risk="read-only">
-$ tam-default-agent
-</pre>
+<tam-sandbox
+  title="Try it: Inspect or select your default coding agent"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Inspect or select your default coding agent">
+  <tam-cmd match="tam-default-agent" goal="true" hint="Look for the value that answers the task.">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: tam-default-agent</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-default-agent (or type help).</tam-fallback>
+</tam-sandbox>
+
 </li>
 </ol>
 

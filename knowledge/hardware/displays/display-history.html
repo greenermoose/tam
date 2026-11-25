@@ -66,25 +66,35 @@
    [Glass Cover] ──&gt; [X-Axis Drive Electrodes] ──&gt; [Dielectric Layer] ──&gt; [Y-Axis Sensing Electrodes]
    (Conductive human finger alters mutual capacitance at grid intersections)
 </pre>
-<h3>Worked example: query connected displays</h3>
-<pre class="session" data-risk="read-only">
-$ cat /sys/class/drm/card1-*/status
+<h3>Explore: query connected displays</h3>
+<tam-sandbox
+  title="Try it: query connected displays"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Query connected displays">
+  <tam-cmd match="cat /sys/class/drm/card1-*/status" hint="Look for the value that answers the task.">
+    <out>connected
 connected
-connected
-connected
-
-$ head -n 1 /sys/class/drm/card1-*/modes
-==&gt; /sys/class/drm/card1-DP-1/modes &lt;==
+connected</out>
+  </tam-cmd>
+  <tam-cmd match="head -n 1 /sys/class/drm/card1-*/modes" goal="true">
+    <out>==&gt; /sys/class/drm/card1-DP-1/modes &lt;==
 1920x1080
 
 ==&gt; /sys/class/drm/card1-DP-2/modes &lt;==
 1920x1080
 
 ==&gt; /sys/class/drm/card1-HDMI-A-1/modes &lt;==
-1920x1080
-</pre>
+1920x1080</out>
+  </tam-cmd>
+  <tam-init>Try: cat /sys/class/drm/card1-*/status</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try cat /sys/class/drm/card1-*/status (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-<p>Captured on a Tamlinux workstation, 2026-11-01. The number of detected connectors and their supported modes will reflect your physical setup.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>cat /sys/class/drm/card1-*/status</code> queries the kernel for every video output port wired to graphics card 1. In this worked example, three separate monitor connections report a <code>connected</code> state.</li>
@@ -114,6 +124,29 @@ $ head -n 1 /sys/class/drm/card1-*/modes
 <p>Invented in 1946, the Williams-Kilburn tube was a cathode-ray tube used as the first random-access electronic memory. Because the electron beam created electrostatic charges on the phosphor faceplate, operators could visually inspect the computer&apos;s stored memory bits directly on the glowing glass tube.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for inspect kernel input devices with evtes"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for inspect kernel input devices with evtest">
+<tam-cmd match="cat /proc/bus/input/devices | grep -E &quot;N: Name|H: Handlers&quot; | head -n 8" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>N: Name="Power Button"
+H: Handlers=kbd event0
+N: Name="Sleep Button"
+H: Handlers=kbd event1
+N: Name="Logitech USB Optical Mouse"
+H: Handlers=mouse0 event2
+N: Name="AT Translated Set 2 keyboard"
+H: Handlers=sysrq kbd event3</out>
+  </tam-cmd>
+  <tam-init>Try: cat /proc/bus/input/devices | grep -E "N: Name|H: Handlers" | head -n 8</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try cat /proc/bus/input/devices | grep -E "N: Name|H: Handlers" | head -n 8 (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Linux multi-touch protocol, evdev event slots, and panel timing</h2>
@@ -156,17 +189,7 @@ $ head -n 1 /sys/class/drm/card1-*/modes
 
 <h3>Explore: inspect kernel input devices with evtest</h3>
 
-<pre class="session" data-risk="read-only">
-$ cat /proc/bus/input/devices | grep -E "N: Name|H: Handlers" | head -n 8
-N: Name="Power Button"
-H: Handlers=kbd event0 
-N: Name="Sleep Button"
-H: Handlers=kbd event1 
-N: Name="Logitech USB Optical Mouse"
-H: Handlers=mouse0 event2 
-N: Name="AT Translated Set 2 keyboard"
-H: Handlers=sysrq kbd event3 
-</pre>
+
 
 <p>Every active human interface device is represented by a character device node under <code>/dev/input/event*</code>. Developers can monitor live input reports using the <code>evtest</code> utility.</p>
 

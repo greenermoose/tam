@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/shell/index.html">Giving your computer written instructions</a> / Managing running programs</p></nav>
 
-<p>This page explains how to see and manage programs that are running.</p>
+<p>A job is a process you started from a shell; waiting for that exact child produces evidence that a scripted task completed.</p>
 <h2>Before this</h2><p><a href="terminal/shell/index.html">Giving your computer written instructions</a></p>
 
 <section data-level="novice">
@@ -38,50 +38,40 @@
 </section>
 
 <section data-level="learner">
-<h2>Start and wait for your own task</h2>
-<p><strong>Goal:</strong> you will be able to run a short background task and recognize when it finishes.</p>
+<h2>Wait for the child you started</h2>
+<p><strong>Goal:</strong> read a fixed completion message from a background job</p>
 
-
-<p><strong>Before you start:</strong> read <a href="terminal/shell/index.html?level=1">Giving your computer written instructions</a>. This example creates only a one-second sleep process in a separate Bash shell.</p>
-<aside class="first-time"><p>Type after the terminal prompt; omit the leading dollar sign in a session. The ampersand starts a command in the background. Ctrl+C normally interrupts a foreground terminal job; it is not an undo key and does not select an arbitrary background task.</p></aside>
-
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ bash -c 'sleep 1 &amp; worker=$!; wait "$worker"; printf "worker finished\n"'
-worker finished
-</pre>
-<p>Captured on Arch Linux, 2026-10-21. The output is fixed; job identifiers and notifications in an interactive shell can look different.</p>
-
+<tam-sandbox
+  title="Try it: read a job result"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Print the background worker completion line">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="bash -c &#x27;sleep 1 &amp; worker=$!; wait &quot;$worker&quot;; printf &quot;worker finished\n&quot;&#x27;" goal="true" hint="wait connects the readback to this shell’s completed child.">
+    <out>worker finished</out>
+  </tam-cmd>
+  <tam-cmd match="bash -c &#x27;kill -0 &quot;$$&quot;; printf &quot;existence check: %s\n&quot; &quot;$?&quot;&#x27;" hint="Existence, identity and health are separate questions.">
+    <out>existence check: 0</out>
+  </tam-cmd>
+  <tam-init>A fixed script starts one worker, waits for it, then prints a line.</tam-init>
+   <tam-hint after="1">wait connects the readback to this shell’s completed child.</tam-hint>
+  <tam-hint after="2">Existence, identity and health are separate questions.</tam-hint>
+  <tam-fallback>Try bash -c 'sleep 1 &amp; worker=$!; wait "$worker"; printf "worker finished\n"', or type help.</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>bash -c</code> confines this exercise to a separate shell.</li>
-<li><code>sleep 1 &amp;</code> starts a short background task.</li>
-<li><code>$!</code> gives its process ID; <code>wait</code> waits for that child.</li>
-<li>The final printf runs after the wait and prints the confirmation.</li>
-</ol>
-
+<p>The message appears only after the saved child PID has been waited for. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. A name-wide kill would include unrelated processes and is not part of this task.</p>
 <h3>Try it</h3>
-<p>Change sleep 1 to sleep 2. The same message should arrive about a second later. Do not substitute another person's process.</p>
-
+<p>Read the existence rule and explain why it does not prove the process is healthy.</p>
 <h3>If it goes wrong</h3>
-<dl>
-<dt>Continuation prompt instead of execution</dt>
-<dd>A quote is likely unfinished. Ctrl+C cancels that input; retype the complete command.</dd>
-<dt>wait says the PID is not a child</dt>
-<dd>The PID belongs to another shell or was copied incorrectly. Rerun the complete example in one shell.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p>A shell child and a desktop or system service have different owners. Use the component's documented recovery procedure for real applications; a process name match is not a Tamlinux recovery plan.</p>
-</aside>
-
+<p>If a worker is already gone, wait still reports its status; use that evidence rather than guessing.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide before revealing the explanation.</p>
-<details class="q"><summary><i>Does a shell job always contain exactly one process?</i></summary>
-<p>No. A pipeline is one shell job but commonly contains several processes.</p></details>
-<details class="q"><summary><i>Why does this example save $! rather than searching by the name sleep?</i></summary>
-<p>It identifies the child just started by this shell. A name search could include unrelated tasks.</p></details>
+<details class="q"><summary><i>Why save the child PID?</i></summary><p>So wait and any signal target only the process you started.</p></details>
 </section>
 </section>
 
@@ -92,18 +82,10 @@ worker finished
 <h3>How it works</h3>
 <p>The shell records its children and reaps their termination statuses with wait interfaces. Process groups organize terminal jobs, so terminal-generated signals need not target only one process. Zombie processes have exited but retain status until reaped.</p>
 
-<h3>Illustrative reference</h3>
-<pre class="session" data-risk="scratch">
-$ bash -c 'kill -0 "$$"; printf "existence check: %s\n" "$?"'
-existence check: 0
-</pre>
-<p>Captured on Arch Linux, 2026-10-21. Signal 0 performs existence/permission checking without sending a signal. It is not a health check and does not remove a PID-reuse race.</p>
 
-<pre class="session" data-risk="scratch">
-$ bash -c 'sleep 30 &amp; worker=$!; kill -TERM "$worker"; wait "$worker" 2&gt;/dev/null; printf "wait status: %s\n" "$?"'
-wait status: 143
-</pre>
-<p>Captured on Arch Linux, 2026-10-21. Bash reports 128 + 15 = 143 for this <a href="glossary/s/sigterm.html">SIGTERM</a>-terminated child.</p>
+
+
+
 
 <h3>Edge cases and cost</h3>
 <p><a href="glossary/t/terminal.html">Terminal</a> closure, shell hangup policy, session management, open descriptors and application behavior all matter. disown and nohup are not universal workload-survival guarantees. Do not poll process existence in a busy loop when waiting or service supervision provides the needed lifecycle event.</p>
@@ -113,13 +95,7 @@ wait status: 143
 <a href="man:signal(7)">signal(7)</a>, <a href="man:waitpid(2)">waitpid(2)</a>,
 <a href="man:pidfd_open(2)">pidfd_open(2)</a>; <cite data-ref="bash"><a href="bibliography/bash.html">Bash manual</a></cite>.</p>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open"><summary>Why can kill -0 succeeding still be insufficient evidence to signal a previously observed PID?</summary>
-<p>The check is a point-in-time existence/permission result. The original process may exit and the PID may be reused before the next operation.</p></details>
-<details class="q"><summary><i>Can a successful existence check prove process health?</i></summary>
-<p>No. It says neither that the original identity persists nor that the process is healthy.</p></details>
-</section>
+<p><strong>Further reading in this topic:</strong> <a href="terminal/shell/index.html?level=1">Giving your computer written instructions</a> · <a href="glossary/s/sigterm.html">SIGTERM</a>.</p>
 </section>
 
 <h2>Next</h2>

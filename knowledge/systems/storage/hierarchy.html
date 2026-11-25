@@ -5,7 +5,7 @@
 <meta name="topic" content="filesystem">
 <meta name="summary" content="Linux filesystem hierarchy (/etc, /home, /proc, /sys)">
 <meta name="keywords" content="filesystem, files, hierarchy, directories, proc, sys, etc, usr, var, fhs, /etc, root">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="systems">
 <meta name="parent" content="systems/storage/index.html">
 <meta name="kind" content="explanation">
@@ -45,13 +45,22 @@
 <p><strong>Before you start:</strong> open a <a href="glossary/t/terminal.html">terminal</a>. This example only reads a directory name.</p>
 <aside class="first-time"><p><strong>New to this?</strong> The dollar sign represents your prompt. Type the command after it, then press Enter.</p></aside>
 
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ls -d /tmp
-/tmp
-</pre>
-<p>Captured on Arch Linux, 2026-10-27. <code>ls</code> displays files and folders; <code>-d</code> asks it to display the named directory itself, rather than list its contents.</p>
 
+<tam-sandbox
+  title="Try it: Explore ls output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore ls output">
+  <tam-cmd match="ls -d /tmp" goal="true" hint="Look for the value that answers the task.">
+    <out>/tmp</out>
+  </tam-cmd>
+  <tam-init>Try: ls -d /tmp</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try ls -d /tmp (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>You asked <code>ls</code> to name the directory <code>/tmp</code>.</li>
@@ -94,7 +103,10 @@ $ ls -d /tmp
 <p>No. They expose interfaces and information provided by the kernel.</p></details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Reference and system behavior</h2>
+<p>Linux presents mounted filesystems as one directory tree. <code>findmnt</code> shows where filesystems attach; <code>lsblk</code> shows the block devices beneath them.</p>
+</section>
 <h2>Next</h2><p><a href="systems/storage/finding-files.html">Finding and opening files</a> &mdash; locate files by name or content.</p>
 <h2>Related</h2><ul><li><a href="systems/storage/usb-drives.html">Using USB drives safely</a> &mdash; copy files to removable media and unmount cleanly.</li><li><a href="systems/storage/archives.html">Creating and opening archives</a> &mdash; inspect and unpack <code>.tar.gz</code> and <code>.zip</code> files.</li><li><a href="security/permissions.html">Who can use a file</a> &mdash; ownership and access modes.</li><li><a href="systems/maintenance/resources.html">Resources and performance</a> &mdash; <a href="glossary/r/ram.html">RAM</a>, swap, and <a href="glossary/c/cpu.html">CPU</a> metrics.</li><li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li></ul>
 

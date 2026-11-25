@@ -36,10 +36,15 @@
 <section data-level="learner">
 <h2>Read a startup report</h2>
 <p><strong>Goal:</strong> you will be able to read a <code>tam-boot</code> report, separate machine time from waiting time, and look at an earlier startup.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ tam-boot
-Boot da1124be  kernel 7.2.11-arch1-1.1
+
+<tam-sandbox
+  title="Try it: Explore tam-boot output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore tam-boot output">
+  <tam-cmd match="tam-boot" goal="true" hint="Look for the value that answers the task.">
+    <out>Boot da1124be  kernel 7.2.11-arch1-1.1
 
   firmware       9.98 s   machine
   loader         1.95 s   machine
@@ -50,9 +55,14 @@ Boot da1124be  kernel 7.2.11-arch1-1.1
   user session  43.94 s   user@1000 default.target ready
   desktop      1133.24 s   graphical-session.target ready
 
-  Machine time to text login: 22.6 s  (30.7 s total minus 8.2 s waiting)
-</pre>
-<p>Captured on an Arch Linux workstation running Tamlinux 0.6.18, 2026-11-07, with <code>tam-boot</code> 0.1.0. The report also lists kernel pauses, shown at Expert. Your numbers will differ.</p>
+  Machine time to text login: 22.6 s  (30.7 s total minus 8.2 s waiting)</out>
+  </tam-cmd>
+  <tam-init>Try: tam-boot</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-boot (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The first four rows are durations: how long the firmware, the loader, the kernel and the startup services each took.</li>

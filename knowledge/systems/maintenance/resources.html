@@ -53,15 +53,24 @@ load average <= logical cores --> system has compute headroom
 </pre>
 
 <p>A load average is an exponential moving average of processes in runnable or uninterruptible sleep state (waiting for <a href="glossary/c/cpu.html">CPU</a> or disk). Compare load to <code>nproc</code>: on a 16-core machine, a load of 1.4 means substantial spare headroom; on a 2-core machine, a load of 4.0 means tasks are actively queuing.</p>
-<h3>Worked example: Check available memory</h3>
-<pre class="session" data-risk="read-only">
-$ free -h
-               total        used        free      shared  buff/cache   available
+<h3>Explore: Check available memory</h3>
+<tam-sandbox
+  title="Try it: Check available memory"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Check available memory">
+  <tam-cmd match="free -h" goal="true" hint="Look for the value that answers the task.">
+    <out>               total        used        free      shared  buff/cache   available
 Mem:            28Gi       6.0Gi        16Gi        97Mi       7.2Gi        22Gi
-Swap:           56Gi       3.0Gi        53Gi
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-10-25. Your output will differ.</p>
+Swap:           56Gi       3.0Gi        53Gi</out>
+  </tam-cmd>
+  <tam-init>Try: free -h</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try free -h (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
 <ol>
 <li><code>free -h</code> prints memory metrics in human-readable units (GiB, MiB).</li>
@@ -73,11 +82,22 @@ Swap:           56Gi       3.0Gi        53Gi
 <h3>Try it</h3>
 <p>Check disk capacity and headroom on your root filesystem using <code>df -h /</code>:</p>
 
-<pre class="session" data-risk="read-only">
-$ df -h /
-Filesystem                Size  Used Avail Use% Mounted on
-/dev/mapper/omarchy_root  650G  145G  504G  23% /
-</pre>
+<tam-sandbox
+  title="Try it: Explore df output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore df output">
+  <tam-cmd match="df -h /" goal="true" hint="Look for the value that answers the task.">
+    <out>Filesystem                Size  Used Avail Use% Mounted on
+/dev/mapper/omarchy_root  650G  145G  504G  23% /</out>
+  </tam-cmd>
+  <tam-init>Try: df -h /</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try df -h / (or type help).</tam-fallback>
+</tam-sandbox>
+
 
 <p>Check the <code>Avail</code> column and the <code>Use%</code>. No changes are made to your files. You can also run <code>tam inspect</code> to audit host CPU architecture, RAM, storage mounts, and graphics adapters in a single read-only view.</p>
 <h3>If it goes wrong</h3>
@@ -102,6 +122,20 @@ Filesystem                Size  Used Avail Use% Mounted on
 <p>No. Both commands are strictly read-only diagnostics.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for cat /proc/pressure/memory"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for cat /proc/pressure/memory">
+<tam-cmd match="cat /proc/pressure/memory" goal="true" hint="Read the labels and connect each value to the task."></tam-cmd>
+  <tam-init>Try: cat /proc/pressure/memory</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try cat /proc/pressure/memory (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Virtual memory internals, ZRAM, and kernel metrics</h2>
@@ -138,9 +172,7 @@ Filesystem                Size  Used Avail Use% Mounted on
 
 <p>Inspect real-time memory pressure stalls without third-party monitoring daemons:</p>
 
-<pre class="session" data-risk="read-only">
-$ cat /proc/pressure/memory
-</pre>
+
 
 <p>Read the <code>some</code> and <code>full</code> metrics. <code>full=0.00</code> means no processes have stalled completely waiting for memory.</p>
 

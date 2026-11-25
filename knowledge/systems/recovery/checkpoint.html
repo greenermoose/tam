@@ -65,7 +65,7 @@ Tamlinux Cultivar   /usr/lib/tamlinux/       Previous source-install stage
 <p>Taking a snapshot of the root subvolume does not capture files on a separate
 <code>/boot</code> filesystem, nor does switching a user package generation restore
 modified application database files.</p>
-<h3>Worked example</h3>
+
 <p>Create a temporary directory, record an initial state file, make a change, and restore
 from the checkpoint:</p>
 
@@ -73,17 +73,28 @@ from the checkpoint:</p>
 lab=$(mktemp -d)
 cd "$lab"
 </pre>
-<pre class="session" data-risk="scratch">
-$ printf '%s\n' 'port=8080' > service.conf
-$ cp -p -- service.conf service.conf.checkpoint
-$ printf '%s\n' 'port=9090' > service.conf
-$ cat service.conf
-port=9090
-$ cp -p -- service.conf.checkpoint service.conf
-$ cat service.conf
-port=8080
-</pre>
-<p>Captured on Arch Linux, 2026-10-23.</p>
+<tam-sandbox
+  title="Try it: Explore printf output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore printf output">
+  <tam-cmd match="printf &#x27;%s\n&#x27; &#x27;port=8080&#x27; &gt; service.conf" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="cp -p -- service.conf service.conf.checkpoint"></tam-cmd>
+  <tam-cmd match="printf &#x27;%s\n&#x27; &#x27;port=9090&#x27; &gt; service.conf"></tam-cmd>
+  <tam-cmd match="cat service.conf">
+    <out>port=9090</out>
+  </tam-cmd>
+  <tam-cmd match="cp -p -- service.conf.checkpoint service.conf"></tam-cmd>
+  <tam-cmd match="cat service.conf" goal="true">
+    <out>port=8080</out>
+  </tam-cmd>
+  <tam-init>Try: printf '%s\n' 'port=8080' &gt; service.conf</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try printf '%s\n' 'port=8080' &gt; service.conf (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>You established a known-good configuration in <code>service.conf</code>.</li>
@@ -97,13 +108,23 @@ port=8080
 <code>service.conf.checkpoint</code> and confirm the file is clean.</p>
 
 <details class="solution">
-<pre class="session" data-risk="scratch">
-$ printf '%s\n' 'timeout=bad' >> service.conf
-$ cp -p -- service.conf.checkpoint service.conf
-$ cat service.conf
-port=8080
-</pre>
-<p>Captured on Arch Linux, 2026-10-23.</p>
+<tam-sandbox
+  title="Try it: Explore printf output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore printf output">
+  <tam-cmd match="printf &#x27;%s\n&#x27; &#x27;timeout=bad&#x27; &gt;&gt; service.conf" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="cp -p -- service.conf.checkpoint service.conf"></tam-cmd>
+  <tam-cmd match="cat service.conf" goal="true">
+    <out>port=8080</out>
+  </tam-cmd>
+  <tam-init>Try: printf '%s\n' 'timeout=bad' &gt;&gt; service.conf</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try printf '%s\n' 'timeout=bad' &gt;&gt; service.conf (or type help).</tam-fallback>
+</tam-sandbox>
+
 </details>
 <h3>If it goes wrong</h3>
 <dl>
@@ -138,6 +159,22 @@ not restore modified databases or root-owned login files.</p>
 <p>No. Checkpoints on the same disk do not protect against storage hardware failure.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Verify a checkpoint file checksum"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Verify a checkpoint file checksum">
+<tam-cmd match="sha256sum service.conf.checkpoint" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>Sample: 4c44...  service.conf.checkpoint</out>
+  </tam-cmd>
+  <tam-init>Try: sha256sum service.conf.checkpoint</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try sha256sum service.conf.checkpoint (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Quiescence, Boundary Verification, and Avoiding Churn</h2>
@@ -188,11 +225,7 @@ checkpoint churn while guaranteeing a safe, tested route back.</p>
 <p>Inspect the integrity of a candidate transaction or checkpoint manifest
 using standard verification utilities:</p>
 
-<pre class="session" data-risk="read-only">
-$ sha256sum -c &lt;&lt;'EOF'
-d99e955535514a9fff82e7e54121e5f677f844ed592a1fd202153241f1368faa  package.tar.zst
-EOF
-</pre>
+
 <p>Verifying recorded digests before initiating state restoration ensures that rollback targets have not suffered silent corruption or partial writes.</p>
 
 <section class="quiz">

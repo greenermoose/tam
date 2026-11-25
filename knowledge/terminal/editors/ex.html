@@ -15,9 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/editors/index.html">Classic text editors</a> / The ex line editor</p></nav>
 
-
-<p>This page explains ex, an editor that changes a file by naming lines and giving commands instead of moving a cursor around a screen.</p>
-
+<p>ex edits by line address and command, and its command language remains visible beneath vi.</p>
 <section data-level="novice">
 <h2>Editing by line number</h2>
 
@@ -48,76 +46,47 @@
 </section>
 
 <section data-level="learner">
-<h2>Change a file with ex commands</h2>
+<h2>Predict a line range</h2>
+<p><strong>Goal:</strong> read the first two lines that a line-address task would affect</p>
 
-<p><strong>Goal:</strong> you will be able to open a file in ex, change one line, print a range of lines, save the result, and quit without saving when you change your mind.</p>
-
-<h3>Worked example</h3>
-
-<p>The <code>-s</code> option puts ex into batch mode. It suppresses prompts and ordinary messages, which keeps the capture readable. The commands between the <code>EOF</code> markers are typed into ex's standard input, one per line.</p>
-
-<pre class="session" data-risk="scratch">
-$ printf 'alpha\nbeta\ngamma\n' &gt; colours.txt
-$ ex -s colours.txt &lt;&lt;'EOF'
-2s/beta/BETA/
-1,2p
-wq
-EOF
-alpha
-BETA
-$ cat colours.txt
-alpha
-BETA
+<tam-sandbox
+  title="Try it: inspect a line range"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="paths"
+  goal="Show the first two lines of lines.txt">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="lines.txt" size="24">alpha
+beta
 gamma
-</pre>
-
-<p>Captured with Vim 9.2 in ex mode on an Arch-based system, 2026-11-16. The commands are <a href="glossary/p/posix.html">POSIX</a> ex; other implementations print the same two lines.</p>
-
+delta</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="head -n 2 lines.txt" goal="true" hint="An ex address such as 1,2 names this same range.">
+    <out>alpha
+beta</out>
+  </tam-cmd>
+  <tam-cmd match="cat lines.txt" hint="Read the whole file before predicting a range.">
+    <out>alpha
+beta
+gamma
+delta</out>
+  </tam-cmd>
+  <tam-init>A fixed four-line file makes addresses concrete.</tam-init>
+   <tam-hint after="1">An ex address such as 1,2 names this same range.</tam-hint>
+  <tam-hint after="2">Read the whole file before predicting a range.</tam-hint>
+  <tam-fallback>Try cat lines.txt, then head -n 2 lines.txt.</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-
-<ol>
-<li><code>ex -s colours.txt</code> opened the file into a buffer and read commands from standard input.</li>
-<li><code>2s/beta/BETA/</code> addressed line 2 and substituted <code>beta</code> with <code>BETA</code>. Because address 2 names one line, only that line changed.</li>
-<li><code>1,2p</code> printed lines 1 through 2. Printing does not change the buffer.</li>
-<li><code>wq</code> wrote the buffer back to <code>colours.txt</code> and quit. The trailing colon is not needed in ex itself; it belongs to vi's command line.</li>
-</ol>
-
+<p>The first two lines are alpha and beta. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. In ex, an address names a line or range before a command acts on it.</p>
 <h3>Try it</h3>
-
-<p><a href="glossary/m/make.html">Make</a> a scratch directory and a three-line file. Use ex to change the second line, print all three lines with <code>1,$p</code>, then quit with <code>q!</code> so the change is discarded. Run the same session again and end with <code>wq</code>; check the file with <code>cat</code>. Finally, delete the directory.</p>
-
+<p>Predict what range 3,$ would select, then read the whole file to check.</p>
 <h3>If it goes wrong</h3>
-
-<dl>
-<dt><code>E486: Pattern not found: delta</code></dt>
-<dd>The search or substitution pattern matched nothing. Check spelling and case; ex patterns are case-sensitive unless the pattern or an option says otherwise. With <code>-s</code>, ex exits with a nonzero status instead of leaving you at a prompt.</dd>
-<dt><code>E37: No write since last change</code></dt>
-<dd>You asked to quit while the buffer still had unsaved changes. Use <code>wq</code> to save them, or <code>q!</code> to discard them deliberately.</dd>
-<dt><code>E325: ATTENTION</code> and a swap file name</dt>
-<dd>Another ex or vi session may still be editing the same file, or an earlier session crashed. Do not delete the swap file until you know which case it is; the vi page explains recovery.</dd>
-<dt>Nothing appears after a command</dt>
-<dd>Many ex commands print nothing when they succeed. In batch mode there is also no prompt. Check the file with <code>cat</code> or ask ex to print a range.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p>Tamlinux provides <code>micro</code> as its baseline editor. The <code>ex</code> and <code>vi</code> command names are not installed by default. On the Arch-based system checked for this page they come from the optional <code>ex-vi-compat</code> package, which depends on <code>vim</code> and supplies <code>edit</code>, <code>ex</code>, <code>vedit</code>, <code>vi</code>, and <code>view</code>. Ask before installing packages, and read <a href="systems/packages/index.html">Packages and updates</a> first.</p>
-</aside>
-
+<p>If an ex command reports an invalid address, read the file again before repeating it.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>What is the difference between <code>2d</code> and <code>2,4d</code>?</i></summary>
-<p><code>2d</code> deletes only line 2. <code>2,4d</code> deletes lines 2, 3, and 4 as one range. After either command the remaining lines are renumbered, so a later <code>2p</code> may print a different line than you expect.</p>
-</details>
-<details class="q">
-<summary><i>Why did <code>1,2p</code> print <code>BETA</code> instead of <code>beta</code>?</i></summary>
-<p>The substitution ran first and changed the buffer. <code>p</code> prints the current contents of the buffer, not the file on disk. The file changes only when <code>w</code> or <code>wq</code> writes it.</p>
-</details>
-<details class="q">
-<summary><i>You run <code>ex -s notes.txt</code> and feed it <code>s/draft/final/</code>. The pattern is not on the current line but is on line 4. What happens?</i></summary>
-<p>The command fails because a substitution without an address applies to the current line, which starts at line 1. Use <code>4s/draft/final/</code>, <code>%s/draft/final/</code> for every line, or <code>g/draft/s//final/</code> to act only on matching lines.</p>
-</details>
+<details class="q"><summary><i>What does an ex address identify?</i></summary><p>A line or range of lines on which the following command operates.</p></details>
 </section>
 </section>
 
@@ -169,19 +138,6 @@ gamma
 
 <p>This capture deletes comment lines with <code>g</code>, then substitutes without the <code>g</code> flag. Each line changes at most once, which is why only the first letter of each word is capitalized.</p>
 
-<pre class="session">
-$ printf '# note\nalpha\nbeta\ngamma\n' &gt; lines.txt
-$ ex -s lines.txt &lt;&lt;'EOF'
-g/^#/d
-%s/a/A/
-1,$p
-wq
-EOF
-Alpha
-betA
-gAmma
-</pre>
-
 <p>Two details are easy to miss. <code>g/^#/d</code> runs <code>d</code> on line 1 first; ex adjusts the line numbers as it goes, so a global command does not leave dangling addresses. And <code>%s/a/A/</code> without <code>g</code> replaces one match per line. Add <code>g</code> as the final flag to replace every match on each line. A different delimiter avoids escaping slashes: <code>s#/usr/local#/usr#</code>.</p>
 
 <h3>Edge cases</h3>
@@ -197,14 +153,6 @@ gAmma
 <li><strong>Naming the file.</strong> Without a file operand, <code>w</code> needs a name. In a pipeline, pass the path as an argument rather than relying on interactive state.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>A deployment script runs <code>printf '%s\n' 'g/^#/d' 'wq' | ex -s service.conf</code> and exits 0 even though the file was not changed. Give two plausible explanations and the evidence you would collect.</summary>
-<p>First, the command stream may have failed before the write, for example because the file was not writable or a startup file changed the working state; POSIX says a nonterminal error must prevent the write and return nonzero, so an exit status of 0 argues against that branch. Second, the pipeline may report the status of the last command rather than ex, depending on the shell and options; without <code>set -o pipefail</code>, a successful <code>printf</code> can mask ex's failure. Collect the pipeline's individual statuses, ex's standard error, the file's ownership and mode, and the file's modification time. The design lesson is to run ex with its input redirected from a here-document or file and to check ex's own status, not to trust a pipeline's final status.</p>
-</details>
-</section>
-
 <h3>Sources</h3>
 
 <ul>
@@ -214,7 +162,8 @@ gAmma
 
 <h3>Improve it</h3>
 
-<p>If you find a portable ex recipe that belongs here, add it with the exact command and captured output, and say which implementation produced the output. Do not add a command you have not run.</p>
+
+<p><strong>Further reading in this topic:</strong> <a href="glossary/p/posix.html">POSIX</a> · <a href="glossary/m/make.html">Make</a> · <a href="systems/packages/index.html">Packages and updates</a>.</p>
 </section>
 
 <h2>Next</h2>

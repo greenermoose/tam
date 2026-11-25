@@ -44,15 +44,19 @@
 <p><strong>Goal:</strong> you will be able to open a practice terminal, toggle floating, and close only that window.</p>
 
 
-<h3>Worked example</h3>
-<ol>
-<li>Press <kbd>Meta + Return</kbd> for an empty terminal.</li>
-<li>Press <kbd>Meta + T</kbd> to toggle floating/tiling (<code>tiling.lua</code>).</li>
-<li>Press <kbd>Meta + Left</kbd> or <kbd>Meta + Right</kbd> if another window exists, to move focus.</li>
-<li>Focus the empty terminal again and press <kbd>Meta + Q</kbd> to close it.</li>
-</ol>
-<p>Checked against packaged <code>tiling.lua</code> and <code>applications.lua</code>. Overrides can differ—confirm with Meta + K.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Predict which action targets the focused window"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Predict which action targets the focused window">
+  <tam-cmd match="tam-menu-keybindings" goal="true">
+    <out>Sample: Meta + T toggles floating; Meta + Q closes the focused window</out>
+  </tam-cmd>
+  <tam-init>Try: tam-menu-keybindings</tam-init>
+  <tam-hint after="1">Meta + T changes the focused window layout.</tam-hint>
+  <tam-hint after="2">Meta + Q closes only the focused window.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The launcher created a new window.</li>

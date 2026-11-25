@@ -16,8 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/setup/index.html">Network setup</a> / Adding a connection</p></nav>
 
-<p>A connection is a saved recipe that tells the computer how to configure an interface: whether to ask for an address automatically or use a fixed one, which router to use, and which <a href="glossary/d/dns.html">DNS</a> servers to query.</p>
-<h2>Before this</h2><p><a href="networking/setup/addresses-and-subnets.html">Addresses and subnets</a> explains the numbers a profile contains.</p>
+<p>A saved network profile records how a connection should be made, so a wired or Wi-Fi link can be reused instead of configured by hand each time.</p>
 
 <section data-level="novice">
 <h2>A recipe, not a one-time action</h2>
@@ -52,79 +51,56 @@ NetworkManager applies it to the kernel when the link appears
 </section>
 
 <section data-level="learner">
-<h2>Inspect profiles before creating one</h2>
-<p><strong>Goal:</strong> you will be able to list saved connections, tell which one is active, describe how it obtains an address, and say what you would delete to undo a new profile.</p>
-
-<p><strong>Before you start:</strong> these commands read profile state. In this exercise you do not need to create a profile; the creation command is shown for reference in the expert section, together with its undo.</p>
-
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ nmcli device status
-DEVICE   TYPE      STATE                   CONNECTION
-enp1s0   ethernet  connected               Wired connection 1
-docker0  bridge    connected (externally)  docker0
-lo       loopback  connected (externally)  lo
-enp2s0   ethernet  unavailable             --
-wlp3s0   wifi      unavailable             --
-$ nmcli -t -f NAME,TYPE,DEVICE connection show | grep -E ':(802-3-ethernet|bridge|loopback):'
-Wired connection 1:802-3-ethernet:enp1s0
-docker0:bridge:docker0
-lo:loopback:lo
-Wired connection 2:802-3-ethernet:
-$ nmcli -f IP4.METHOD,IP4.ADDRESS,IP4.GATEWAY connection show 'Wired connection 1'
-IP4.METHOD:  auto
-IP4.ADDRESS: --
-IP4.GATEWAY: --
-</pre>
-<p>Captured on a wired Arch Linux workstation on 2026-11-21. Wi-Fi profile names are omitted from the second command so the output stays focused on wired profiles; your list will differ.</p>
-
+<h2>Inspect a profile before creating one</h2>
+<p><strong>Goal:</strong> read sample device and profile records, then identify which profile is wired.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: inspect NetworkManager profiles"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find the wired profile in the sample device list">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="nmcli device status" goal="true" hint="The TYPE column distinguishes ethernet from bridge and loopback.">
+      <out>DEVICE   TYPE      STATE      CONNECTION</out>
+      <out>enp1s0   ethernet  connected  Wired connection 1</out>
+      <out>docker0  bridge    connected  docker0</out>
+      <out>lo       loopback  connected  lo</out>
+    </tam-cmd>
+    <tam-cmd match="nmcli -t -f NAME,TYPE,DEVICE connection show" hint="The colon-separated list is the same profile data in compact form.">
+      <out>Wired connection 1:802-3-ethernet:enp1s0</out>
+      <out>docker0:bridge:docker0</out>
+      <out>lo:loopback:lo</out>
+    </tam-cmd>
+    <tam-cmd match="nmcli -f IP4.METHOD,IP4.ADDRESS,IP4.GATEWAY connection show &#x27;Wired connection 1&#x27;" hint="auto means the profile asks DHCP for address details.">
+      <out>IP4.METHOD:  auto</out>
+      <out>IP4.ADDRESS: --</out>
+      <out>IP4.GATEWAY: --</out>
+    </tam-cmd>
+  <tam-init>Sample profiles: enp1s0 is ethernet; Wired connection 1 is saved.</tam-init>
+  <tam-hint after="1">Try nmcli device status first.</tam-hint>
+  <tam-hint after="2">Now try nmcli -t -f NAME,TYPE,DEVICE connection show.</tam-hint>
+  <tam-fallback>Try nmcli device status or nmcli -t -f NAME,TYPE,DEVICE connection show (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>nmcli device status</code> shows devices and the profile in use on each. <code>unavailable</code> means no carrier; <code>connected (externally)</code> means something other than NetworkManager configured the device.</li>
-<li><code>nmcli connection show</code> lists saved profiles, including ones not currently active. <code>Wired connection 2</code> is saved but unused.</li>
-<li>The fields printed in the third command describe the profile, not the live interface. <code>auto</code> means DHCP; <code>manual</code> would mean a fixed address written in the profile.</li>
-<li>The second output is in <code>-t</code> (terse) form with selected fields, which is easier to read in scripts and avoids printing secrets.</li>
-</ol>
-
+<p>The sample device list shows an ethernet device using <code>Wired connection 1</code>. The compact profile list shows the same name with its type. The IPv4 fields reveal whether the profile asks DHCP or carries a manual address. These are sample replies, not a reading of your machine.</p>
 <h3>Try it</h3>
-<p>On your own machine, run <code>nmcli device status</code>, then <code>nmcli connection show --active</code>. Pick the active connection and print its method with <code>nmcli -g IP4.METHOD connection show '&lt;name&gt;'</code>. This is read-only. Write the profile name down: <code>nmcli connection delete '&lt;name&gt;'</code> is the undo for a profile you create.</p>
-
+<p>Predict what an <code>auto</code> IPv4 method means before creating any profile. On a real machine, inspect first, then make a change with a clear undo step: delete a test profile with <code>nmcli connection delete</code> if you created it.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>Error: unknown connection</code></dt>
-<dd>The name must match a saved profile exactly; quote names that contain spaces. List them again with <code>nmcli connection show</code>.</dd>
-<dt>A new profile does not connect</dt>
-<dd>Check <code>nmcli device status</code> for carrier and confirm the profile is bound to the right interface. A profile for <code>enp2s0</code> cannot configure <code>enp1s0</code>.</dd>
-<dt>The profile shows <code>auto</code> but no address is assigned</dt>
-<dd>No DHCP server answered on that link. Look at <code>journalctl -u NetworkManager</code> for lease errors before assigning a fixed address.</dd>
-<dt>A Wi-Fi profile asks for a password every time</dt>
-<dd>The saved secret may be missing or marked for this user only. Recreate the profile with the correct key management settings rather than typing the password into a command you later paste into a log.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Tamlinux keeps connection management in NetworkManager and binds the desktop network panel to Meta + CTRL+W. Changing DNS providers goes through <code>tam-dns</code>, which saves the previous configuration before writing it. Those behaviors are recorded in the public <code>tamlinux</code> repository and in the connection reference page.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q">
-<summary><i>What is the difference between a device and a connection in nmcli?</i></summary>
-<p>A device is the hardware or virtual interface; a connection is a saved profile that can be applied to a compatible device. Several profiles can exist for one device, but only one is active on it at a time.</p>
-</details>
-<details class="q">
-<summary><i>Why read a profile's IP4.METHOD instead of the interface address?</i></summary>
-<p>The method records the intent (<code>auto</code> or <code>manual</code>), while the live address records the current result. When a lease has not arrived yet, the profile still tells you what should happen.</p>
-</details>
-<details class="q">
-<summary><i>Which command undoes a newly created profile?</i></summary>
-<p><code>nmcli connection delete '&lt;name&gt;'</code> removes the saved profile. It does not delete files on other systems or change the network itself.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why inspect profiles before adding a new one?</i></summary><p>So you do not duplicate an existing connection, overwrite a working profile, or choose the wrong interface for the new settings.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: profile settings and state</h2>
-
 <h3>Reference</h3>
 <table>
 <tr><th>Setting</th><th>Typical value</th><th>Meaning</th></tr>
@@ -143,16 +119,7 @@ IP4.GATEWAY: --
 <p>A DHCP lease is not a permanent address. It carries a lifetime, and the client renews it before expiry; if renewal fails the address can disappear while the cable stays connected. A manual profile has no such timer, which is why printers and servers use one.</p>
 
 <h3>Advanced usage</h3>
-<pre class="session" data-risk="system">
-$ nmcli connection add type ethernet con-name 'Lab wired' ifname enp2s0 \
-    ipv4.method manual ipv4.addresses 192.168.2.10/24 \
-    ipv4.gateway 192.168.2.1 ipv4.dns '192.168.2.1'
-Connection 'Lab wired' (...) successfully added.
-$ nmcli connection up 'Lab wired'
-Connection successfully activated ...
-$ nmcli connection delete 'Lab wired'
-Connection 'Lab wired' (...) successfully deleted.
-</pre>
+
 <p>Illustrative sequence for reference, not an exercise on a working machine. The last command is the recorded undo. Activation changes kernel state; deleting the profile does not undo changes made to other systems.</p>
 
 <h3>Edge cases</h3>
@@ -164,13 +131,7 @@ Connection 'Lab wired' (...) successfully deleted.
 <li>Changing DNS in a profile does not immediately change the running resolver; the profile must be reapplied or the connection reactivated.</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why is deleting a profile the right undo for a profile you just created?</summary>
-<p>The profile is the persistent change. Removing it restores the previous set of profiles; the live configuration returns to whatever the remaining active profile supplies on the next reactivation.</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <p><a href="man:nmcli(1)">nmcli(1)</a>, <a href="man:nm-settings(5)">nm-settings(5)</a>, <a href="man:NetworkManager(8)">NetworkManager(8)</a> and <a href="man:dhcpcd(8)">dhcpcd(8)</a> where that client is installed.</p>
@@ -178,6 +139,13 @@ Connection 'Lab wired' (...) successfully deleted.
 <h3>Improve it</h3>
 <p>Add a worked example for enterprise Wi-Fi only when a source can confirm the key-management settings; do not copy a password into a corpus page.</p>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/d/dns.html">DNS</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="networking/setup/gateways-and-routing.html">Gateways and routing</a> &mdash; see what the profile's gateway does once it is applied.</p>
 <h2>Related</h2><ul><li><a href="networking/setup/addresses-and-subnets.html">Addresses and subnets</a> &mdash; the numbers used in a manual profile.</li><li><a href="networking/commands.html">Network commands</a> &mdash; the Tamlinux commands that read and share connection details.</li></ul>

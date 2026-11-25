@@ -7,7 +7,7 @@
 <meta name="topic" content="archives">
 <meta name="summary" content="Inspect, unpack, and create .tar.gz and .zip archives safely inside a temporary or target folder">
 <meta name="keywords" content="archive, tar, gzip, tar.gz, zip, unzip, compress, extract">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="systems">
 <meta name="parent" content="systems/storage/index.html">
 <meta name="paths" content="files-and-apps:3">
@@ -42,18 +42,30 @@
 <p><strong>Goal:</strong> pack a scratch folder into <code>.tar.gz</code>, list its entries read-only, and unpack into an isolated empty folder cleanly.</p>
 <p><strong>Before you start:</strong> always list an unfamiliar archive before extracting so you know whether it unpacks one clean top-level folder or loose files.</p>
 
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ work=$(mktemp -d)
-$ mkdir -p "$work/src/sub" "$work/out"
-$ printf 'hello\n' &gt; "$work/src/sub/note.txt"
-$ tar -czf "$work/bundle.tar.gz" -C "$work/src" sub
-$ tar -tf "$work/bundle.tar.gz"
-$ tar -xzf "$work/bundle.tar.gz" -C "$work/out"
-$ cat "$work/out/sub/note.txt"
-$ rm -f -- "$work/bundle.tar.gz" "$work/src/sub/note.txt" "$work/out/sub/note.txt"
-$ rmdir -- "$work/src/sub" "$work/src" "$work/out/sub" "$work/out" "$work"
-</pre>
+
+<tam-sandbox
+  title="Try it: Explore work=$(mktemp output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore work=$(mktemp output">
+  <tam-cmd match="work=$(mktemp -d)" hint="Look for the value that answers the task."></tam-cmd>
+  <tam-cmd match="mkdir -p &quot;$work/src/sub&quot; &quot;$work/out&quot;"></tam-cmd>
+  <tam-cmd match="printf &#x27;hello\n&#x27; &gt; &quot;$work/src/sub/note.txt&quot;"></tam-cmd>
+  <tam-cmd match="tar -czf &quot;$work/bundle.tar.gz&quot; -C &quot;$work/src&quot; sub"></tam-cmd>
+  <tam-cmd match="tar -tf &quot;$work/bundle.tar.gz&quot;"></tam-cmd>
+  <tam-cmd match="tar -xzf &quot;$work/bundle.tar.gz&quot; -C &quot;$work/out&quot;"></tam-cmd>
+  <tam-cmd match="cat &quot;$work/out/sub/note.txt&quot;"></tam-cmd>
+  <tam-cmd match="rm -f -- &quot;$work/bundle.tar.gz&quot; &quot;$work/src/sub/note.txt&quot; &quot;$work/out/sub/note.txt&quot;"></tam-cmd>
+  <tam-cmd match="rmdir -- &quot;$work/src/sub&quot; &quot;$work/src&quot; &quot;$work/out/sub&quot; &quot;$work/out&quot; &quot;$work&quot;" goal="true">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: work=$(mktemp -d)</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try work=$(mktemp -d) (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <p>Notice the flags in <code>tar</code>: <code>-c</code> creates, <code>-t</code> lists contents read-only, <code>-x</code> extracts, <code>-z</code> uses gzip compression, <code>-f</code> names the archive file, and <code>-C</code> enters a target folder cleanly.</p>
 
 <h3>Try it</h3>
@@ -80,7 +92,10 @@ $ rmdir -- "$work/src/sub" "$work/src" "$work/out/sub" "$work/out" "$work"
 </details>
 </section>
 </section>
-
+<section data-level="expert">
+<h2>Reference and system behavior</h2>
+<p>An archive groups files and paths; compression reduces their encoded size. These are separate steps, even when a format combines them.</p>
+</section>
 <h2>Next</h2><p><a href="systems/storage/finding-files.html">Finding and opening files</a> &mdash; locate extracted files and reveal their folders.</p>
 <h2>Related</h2><ul><li><a href="security/permissions.html">Who can use a file</a> &mdash; understand preserved file modes after extraction.</li></ul>
 

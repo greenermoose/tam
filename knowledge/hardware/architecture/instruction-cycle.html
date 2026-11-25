@@ -49,19 +49,29 @@
 <aside class="first-time">
 <p><strong>New to this?</strong> The <strong>Instruction Pointer</strong> (often called the Program Counter or PC) is a special CPU register that holds the memory address of the next instruction waiting to be executed. As each instruction finishes, the processor automatically advances the pointer to the next instruction in sequence, unless a jump or branch directs it elsewhere.</p>
 </aside>
-<h3>Worked example: inspect L1 instruction cache attributes</h3>
-<pre class="session" data-risk="read-only">
-$ cat /sys/devices/system/cpu/cpu0/cache/index1/type
-Instruction
+<h3>Explore: inspect L1 instruction cache attributes</h3>
+<tam-sandbox
+  title="Try it: inspect L1 instruction cache attributes"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Inspect L1 instruction cache attributes">
+  <tam-cmd match="cat /sys/devices/system/cpu/cpu0/cache/index1/type" hint="Look for the value that answers the task.">
+    <out>Instruction</out>
+  </tam-cmd>
+  <tam-cmd match="cat /sys/devices/system/cpu/cpu0/cache/index1/size">
+    <out>32K</out>
+  </tam-cmd>
+  <tam-cmd match="cat /sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size" goal="true">
+    <out>64</out>
+  </tam-cmd>
+  <tam-init>Try: cat /sys/devices/system/cpu/cpu0/cache/index1/type</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try cat /sys/devices/system/cpu/cpu0/cache/index1/type (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-$ cat /sys/devices/system/cpu/cpu0/cache/index1/size
-32K
-
-$ cat /sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size
-64
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-01.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>index1</code> in sysfs exposes the processor core's dedicated Level 1 <strong>Instruction Cache (L1i)</strong>.</li>
@@ -90,6 +100,25 @@ $ cat /sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size
 <p>Instead of advancing sequentially to the next adjacent instruction, the execution unit writes the branch target address directly into the Instruction Pointer, redirecting subsequent fetches to the new code location.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Inspect the sample for grep -E &quot;vendor_id|cpu family|model|ste"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Inspect the sample for grep -E &quot;vendor_id|cpu family|model|stepping&quot; /proc/cpuinfo | head -">
+<tam-cmd match="grep -E &quot;vendor_id|cpu family|model|stepping&quot; /proc/cpuinfo | head -n 4" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 104
+stepping	: 1</out>
+  </tam-cmd>
+  <tam-init>Try: grep -E "vendor_id|cpu family|model|stepping" /proc/cpuinfo | head -n 4</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try grep -E "vendor_id|cpu family|model|stepping" /proc/cpuinfo | head -n 4 (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Out-of-order execution, micro-ops, and register renaming</h2>
@@ -133,13 +162,7 @@ $ cat /sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size
 
 <p>Inspect the microarchitectural CPU model and stepping details:</p>
 
-<pre class="session" data-risk="read-only">
-$ grep -E "vendor_id|cpu family|model|stepping" /proc/cpuinfo | head -n 4
-vendor_id	: AuthenticAMD
-cpu family	: 23
-model		: 104
-stepping	: 1
-</pre>
+
 
 <section class="quiz">
 <h3>Check yourself</h3>

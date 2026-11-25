@@ -16,105 +16,95 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / FFmpeg and media processing</p></nav>
 
-<p><a href="glossary/f/ffmpeg.html">FFmpeg</a> is a widely used open-source toolkit for working with audio and video. It can inspect, convert, stream, filter, and encode media by wiring together containers, codecs, and processing filters.</p>
+<p>FFmpeg is a toolkit for audio and video files. It can inspect a file, change its codecs, filter a picture, or send media onward.</p>
 
 <section data-level="novice">
-<h2>What FFmpeg does</h2>
-<p>Media files usually contain compressed audio and video inside a container. FFmpeg can read that container, decode the streams, change them, and write a new result. You might use it to convert a video format, extract audio, resize a clip, or inspect what codecs a file uses.</p>
+<h2>What FFmpeg works with</h2>
+<p><a href="glossary/f/ffmpeg.html">FFmpeg</a> reads and writes media files. A container such as MP4 holds streams; a codec such as H.264 or MP3 encodes those streams; a filter changes them on the way.</p>
 <h3>Why it matters</h3>
-<p>FFmpeg is behind many media workflows and products. It gives you a practical way to see how algorithms meet real files: compression, filtering, resampling, and synchronization all happen in concrete pipelines.</p>
+<p>One tool can answer basic questions about a file, extract its audio, shrink its picture, or prepare a stream for playback. Knowing which job you want helps you pick the right option.</p>
 <h3>How to think about it</h3>
-<p>Think of FFmpeg as a media workshop. A file comes in, is unpacked from its box, processed on workbenches, and packed into a new box. The codecs are the compression specialists; the filters are the editing tools.</p>
-<h3>New words</h3>
-<dl>
-<dt><a href="glossary/f/ffmpeg.html">FFmpeg</a></dt>
-<dd>A collection of programs and libraries for processing audio and video.</dd>
-<dt>Codec</dt>
-<dd>A method for encoding and decoding media data, often with compression.</dd>
-<dt>Container</dt>
-<dd>A file format that holds one or more media streams, metadata, and timing information.</dd>
-<dt>Filter</dt>
-<dd>A processing step that transforms audio or video, such as scaling, cropping, or volume change.</dd>
-</dl>
+<p>Think of a packed lunch. The container is the box, the codecs are the recipes used for each item, and filters are the small changes you make before packing it again.</p>
 </section>
 
 <section data-level="learner">
-<h2>Inspect, convert, and filter</h2>
-<p><strong>Goal:</strong> understand the basic FFmpeg pipeline: demux, decode, filter, encode, mux.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ ffprobe -hide_banner -i input.mp4
-Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'input.mp4':
-  Duration: 00:00:10.00, start: 0.000000, bitrate: 1200 kb/s
-  Stream #0:0[0x1](und): Video: h264, yuv420p, 1280x720, 30 fps
-  Stream #0:1[0x2](und): Audio: aac, 48000 Hz, stereo
+<h2>Inspect, then choose an operation</h2>
+<p><strong>Goal:</strong> read a sample probe report and predict what two common FFmpeg options do.</p>
+<tam-sandbox
+  title="Try it: read a media report"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Extract audio from the sample video">
+  <tam-fs>
+<dir name="/home/alex"></dir>
+  </tam-fs>
+    <tam-cmd match="ffprobe -hide_banner -i input.mp4" hint="Two streams: one video, one audio. -vn will drop the video stream.">
+      <out>Input #0, mov,mp4 from input.mp4</out>
+      <out>Duration: 00:00:10.00, bitrate: 1200 kb/s</out>
+      <out>Stream 0:0 Video: h264, 1280x720, 30 fps</out>
+      <out>Stream 0:1 Audio: aac, 48000 Hz, stereo</out>
+    </tam-cmd>
+    <tam-cmd match="ffmpeg -hide_banner -i input.mp4 -vn -c:a mp3 output.mp3" goal="true" hint="Correct: -vn means no video, and -c:a mp3 chooses the audio codec.">
+      <out>Sample: decoded the AAC stream and wrote output.mp3 as MP3</out>
+    </tam-cmd>
+    <tam-cmd match="ffmpeg -hide_banner -i input.mp4 -vf &quot;scale=640:-1&quot; -c:a copy output-small.mp4" hint="A filter changes the picture; copy passes the audio bytes through.">
+      <out>Sample: scaled video to 640 px wide</out>
+      <out>Sample: copied audio without re-encoding</out>
+    </tam-cmd>
+  <tam-init>Try: ffprobe -hide_banner -i input.mp4</tam-init>
+  <tam-hint after="1">Next: ffmpeg -hide_banner -i input.mp4 -vn -c:a mp3 output.mp3</tam-hint>
+  <tam-hint after="2">The -vf flag applies a video filter; -c:a copy avoids audio work.</tam-hint>
+  <tam-fallback>Try ffprobe -hide_banner -i input.mp4 (or type help).</tam-fallback>
+</tam-sandbox>
 
-$ ffmpeg -hide_banner -i input.mp4 -vn -c:a mp3 output.mp3
-# extracts audio, decodes it, and encodes as MP3
-
-$ ffmpeg -hide_banner -i input.mp4 -vf "scale=640:-1" -c:a copy output-small.mp4
-# scales video, copies audio without re-encoding
-</pre>
-<p>Illustrative commands. Actual output depends on the input file and installed codecs.</p>
 <h3>What just happened</h3>
-<ol>
-<li><code>ffprobe</code> inspected the container and streams without changing them.</li>
-<li>The first <code>ffmpeg</code> command demuxed the input, decoded audio, ignored video (<code>-vn</code>), encoded MP3, and muxed the result.</li>
-<li>The second command applied a video filter (<code>scale</code>) while copying audio as-is. Copying avoids unnecessary quality loss and work.</li>
-</ol>
+<p>The probe report lists streams inside one container. <code>-vn</code> drops video, <code>-c:a mp3</code> re-encodes audio, and <code>-c:a copy</code> keeps the original audio stream. Every line shown here is authored sample output: the sandbox cannot inspect your media files.</p>
 <h3>Try it</h3>
-<p>Use <code>ffprobe</code> on a media file you own. Then try a safe conversion to a new filename. Keep the original file unchanged.</p>
+<p>Before running the third command, predict which part changes: the picture size or the audio codec. The sample output shows that only the video is scaled.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>Unknown encoder</code> or <code>Encoder not found</code></dt>
-<dd>Your FFmpeg build may not include that codec. Check <code>ffmpeg -encoders</code> and choose an available one.</dd>
-<dt>Output looks or sounds wrong</dt>
-<dd>Check pixel format, sample rate, channel layout, and whether you accidentally re-encoded with low quality defaults. Inspect with <code>ffprobe</code>.</dd>
+<dt>The sandbox says the command is unavailable.</dt><dd>Only the exact sample commands above are scripted. Type help, or repeat one of the printed commands.</dd>
+<dt>I expected a real file to appear.</dt><dd>No media is written. The output is a short sample so you can reason about the flags.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>Why can copying a stream be better than re-encoding it?</i></summary>
-<p>Copying preserves the existing encoded data, avoiding extra quality loss, CPU work, and time. Re-encoding is needed only when you want to change the codec, bitrate, filters, or another property of that stream.</p>
+<summary><i>What does -vn do?</i></summary>
+<p>It disables video output, leaving the audio stream for the next step.</p>
+</details>
+<details class="q">
+<summary><i>Why use -c:a copy when scaling video?</i></summary>
+<p>The audio stream is already usable, so copying avoids a second lossy encode and saves work.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Reference: pipelines, codecs, and signal processing</h2>
+<h2>Reference: streams, filters and cost</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Stage</th><th>Role</th><th>Example</th></tr>
-<tr><td>Demux</td><td>Read container, split streams and timestamps</td><td>MP4, MKV, WAV</td></tr>
-<tr><td>Decode</td><td>Turn compressed packets into raw frames/samples</td><td>H.264 to YUV frames, AAC to PCM</td></tr>
-<tr><td>Filter</td><td>Transform raw media</td><td>scale, overlay, loudnorm, fft/freq filters</td></tr>
-<tr><td>Encode</td><td>Compress raw media into codec packets</td><td>libx264, libopus, libvpx-vp9</td></tr>
-<tr><td>Mux</td><td>Write packets into output container</td><td>MP4, WebM, MKV</td></tr>
+<tr><th>Option</th><th>Meaning</th><th>Effect</th></tr>
+<tr><td><code>-i</code></td><td>Input file or URL</td><td>Adds a source stream set</td></tr>
+<tr><td><code>-map</code></td><td>Stream selection</td><td>Chooses which streams reach the output</td></tr>
+<tr><td><code>-c:v</code> / <code>-c:a</code></td><td>Video/audio codec</td><td>Selects an encoder or decoder</td></tr>
+<tr><td><code>-vf</code> / <code>-af</code></td><td>Filter graph</td><td>Transforms video or audio frames</td></tr>
 </table>
 <h3>How it works</h3>
-<p>FFmpeg's command line builds a processing graph. Containers handle packaging and timing; codecs handle compression; filters operate on decoded data. Many media algorithms are domain-specific: transform coding, motion estimation, quantization, entropy coding, resampling, and psychoacoustic models. Fourier-related transforms appear in analysis and in related frequency-domain methods used by codecs and audio processing (for example DCT/MDCT families in compression; FFTs in spectrum analysis and some filters).</p>
-<h3>Advanced usage</h3>
-<pre class="session" data-risk="read-only">
-$ ffmpeg -i input.wav -lavfi "showspectrum=s=1280x720:mode=combined:color=intensity" -frames:v 1 spectrum.png
-$ ffmpeg -i input.mp4 -vf "scale=1280:-2,format=yuv420p" -c:v libx264 -crf 23 -preset medium -c:a aac -b:a 128k out.mp4
-</pre>
-<p>Illustrative commands. They show analysis and controlled transcoding pipelines.</p>
-<h3>Edge cases</h3>
+<p>FFmpeg builds a pipeline of demuxer, decoders, filters, encoders and muxer. Re-encoding costs CPU time and may lose quality; stream copy preserves compressed bytes but only works when the target container accepts them.</p>
+<h3>Edge cases and failure modes</h3>
 <ul>
-<li>Timestamp and timebase mismatches can cause sync problems; inspect PTS/DTS when debugging.</li>
-<li>Re-encoding is lossy for most delivery codecs; preserve masters when possible.</li>
-<li>Color space, range, and pixel format conversions can change appearance if not handled explicitly.</li>
-<li>Hardware acceleration changes performance characteristics and sometimes available options/quality trade-offs.</li>
+<li>Filter graphs change frame timing; timestamps may need repair.</li>
+<li>Some codecs cannot be copied into every container.</li>
+<li>Hardware encoders vary by machine and driver.</li>
+<li>Spectrum and statistics filters depend on windowing and colour settings.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Where do Fourier transforms fit in a tool like FFmpeg?</summary>
-<p>Not every FFmpeg operation uses an FFT, but frequency-domain thinking is central to media processing. FFTs are used directly for spectrum analysis and some filters, while related transforms such as DCT/MDCT are fundamental to many audio and video codecs. FFmpeg is a practical place where algorithmic theory meets real media pipelines.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p><a href="https://ffmpeg.org/ffmpeg.html">ffmpeg documentation</a>, <a href="https://ffmpeg.org/ffprobe.html">ffprobe documentation</a>, and <a href="https://ffmpeg.org/documentation.html">FFmpeg documentation index</a>.</p>
+<p><a href="https://ffmpeg.org/ffmpeg.html">ffmpeg documentation</a>; <a href="https://ffmpeg.org/ffprobe.html">ffprobe documentation</a>; <a href="https://ffmpeg.org/documentation.html">FFmpeg documentation index</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="algorithms/fast-fourier-transform.html">Fast Fourier Transform</a>, <a href="algorithms/sorting-algorithms.html">Sorting algorithms</a>, <a href="paths/algorithms.html">Important algorithms for modern computing</a>.</p>
 </section>
 
 <h2>Where next</h2>

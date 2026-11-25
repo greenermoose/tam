@@ -5,7 +5,7 @@
 <meta name="topic" content="c11-systems">
 <meta name="summary" content="Portable ISO C11, object files and linking, runtime sanitizers, and language trade-offs in Tamlinux.">
 <meta name="keywords" content="path, c11-systems, c11-systems-path, c11, compiler, linker, sanitizers, languages">
-<meta name="level" content="expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="paths">
 <meta name="parent" content="paths/index.html">
 <meta name="kind" content="path">
@@ -14,13 +14,57 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Systems programming in C11</p></nav>
 
-<p>This path is for readers who will read or change C code: portable <a href="glossary/i/iso.html">ISO</a> C11, how the compiler and linker turn source into a native binary, how sanitizers find memory bugs, and why Tamlinux writes its core utilities in C11. It assumes you can compile and run a program from a terminal.</p>
-<p>Every exercise builds in a fresh temporary directory. Nothing installs, and no system binary is replaced.</p>
+<p>This path follows small C11 programs from source code to a checked native binary, with attention to portable flags and memory errors.</p>
 
-<h2>Stage 1: Write portable C11</h2>
-<ol>
-<li><a href="programming/c/c11.html?level=3">The C11 programming language and portable systems code</a> &mdash; the standard, compiler flags, libc portability and native systems programming.</li>
-</ol>
+<section data-level="novice">
+<p>Every exercise builds in a fresh temporary directory. Nothing installs, and no system binary is replaced.</p>
+<h2>Why C11 needs checks</h2>
+
+<p>ISO <a href="glossary/i/iso.html">C11</a> gives programmers a small, portable language. The compiler turns source into an object file, the linker makes an executable, and extra runtime checks can catch a mistake that a warning-free build did not notice.</p>
+<p>Think of a sanitizer as a careful inspector walking beside the program while it runs. It cannot rewrite the program, but it can point to the exact line where a value went outside its assigned space.</p>
+
+</section>
+
+<section data-level="learner">
+<h2>Catch a memory mistake while building</h2>
+<p><strong>Goal:</strong> compile a tiny C11 program with sanitizer checks and read the diagnostic</p>
+
+<tam-sandbox
+  title="Try it: compile with a sanitizer"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Compile demo.c with AddressSanitizer enabled">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="gcc -std=c11 -Wall -Wextra -fsanitize=address demo.c -o demo" goal="true" hint="The -fsanitize=address flag adds runtime checks around memory accesses.">
+    <out>Build ready. Run ./demo to see the check.</out>
+  </tam-cmd>
+  <tam-cmd match="./demo" hint="The report names the function and source line, not just the symptom.">
+    <out>ERROR: AddressSanitizer: stack-buffer-overflow in total at demo.c:5</out>
+  </tam-cmd>
+  <tam-cmd match="gcc -std=c11 -Wall -Wextra demo.c -o demo" hint="Warnings and runtime checks answer different questions.">
+    <out>Build finished with no warning; run ./demo again.</out>
+  </tam-cmd>
+  <tam-init>A two-line C program has a loop that reads one element too far.</tam-init>
+   <tam-hint after="1">The -fsanitize=address flag adds runtime checks around memory accesses.</tam-hint>
+  <tam-hint after="2">The report names the function and source line, not just the symptom.</tam-hint>
+  <tam-fallback>Type gcc -std=c11 -fsanitize=address demo.c -o demo, or type help.</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The compiler accepted the loop. Adding a sanitizer produced a run-time report naming the function and line; that is different evidence from a warning-free compile. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine.</p>
+<h3>Try it</h3>
+<p>Run ./demo after the sanitized build, then change the loop from i &lt;= count to i &lt; count and rebuild to see a clean run.</p>
+<h3>If it goes wrong</h3>
+<p>If the report mentions a different line, read the function name first; the demo file is fixed, so the teaching report points to line 5.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary><i>Why is a warning-free build not proof of a correct memory access?</i></summary><p>Warnings inspect source; an out-of-bounds access only appears when the program runs the bad path.</p></details>
+</section>
+<h3>Path checkpoints</h3>
 <section class="quiz">
 <h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <p>Answer these before you go on.</p>
@@ -33,11 +77,6 @@
 <p>They expose the <a href="glossary/p/posix.html">POSIX</a> interfaces the code needs while keeping the language target portable ISO C11. They are feature-test macros, not compiler extensions.</p>
 </details>
 </section>
-
-<h2>Stage 2: Compile, inspect and link</h2>
-<ol>
-<li><a href="programming/c/object-files.html?level=3">Object files, static libraries, and compilation stages</a> &mdash; source to <code>.o</code> to <code>.a</code>, <a href="glossary/e/elf.html">ELF</a> sections, and selective linking.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -50,12 +89,6 @@
 <p><code>ar -t libNAME.a</code> lists members; <code>readelf -S FILE.o</code> lists sections such as <code>.text</code>, <code>.rodata</code> and <code>.rela.text</code>.</p>
 </details>
 </section>
-
-<h2>Stage 3: Find memory bugs and weigh the trade-offs</h2>
-<ol>
-<li><a href="programming/c/sanitizers.html?level=3">Compiler sanitizers, AddressSanitizer, and memory safety in C</a> &mdash; redzones, shadow memory, and a sanitized build.</li>
-<li><a href="tamlinux/design/language-choices.html?level=3">Systems programming philosophy and language choices</a> &mdash; binary size, dependencies, startup, and why C11.</li>
-</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -68,55 +101,33 @@
 <p>No. Warnings catch some static problems; out-of-bounds or use-after-free behaviour needs a sanitizer run or a test that exercises the path.</p>
 </details>
 </section>
+</section>
 
-<h2>Capstone: <a href="glossary/b/build.html">Build</a>, catch and fix an out-of-bounds read</h2>
-<p>Create a two-file program whose loop reads one element past a three-element array. Build it with AddressSanitizer and UndefinedBehaviorSanitizer, read the report, fix the loop bound, and rebuild until the run is clean.</p>
-<details class="solution">
-<p>Work in a temporary directory. The first file holds the bug; the second supplies the data and calls it.</p>
-<pre>
-int total(const int *values, int count)
-{
-    int sum = 0;
-    for (int i = 0; i &lt;= count; i++)
-        sum += values[i];
-    return sum;
-}
-</pre>
-<pre>
-#include &lt;stdio.h&gt;
+<section data-level="expert">
+<h2>Build stages and sanitizer boundaries</h2>
 
-int total(const int *values, int count);
+<p>Compilation with <code>-c</code> stops before linking, leaving an object file with unresolved references. Static libraries group object files; the linker resolves those references when producing the executable. AddressSanitizer adds redzones and shadow-memory bookkeeping, while UndefinedBehaviorSanitizer instruments selected operations that the C standard leaves undefined.</p>
+<p>The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine.</p>
 
-int main(void)
-{
-    int values[3] = {2, 4, 6};
-    printf("total: %d\n", total(values, 3));
-    return 0;
-}
-</pre>
-<p>Save the first as <code>total.c</code> and the second as <code>main.c</code>, then build and run:</p>
-<pre class="session" data-risk="scratch">
-$ gcc -std=c11 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -g -O1 main.c total.c -o stats
-$ ./stats
-=================================================================
-==3686666==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7b41da0f002c
-READ of size 4 at 0x7b41da0f002c thread T0
-    #0 0x55d5d030645e in total /tmp/.../total.c:5
-    #1 0x55d5d03062cc in main /tmp/.../main.c:8
-...
-    [32, 44) 'values' (line 7) &lt;== Memory access at offset 44 overflows this variable
-</pre>
-<p>Captured with <a href="glossary/g/gcc.html">GCC</a> 16.2.1 on Arch Linux, 2026-11-13; addresses and process IDs differ on every run. The report names the function, the source line and the object that overflowed. The compiler had accepted the code without a warning, so only the sanitized run exposed it.</p>
-<p>Change the loop condition in <code>total.c</code> from <code>i &lt;= count</code> to <code>i &lt; count</code>, then rebuild and run:</p>
-<pre class="session" data-risk="scratch">
-$ gcc -std=c11 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -g -O1 main.c total.c -o stats
-$ ./stats
-total: 12
-$ echo "exit=$?"
-exit=0
-</pre>
-<p>The sum is 2 + 4 + 6 = 12 and the process exits 0 with no sanitizer output. A clean run is the check; silence alone would not prove correctness, but a nonzero exit or a report does prove a problem. Remove the temporary directory when you are done.</p>
-</details>
+<h2>Stage 1: Write portable C11</h2>
+<ol>
+<li><a href="programming/c/c11.html?level=3">The C11 programming language and portable systems code</a> &mdash; the standard, compiler flags, libc portability and native systems programming.</li>
+</ol>
+
+
+<h2>Stage 2: Compile, inspect and link</h2>
+<ol>
+<li><a href="programming/c/object-files.html?level=3">Object files, static libraries, and compilation stages</a> &mdash; source to <code>.o</code> to <code>.a</code>, <a href="glossary/e/elf.html">ELF</a> sections, and selective linking.</li>
+</ol>
+
+
+<h2>Stage 3: Find memory bugs and weigh the trade-offs</h2>
+<ol>
+<li><a href="programming/c/sanitizers.html?level=3">Compiler sanitizers, AddressSanitizer, and memory safety in C</a> &mdash; redzones, shadow memory, and a sanitized build.</li>
+<li><a href="tamlinux/design/language-choices.html?level=3">Systems programming philosophy and language choices</a> &mdash; binary size, dependencies, startup, and why C11.</li>
+</ol>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/b/build.html">Build</a> · <a href="glossary/g/gcc.html">GCC</a>.</p>
+</section>
 
 <h2>Next paths</h2>
 <ul>

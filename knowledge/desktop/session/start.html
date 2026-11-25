@@ -37,9 +37,14 @@
 <h2>Checking which activities are available</h2>
 <p><code>tam-start</code> reads its menu from a catalog file (<code>menu.json</code>) and checks whether each item's command is present on your <code>PATH</code>. You can inspect the catalog from any terminal without opening the interactive screen.</p>
 
-<pre class="session" data-risk="read-only">
-$ tam-start --check
- ✗ [a] Start graphical desktop shell (tam-desktop)
+<tam-sandbox
+  title="Try it: New words"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="New words">
+  <tam-cmd match="tam-start --check" goal="true" hint="Look for the value that answers the task.">
+    <out> ✗ [a] Start graphical desktop shell (tam-desktop)
  ✗ [b] Tamlinux Guide (tam)
  ✗ [c] Keyword Index (tam)
  ✗ [d] Glossary (tam)
@@ -55,19 +60,36 @@ $ tam-start --check
  ✗ [n] Explain this boot (tam-boot)
 
 1/14 activities installed on this system.
-v0.3.0
-</pre>
+v0.3.0</out>
+  </tam-cmd>
+  <tam-init>Try: tam-start --check</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-start --check (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
 <p>The <code>--list</code> option prints the full table with each item's shortcut letter, internal ID, exact command, installation status, and description:</p>
 
-<pre class="session" data-risk="read-only">
-$ tam-start --list
-Letter   ID               Command                   Installed  Description
+<tam-sandbox
+  title="Try it: New words"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="New words">
+  <tam-cmd match="tam-start --list" goal="true" hint="Look for the value that answers the task.">
+    <out>Letter   ID               Command                   Installed  Description
 ──────────────────────────────────────────────────────────────────────────────────────────
 a        desktop          tam-desktop               no         Leave the text shell and start the Tamlinux Hyprland desktop
 b        tam-guide        tam show                  no         Browse the offline Tamlinux knowledge guide in the terminal pager
-...
-</pre>
+...</out>
+  </tam-cmd>
+  <tam-init>Try: tam-start --list</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-start --list (or type help).</tam-fallback>
+</tam-sandbox>
+
 
 <aside class="peek">
 <p><code>--list</code> and <code>--check</code> are read-only queries: they never activate a pending system switch and never launch an interactive screen.</p>

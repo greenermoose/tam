@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/cryptography/index.html">Cryptography</a> / Cryptographic Hash Functions, SHA, HMAC, and Key Derivation</p></nav>
 
-
-<p>This page explains how cryptographic hash functions like <a href="glossary/s/sha-256.html">SHA-256</a> create compact digital fingerprints, authenticate messages with keys, and stretch passwords safely.</p>
-<h2>Before this</h2><p><a href="security/cryptography/symmetric-cryptography.html">Symmetric Cryptography and Authenticated Encryption</a></p>
+<p>A cryptographic hash turns data into a fixed-size fingerprint, so a small change in the input produces a completely different-looking digest.</p>
 
 <section data-level="novice">
 <h2>Digital fingerprints that cannot be forged</h2>
@@ -40,59 +38,45 @@
 </section>
 
 <section data-level="learner">
-<h2>Computing SHA-256, <a href="glossary/b/blake2.html">BLAKE2</a>, <a href="glossary/s/sha-3.html">SHA-3</a>, and HMAC digests</h2>
-<p><strong>Goal:</strong> you will be able to compute and compare SHA-256, BLAKE2b, SHA-3, and <a href="glossary/h/hmac-sha256.html">HMAC-SHA256</a> digests and verify why single-bit changes trigger the avalanche effect.</p>
-<p><strong>Before you start:</strong> hashing standard input with <code>sha256sum</code>, <code>b2sum</code>, and <code>openssl dgst</code> is read-only and leaves no files behind.</p>
-
-<h3>Worked example</h3>
-<p>Hash <code>hello</code> and <code>hellp</code> (one bit apart in the last letter) with SHA-256, then compute BLAKE2b, <a href="glossary/s/sha3-256.html">SHA3-256</a>, and HMAC-SHA256 on <code>hello</code>:</p>
-<pre class="session" data-risk="read-only">
-$ printf 'hello' | sha256sum
-2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824  -
-$ printf 'hellp' | sha256sum
-fdd7585e08c4e2afd71dcabdb4636c89d557a3f42db9e2040c8bbd1708aa4ce7  -
-$ printf 'hello' | b2sum
-e4cfa39a3d37be31c59609e807970799caa68a19bfaa15135f165085e01d41a65ba1e1b146aeb6bd0092b49eac214c103ccfa3a365954bbbe52f74a2b3620c94  -
-$ printf 'hello' | openssl dgst -sha3-256
-SHA3-256(stdin)= 3338be694f50c5f338814986cdf0686453a888b84f424d792af4b9202398f392
-$ printf 'hello' | openssl dgst -sha256 -hmac "my-secret-key"
-SHA2-256(stdin)= 3ac7fc22f5cbd1aaaea11fac013d3e6f5d894fe2fc51ab98b6d3b1593a45255a
-</pre>
-<p>Output is the same on every system.</p>
-
+<h2>See a small change in a digest</h2>
+<p><strong>Goal:</strong> compare two sample SHA-256 digests and explain why they differ completely.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: compare hash digests"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Compare the two sample SHA-256 digests">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="printf &#x27;hello&#x27; | sha256sum" goal="true" hint="This is the digest of hello in the sample.">
+      <out>2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824  -</out>
+    </tam-cmd>
+    <tam-cmd match="printf &#x27;hellp&#x27; | sha256sum" hint="One changed letter gives an unrelated-looking digest.">
+      <out>fdd7585e08c4e2afd71dcabdb4636c89d557a3f42db9e2040c8bbd1708aa4ce7  -</out>
+    </tam-cmd>
+    <tam-cmd match="printf &#x27;hello&#x27; | b2sum" hint="BLAKE2 is a different hash construction with a different digest length.">
+      <out>e4cfa39a3d37be31c59609e807970799caa68a19bfaa15135f165085e01d41a65ba1e1b146aeb6bd0092b49eac214c103ccfa3a365954bbbe52f74a2b3620c94  -</out>
+    </tam-cmd>
+  <tam-init>Sample digests: hello and hellp look unrelated.</tam-init>
+  <tam-hint after="1">Try printf 'hello' | sha256sum first.</tam-hint>
+  <tam-hint after="2">Now try printf 'hellp' | sha256sum and compare.</tam-hint>
+  <tam-fallback>Try printf 'hello' | sha256sum, printf 'hellp' | sha256sum or printf 'hello' | b2sum (or type help).</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li>Changing <code>o</code> (<a href="glossary/a/ascii.html">ASCII</a> <code>0x6f</code>) to <code>p</code> (ASCII <code>0x70</code>)—a single bit flip—changed roughly half of all 256 bits in the SHA-256 output (the avalanche effect).</li>
-<li><code>b2sum</code> outputs a 512-bit BLAKE2b digest, while <code>openssl dgst -sha3-256</code> uses the Keccak sponge algorithm rather than <a href="glossary/s/sha-2.html">SHA-2</a>.</li>
-<li>Adding <code>-hmac "my-secret-key"</code> mixes a secret key into the hash so only someone with the key can reproduce that tag.</li>
-</ol>
-
+<p>Changing one letter changed every part of the sample digest. That is the avalanche property: a hash should not reveal a simple relationship between similar inputs. These digests are authored samples, not values computed on your machine.</p>
 <h3>Try it</h3>
-<p>Run <code>sha256sum /etc/os-release</code> twice to confirm determinism, then verify a downloaded file against a published <code>.sha256</code> file with <code>sha256sum -c file.sha256</code>.</p>
-
+<p>Predict whether <code>printf 'HELLO' | sha256sum</code> would match the first digest. It will not: case is part of the input. HMAC adds a secret key; a plain hash alone does not authenticate a message.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>echo "hello" | sha256sum</code> gives a different hash than <code>printf 'hello'</code></dt>
-<dd><code>echo</code> appends a trailing newline character (<code>\n</code>), changing the input bytes. Always use <code>printf '%s'</code> when hashing exact strings.</dd>
-<dt>Using SHA-256 directly to store user passwords</dt>
-<dd>SHA-256 is designed to be blazingly fast (billions of hashes per second on GPUs). Always use a salted, memory-hard password <a href="glossary/k/kdf.html">KDF</a> such as Argon2id or yescrypt.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, Arch Linux local password hashes in <code>/etc/shadow</code> use <code>yescrypt</code> via <a href="glossary/p/pam.html">PAM</a>, <a href="glossary/l/luks2.html">LUKS2</a> key slots default to memory-hard <code>Argon2id</code>, and package/assembly verification relies on SHA-256 digests pinned in <a href="glossary/n/nix.html">Nix</a> flakes and <code>tamlinux-packages</code>.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Why is a raw SHA-256 hash of a password unsafe for storing login credentials even though SHA-256 is collision-resistant?</i></summary>
-<p>SHA-256 is fast and unsalted: attackers can precompute tables for common passwords and test billions of guesses per second on GPUs. Password storage requires per-user random salts and memory-hard work factors (Argon2id, yescrypt, scrypt).</p>
-</details>
-<details class="q">
-<summary><i>What is the difference between a plain SHA-256 digest and an HMAC-SHA256 tag?</i></summary>
-<p>Anyone can compute a plain SHA-256 digest, so it only detects accidental corruption unless delivered over a trusted channel. HMAC requires a secret key, protecting against intentional forgery by an active attacker.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Does a matching hash prove a file is authentic?</i></summary><p>Only if the expected digest came from a trusted source. A hash detects change; it does not by itself prove who produced the file.</p></details>
 </section>
 </section>
 
@@ -125,13 +109,7 @@ SHA2-256(stdin)= 3ac7fc22f5cbd1aaaea11fac013d3e6f5d894fe2fc51ab98b6d3b1593a45255
 <li><strong>Comparing <a href="glossary/m/mac.html">MAC</a> tags with <code>==</code> / <code>memcmp</code>:</strong> Non-constant-time byte comparison leaks how many leading bytes of a forged MAC match via timing side channels; always use constant-time comparison (e.g., <code>CRYPTO_memcmp</code>).</li>
 </ul>
 
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why does SHA3-256 not need HMAC to prevent length-extension attacks, whereas SHA-256 does?</summary>
-<p>SHA-256 outputs its entire 256-bit Merkle-Damgard chaining variable, letting an attacker resume compression from the digest. SHA3-256 uses a 1600-bit Keccak sponge where 512 capacity bits remain hidden inside the internal state and are never emitted; without those capacity bits, an attacker cannot predict the state transition for appended blocks (so <a href="glossary/k/kmac.html">KMAC</a> is a simple keyed sponge).</p>
-</details>
-</section>
+
 
 <h3>Sources</h3>
 <ul>
@@ -140,5 +118,24 @@ SHA2-256(stdin)= 3ac7fc22f5cbd1aaaea11fac013d3e6f5d894fe2fc51ab98b6d3b1593a45255
 <li><cite data-ref="boneh-shoup"><a href="bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapters 6–8: Collision resistance, Merkle–Damgård, Sponge, HMAC).</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/s/sha-256.html">SHA-256</a></li>
+<li><a href="security/cryptography/symmetric-cryptography.html">Symmetric Cryptography and Authenticated Encryption</a></li>
+<li><a href="glossary/b/blake2.html">BLAKE2</a></li>
+<li><a href="glossary/s/sha-3.html">SHA-3</a></li>
+<li><a href="glossary/h/hmac-sha256.html">HMAC-SHA256</a></li>
+<li><a href="glossary/s/sha3-256.html">SHA3-256</a></li>
+<li><a href="glossary/a/ascii.html">ASCII</a></li>
+<li><a href="glossary/s/sha-2.html">SHA-2</a></li>
+<li><a href="glossary/k/kdf.html">KDF</a></li>
+<li><a href="glossary/p/pam.html">PAM</a></li>
+<li><a href="glossary/l/luks2.html">LUKS2</a></li>
+<li><a href="glossary/n/nix.html">Nix</a></li>
+<li><a href="glossary/k/kmac.html">KMAC</a></li>
+</ul>
+
+
 </body>
 </html>

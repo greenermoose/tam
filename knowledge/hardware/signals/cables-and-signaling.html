@@ -68,20 +68,30 @@ Antenna Radiation (Electrical Current to Radio Waves):
                      ---&gt; Radiating Oscillating Magnetic Field (B)
                      ===&gt; Self-Propagating Electromagnetic Wave in Free Space
 </pre>
-<h3>Worked example: query physical network link types</h3>
-<pre class="session" data-risk="read-only">
-$ ip -br link
-lo               UNKNOWN        00:00:00:00:00:00 &lt;LOOPBACK,UP,LOWER_UP&gt;
+<h3>Explore: query physical network link types</h3>
+<tam-sandbox
+  title="Try it: query physical network link types"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Query physical network link types">
+  <tam-cmd match="ip -br link" hint="Look for the value that answers the task.">
+    <out>lo               UNKNOWN        00:00:00:00:00:00 &lt;LOOPBACK,UP,LOWER_UP&gt;
 enp1s0           UP             54:05:db:4b:21:aa &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;
-wlp3s0           UP             e8:2a:44:89:12:ef &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;
-
-$ ethtool enp1s0 | grep -E "Speed|Duplex|Port"
-	Speed: 1000Mb/s
+wlp3s0           UP             e8:2a:44:89:12:ef &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;</out>
+  </tam-cmd>
+  <tam-cmd match="ethtool enp1s0 | grep -E &quot;Speed|Duplex|Port&quot;" goal="true">
+    <out>	Speed: 1000Mb/s
 	Duplex: Full
-	Port: Twisted Pair
-</pre>
+	Port: Twisted Pair</out>
+  </tam-cmd>
+  <tam-init>Try: ip -br link</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try ip -br link (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 
-<p>Captured on a Tamlinux workstation, 2026-11-01. The machine provides both a wired twisted-pair copper <a href="glossary/e/ethernet.html">Ethernet</a> interface (<code>enp1s0</code>) and a wireless radio interface (<code>wlp3s0</code>).</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>ip -br link</code> lists kernel network devices: <code>enp1s0</code> is a physical wired Ethernet card; <code>wlp3s0</code> is a wireless <a href="glossary/w/wi-fi.html">Wi-Fi</a> radio adapter.</li>
@@ -111,6 +121,22 @@ $ ethtool enp1s0 | grep -E "Speed|Duplex|Port"
 <p>In copper wire, data travels as electrical voltage and current pulses (moving electrons) pushing against physical resistance. In optical fiber, data travels as flashes of light (photons) reflecting inside a transparent glass core.</p>
 </details>
 </section>
+
+<h3>Explore this with a sandbox</h3>
+<tam-sandbox
+  title="Try it: Read one wireless link sample"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex" lesson="plain"
+  goal="Read one wireless link sample">
+<tam-cmd match="cat /proc/net/wireless" goal="true" hint="Read the labels and connect each value to the task.">
+    <out>wlan0  0000   70.  0.  0.  0.  0.  0.  0.  0.</out>
+  </tam-cmd>
+  <tam-init>Try: cat /proc/net/wireless</tam-init>
+  <tam-hint after="1">Read the output labels before comparing values.</tam-hint>
+  <tam-hint after="2">The sandbox uses fixed sample data, not your machine.</tam-hint>
+  <tam-fallback>Try cat /proc/net/wireless (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed sample data; the sandbox does not inspect or change your system.</p>
 </section>
 <section data-level="expert">
 <h2>Transmission line theory, optical link budgets, and eye diagrams</h2>
@@ -179,12 +205,7 @@ P_rx = P_tx - (alpha * Length + N_connectors * Loss_connector + N_splices * Loss
 
 <p>Inspect raw kernel Wi-Fi link statistics and signal attenuation (<a href="glossary/r/rssi.html">RSSI</a> in dBm) in real time:</p>
 
-<pre class="session" data-risk="read-only">
-$ watch -n 1 "cat /proc/net/wireless"
-Inter-| sta-|   Quality        |   Discarded packets               | Missed | WE
- face | tus | link level noise |  nwid  crypt   frag  retry   misc | beacon | 22
-wlp3s0: 0000   58.  -52.  -256        0      0      0      4      0      0
-</pre>
+
 
 <section class="quiz">
 <h3>Check yourself</h3>

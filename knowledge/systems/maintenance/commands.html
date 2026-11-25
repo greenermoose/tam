@@ -7,13 +7,21 @@
 <meta name="topic" content="system-commands">
 <meta name="summary" content="Hand-checked Tamlinux commands for CPU and memory stats, drive checks, power profiles, battery status, hibernation, and session actions">
 <meta name="keywords" content="system commands, tam-system-stats, tam-drive-info, tam-drive-select, tam-powerprofiles-list, tam-powerprofiles-set, tam-battery-status, tam-hibernation-available, tam-system-lock, tam-system-reboot">
-<meta name="level" content="learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="systems">
 <meta name="parent" content="systems/maintenance/index.html">
 <meta name="paths" content="command-line-fluency:11">
 </head>
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/maintenance/index.html">System Maintenance and Reliability</a> / System, drive, power, and session commands</p></nav>
+<section data-level="novice">
+<h2>Command helpers</h2>
+<p>These commands inspect hardware and session state, manage power, and control session actions.</p>
+</section>
+<section data-level="learner">
+<h2>Use the command reference</h2>
+<p><strong>Goal:</strong> read a command and predict its effect before trying its simulated example.</p>
+<p>Read each command description and its simulated result before deciding what to run on a real system.</p>
 
 
 <p>These commands report resource usage, inspect drives and batteries, manage power profiles, and lock or end your desktop session.</p>
@@ -27,9 +35,16 @@
 <tr><td><code>tam-drive-select &lt;list&gt;</code></td><td>Prompt interactively to select a drive path safely</td><td>Read-only selector</td><td><code>commands/tam-drive-select/tam-drive-select</code></td></tr>
 <tr><td><code>tam-disk-speedtest</code></td><td>Measure storage sequential read/write speed in a scratch location</td><td>User (disk I/O test)</td><td><code>commands/tam-disk-speedtest/tam-disk-speedtest</code></td></tr>
 </table>
-<pre class="session" data-risk="read-only">
-$ tam-system-stats
-</pre>
+<tam-sandbox title="Try it: tam-system-stats"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-system-stats" goal="true"><out>Sample: CPU 8%; memory 12.4 GiB of 31.2 GiB</out></tam-cmd>
+  <tam-init>Try: tam-system-stats</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-system-stats (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; no desktop setting or system package changes.</p>
 
 <h2>Power profiles, battery, and hibernation</h2>
 <table>
@@ -39,10 +54,17 @@ $ tam-system-stats
 <tr><td><code>tam-battery-status</code></td><td>Print current battery charge and charging state</td><td>Read-only</td><td><code>commands/tam-battery-status/tam-battery-status</code></td></tr>
 <tr><td><code>tam-hibernation-available</code></td><td>Exit 0 when hibernation resume configuration is present, else non-zero</td><td>Read-only probe</td><td><code>commands/tam-hibernation-available/tam-hibernation-available</code></td></tr>
 </table>
-<pre class="session" data-risk="read-only">
-$ tam-powerprofiles-list --active-state
-$ tam-hibernation-available && echo "hibernate ready" || echo "not configured"
-</pre>
+<tam-sandbox title="Try it: tam-powerprofiles-list --active-state"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-powerprofiles-list --active-state"></tam-cmd>
+<tam-cmd match="tam-hibernation-available &amp;&amp; echo &quot;hibernate ready&quot; || echo &quot;not configured&quot;" goal="true"></tam-cmd>
+  <tam-init>Try: tam-powerprofiles-list --active-state</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-powerprofiles-list --active-state (or type help).</tam-fallback>
+</tam-sandbox>
+
 
 <h2>Session actions</h2>
 <table>
@@ -54,6 +76,12 @@ $ tam-hibernation-available && echo "hibernate ready" || echo "not configured"
 <tr><td><code>tam-system-shutdown</code></td><td>Power off the machine cleanly</td><td>System (save all work first)</td><td><code>commands/tam-system-shutdown/tam-system-shutdown</code></td></tr>
 </table>
 
+
+</section>
+<section data-level="expert">
+<h2>Reference and safety</h2>
+<p>The source column points to the owning command implementation. Lock, logout, reboot and shutdown actions affect the live session or host and must not be tried from this sandbox.</p>
+</section>
 <h2>Next</h2><p><a href="systems/maintenance/resources.html">Resources and performance</a> &mdash; interpret <a href="glossary/r/ram.html">RAM</a>, <a href="glossary/p/psi.html">PSI</a>, and load measurements.</p>
 <h2>Related</h2><ul><li><a href="systems/power.html">The progressive power ladder</a> &mdash; screen blanking, suspend, and hibernation policy.</li><li><a href="help/commands.html">Command reference hub</a> &mdash; desktop, network, and package command groups.</li></ul>
 

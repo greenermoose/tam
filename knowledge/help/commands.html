@@ -7,12 +7,18 @@
 <meta name="topic" content="desktop-command-reference">
 <meta name="summary" content="A short, hand-checked list of the commands behind everyday desktop tasks">
 <meta name="keywords" content="command reference, desktop commands, terminal, cheat sheet, audio, bluetooth, display, clipboard, screenshot">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="help">
 <meta name="parent" content="help/index.html">
 </head>
 <body>
-<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="help/index.html">Navigation Help</a> / Desktop command reference</p></nav>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="help/index.html">Navigation Help</a> / Desktop command reference</p>
+
+<section data-level="novice">
+<h2>What this reference is for</h2>
+<p>A command is a short instruction typed into a terminal. The prompt marks where typing begins; it is not part of the command.</p>
+</section>
+</nav>
 
 
 
@@ -27,16 +33,32 @@
 <li><a href="systems/maintenance/commands.html">System, drive, power, and session commands</a>: resource stats, drive checks, power profiles, battery status, hibernation, and locking.</li>
 </ul>
 
+<section data-level="learner">
+<h2>Use the command reference</h2>
+<p><strong>Goal:</strong> read a command and predict its effect before trying its simulated example.</p>
 <h2>How to read a command</h2>
 <p>A line beginning with <code>$</code> shows the shell prompt, not something you type. Type the text after it and press <code>Return</code>. Put arguments that contain spaces inside double quotes.</p>
-<pre class="session" data-risk="read-only">
-$ tam-notification-send "Tea is ready" "Take the kettle off the heat"
-</pre>
+<tam-sandbox title="Try it: tam-notification-send &quot;Tea is ready&quot; &quot;Take the ket"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Read the sample and identify the command effect">
+<tam-cmd match="tam-notification-send &quot;Tea is ready&quot; &quot;Take the kettle off the heat&quot;" goal="true"></tam-cmd>
+  <tam-init>Try: tam-notification-send "Tea is ready" "Take the kettle off the heat"</tam-init>
+  <tam-hint after="1">Read the command after the prompt; do not type the prompt.</tam-hint>
+  <tam-hint after="2">The sandbox uses sample data and cannot change the host.</tam-hint>
+  <tam-fallback>Try tam-notification-send "Tea is ready" "Take the kettle off the heat" (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; no desktop setting or system package changes.</p>
 <p>The command prints nothing when it succeeds; the notification is the result. If a command cannot do its job, it prints an error message and returns a non-zero exit status.</p>
 
 <h2>Before you run something</h2>
 <p>Read the whole line first. The commands on the reference page change only desktop settings: volume, brightness, clipboard behaviour, and similar. None of them install software, delete files, or ask for an administrator password. If a command you find elsewhere does ask for a password, stop and read its documentation first.</p>
 
+
+</section>
+<section data-level="expert">
+<h2>Reference and safety</h2>
+<p>A successful notification command may produce no terminal text because its result is a desktop event. Programs report failures through diagnostics and a non-zero exit status.</p>
+</section>
 <h2>Next</h2><p><a href="desktop/tasks/index.html">Everyday use</a> &mdash; the task pages these commands come from.</p>
 <h2>Related</h2><ul><li><a href="paths/first-steps.html">First steps</a> &mdash; if a terminal is still new to you.</li></ul>
 

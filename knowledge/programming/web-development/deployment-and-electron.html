@@ -16,90 +16,87 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/web-development/index.html">Web development</a> / Deployment and Electron desktop apps</p></nav>
 
-<p>Deployment puts a finished web application where people can reach it; Electron can put the same interface inside a desktop program.</p>
+<p>Deployment puts a web app where people can reach it; Electron can put the same interface inside a desktop program.</p>
 
 <section data-level="novice">
-<h2>What this is</h2>
-<p>A simple web application can be a folder of files served by a <a href="glossary/w/web-server.html">web server</a>. Larger ones also run a Node server and a database. <dfn><a href="glossary/e/electron-framework.html">Electron</a></dfn> combines <a href="glossary/c/chromium.html">Chromium</a> and Node so a web interface can run in its own desktop window.</p>
+<h2>Serving and packaging</h2>
+<p>A <a href="glossary/w/web-server.html">web server</a> sends pages to browsers over the network. <a href="glossary/e/electron-framework.html">Electron</a> bundles a browser engine and Node with a web interface so it can run as a desktop program.</p>
 <h3>Why it matters</h3>
-<p>The same HTML, CSS, and JavaScript skills can reach a person through a browser tab or an application launcher. You still choose which one fits the task.</p>
+<p>The same interface can reach people through a URL or sit in an application window. Each route has different security and update needs.</p>
 <h3>How to think about it</h3>
-<p>Deployment is moving a shop to a street where customers can find it. Electron is putting a copy of the shop's front room inside a person's house, with a private door to local files.</p>
-<h3>New words</h3>
-<dl>
-<dt><a href="glossary/d/deployment.html">Deployment</a></dt><dd>The step that makes a finished program available to its users.</dd>
-<dt><a href="glossary/h/https.html">HTTPS</a></dt><dd>The encrypted form of the web's request-and-reply protocol.</dd>
-<dt><a href="glossary/c/chromium.html">Chromium</a></dt><dd>The open browser project that supplies page rendering to Chrome and Electron.</dd>
-</dl>
-<p><a href="programming/web-development/index.html">Return to the web development hub</a></p>
+<p>Deployment is publishing a poster where anyone can read it. Electron is framing that poster and selling it as a book.</p>
 </section>
 
 <section data-level="learner">
-<h2>Serve one finished page</h2>
-<p><strong>Goal:</strong> you will be able to serve a static page over local HTTP and state what a production deployment must add.</p>
-<p><strong>Learner path:</strong> previous: <a href="programming/web-development/testing-debugging-performance.html?level=2">Testing, debugging, and performance</a>; next: <a href="paths/web-development.html">course checkpoint</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ python3 -m http.server --bind 127.0.0.1
-127.0.0.1 - - [24/Nov/2026 08:09:18] "GET / HTTP/1.1" 200 -
-</pre>
-<p>Captured on 2026-11-24 with Python 3.14.8. A local request then reported <code>200 text/html &lt;!doctype html&gt;&lt;title&gt;Demo&lt;/title&gt;&lt;h1&gt;Deployed&lt;/h1&gt;</code>. The local server is a rehearsal; it is not a public deployment.</p>
-<ol>
-<li>A folder held one <code>index.html</code> file. The server answered a request for <code>/</code> with status <code>200</code>.</li>
-<li>The content type was <code>text/html</code>, so the browser rendered the file instead of showing raw text.</li>
-<li>A public deployment adds <a href="glossary/h/https.html">HTTPS</a>, a stable address, backups, and a way to roll back a bad release.</li>
-</ol>
+<h2>Read a local server request</h2>
+<p><strong>Goal:</strong> identify method, path and status in a sample server log.</p>
+<tam-sandbox
+  title="Try it: read a server log line"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the sample GET request">
+  <tam-fs>
+<dir name="/home/alex"></dir>
+  </tam-fs>
+    <tam-cmd match="python3 -m http.server --bind 127.0.0.1" goal="true" hint="Correct: GET is the method, / the path, and 200 means success.">
+      <out>127.0.0.1 - - [24/Nov/2026 08:09:18] "GET / HTTP/1.1" 200 -</out>
+    </tam-cmd>
+    <tam-cmd match="npm run build" hint="A build step often creates the files that get deployed.">
+      <out>Sample: wrote dist/index.html and dist/app.js</out>
+    </tam-cmd>
+  <tam-init>Try: python3 -m http.server --bind 127.0.0.1</tam-init>
+  <tam-hint after="1">The second sample command shows a typical build output.</tam-hint>
+  <tam-fallback>Try one of the two sample commands, or type help.</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The log line is sample output from a local server; the sandbox does not bind a port. A public deployment should use <a href="glossary/h/https.html">HTTPS</a>, not plain HTTP. Electron's browser window still needs the same web security care as a hosted page.</p>
 <h3>Try it</h3>
-<p>Create a scratch folder with an <code>index.html</code> file, start the local server, and open the printed address. Stop the server with Ctrl+C when you are done.</p>
+<p>Imagine the path changing from <code>/</code> to <code>/app.js</code>. The method and status stay the same; only the requested resource changes.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>The browser shows a directory listing</dt><dd>There is no <code>index.html</code> in that folder, or you opened a subdirectory.</dd>
-<dt>The page works locally but not after upload</dt><dd>Compare paths that begin with <code>/</code> against the deployed base URL, and check the server's content type.</dd>
+<dt>No server is listening.</dt><dd>Correct: the log line is scripted sample text, not a live service.</dd>
+<dt>I expected a browser window.</dt><dd>Electron cannot be launched in the sandbox; the page only describes its role.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>What did the local server prove, and what did it not prove?</summary>
-<p>It proved that the files can be served with the right status and content type. It did not prove public reachability, encrypted transport, correct behaviour under load, or safe rollback. Those belong to a deployment plan.</p>
+<summary><i>What does status 200 mean?</i></summary>
+<p>The server successfully answered the request.</p>
+</details>
+<details class="q">
+<summary><i>Why does Electron still need web security?</i></summary>
+<p>It renders web content, so injection and unsafe APIs can affect the desktop app too.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Release and desktop packaging</h2>
+<h2>Reference: deployment and desktop packaging</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Target</th><th>What ships</th><th>Owner of the runtime</th></tr>
-<tr><td>Static web app</td><td>HTML, CSS, JavaScript assets</td><td>The visitor's browser</td></tr>
-<tr><td>Full-stack web app</td><td>Assets plus a server and database</td><td>The deployment operator</td></tr>
-<tr><td>Electron app</td><td>Assets, a Node process, and a bundled Chromium</td><td>The packaged application</td></tr>
+<tr><th>Layer</th><th>Concern</th><th>Example</th></tr>
+<tr><td>Static hosting</td><td>Files and caching</td><td>HTML, CSS, JS assets</td></tr>
+<tr><td>Transport</td><td>Privacy and identity</td><td>HTTPS with certificates</td></tr>
+<tr><td>Electron main</td><td>Native privileges</td><td>Windows, menus, filesystem</td></tr>
+<tr><td>Electron renderer</td><td>Page content</td><td>Chromium web view</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Electron runs a main process with Node privileges and one or more renderer processes that display web pages. Because the renderer is <a href="glossary/c/chromium.html">Chromium</a>, browser APIs behave much as they do online, while the main process can use files and operating-system services. That split is also the security boundary: a renderer that receives untrusted page content should not be given unrestricted access to the filesystem. A deployment pipeline builds once, records what was built, installs that exact artifact, and keeps a rollback path. <a href="glossary/h/https.html">HTTPS</a> is terminated at a trusted edge, and secrets stay in the server environment rather than the client bundle.</p>
-<h3>Advanced usage</h3>
-<pre data-risk="scratch">
-// Main process: expose only named operations to a renderer.
-const { app, BrowserWindow, ipcMain } = require('electron');
-ipcMain.handle('read:preferences', async () =&gt; readPreferences());
-</pre>
-<p>Illustrative snippet: a renderer asks for a named operation; the main process decides what it may read. Do not expose a general file path supplied by page script.</p>
+<p>A deployment pipeline builds assets, uploads them and invalidates caches. Electron documents describe the boundary between the privileged main process and renderer processes. <a href="glossary/c/chromium.html">Chromium</a> supplies the rendering engine, while Node supplies local APIs.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
-<li>An Electron update bundles a large browser engine; users need a reliable rollback and update channel.</li>
-<li>Node globals in a renderer can turn an <a href="glossary/x/xss.html">XSS</a> finding into local file access; disable them when they are not needed.</li>
-<li>Assets cached by a browser can outlive a release; give changed files versioned names.</li>
-<li>A deployment that builds twice may ship different dependencies even with the same source.</li>
+<li>Stale cached assets can serve old JavaScript after a release.</li>
+<li>Exposing broad Node APIs to renderer content turns XSS into local code execution.</li>
+<li>Desktop auto-updates need signing and rollback planning.</li>
+<li>Deep links must be validated before opening files or URLs.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>When would you choose a plain web app over Electron, and when would Electron earn its cost?</summary>
-<p>Model answer: choose the web when browser access, central updates, and small installs matter. Choose Electron when the product needs deep desktop integration, offline local files, or a consistent window across systems and the team can maintain a bundled browser engine. Reject Electron when a browser tab already meets the need.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p>See <cite data-ref="electron-docs"><a href="bibliography/electron-docs.html">the Electron documentation</a></cite> and <cite data-ref="node-docs"><a href="bibliography/node-docs.html">the Node.js documentation</a></cite>.</p>
+<p><a href="bibliography/electron-docs.html">the Electron documentation</a>; <a href="bibliography/node-docs.html">the Node.js documentation</a>; <a href="glossary/x/xss.html">XSS</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="glossary/d/deployment.html">Deployment</a>, <a href="programming/web-development/testing-debugging-performance.html?level=2">Testing, debugging, and performance</a>, <a href="paths/web-development.html">course checkpoint</a>, <a href="paths/web-development.html">From first page to full-stack web developer</a>, <a href="bibliography/index.html">Sources and further reading</a>, <a href="desktop/apps/browser.html">Opening the web browser</a>.</p>
 </section>
 
 <h2>Where next</h2>
@@ -112,4 +109,5 @@ ipcMain.handle('read:preferences', async () =&gt; readPreferences());
 <li><a href="programming/web-development/index.html">Web development hub</a> &mdash; every page in the series.</li>
 <li><a href="desktop/apps/browser.html">Opening the web browser</a> &mdash; the browser as a desktop application.</li>
 </ul>
-</body></html>
+</body>
+</html>

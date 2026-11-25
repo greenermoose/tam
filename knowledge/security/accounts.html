@@ -7,7 +7,7 @@
 <meta name="topic" content="user-accounts">
 <meta name="summary" content="Identify your account, home folder, and groups, and add or remove another local account safely">
 <meta name="keywords" content="accounts, user, users, groups, id, home directory, useradd, usermod, userdel">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="security">
 <meta name="parent" content="security/index.html">
 <meta name="paths" content="people-and-security:2">
@@ -15,8 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / User accounts and groups</p></nav>
 
-
-<p>This page explains how Linux identifies your user account, keeps your home folder separate from other people's files, and organizes permissions through groups.</p>
+<p>Linux accounts give each person a separate identity, home folder and group memberships, so private files stay separate while shared access can be granted deliberately.</p>
 
 <section data-level="novice">
 <h2>Who is using the computer?</h2>
@@ -40,51 +39,58 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspect your account and plan user changes</h2>
-<p><strong>Goal:</strong> read your account name, UID, home path, and group memberships safely, and understand the reversible boundaries before adding or changing another account.</p>
-<p><strong>Before you start:</strong> inspecting your own account requires no privileges. Creating, changing groups for, or deleting accounts requires administrator approval and should be planned with a clear rollback decision first.</p>
-
-<h3>Worked example</h3>
-<p>Inspect your own user ID, home folder, and current groups read-only:</p>
-<pre class="session" data-risk="read-only">
-$ id
-$ printf 'Home: %s\n' "$HOME"
-$ getent passwd "$USER"
-</pre>
-<p>To check whether another local user exists without creating or altering anything, query the local user database read-only:</p>
-<pre class="session" data-risk="read-only">
-$ getent passwd guest
-</pre>
-<p>Creating an unprivileged account with its own home directory uses standard Linux account tools (<code>useradd -m &lt;name&gt;</code> followed by <code>passwd &lt;name&gt;</code>), and adding supplementary access such as <code>wheel</code> uses <code>usermod -aG &lt;group&gt; &lt;name&gt;</code>. Notice the <code>-a</code> (append) flag: running <code>usermod -G</code> without <code>-a</code> replaces all supplementary groups instead of adding one.</p>
-
+<h2>Read an account record before making changes</h2>
+<p><strong>Goal:</strong> identify the account name, UID, home path and group list in sample output.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: inspect an account"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="variables"
+  goal="Find the UID in the sample id output">
+  <tam-fs>
+    <dir name="/home/alex">
+    </dir>
+  </tam-fs>
+    <tam-cmd match="id" goal="true" hint="The first number is the UID; the groups list is assigned at login.">
+      <out>uid=1000(fred) gid=1000(fred) groups=1000(fred),10(wheel)</out>
+    </tam-cmd>
+    <tam-cmd match="printf &#x27;Home: %s\n&#x27; &quot;$HOME&quot;" hint="The HOME value points to this account’s personal folder.">
+      <out>Home: /home/fred</out>
+    </tam-cmd>
+    <tam-cmd match="getent passwd fred" hint="The passwd record stores name, UID, GID, home and shell.">
+      <out>fred:x:1000:1000:Fred:/home/fred:/bin/bash</out>
+    </tam-cmd>
+  <tam-init>Sample account: fred, UID 1000, home /home/fred.</tam-init>
+  <tam-hint after="1">Try id to see the numeric identity.</tam-hint>
+  <tam-hint after="2">Now try getent passwd fred for the full record.</tam-hint>
+  <tam-fallback>Try id, getent passwd fred or printf 'Home: %s\n' "$HOME" (or type help).</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p>The sample <code>id</code> reply shows a UID, a primary GID and supplementary groups. The <code>getent</code> line is the account record behind that identity. All replies here are authored sample output.</p>
 <h3>Try it</h3>
-<p>Run <code>id</code> and <code>ls -ld "$HOME"</code> in a terminal. Verify who owns your home folder and check that the permission bits keep other accounts out of private directories.</p>
-
+<p>On a real machine, <code>id -Gn</code> records the current group list before any change. Adding a group uses <code>-a</code> to append; without it, previous groups can be replaced.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>A newly added group does not take effect immediately</dt>
-<dd>Group memberships are assigned at login. Sign out and sign back in (or start a fresh login session) before testing access.</dd>
-<dt>Forgot <code>-a</code> with <code>usermod -G</code></dt>
-<dd>Because missing <code>-a</code> drops previous supplementary groups, always record <code>id -Gn &lt;user&gt;</code> before modifying any group list.</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>Some groups (such as <code>wheel</code> for <code>sudo</code> or <code>docker</code> for the Docker socket) are effectively administrator-level. Only grant them to trusted accounts, and check <code>tam-sudo-docker --configured</code> before altering container group settings.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary><i>Why is <code>usermod -aG &lt;group&gt; &lt;user&gt;</code> safer than omitting <code>-a</code>?</i></summary>
-<p><code>-a</code> appends to existing supplementary groups; without it, <code>usermod -G</code> overwrites the user's previous group list.</p>
-</details>
-<details class="q">
-<summary><i>After adding your account to a new group, why might a running terminal still behave as if you are not in it?</i></summary>
-<p>Running processes keep the group list initialized when your login session started until you open a new login session.</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why might a new group not take effect in an open terminal?</i></summary><p>Group membership is assigned at login, so a fresh login session is needed.</p></details>
 </section>
 </section>
+
+<section data-level="expert">
+<h2>Account records and safe change boundaries</h2>
+<p>Linux stores local accounts in the account database and attaches a numeric <a href="glossary/u/uid.html">UID</a> and primary <a href="glossary/g/gid.html">GID</a> to each one. Files record an owner UID and group GID; permissions are checked against those numbers, not the printed name. The <a href="glossary/h/home-directory.html">home directory</a> is a convention backed by the account record, not a special kind of filesystem.</p>
+<h3>Changing accounts</h3>
+<p>Creating an unprivileged account with its own home uses <code>useradd -m &lt;name&gt;</code> followed by <code>passwd &lt;name&gt;</code>. Adding supplementary access uses <code>usermod -aG &lt;group&gt; &lt;name&gt;</code>. The <code>-a</code> matters: <code>usermod -G</code> without it replaces the whole supplementary group list. Record <code>id -Gn &lt;user&gt;</code> before any change so the previous membership can be restored.</p>
+<h3>Session boundaries</h3>
+<p>Group memberships are assigned at login. A running process keeps the group list it started with, so a newly added group may not appear until the user opens a fresh login session. Groups such as <code>wheel</code> and <code>docker</code> are effectively administrator-level; grant them only with a recorded authorization and rollback decision.</p>
+</section>
+
+
 
 <h2>Next</h2><p><a href="security/practice/passwords.html">Passwords, sudo, and keeping secrets safe</a> &mdash; how user passwords and elevation prompts interact.</p>
 <h2>Related</h2><ul><li><a href="security/permissions.html">Permissions and ownership</a> &mdash; control who can read, write, or execute files.</li></ul>

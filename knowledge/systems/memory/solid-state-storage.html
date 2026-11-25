@@ -14,7 +14,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/memory/index.html">Memory technology</a> / Solid-state and non-volatile memory</p></nav>
 
-<p>Solid-state memory stores data in electronic circuits with no moving parts. Non-volatile solid-state memory keeps data when power is removed. This family includes ROM, EEPROM, flash memory, and SSDs, each with different trade-offs for speed, cost, endurance, and update granularity.</p>
+<p>Solid-state storage uses electronic circuits instead of moving parts. Flash drives and SSDs trade speed, cost and write endurance in different ways.</p>
 
 <section data-level="novice">
 <h2>Memory with no moving parts</h2>
@@ -44,9 +44,19 @@
 <h3>NAND, NOR, and SSDs</h3>
 <p><a href="glossary/n/nor.html">NOR</a> flash allows byte-like reads and is often used for firmware. <a href="glossary/n/nand.html">NAND</a> flash packs cells densely and is used in SSDs, USB sticks, and memory cards. NAND is usually read and written in pages but erased in larger blocks. That means you cannot overwrite one page in place the same way you overwrite RAM; the controller must manage erasure, garbage collection, and wear leveling.</p>
 
-<h3>Worked example: why SSDs need TRIM</h3>
-<p>Imagine an SSD page that held an old file. You delete the file in the filesystem, but the SSD does not immediately know the page is free because it only sees block writes, not filesystem meaning. Later, when you write new data, the SSD may need to erase a whole block that still contains stale pages. TRIM/discard tells the SSD which pages are no longer needed so it can reclaim them ahead of time.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Check whether a block device reports rotational media"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Check whether a block device reports rotational media">
+  <tam-cmd match="cat /sys/block/nvme0n1/queue/rotational" goal="true">
+    <out>0</out>
+  </tam-cmd>
+  <tam-init>Try: cat /sys/block/nvme0n1/queue/rotational</tam-init>
+  <tam-hint after="1">A zero is the Linux queue flag for non-rotational media.</tam-hint>
+  <tam-hint after="2">Device names vary; this fixed sample uses an NVMe path.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
 <p>On Linux, <code>lsblk -d -o NAME,ROTA,MODEL,SIZE</code> shows whether a block device rotates (<code>ROTA=1</code> for HDD, <code>0</code> for SSD/flash). <code>cat /sys/block/sda/queue/rotational</code> gives a similar hint for a specific device.</p>
 

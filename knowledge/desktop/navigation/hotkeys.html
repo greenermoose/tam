@@ -44,14 +44,19 @@
 <p><strong>Goal:</strong> you will be able to open the keybindings list and identify a safe practice chord.</p>
 
 
-<h3>Worked example</h3>
-<ol>
-<li>Press <kbd>Meta + K</kbd> to open keybindings via <code>tam-menu-keybindings</code>.</li>
-<li>Find <kbd>Meta + Return</kbd> (terminal) under application bindings.</li>
-<li>Press <kbd>Meta + Return</kbd> to open an empty terminal, then <kbd>Meta + Q</kbd> to close only that window after you confirm it has focus.</li>
-</ol>
-<p>Actions follow the packaged binding files; personal overrides in your config can differ. Check Meta + K on your machine.</p>
-
+<h3>Try the idea in a sandbox</h3>
+<tam-sandbox title="Try it: Find and confirm a packaged keybinding"
+  prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain"
+  goal="Find and confirm a packaged keybinding">
+  <tam-cmd match="tam-menu-keybindings" goal="true">
+    <out>Sample: Meta + K opens the keybindings list</out>
+  </tam-cmd>
+  <tam-init>Try: tam-menu-keybindings</tam-init>
+  <tam-hint after="1">Search for the chord before trying it.</tam-hint>
+  <tam-hint after="2">The live list includes the current session bindings.</tam-hint>
+  <tam-fallback>Try the command shown above (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>What just happened</h3>
 <ol>
 <li>The keybindings <a href="glossary/g/gui.html">UI</a> lists what this session will run.</li>

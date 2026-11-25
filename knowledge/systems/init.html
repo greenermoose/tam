@@ -39,12 +39,22 @@
 <aside class="first-time"><p>Do not restart services while learning. Looking is enough.</p></aside>
 <h3>Mental model</h3>
 <p>Process ID 1 (init) starts the system and supervises services. On the current Arch <a href="glossary/r/rootstock.html">rootstock</a>, that manager is <strong>systemd</strong>. A planned Void rootstock uses <strong>runit</strong>. Seat access for graphics is a related but separate boundary (<code>logind</code> today; <code>seatd</code> on runit targets).</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ command -v systemctl
-/usr/bin/systemctl
-</pre>
-<p>Captured on Arch Linux, 2026-11-02. If the command is missing, you may be on a different init; do not invent systemd steps.</p>
+
+<tam-sandbox
+  title="Try it: Explore command output"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Explore command output">
+  <tam-cmd match="command -v systemctl" goal="true" hint="Look for the value that answers the task.">
+    <out>/usr/bin/systemctl</out>
+  </tam-cmd>
+  <tam-init>Try: command -v systemctl</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try command -v systemctl (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <h3>Try it</h3>
 <p>Run <code>systemctl is-system-running</code> if available and record the word it prints.</p>
 <h3>If it goes wrong</h3>

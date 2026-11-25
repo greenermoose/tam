@@ -68,7 +68,7 @@ Learner path links) in an order that builds skill.
 | Reader intent | Gentle introduction; assumes no prior knowledge and no interest in practicing | Wants to practice, build skills, and learn by doing | Needs reference semantics, architecture, and advanced usage |
 | Content role | Conceptual orientation: what it is, why it exists, everyday mental model, glossary definitions | The ONLY level with `Goal:` and `Try it` practice exercises, quizzes, and path links | Internals, precise semantics, edge cases, illustrative advanced examples (not student exercises) |
 | Usual Diátaxis kind | Gentle explanation | Tutorial, hands-on how-to | Reference, architectural explanation |
-| Examples | None — no worked examples at Novice (D225) | Short worked example and hands-on `Try it` when useful; keep static examples light until interactive sandboxes | Advanced illustrative configurations or script pipelines |
+| Examples | None — no worked examples at Novice (D225) | Interactive sandbox with a goal, hints and a short `Try it` prompt when useful | Advanced illustrative configurations or script pipelines |
 | Questions | None (no quiz pressure) | Check yourself self-quizzes with folded answers | Trade-offs; open prompts with model answers |
 | Learning paths | Follow shared **Where next** / **See also** | Those links plus embedded `Start`, `Back`, and `Next` (`?level=2`) where a goal path includes the page | Follow shared **Where next** / **See also** |
 
@@ -162,7 +162,7 @@ Assumes no prior knowledge and no interest in practicing. A gentle introduction 
 The only level for active skill practice and hands-on learning.
 1. **Goal:** One can-do sentence ("You will be able to…").
 2. **Learning path:** Start, Back, and Next links (`?level=2`) for the topic's learning path.
-3. **Worked example:** Step-by-step commands with captured output and explanation.
+3. **Worked example:** An interactive sandbox with a goal, hints and a short explanation of what the reader discovered.
 4. **Try it:** Practice exercises in a scratch directory for the reader to try.
 5. **If it goes wrong:** Likely errors, what they mean, and recovery steps.
 6. **On Tamlinux:** Specific Tamlinux defaults and conventions.
@@ -181,17 +181,22 @@ Reference semantics, internals, and advanced usage.
 ## Worked examples
 
 Worked examples belong in **Learner (2) only** (D225). Novice text stays
-simple and never carries command-and-output walkthroughs. Keep static
-examples light: a future `tam` version will offer interactive bash sandbox
-windows; do not invest heavily in textbook-style example craft that those
-will replace. Full rules live in [`corpus-style.md`](corpus-style.md).
+simple and never carries command-and-output walkthroughs. Use the
+interactive `<tam-sandbox>`: the reader types commands and sees the result
+instead of reading a captured transcript. Full rules live in
+[`corpus-style.md`](corpus-style.md).
 
-- **Capture every output by running the command.** Never write output from
-  memory. Run a scratch example in `mktemp -d` and remove the directory at
-  the end. When output depends on the machine, write "Your output will
-  differ" and name the system and date you captured it on.
-- **Annotate lightly:** a few numbered notes tied to the example's parts are
-  enough; prefer one short capture over multi-stage fading sequences.
+- **Teach a decision, not a typing test.** Give one small task with a clear
+  goal, progressive hints and a fallback. Let the reader discover a
+  mechanism or check a prediction.
+- **Prefer real simulation.** Built-in commands act on the sandbox's own
+  files, so the reader can vary input and see the consequence. Use scripted
+  sample output only for tools the sandbox cannot really implement.
+- **Label samples honestly.** When an authored rule stands in for a real
+  command, say in nearby prose that the output is a sample, not a reading
+  from the reader's machine. Never present invented output as a capture.
+- **Annotate lightly:** a few numbered notes tied to the sandbox's result
+  are enough; remove text that only explained a captured transcript.
 - **Contrasting pairs** (optional): put the tempting command beside the
   correct one and say why. The correct action comes first.
 - **Think-aloud diagnosis (expert):** narrate how a practitioner narrows a

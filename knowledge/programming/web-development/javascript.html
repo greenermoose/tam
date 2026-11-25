@@ -16,92 +16,98 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/web-development/index.html">Web development</a> / JavaScript and its history</p></nav>
 
-<p>JavaScript is the programming language that lets web pages respond to what you do, and it now runs in servers and desktop programs too.</p>
+<p>JavaScript lets a web page respond to what a person does. The same language also runs in servers and desktop programs.</p>
 
 <section data-level="novice">
-<h2>What this is</h2>
-<p>A web page can show words and pictures, but <dfn><a href="glossary/j/javascript.html">JavaScript</a></dfn> lets it also do things: check a form, change a picture, or ask another computer for fresh information.</p>
+<h2>A language for action</h2>
+<p>JavaScript is an <a href="glossary/i/interpreter.html">interpreted</a> language whose standard is called <a href="glossary/e/ecmascript.html">ECMAScript</a>. In a browser it can change the <a href="glossary/d/dom.html">DOM</a> after a click or key press.</p>
 <h3>Why it matters</h3>
-<p>Without JavaScript, a page is like a printed book. With it, a page becomes a small program that can react, remember, and talk to other programs.</p>
+<p>Without it, pages would mostly be static documents. With it, they can validate input, animate and fetch new information.</p>
 <h3>How to think about it</h3>
-<p>Think of a stage play. <a href="glossary/h/html.html">HTML</a> is the scenery and the actors, <a href="glossary/c/css.html">CSS</a> is the costumes and lighting, and JavaScript is the direction that says what happens when an actor speaks.</p>
-<h3>New words</h3>
-<dl>
-<dt>Script</dt><dd>A short list of instructions a program follows.</dd>
-<dt><a href="glossary/i/interpreter.html">Interpreter</a></dt><dd>A program that carries out instructions as it reads them.</dd>
-<dt><a href="glossary/e/ecmascript.html">ECMAScript</a></dt><dd>The standard that defines the JavaScript language.</dd>
-</dl>
-<p><a href="programming/web-development/html-and-css.html">Next: HTML and CSS foundations</a></p>
+<p>HTML lays out the stage, CSS costumes the actors, and JavaScript gives them instructions for what to do next.</p>
 </section>
 
 <section data-level="learner">
-<h2>Write a first few instructions</h2>
-<p><strong>Goal:</strong> you will be able to run a short JavaScript program and explain how values, functions, and arrays work together.</p>
-<p><strong>Learner path:</strong> start: <a href="programming/web-development/javascript.html?level=2">JavaScript and its history</a>; next: <a href="programming/web-development/html-and-css.html?level=2">HTML and CSS foundations</a>.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="scratch">
-$ node -e "const greet = name => \`Hello, \${name}!\`; const xs = [1,2,3].map(n => n * n); console.log(greet('alex'), xs.join(','));"
-Hello, alex! 1,4,9
-</pre>
-<p>Captured on a Linux system with Node.js 24.5.0, 2026-11-24. Your output will match if Node is installed.</p>
-<ol>
-<li><code>const greet = name =&gt; ...</code> stores a function that takes a name.</li>
-<li><code>[1,2,3].map(n =&gt; n * n)</code> makes a new array by applying a function to each value.</li>
-<li><code>console.log</code> prints the result. A semicolon ends a statement, but JavaScript often finds the end for you.</li>
-</ol>
+<h2>Predict a tiny transformation</h2>
+<p><strong>Goal:</strong> read sample JavaScript output and explain the map operation.</p>
+<tam-sandbox
+  title="Try it: read a map and its result"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="paths"
+  goal="Show the mapped values in the sample result file">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="snippet.js" size="104">const numbers = [1, 2, 3];
+const squares = numbers.map(n => n * n);
+console.log(squares.join(','));</file>
+      <file name="result.txt" size="8">1,4,9</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat snippet.js" hint="The map line calls the arrow function once for each number.">
+      <out>const numbers = [1, 2, 3];</out>
+      <out>const squares = numbers.map(n =&gt; n * n);</out>
+      <out>console.log(squares.join(','));</out>
+    </tam-cmd>
+    <tam-cmd match="grep map snippet.js" hint="map returns a new array; it does not change numbers.">
+      <out>const squares = numbers.map(n =&gt; n * n);</out>
+    </tam-cmd>
+    <tam-cmd match="cat result.txt" goal="true" hint="Correct: each input was squared, then join made one string.">
+      <out>1,4,9</out>
+    </tam-cmd>
+  <tam-init>Try: cat snippet.js</tam-init>
+  <tam-hint after="1">Use grep map snippet.js to focus on the transformation.</tam-hint>
+  <tam-hint after="2">Type cat result.txt to see the sample values.</tam-hint>
+  <tam-fallback>Try cat snippet.js, grep map snippet.js, or cat result.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The sample file shows <code>n =&gt; n * n</code> applied to each element. The separate result file holds <code>1,4,9</code>; it is sample data, not a run of your own JavaScript. <code>join</code> turned the new array into one line of text.</p>
 <h3>Try it</h3>
-<p>In a scratch file, change the greeting to your own name and add <code>.filter(n =&gt; n &gt; 2)</code> before <code>.map</code>. Predict what prints, then run it with <code>node your-file.js</code>.</p>
+<p>Predict what <code>[2,4,6].map(n =&gt; n/2)</code> gives: <code>[1,2,3]</code>. The original array is unchanged; map returns a new one.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt><code>node: command not found</code></dt><dd>Node.js is not installed. The browser examples later in this course also run JavaScript, but this command needs the Node runtime.</dd>
-<dt>The backticks vanish or the shell complains</dt><dd>Use single quotes around the whole program in your shell, or put the program in a file first.</dd>
+<dt>The sandbox did not run JavaScript.</dt><dd>The files and result are sample data. Use a real runtime for your own snippets.</dd>
+<dt>I expected the original numbers.</dt><dd>map returns a new array built from each result of the function.</dd>
 </dl>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why was JavaScript created, and why is it still used everywhere?</summary>
-<p>Brendan Eich created it at Netscape in 1995 so browser pages could do small interactive jobs. It survived because every major browser adopted it, it was standardized as ECMAScript, and later runtimes such as Node.js let the same language work outside the browser.</p>
+<summary><i>What does map do?</i></summary>
+<p>Calls a function for each element and returns a new array of results.</p>
+</details>
+<details class="q">
+<summary><i>Why does JavaScript appear outside browsers?</i></summary>
+<p>The language standard is separate from the browser, so runtimes such as Node can host it.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Language, standard, and runtimes</h2>
+<h2>Reference: engines and APIs</h2>
 <h3>Reference</h3>
 <table>
-<tr><th>Name</th><th>What it names</th></tr>
-<tr><td>JavaScript</td><td>The language family people write and run.</td></tr>
-<tr><td>ECMAScript</td><td>The specification, edited by Ecma International's TC39 committee, that defines the core language.</td></tr>
-<tr><td>Engine</td><td>The program that parses and executes JavaScript, such as V8, SpiderMonkey, or JavaScriptCore.</td></tr>
-<tr><td>Runtime</td><td>An engine plus the surrounding services, such as a browser's <a href="glossary/d/dom.html">DOM</a> or Node's filesystem and network modules.</td></tr>
+<tr><th>Item</th><th>Meaning</th><th>Note</th></tr>
+<tr><td><a href="bibliography/ecma-262.html">ECMAScript</a></td><td>Language specification</td><td>Defines syntax and core objects</td></tr>
+<tr><td><a href="glossary/j/jit.html">JIT</a></td><td>Just-in-time compilation</td><td>Speeds up hot code</td></tr>
+<tr><td><a href="glossary/a/api.html">APIs</a></td><td>Host-provided features</td><td>DOM, timers, storage</td></tr>
+<tr><td>Prototypes</td><td>Object inheritance model</td><td>Different from class-based languages</td></tr>
 </table>
 <h3>How it works</h3>
-<p>The first version was written by Brendan Eich at Netscape in ten days in May 1995, first called Mocha, then LiveScript, then JavaScript. The name suggested a family tie with Java, but the two languages are different. Netscape submitted the language to Ecma International, and the first ECMAScript standard appeared in 1997. The large ES6 revision in 2015 added classes, modules, promises, and arrow functions. TC39 now adds features each year after reaching broad agreement.</p>
-<p>An engine parses source into an abstract syntax tree, compiles it to bytecode, and may use a <a href="glossary/j/jit.html">just-in-time compiler</a> for hot code. The language itself does not define windows, files, or networks; the host environment supplies those as <a href="glossary/a/api.html">APIs</a>. That is why browser JavaScript and Node JavaScript share syntax but not the same global objects.</p>
-<h3>Advanced usage</h3>
-<pre data-risk="scratch">
-const numbers = [1, 2, 3];
-const total = numbers.reduce((sum, n) =&gt; sum + n, 0);
-console.log(total); // 6
-</pre>
-<p>Illustrative snippet: <code>reduce</code> carries one value through a whole collection. Prefer clear named functions when a chain grows hard to read.</p>
+<p>An engine parses source, compiles it and executes it on an event loop. The language core says little about files or networking; host environments add those APIs. <a href="glossary/b/browser-api.html">Browser APIs</a> differ from Node APIs, even though the syntax is shared.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
-<li><code>==</code> compares after conversion and can surprise; prefer <code>===</code>.</li>
-<li>Numbers are IEEE 754 doubles, so large integers can lose precision; use <code>BigInt</code> when exact large integers matter.</li>
-<li><code>let</code> and <code>const</code> are block-scoped; old <code>var</code> is function-scoped and is hoisted.</li>
-<li>Automatic semicolon insertion can change a return statement when a newline follows <code>return</code>.</li>
+<li><code>this</code> binding differs between ordinary and arrow functions.</li>
+<li>Equality coercions produce surprising results; prefer strict equality.</li>
+<li>Async errors need explicit rejection handling.</li>
+<li>Numeric precision follows IEEE 754 doubles.</li>
 </ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>If two engines pass the same ECMAScript tests, why might a page still behave differently?</summary>
-<p>ECMAScript defines the core language, not browser <a href="glossary/b/browser-api.html">APIs</a>, rendering, storage policy, or timing. Engines also ship different feature versions and optimization behavior. Model answer: separate language semantics from host APIs and engine implementation when comparing behavior.</p>
-</details>
-</section>
 <h3>Sources</h3>
-<p>See <cite data-ref="ecma262"><a href="bibliography/ecma-262.html">the ECMAScript specification</a></cite> and <cite data-ref="mdn-web"><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a></cite>.</p>
+<p><a href="bibliography/ecma-262.html">the ECMAScript specification</a>; <a href="bibliography/mdn-web-docs.html">MDN Web Docs</a>; <a href="programming/web-development/node-and-npm.html">Node.js and npm</a>.</p>
+
+<h3>Related reading</h3>
+<p>Follow these links for definitions, sources and onward steps: <a href="glossary/j/javascript.html">JavaScript</a>, <a href="glossary/h/html.html">HTML</a>, <a href="glossary/c/css.html">CSS</a>, <a href="programming/web-development/html-and-css.html">Next: HTML and CSS foundations</a>, <a href="programming/web-development/javascript.html?level=2">JavaScript and its history</a>, <a href="programming/web-development/html-and-css.html?level=2">HTML and CSS foundations</a>, <a href="programming/web-development/html-and-css.html">HTML and CSS foundations</a>, <a href="paths/web-development.html">From first page to full-stack web developer</a>, <a href="programming/scripting.html">Writing instructions your computer can repeat</a>.</p>
 </section>
 
 <h2>Where next</h2>
@@ -114,4 +120,5 @@ console.log(total); // 6
 <li><a href="paths/web-development.html">From first page to full-stack web developer</a> &mdash; the whole reading path.</li>
 <li><a href="programming/scripting.html">Writing instructions your computer can repeat</a> &mdash; scripting ideas from the shell side.</li>
 </ul>
-</body></html>
+</body>
+</html>

@@ -15,8 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / Computer Security Principles and Threat Modeling</p></nav>
 
-
-<p>What it means for a computer system to be secure, how defenders decide what can go wrong, and the formal models behind operating systems and hardware isolation.</p>
+<p>Security principles turn a vague wish for safety into design rules: reduce privilege, define trust boundaries, and assume that some parts of a system will fail.</p>
 
 <section data-level="novice">
 <h2>What security actually protects</h2>
@@ -46,63 +45,55 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspecting trust boundaries, STRIDE, and process isolation</h2>
-<p><strong>Goal:</strong> read a Linux process's kernel isolation flags and practice mapping a feature with a STRIDE threat model.</p>
-<p><strong>Before you start:</strong> every boundary where data crosses from untrusted input (network, <a href="glossary/u/usb.html">USB</a> drive, unprivileged user) to privileged code (kernel, root service) is a <em>trust boundary</em>. The <strong><dfn><a href="glossary/t/tcb.html">Trusted Computing Base (TCB)</a></dfn></strong> is the set of hardware, firmware, and software components that must work correctly for the security policy to hold.</p>
-
-<h3>Worked example</h3>
-<p>Every Linux process exposes its current privilege and isolation state in <code>/proc/self/status</code>. You can inspect whether a shell is blocked from gaining new privileges (<code>NoNewPrivs</code>) and whether system-call filtering (<code>Seccomp</code>) is active:</p>
-<pre class="session" data-risk="read-only">
-$ grep -E '^(Uid|Gid|NoNewPrivs|Seccomp|CapEff):' /proc/self/status
-Uid:	1000	1000	1000	1000
-Gid:	1000	1000	1000	1000
-CapEff:	0000000000000000
-NoNewPrivs:	1
-Seccomp:	2
-</pre>
-<p>Here <code>Uid</code> <code>1000</code> is an unprivileged user across all four user-ID slots (real, effective, saved, filesystem), effective capabilities (<code>CapEff</code>) are all zeros, <code>NoNewPrivs: 1</code> prevents <code>setuid</code> binaries from elevating privileges, and <code>Seccomp: 2</code> shows filter-mode syscall sandboxing is active.</p>
-<p>When reviewing a design, engineers walk each trust boundary with the <strong>STRIDE</strong> mnemonic:</p>
-<table>
-<tr><td><strong>Spoofing</strong></td><td>pretending to be another user or server (mitigated by authentication).</td></tr>
-<tr><td><strong>Tampering</strong></td><td>modifying data in transit or on disk (mitigated by integrity checks and MACs).</td></tr>
-<tr><td><strong>Repudiation</strong></td><td>denying an action occurred (mitigated by tamper-evident audit logs and signatures).</td></tr>
-<tr><td><strong>Information disclosure</strong></td><td>leaking secrets (mitigated by encryption and confidentiality controls).</td></tr>
-<tr><td><strong>Denial of service</strong></td><td>exhausting <a href="glossary/c/cpu.html">CPU</a>, memory, or bandwidth (mitigated by quotas and rate limits).</td></tr>
-<tr><td><strong>Elevation of privilege</strong></td><td>gaining unauthorized rights (mitigated by least privilege and sandboxing).</td></tr>
-</table>
-
+<h2>Read a sample process isolation record</h2>
+<p><strong>Goal:</strong> find the no-new-privileges and seccomp fields in sample process status data.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<h3>Sandbox</h3>
+<tam-sandbox
+  title="Worked example: read isolation flags"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="Find Seccomp in the sample process status">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="clues.txt">Uid: 1000
+Gid: 1000
+NoNewPrivs: 1
+Seccomp: 2
+CapEff: 0000000000000000</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="grep Seccomp clues.txt" goal="true" hint="Try grep NoNewPrivs clues.txt to see one restriction.">
+      <out>Seccomp: 2</out>
+    </tam-cmd>
+    <tam-cmd match="grep -E &#x27;^(Uid|Gid|NoNewPrivs|Seccomp|CapEff):&#x27; /proc/self/status" hint="Sample output matching the prepared status lines.">
+      <out>Uid: 1000</out>
+      <out>Gid: 1000</out>
+      <out>NoNewPrivs: 1</out>
+      <out>Seccomp: 2</out>
+      <out>CapEff: 0000000000000000</out>
+    </tam-cmd>
+  <tam-init>Sample status: NoNewPrivs 1, Seccomp 2, empty capability set.</tam-init>
+  <tam-hint after="1">Try grep NoNewPrivs clues.txt to see one restriction.</tam-hint>
+  <tam-hint after="2">Now try grep Seccomp clues.txt for syscall filtering.</tam-hint>
+  <tam-fallback>Try grep NoNewPrivs clues.txt, grep Seccomp clues.txt or cat clues.txt (or type help).</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<p><code>NoNewPrivs</code> prevents a process from gaining new privileges through execution. <code>Seccomp</code> filters system calls, and an empty effective capability set removes root-like powers. This is sample data, not a scan of your machine.</p>
 <h3>Try it</h3>
-<p>Run <code>grep -E '^(Uid|NoNewPrivs|Seccomp|CapEff):' /proc/self/status</code> in your terminal. In an interactive desktop shell outside a sandbox, <code>NoNewPrivs</code> and <code>Seccomp</code> are typically <code>0</code>; inside a sandboxed service or container, one or both are non-zero.</p>
-
+<p>Use <code>cat clues.txt</code> to see all five fields. Match each one to a principle: least privilege, defence in depth, or a reduced trusted computing base.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>Confusing encryption with access control</dt>
-<dd>Encrypting a file on disk protects it when the key is absent (for example, a powered-off stolen laptop), not after the operating system unlocks the disk for a running session. Process isolation and file permissions still matter while logged in.</dd>
-<dt>Overlooking <a href="glossary/t/toctou.html">TOCTOU</a> races</dt>
-<dd>Checking a file's permissions and then opening it by path creates a Time-of-Check to Time-of-Use (TOCTOU) window where an attacker can swap the path for a symlink. Safe programs open once and operate on the file descriptor (<code>fstat</code>, <code>openat</code>).</dd>
+<dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
+<dt>A file looks empty or missing</dt><dd>Use <code>ls</code> to list the prepared files, then <code>cat clues.txt</code> (or the named file above) to see the exact text.</dd>
 </dl>
-
-<aside class="tamlinux">
-<p>On Tamlinux, daily work runs under an unprivileged account, hardware security helpers run only when explicitly invoked, and system-wide updates are isolated to declared package assemblies rather than ad-hoc scripts.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary><i>Why is keeping the Trusted Computing Base (TCB) small a core security goal?</i></summary>
-<p>Any bug inside the TCB can defeat the entire security policy. Moving parsers, network handlers, and <a href="glossary/g/gui.html">UI</a> code outside the TCB reduces the code that must be trusted and audited.</p>
-</details>
-<details class="q">
-<summary><i>Which STRIDE category describes an unprivileged process tricking a privileged helper into overwriting an arbitrary file?</i></summary>
-<p>Elevation of privilege (often combined with a Confused Deputy flaw, where the privileged helper acts on the caller's behalf without checking the caller's own rights to the target).</p>
-</details>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why is least privilege useful even for trusted programs?</i></summary><p>A bug in a program with fewer rights can do less damage than the same bug in a program with full rights.</p></details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Formal security models, Saltzer–Schroeder principles, and microarchitectural limits</h2>
-
 <h3>Reference: Saltzer and Schroeder's eight design principles</h3>
 <p>Saltzer and Schroeder (1975) established the enduring engineering principles for protection mechanisms <cite data-ref="saltzer-schroeder"><a href="bibliography/saltzer-schroeder.html">[Saltzer &amp; Schroeder]</a></cite>:</p>
 <ol>
@@ -150,6 +141,17 @@ Seccomp:	2
 <li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>proc(5)</code>, <code>seccomp(2)</code>, and <code>capabilities(7)</code>.</li>
 </ul>
 </section>
+
+<h2>Related reading</h2>
+<ul>
+<li><a href="glossary/u/usb.html">USB</a></li>
+<li><a href="glossary/t/tcb.html">Trusted Computing Base (TCB)</a></li>
+<li><a href="glossary/c/cpu.html">CPU</a></li>
+<li><a href="glossary/t/toctou.html">TOCTOU</a></li>
+<li><a href="glossary/g/gui.html">UI</a></li>
+</ul>
+
+
 
 <h2>Next</h2><p><a href="security/practice/passwords.html">Passwords, sudo, and keeping secrets safe</a> &mdash; Step 2 on the Security Protocols and Access Control path.</p>
 <h2>Related</h2><ul><li><a href="security/authentication-and-authorization.html">Authentication, Authorization, and Linux Access Control</a> &mdash; Step 3 on the path.</li><li><a href="paths/security-protocols-and-access-control.html?level=1">Security Protocols and Access Control path</a> &mdash; full learning sequence.</li></ul>

@@ -46,23 +46,59 @@
 <p><strong>Goal:</strong> you will be able to review crash notices, purge compiled desktop caches, and execute diagnostic dry-runs.</p>
 
 
-<h3>Worked example</h3>
+
 <ol>
 <li>When an application crashes, <code>tam-crash-watch</code> issues a desktop alert naming the process ID (<a href="glossary/p/pid.html">PID</a>).</li>
 <li>To gather crash evidence and view an automated report, run:
-<pre class="session" data-risk="read-only">
-$ tam-agent-crash 12345
-</pre>
+<tam-sandbox
+  title="Try it: To gather crash evidence and view an automated report, run"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="To gather crash evidence and view an automated report, run">
+  <tam-cmd match="tam-agent-crash 12345" goal="true" hint="Look for the value that answers the task.">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: tam-agent-crash 12345</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-agent-crash 12345 (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 </li>
 <li>If desktop status bar plugins fail to display updated code after an update, purge stale <a href="glossary/q/qml.html">QML</a> caches:
-<pre class="session" data-risk="user">
-$ tam-qmlcache-purge
-</pre>
+<tam-sandbox
+  title="Try it: If desktop status bar plugins fail to display updated code aft"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="If desktop status bar plugins fail to display updated code after an update, purge stale QML caches">
+  <tam-cmd match="tam-qmlcache-purge" goal="true" hint="Look for the value that answers the task.">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: tam-qmlcache-purge</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-qmlcache-purge (or type help).</tam-fallback>
+</tam-sandbox>
+
 </li>
 <li>Verify desktop layout without making changes using the test battery:
-<pre class="session" data-risk="read-only">
-$ tam-desktop-test --dry-run
-</pre>
+<tam-sandbox
+  title="Try it: Verify desktop layout without making changes using the test ba"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Verify desktop layout without making changes using the test battery">
+  <tam-cmd match="tam-desktop-test --dry-run" goal="true" hint="Look for the value that answers the task.">
+    <out>Sample: the simulated command completed.</out>
+  </tam-cmd>
+  <tam-init>Try: tam-desktop-test --dry-run</tam-init>
+  <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
+  <tam-hint after="2">The output is fixed teaching data; compare it with the command.</tam-hint>
+  <tam-fallback>Try tam-desktop-test --dry-run (or type help).</tam-fallback>
+</tam-sandbox>
+
 </li>
 </ol>
 

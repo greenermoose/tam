@@ -16,9 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/development/index.html">Developing Tamlinux</a> / The tam Command: Architecture, Coding, and Lifecycle</p></nav>
 
-
-
-<p>This page explains how to build and maintain <code>tam</code>, the program that displays this guide.  If you just want to learn how to use tam, see <a href="help/tam.html">Using the tam command</a>. Read on to learn about tam's implementation, build system, and development lifecycle.</p>
+<p>This page covers the tam command’s C11 architecture, source lanes, build targets and the discipline that moves a candidate toward release.</p>
 <h2>Before this</h2><p><a href="tamlinux/development/index.html">Developing Tamlinux</a> · <a href="programming/c/toolchains.html">Tools for building programs</a></p>
 
 <p><code>tam</code> is the flagship utility for Tamlinux.  <a href="tamlinux/developer.html">Fred</a> chose to write it in the C programming language (specifically, the <a href="glossary/c/c11.html">C11</a> standard) built against the <code>libtam</code> library so it starts quickly, uses little resident memory, and operates completely offline without background daemons. Tam should run reliably on any 64-bit hardware from 2006-era budget laptops up to the latest multi-core, multi-screen desktop workstations.</p>
@@ -42,89 +40,43 @@
 </section>
 
 <section data-level="learner">
-<h2>Inspect subcommands and compile a local build</h2>
-<p><strong>Goal:</strong> you will be able to inspect installed <code>tam</code> version metadata, compile the standalone C binary from source with <a href="glossary/m/make.html">Make</a>, and test the newly compiled binary safely without altering system packages.</p>
-<p><strong>Before you start:</strong> open a terminal inside the <code>tam</code> repository checkout. Compiling locally requires standard developer tools (<a href="glossary/g/gcc.html">GCC</a> or Clang, Make, and header libraries). Inspecting versions is read-only. See <a href="terminal/configuration.html">Terminal and editor ergonomics</a> and <a href="programming/c/toolchains.html">Native toolchains and multi-agent workflows</a> for environment prerequisites.</p>
-<aside class="first-time">
-<p>Make is a build automation tool that reads a <code>Makefile</code> to compile source code into executable programs. Running <code>make command</code> compiles only the C executable under <code>build/tam</code>. In terminal sessions, <code>$</code> represents your shell prompt; do not type it.</p>
-</aside>
-<h3>Mental model</h3>
-<pre>
-Repository Lanes and Build Pipeline:
-+---------------------------------------------------------------+
-|                    tam.git checkout root                      |
-+---------------------------------------------------------------+
-       |                                                |
- [Command Lane]                                   [Corpus Lane]
- `src/*.c`, `src/*.h`                             `knowledge/*.html`
-       |                                                |
- `make command`                                   `make corpus`
-       |                                                |
-       v                                                v
-  `build/tam`                                      `index.tsv`, `index.paths.tsv`, `coverage.json`
- (C11 standalone)                                 (Metadata, paths &amp; search index)
-       \                                                /
-        \                                              /
-         +--------------------+-----------------------+
-                              |
-                    `make test` / `make check`
-                 (Full integration verification)
-                              |
-                 `make install PREFIX=~/.local`
-               (Isolated user development generation)
-</pre>
-
-<p>The <code>tam</code> repository is organized into two independent workstream lanes: the <strong>Command lane</strong> (C source code under <code>src/</code>) and the <strong>Corpus lane</strong> (HTML documentation under <code>knowledge/</code>). Two agents can work concurrently if each claims one lane. The command binary links static <code>libtam</code> (<code>libtam.a</code>) and <code>zlib</code> and dynamically discovers corpus metadata and <code>&lt;meta name="paths"&gt;</code> step graphs at runtime.</p>
-<h3>Worked example: Inspect version metadata and build the command</h3>
-<pre class="session" data-risk="read-only">
-$ ./build/tam --version
-tam command 0.55.0
+<h2>Read decoupled version output</h2>
+<p><strong>Goal:</strong> match a fixed version report to the command and corpus lanes</p>
+<p><strong>Before you start:</strong> <a href="programming/c/toolchains.html">Toolchains</a> and <a href="terminal/configuration.html">Terminal ergonomics</a>.</p>
+<tam-sandbox
+  title="Try it: inspect the built command"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="all"
+  goal="Print a fixed build version report">
+   <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="20">Practice notes.</file>
+    </dir>
+  </tam-fs>
+   <tam-cmd match="./build/tam --version" goal="true" hint="The command lane and corpus lane can move independently.">
+    <out>tam command 0.55.0
 knowledge corpus 0.81.0
 libtam 0.7.0
-Tamlinux cultivar 0.6.22
-$ make -C /home/alex/src/tam command
-make: Entering directory '/home/alex/src/tam'
-cc -DTAM_DATADIR=\"/usr/local/share/tamlinux/knowledge\" -O2 -Wall -Wextra -Wpedantic -std=c11 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -I/home/alex/.local/include src/tam.c ... /home/alex/.local/lib/libtam.a -lz -lncursesw -o build/tam
-make: Leaving directory '/home/alex/src/tam'
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-11-02. Your build hash and compile line will differ.</p>
+Tamlinux cultivar 0.6.22</out>
+  </tam-cmd>
+  <tam-cmd match="make command" hint="make command builds only the C executable, not the knowledge index.">
+    <out>cc -std=c11 -Wall -Wextra -Wpedantic src/tam.c ... -o build/tam</out>
+  </tam-cmd>
+  <tam-init>A fixed report shows command, corpus, library and cultivar versions.</tam-init>
+   <tam-hint after="1">The command lane and corpus lane can move independently.</tam-hint>
+  <tam-hint after="2">make command builds only the C executable, not the knowledge index.</tam-hint>
+  <tam-fallback>Type ./build/tam --version, or type help.</tam-fallback>
+</tam-sandbox>
 <h3>What just happened</h3>
-<ol>
-<li><code>./build/tam --version</code> printed four decoupled version identifiers: the C binary version, the active knowledge corpus version, the foundational <code>libtam</code> version, and the active Tamlinux <a href="glossary/c/cultivar.html">cultivar</a> (major + minor release) name and version. Tamlinux’s own software is the <a href="glossary/s/scion.html">scion</a> installed on a <a href="glossary/r/rootstock.html">rootstock</a> (currently Arch Linux, with plans to migrate to Void Linux and later explore a microkernel).</li>
-<li><code>make -C ~/Code/tamlinux/tam command</code> invoked the C compiler (<code>cc</code>) with C11 flags (<code>-std=c11 -O2 -Wall -Wextra -Wpedantic</code>), producing the standalone executable at <code>build/tam</code> linked with <code>libtam</code> and <code>zlib</code>.</li>
-</ol>
+<p>The four identifiers belong to separate layers. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. Building the command lane leaves the corpus index untouched, which is why two agents can work in parallel.</p>
 <h3>Try it</h3>
-<p><a href="glossary/e/execute.html">Execute</a> single-lane command tests on the newly built binary to verify <a href="glossary/c/cli.html">CLI</a> arguments and pager navigation without touching the corpus index:</p>
-
-<pre class="session" data-risk="read-only">
-$ make test-command
-</pre>
-
-<p>You can also run the built binary directly with <code>./build/tam --help</code> to inspect the full list of available subcommands.</p>
+<p>Predict which target would rebuild the corpus index, then compare with make command.</p>
 <h3>If it goes wrong</h3>
-<dl>
-<dt>fatal error: tam/fs.h: No such file or directory</dt>
-<dd>The <code>libtam</code> header files are not installed under <code>/usr/include</code> or your configured <code>LIBTAM_PREFIX</code> (e.g. <code>~/.local/include</code>). Pass <code>LIBTAM_PREFIX=$HOME/.local</code> when invoking Make.</dd>
-<dt>fatal error: zlib.h: No such file or directory</dt>
-<dd>The zlib compression development headers are missing. On Arch Linux, install native zlib using <code>pacman -S zlib</code>.</dd>
-<dt>build/tam: error while loading shared libraries</dt>
-<dd>Packaged and standard Make builds link static <code>libtam.a</code> directly into <code>build/tam</code>; if testing an override dynamic build, inspect <code>LIBTAM_CFLAGS</code>/<code>LIBTAM_LIBS</code> or <code>ldd ./build/tam</code>.</dd>
-</dl>
-<aside class="tamlinux">
-<p>On Tamlinux, development builds and production releases adhere to strict lifecycle boundaries. Developers and AI coding agents build and test candidates locally in <code>~/.local/bin</code> and <code>~/.local/lib</code>, or in transactional generation directories under <code>~/.local/opt/tam/generations/</code>. Every released Tamlinux version installs its binaries and libraries under <code>/usr/bin</code> and <code>/usr/lib</code>. Production software never reaches the system from ad-hoc checkouts or copied payloads; it arrives solely through recorded candidate deliveries built from pinned <a href="glossary/g/git.html">Git</a> sources (or recorded transitional bundles). See the <cite data-ref="deployment"><a href="bibliography/deployment.html">Tamlinux package deployment contract</a></cite>.</p>
-</aside>
+<p>A missing libtam header means the configured prefix is wrong; a missing zlib header needs the native development package.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary><i>Which Makefile target compiles the C command binary without rebuilding the knowledge index?</i></summary>
-<p><code>make command</code> compiles only <code>build/tam</code> from <code>src/*.c</code>. <code>make all</code> compiles both the binary and the corpus index.</p>
-</details>
-<details class="q">
-<summary><i>Why does <code>tam --version</code> report separate versions for the command and the knowledge corpus?</i></summary>
-<p>Because <code>tam</code> uses decoupled versioning: the C command binary (parser and pager engine) and the documentation corpus evolve independently, allowing documentation pages to be added or revised without recompiling the binary.</p>
-</details>
+<details class="q"><summary><i>Which Make target compiles only the C command?</i></summary><p>make command.</p></details>
 </section>
 </section>
 <section data-level="expert">
@@ -176,9 +128,6 @@ The binary version (<code>src/version.h</code>) is decoupled from the corpus ver
 
 <li><strong>Transactional Development Generations and Atomic Switching:</strong>
 <code>tam switch STAGE</code> compiles candidates into isolated, timestamped directories:
-<pre data-risk="read-only">
-~/.local/opt/tam/generations/&lt;version&gt;-&lt;commit&gt;-&lt;hash&gt;/
-</pre>
 Each successful generation writes a local receipt recording source pins, versions, checks, and previous targets. Once verified, the command switches the <code>current</code> symlink atomically. If a candidate fails verification, the active generation is untouched. <code>tam switch --rollback</code> restores the prior generation from local receipts without requiring network connectivity.</li>
 
 <li><strong>The Develop -&gt; Test -&gt; Run -&gt; Release Lifecycle:</strong>
@@ -223,31 +172,7 @@ Release (Tamlinux release)
 
 <p>Measure the execution time and startup latency of the standalone command using <code>time</code> to verify that it meets the <strong>Tamlinux Five</strong> performance target for <code>tam-*</code> utility programs: starts and exits in 5 milliseconds and uses under 5 megabytes of memory:</p>
 
-<pre class="session" data-risk="read-only">
-$ time ./build/tam --version
-tam command 0.55.0
-knowledge corpus 0.81.0
-libtam 0.7.0
-Tamlinux cultivar 0.6.22
-
-real	0m0.003s
-user	0m0.001s
-sys	0m0.002s
-</pre>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q open">
-<summary>Why does the Tamlinux lifecycle mandate that package outputs are NOT rebuilt when promoting from Test to Run?</summary>
-<p>Rebuilding introduces the possibility of non-deterministic differences, compiler toolchain changes, or unintended timestamp variations. Promoting the exact byte-for-byte package output tested during the Test stage guarantees that what was verified in daily use is identical to what runs in production.</p>
-</details>
-<details class="q open">
-<summary>How does the transactional generation architecture in <code>tam switch</code> protect against broken development builds?</summary>
-<p>Each build compiles into an isolated, timestamped generation directory under <code>~/.local/opt/tam/generations/</code>. The active generation link (<code>current</code>) is updated atomically only after the candidate passes verification tests and writes a complete receipt. If the build or tests fail, the symlink remains pointing to the previous functional generation, and <code>tam switch --rollback</code> can restore the earlier state without network access.</p>
-</details>
-</section>
-
+<p><strong>Further reading in this topic:</strong> <a href="help/tam.html">Using the tam command</a> · <a href="glossary/m/make.html">Make</a> · <a href="glossary/g/gcc.html">GCC</a> · <a href="glossary/c/cultivar.html">cultivar</a> · <a href="glossary/s/scion.html">scion</a> · <a href="glossary/r/rootstock.html">rootstock</a> · <a href="glossary/e/execute.html">Execute</a> · <a href="glossary/c/cli.html">CLI</a> · <a href="glossary/g/git.html">Git</a>.</p>
 </section>
 
 <h2>Sources and further reading</h2><ul><li><a href="bibliography/deployment.html">Tamlinux package deployment contract</a></li></ul>
