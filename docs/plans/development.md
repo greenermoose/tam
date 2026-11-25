@@ -1591,6 +1591,14 @@ captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
 
+### 2026-11-25 — Timescales troubleshooting guidance (corpus 0.128.2)
+
+The Learner section on computer timescales showed CPU frequency and DRM
+connector commands but had no recovery guidance. Add concise explanations for
+unavailable CPU frequency fields and connector-specific paths. The anatomy
+warning was valid; the corpus check now has the missing guidance. This is a
+content correction only; command version and Tamlinux stages remain unchanged.
+
 ### 2026-11-25 — Restore goal-path structure (corpus 0.128.1)
 
 The corpus-wide sandbox migration moved goal-path stage headings and links into

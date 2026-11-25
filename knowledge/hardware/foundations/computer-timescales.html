@@ -95,6 +95,14 @@ CPU min MHz:                             1400.0000</out>
 <p>The sandbox shows fixed sample output; it does not read or change your system.</p>
 <p>The CPU frequency range shows the processor can move between lower and higher clock speeds. Display modes and refresh rates (check your desktop display settings or <code>/sys/class/drm/*/modes</code>) show another place where Hz directly affects user experience.</p>
 
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The CPU frequency fields are missing</dt>
+<dd>Some drivers do not expose minimum and maximum MHz through <code>lscpu</code>. Treat them as unavailable; an instantaneous clock reading does not establish the processor's limits.</dd>
+<dt>The display-mode path does not exist</dt>
+<dd>Connector names vary. Check the connected output in desktop display settings or inspect <code>/sys/class/drm/</code> for its actual name. A missing path is not a timing measurement.</dd>
+</dl>
+
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q">
