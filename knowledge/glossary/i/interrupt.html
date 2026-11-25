@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head>
+<title>Interrupt</title>
+<meta name="topic" content="glossary-interrupt">
+<meta name="summary" content="Interrupt: a signal that pauses current work so the kernel can handle an event.">
+<meta name="keywords" content="glossary-interrupt, interrupt, irq, interrupt handler, exception, trap, interrupt context">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/i/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / Interrupt</p></nav>
+
+<p>An interrupt is a signal that makes the <a href="glossary/c/cpu.html">CPU</a> pause its current work so the <a href="glossary/k/kernel.html">kernel</a> can handle an event.</p>
+<section data-level="novice"><p>Interrupts are like a doorbell. A device such as a keyboard or network card rings when something needs attention. The kernel answers briefly, then the program that was running carries on from where it stopped. You can read the count of interrupts on a Linux system in <code>/proc/interrupts</code>.</p></section>
+<section data-level="learner"><p>Hardware interrupts come from devices through an <a href="glossary/i/irq.html">IRQ</a>, from timers, and from signals sent between CPU cores. A system call or an exception also enters the kernel, but it is caused by the running program itself rather than by an outside event. The kernel saves the state of the interrupted task, runs a short handler, then returns to that task or switches to another one.</p></section>
+<section data-level="expert"><p>Linux runs a hardirq top half in interrupt context, where sleeping is forbidden, and defers longer work to softirqs, tasklets or threaded handlers. Message-signaled interrupts (MSI/MSI-X) replace shared legacy lines on modern <a href="glossary/p/pcie.html">PCIe</a> devices. An interrupt may set the need-reschedule flag, so returning from it can lead to a <a href="glossary/c/context-switch.html">context switch</a> rather than a direct return to the previous task.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul>
+<li><a href="systems/interrupts/index.html">Interrupts</a>: the teaching pages for this subject.</li>
+<li><a href="systems/interrupts/what-are-interrupts.html">What interrupts are</a>: why devices signal and how to read the counts.</li>
+<li><a href="systems/interrupts/handling-interrupts.html">How interrupt handling works</a>: the path from event back to a running program.</li>
+</ul>
+</body></html>

@@ -1,0 +1,82 @@
+W131 KERNEL LIFECYCLE AND INTERRUPTS
+
+Date: 2026-11-25
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "On page:systems/kernel-and-processes.html explain how to start
+  and stop the kernel program and explain the basic loop nature of the
+  kernel program and how it hands off control of the computer to other
+  processes. Add pages that discuss interrupts and link to them from
+  here. Also, read all the text on the page and make sure the sandbox
+  examples are actually helpful and necessary. Think about examples
+  that advance the reader's understanding or skill. Remove any
+  extraneous text that is a hold over from before the sandbox was
+  added to the page."
+
+  Answers to the design questions in this session:
+  - Interrupt pages: "Hub + two teaching pages (Recommended)".
+  - Sandbox examples: "Revise to advance understanding (Recommended)".
+  - Start/stop: "Explain and link, no runnable commands (Recommended)".
+
+GUIDANCE SOURCE
+
+  Direct instruction and answers from Fred in this session.
+
+DONE
+
+  - Added a hub at systems/interrupts/index.html with two three-level
+    teaching pages: what-are-interrupts.html (why devices signal,
+    /proc/interrupts, NAPI and MSI-X at expert level) and
+    handling-interrupts.html (save state, short handler, deferred work,
+    context switch, hardirq versus threaded handlers). Added
+    glossary/i/interrupt.html and cross-links from the systems hub, the
+    kernel page, the IRQ and context-switch glossary entries.
+  - Registered interrupts.novice, interrupts.learner and
+    interrupts.expert in knowledge/skills/skills.json so the new pages
+    pass the corpus build.
+  - On kernel-and-processes.html added novice, learner and expert text
+    on startup through firmware, bootloader and init; shutdown through
+    init to the kernel's power action and the distinction from sleep;
+    and the event loop, scheduler choice and handoff back to processes.
+    Linked to boot phases, the power page and both new interrupt pages.
+  - Replaced the uname-focused sandbox with read-only observations that
+    teach the new material: /proc/uptime for kernel running time, the
+    shell's PID from $$ and echo $$, and a sample /proc/interrupts row.
+    Goal and progressive hints follow that sequence. Removed the stale
+    "open a terminal", "silence means success", "record the string",
+    "command not found" and captured-date text.
+  - Set corpus to 0.127.0 and updated the roadmap, development contract
+    and work records. No command code changed.
+
+FAILED
+
+  - The first corpus build failed with "unknown skill ID" for the three
+    new interrupts.* IDs. Registering them in skills.json fixed it.
+  - An interactive assertion expected CPU0 in the visible frame, but
+    the sandbox log had already scrolled that first output row away;
+    the rule itself worked. The assertion was narrowed to a later row.
+
+CHECKED AGAINST
+
+  - General Linux boot, shutdown, interrupt and scheduler behavior is
+    common knowledge; wording about Tamlinux startup and init follows
+    systems/boot/boot-phases.html, systems/init.html and the init and
+    boot glossary entries. No new Tamlinux claim was invented.
+  - make corpus, make corpus-and-test (95 unit tests), make check-repo,
+    git diff --check, internal-link check (0 broken links) and dfn-link
+    check (0 bad dfn) pass. The nine learning warnings are unchanged.
+  - Pipe previews show the revised kernel sandbox and both new pages.
+  - PTY runs opened both sandboxes and typed every new command. Outputs,
+    goal completion and hint text matched the rules in both cases.
+  - No push, install, Test, Run or Release was requested or performed.
+
+HANDOFF
+
+  - Commit W131 corpus, version and record paths on dev with
+    provenance trailers, then rerun make corpus and commit the
+    generated index follow-up.
+  - Await Fred's direction on converting other Worked examples. No
+    stage promotion is authorised.

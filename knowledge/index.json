@@ -14659,6 +14659,32 @@
     "updated": "2026-11-24 09:04"
   },
   {
+    "topic": "glossary-interrupt",
+    "path": "glossary/i/interrupt.html",
+    "title": "Interrupt",
+    "summary": "Interrupt: a signal that pauses current work so the kernel can handle an event.",
+    "keywords": [
+      "glossary-interrupt",
+      "interrupt",
+      "irq",
+      "interrupt handler",
+      "exception",
+      "trap",
+      "interrupt context"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "glossary",
+    "parent": "glossary/i/index.html",
+    "prereqs": [],
+    "kind": "glossary",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-25 11:52"
+  },
+  {
     "topic": "glossary-iommu",
     "path": "glossary/i/iommu.html",
     "title": "IOMMU (Input-Output Memory Management Unit)",
@@ -30110,6 +30136,32 @@
     "updated": "2026-11-24 09:04"
   },
   {
+    "topic": "hub-systems-interrupts",
+    "path": "systems/interrupts/index.html",
+    "title": "Interrupts",
+    "summary": "Understand how hardware events and software signals pause a running program and bring the kernel into action.",
+    "keywords": [
+      "interrupts",
+      "irq",
+      "interrupt handler",
+      "top half",
+      "bottom half",
+      "exceptions",
+      "traps"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "systems",
+    "parent": "systems/index.html",
+    "prereqs": [],
+    "kind": "hub",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-25 11:52"
+  },
+  {
     "topic": "hub-systems-packages",
     "path": "systems/packages/index.html",
     "title": "Software packages",
@@ -30671,6 +30723,73 @@
     "updated": "2026-11-24 09:04"
   },
   {
+    "topic": "interrupt-handling",
+    "path": "systems/interrupts/handling-interrupts.html",
+    "title": "How interrupt handling works",
+    "summary": "Follow an interrupt from the CPU into the kernel",
+    "keywords": [
+      "interrupt handler",
+      "top half",
+      "bottom half",
+      "softirq",
+      "threaded irq",
+      "interrupt context",
+      "preemption",
+      "context switch"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "systems",
+    "parent": "systems/interrupts/index.html",
+    "prereqs": [
+      "interrupts-overview"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "interrupts.novice",
+      "interrupts.learner",
+      "interrupts.expert"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-25 11:52"
+  },
+  {
+    "topic": "interrupts-overview",
+    "path": "systems/interrupts/what-are-interrupts.html",
+    "title": "What interrupts are",
+    "summary": "Explain why devices and programs signal the CPU, and how to read interrupt counts on a running Linux system.",
+    "keywords": [
+      "interrupt",
+      "irq",
+      "device",
+      "poll",
+      "timer",
+      "cpu",
+      "/proc/interrupts",
+      "interrupt controller",
+      "ipi"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "systems",
+    "parent": "systems/interrupts/index.html",
+    "prereqs": [
+      "kernel-and-processes"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "interrupts.novice",
+      "interrupts.learner",
+      "interrupts.expert"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-25 11:55"
+  },
+  {
     "topic": "ip-packets-and-forwarding",
     "path": "networking/stack/ip-packets-and-forwarding.html",
     "title": "IP packets and forwarding",
@@ -30836,7 +30955,7 @@
     "topic": "kernel-and-processes",
     "path": "systems/kernel-and-processes.html",
     "title": "Kernel and processes",
-    "summary": "What the Linux kernel does when programs run: processes, memory, drivers and syscalls",
+    "summary": "How the kernel starts and stops, its event loop and handoff to processes, memory, drivers and interrupts",
     "keywords": [
       "kernel",
       "process",
@@ -30844,7 +30963,12 @@
       "driver",
       "memory",
       "linux",
-      "pid"
+      "pid",
+      "boot",
+      "shutdown",
+      "interrupt",
+      "uptime",
+      "context switch"
     ],
     "levels": [
       "novice"

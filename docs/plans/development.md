@@ -1591,6 +1591,19 @@ captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
 
+### 2026-11-25 — Kernel lifecycle and interrupts (corpus 0.127.0)
+
+The developer asked to explain on the kernel page how the kernel starts and
+stops, describe its basic loop and handoff to other processes, add pages about
+interrupts and link them from there, review the sandbox examples for real
+teaching value, and remove text left over from before the sandbox arrived. He
+chose a hub with two three-level teaching pages plus a glossary entry, a
+revised sandbox that reads uptime, shell PID and interrupt counts, and a
+conceptual explanation of start and stop with links rather than runnable
+shutdown commands. The revised sandbox drops the uname exercises. New
+`interrupts.*` skills were registered. This is corpus content only; the
+command version, stage promotion and installation remain developer-directed.
+
 ### 2026-11-24 — Interactive kernel sandbox pilot (corpus 0.126.1)
 
 The developer asked to change the Worked example on

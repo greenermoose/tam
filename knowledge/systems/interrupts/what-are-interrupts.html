@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html><head>
+<title>What interrupts are</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="interrupts.novice, interrupts.learner, interrupts.expert">
+<meta name="topic" content="interrupts-overview">
+<meta name="summary" content="Explain why devices and programs signal the CPU, and how to read interrupt counts on a running Linux system.">
+<meta name="keywords" content="interrupt, irq, device, poll, timer, cpu, /proc/interrupts, interrupt controller, ipi">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/interrupts/index.html">
+<meta name="prereqs" content="kernel-and-processes">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/interrupts/index.html">Interrupts</a> / What interrupts are</p></nav>
+
+<p>A computer does something useful only when events reach the software that can answer them. Interrupts are the usual way those events arrive.</p>
+
+<section data-level="novice">
+<h2>When the CPU is interrupted</h2>
+<p>A <a href="glossary/c/cpu.html">CPU</a> core runs one stream of instructions at a time. If you press a key while a program is running, the program does not notice the key itself. The keyboard sends a signal, and the <dfn><a href="glossary/i/interrupt.html">interrupt</a></dfn> makes the CPU pause that program briefly so the kernel can deal with the key press.</p>
+<h3>Why it matters</h3>
+<p>Without interrupts, the kernel would have to ask every device over and over whether it needed anything. That would waste time. Interrupts let the kernel wait until something actually happens.</p>
+<h3>How to think about it</h3>
+<p>Think of a doorbell. You can keep working on something else instead of checking the door every few seconds. When the bell rings, you note where you were, answer the door, and then carry on with what you were doing.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/i/interrupt.html">Interrupt</a></dt><dd>A signal that pauses current work so the kernel can handle an event.</dd>
+<dt><a href="glossary/i/irq.html">IRQ</a></dt><dd>An interrupt request line used by a hardware device.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Why devices signal instead of being polled</h2>
+<p><strong>Goal:</strong> you will be able to explain why a device sends an interrupt and read a sample interrupt count from a Linux system.</p>
+<p><strong>Before you start:</strong> the sandbox below is a simulation. The numbers are examples, not readings from your machine.</p>
+<h3>Mental model</h3>
+<pre>device -&gt; controller -&gt; CPU -&gt; kernel handler -&gt; program continues
+</pre>
+<p>A hardware device raises an <a href="glossary/i/irq.html">IRQ</a>. An interrupt controller decides which CPU core receives it. The CPU saves a little state, runs the kernel's handler, then returns to the program it was running. A timer also interrupts regularly even when no device needs attention; that gives the kernel a chance to decide which task should run next.</p>
+<h3>Worked example</h3>
+<p>Type the command in the sandbox to see the shape of the kernel's interrupt record.</p>
+<tam-sandbox
+  title="Worked example: read interrupt counts"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Read the interrupt counts with cat /proc/interrupts">
+  <tam-fs>
+    <dir name="/home/alex"></dir>
+  </tam-fs>
+  <tam-cmd match="cat /proc/interrupts" goal="true" hint="Each row is one interrupt source. The number columns are counts for each CPU core; the timer is the regular tick.">
+    <out>           CPU0       CPU1</out>
+    <out>  0:         184        121   IO-APIC   2-edge      timer</out>
+    <out>  1:          12          0   IO-APIC   1-edge      i8042</out>
+  </tam-cmd>
+  <tam-cmd match="cat /proc/uptime" hint="That is the kernel's uptime, a different read-only record. Try cat /proc/interrupts.">
+    <out>3600.00 1200.00</out>
+  </tam-cmd>
+  <tam-init>Sample: cat /proc/interrupts: one row per source, a count per CPU.</tam-init>
+  <tam-hint after="1">Type: cat /proc/interrupts (or type help for the simulated commands).</tam-hint>
+  <tam-fallback>In this sandbox, try cat /proc/interrupts (or type help).</tam-fallback>
+</tam-sandbox>
+<h3>What just happened</h3>
+<ol>
+<li><code>/proc/interrupts</code> is a kernel-generated file; reading it does not change the machine.</li>
+<li>The first row numbers are interrupt sources. The columns underneath <code>CPU0</code> and <code>CPU1</code> count how many times each core handled that source.</li>
+<li>The <code>timer</code> row is the regular tick. The <code>i8042</code> row is the keyboard controller in this sample.</li>
+</ol>
+<h3>Try it</h3>
+<p>Read <code>/proc/interrupts</code> on a machine you use. The device names and counts differ, and the counts grow while the machine is running. Watch one row twice with a short gap between reads.</p>
+<h3>If it goes wrong</h3>
+<dl><dt>A row you expected is not there</dt><dd>Devices and drivers differ between machines. Look for the <code>timer</code> row, which appears on essentially every Linux system.</dd></dl>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why is a timer interrupt useful even when no user presses a key or clicks a mouse?</i></summary><p>The kernel needs a regular point at which it can check whether another task should run, update timekeeping, and carry out deferred work. Without a tick it would only react when a device or a program made a request.</p></details>
+</section>
+<h3>Next</h3><p><a href="systems/interrupts/handling-interrupts.html">How interrupt handling works</a>: follow the event into the kernel and back.</p>
+</section>
+
+<section data-level="expert">
+<h2>Interrupt sources and what the counts mean</h2>
+<p>Interrupts reach the CPU from hardware <a href="glossary/i/irq.html">IRQ</a> lines, from message-signaled interrupts (MSI and MSI-X) used by modern <a href="glossary/p/pcie.html">PCIe</a> devices, from timer hardware, and from inter-processor interrupts (IPIs) sent between CPU cores. Software also enters the kernel through system calls and exceptions, but those are synchronous: they happen because the running instruction asked for them, not because an outside event arrived.</p>
+<p>Each row of <code>/proc/interrupts</code> names an interrupt source, and each numeric column is a per-CPU counter. A large and fast-growing count can show a busy device; an uneven distribution can point at IRQ affinity or a missing <code>irqbalance</code> setup. A busy high-speed network interface may switch from one interrupt per packet to batched polling (NAPI) so that the core is not spent entering and leaving handlers. Legacy shared lines can report spurious interrupts; a driver that receives an interrupt it cannot claim can be disabled with a <code>nobody cared</code> message.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why can polling sometimes be faster than interrupting for a very busy device?</i></summary><p>Every interrupt costs a state save and handler entry. At very high event rates those fixed costs dominate. Draining a ring of packets in one polling batch avoids one entry per packet.</p></details>
+</section>
+<p><strong>Explore:</strong> compare two reads of <code>/proc/interrupts</code> while a device is active, and check which CPU column changes.</p>
+</section>
+
+<h2>Sources and further reading</h2>
+<p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

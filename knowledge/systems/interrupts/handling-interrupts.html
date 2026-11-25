@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html><head>
+<title>How interrupt handling works</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="interrupts.novice, interrupts.learner, interrupts.expert">
+<meta name="topic" content="interrupt-handling">
+<meta name="summary" content="Follow an interrupt from the CPU into the kernel's short handler and deferred work, then back to the interrupted program.">
+<meta name="keywords" content="interrupt handler, top half, bottom half, softirq, threaded irq, interrupt context, preemption, context switch">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/interrupts/index.html">
+<meta name="prereqs" content="interrupts-overview">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/interrupts/index.html">Interrupts</a> / How interrupt handling works</p></nav>
+
+<p>The kernel answers an interrupt in a short, deliberate sequence, then gives the processor back to ordinary work.</p>
+
+<section data-level="novice">
+<h2>What happens when the doorbell rings</h2>
+<p>When an interrupt arrives, the <a href="glossary/c/cpu.html">CPU</a> finishes the instruction it is on, notes where the interrupted program had reached, and starts a small piece of kernel code. That code deals with the urgent part of the event. Then the CPU restores the saved place and the program carries on as if nothing had happened.</p>
+<h3>Why it matters</h3>
+<p>The interrupted program does not need to know that a key press or a packet arrived. It simply resumes. That is one reason several programs can appear to run at once on a single CPU core.</p>
+<h3>How to think about it</h3>
+<p>Put a bookmark in a book, answer the door, then return to the same line. The bookmark is the CPU's saved state; answering the door is the kernel's handler.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/i/interrupt.html">Interrupt</a></dt><dd>A signal that pauses current work so the kernel can handle an event.</dd>
+<dt><a href="glossary/c/context-switch.html">Context switch</a></dt><dd>Changing which task the processor runs.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>From signal back to your program</h2>
+<p><strong>Goal:</strong> you will be able to trace an interrupt through the kernel and say why handlers are kept short.</p>
+<h3>Mental model</h3>
+<pre>event --&gt; save state --&gt; short handler --&gt; deferred work --&gt; restore or reschedule
+</pre>
+<p>The kernel saves the registers of the interrupted task and runs the driver's handler for that interrupt source. A handler must be quick: while it runs, other work on that CPU is delayed. Anything that can wait is marked for later, in a softirq or a threaded handler. Once the urgent part is done, the kernel either restores the interrupted task or, if the scheduler decides another task should run, performs a <a href="glossary/c/context-switch.html">context switch</a>.</p>
+<h3>Worked example: follow one key press</h3>
+<ol>
+<li>You press a key. The keyboard controller raises an <a href="glossary/i/irq.html">IRQ</a>.</li>
+<li>The CPU saves enough state to return later and enters the kernel's interrupt handler.</li>
+<li>The keyboard driver reads the key code and places it in a queue for the session's input system.</li>
+<li>The handler exits. The kernel may run deferred work, then returns to the task that was interrupted—or switches to another runnable task.</li>
+</ol>
+<p>The program waiting for input later reads the queued key code. It never ran the handler itself; the kernel did.</p>
+<h3>What just happened</h3>
+<p>The handler did only the work that had to happen immediately: acknowledge the device and record the key. The rest of the path—delivering input, redrawing a window—can happen in ordinary process context, where waiting is allowed.</p>
+<h3>Try it</h3>
+<p>Describe the same path for an arriving network packet. Which part must happen in the handler, and which part can wait? Check your answer against the deferred-work paragraph above.</p>
+<h3>If it goes wrong</h3>
+<dl><dt>The system feels sluggish while a device is busy</dt><dd>A handler may be doing too much work, or interrupts may be arriving faster than they can be drained. That is a driver or device problem, not a fault in the program you were using.</dd></dl>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why does the kernel defer some work instead of doing all of it inside the interrupt handler?</i></summary><p>An interrupt handler runs with ordinary tasks paused and cannot sleep. Long work there delays everything else on that CPU. Moving it to deferred or threaded context keeps the urgent response short and lets the rest run where blocking is allowed.</p></details>
+</section>
+<h3>Next</h3><p><a href="systems/kernel-and-processes.html">Kernel and processes</a>: see how the same handoff fits the kernel's wider event loop.</p>
+</section>
+
+<section data-level="expert">
+<h2>Interrupt context, top halves and bottom halves</h2>
+<p>Linux distinguishes <em>process context</em>, where a task is running and may sleep, from <em>interrupt context</em>, which belongs to no task and must not sleep or take a mutex. A hardirq handler (the top half, registered with <code>request_irq</code>) acknowledges and masks the device and queues work. Deferred work runs soon after in softirq context, in a tasklet, or in a threaded interrupt handler registered with <code>request_threaded_irq</code>; <code>PREEMPT_RT</code> kernels thread most interrupt handlers by default. The split keeps worst-case interrupt latency bounded while still completing work promptly.</p>
+<p>On x86 and <a href="glossary/a/arm64.html">ARM64</a> systems, an arriving interrupt causes the CPU to save state and jump to an entry point in the kernel. On return, the kernel checks whether a reschedule is needed; a timer interrupt may set that flag, leading to <code>__schedule()</code> and a <a href="glossary/c/context-switch.html">context switch</a> instead of a direct return to the old task. Per-CPU state such as <code>/proc/interrupts</code> and <code>/proc/softirqs</code> shows where the work is happening.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary><i>Why must a hardirq handler avoid waiting for a mutex?</i></summary><p>Interrupt context has no task to park on a wait queue. Blocking there would leave the CPU unable to make progress on the very work that the handler was meant to finish. Work that can wait belongs in a threaded handler or a softirq.</p></details>
+</section>
+<p><strong>Explore:</strong> read <code>/proc/softirqs</code> while a network transfer runs and compare its per-CPU counts with the device row in <code>/proc/interrupts</code>.</p>
+</section>
+
+<h2>Sources and further reading</h2>
+<p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>
