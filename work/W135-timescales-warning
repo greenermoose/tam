@@ -1,0 +1,32 @@
+W135 TIMESCALES ANATOMY WARNING
+
+Date: 2026-11-25
+AI harness: Codex CLI 0.172.0
+AI model: gpt-6-luna
+Commits: e945650
+Continues: W134-path-contract
+
+GUIDANCE
+
+  Fred: "Fix the computer-timescales page so no warning issues."
+  Fred: "Is the warning valid or should the anatomy check be corrected?"
+
+DONE
+
+  - The warning was valid: the learner lesson showed CPU frequency and
+    DRM connector checks but had no recovery guidance. Added help for
+    unavailable frequency fields and connector-specific paths.
+  - Bumped the corpus to 0.128.2 and updated the roadmap and decision
+    record.
+  - `make corpus` passed for 1,493 pages. `report-coverage.py
+    --warnings` reports zero anatomy warnings. `git diff --check`
+    passed. No test suite or install was run.
+
+FAILED
+
+  Nothing.
+
+HANDOFF
+
+  The computer-timescales warning is resolved on dev. Wait for Fred's
+  next direction. Test, Run and Release remain separate instructions.
