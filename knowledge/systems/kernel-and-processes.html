@@ -46,20 +46,40 @@
 </pre>
 <p>Programs ask the kernel for services (open a file, send a packet, map memory). Drivers are kernel code (or modules) that talk to devices. A fault can sit in the program, the kernel path, or the device.</p>
 <h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ uname -s
-Linux
-$ printf '%s\n' "$$"
-12345
-</pre>
-<p>Captured on Arch Linux, 2026-11-02. Your process number will differ.</p>
+<p>Type the two commands in the sandbox below. It is a simulation of a terminal, so nothing you type can change your system.</p>
+<tam-sandbox
+  title="Worked example: kernel and processes"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="variables"
+  goal="Print the shell's process ID with printf '%s\n' &quot;$$&quot;">
+  <tam-fs>
+    <dir name="/home/alex"></dir>
+  </tam-fs>
+  <tam-cmd match="uname -s" hint="That is the kernel name. Now print the shell's own process ID.">
+    <out>Linux</out>
+  </tam-cmd>
+  <tam-cmd match="uname -r" hint="The release string describes the running kernel. It answers a different question from uname -s.">
+    <out>6.12.0-arch1-1</out>
+  </tam-cmd>
+  <tam-cmd match="printf '%s\n' &quot;$$&quot;" goal="true" hint="Correct: $$ is the shell's own process ID, the number the kernel gave this running program.">
+    <out>12345</out>
+  </tam-cmd>
+  <tam-cmd match="printf '%s\n' $$" hint="The quotes are optional here because $$ has no spaces. The number is still the shell's process ID.">
+    <out>12345</out>
+  </tam-cmd>
+  <tam-init>Sample: uname -s prints Linux; printf '%s\n' "$$" prints one process number such as 12345.</tam-init>
+  <tam-hint after="2">Try: printf '%s\n' &quot;$$&quot; (or type help for the simulated commands).</tam-hint>
+  <tam-fallback>Try uname -s, then printf '%s\n' &quot;$$&quot; (or type help).</tam-fallback>
+</tam-sandbox>
+<p>The sample number was captured on Arch Linux, 2026-11-02. Your shell's process number will differ.</p>
 <h3>What just happened</h3>
 <ol>
 <li><code>uname -s</code> asked the kernel which kind of system it is; this Tamlinux rootstock answers Linux.</li>
 <li><code>$$</code> is the shell's own process ID: the number the kernel uses for that running program.</li>
 </ol>
 <h3>Try it</h3>
-<p>Run <code>uname -r</code> to see the kernel release string. Record it; do not change packages.</p>
+<p>Type <code>uname -r</code> in the sandbox to see the kernel release string. On a real terminal the command only reads information; record the string and do not change packages.</p>
 <h3>If it goes wrong</h3>
 <dl><dt>command not found</dt><dd>Confirm you are in a normal shell on Tamlinux; <code>uname</code> is part of the core system.</dd></dl>
 <aside class="tamlinux"><p><strong>On Tamlinux:</strong> design comparisons of monolithic vs microkernel live in <a href="systems/operating-systems/kernels.html">kernels</a>. Today the rootstock kernel is Linux.</p></aside>

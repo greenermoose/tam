@@ -1591,6 +1591,19 @@ captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
 
+### 2026-11-24 — Interactive kernel sandbox pilot (corpus 0.126.1)
+
+The developer asked to change the Worked example on
+`knowledge/systems/kernel-and-processes.html` and other pages into an
+interactive sandbox where the commands can be typed. When asked, he chose a
+single-page pilot, the existing simulated `<tam-sandbox>` rather than a real
+shell, and replacement of the captured transcript rather than keeping both.
+The pilot replaces the static session with a sandbox that answers `uname -s`,
+`uname -r` and `printf '%s\n' "$$"`, with a goal, progressive hint and
+fallback. The static exercise and its sample output remain visible to pipe
+readers through `<tam-init>`, and the capture date caveat stays in the
+surrounding text. No command code, staging or installation changed.
+
 ### 2026-11-24 — Linux glossary page (corpus 0.126.0)
 
 The developer asked for a glossary page for Linux that explains its history,

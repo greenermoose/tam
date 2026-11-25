@@ -1,0 +1,65 @@
+W130 INTERACTIVE KERNEL SANDBOX PILOT
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "On page:systems/kernel-and-processes.html and other pages,
+  change the Worked example to an interactive sandbox where you can
+  type the commands interactively."
+
+  Answers to the design questions in this session:
+  - Scope: "Pilot this page first (Recommended)".
+  - Sandbox: "Existing simulated sandbox (Recommended)".
+  - Static example: "Replace it with the sandbox (Recommended)".
+
+GUIDANCE SOURCE
+
+  Direct instruction and answers from Fred in this session.
+
+DONE
+
+  - Replaced the static captured session under "Worked example" on
+    systems/kernel-and-processes.html with a <tam-sandbox>. The
+    sandbox answers `uname -s` with Linux, `uname -r` with
+    6.12.0-arch1-1, and `printf '%s\n' "$$"` and the unquoted
+    `printf '%s\n' $$` form with 12345. It has a goal, a progressive
+    hint, a fallback and a short <tam-init> line that preserves the
+    exercise and sample output for pipe readers.
+  - Adjusted "Try it" to say the `uname -r` exercise is typed in the
+    sandbox and is read-only on a real terminal. Kept the capture
+    caveat and the surrounding "What just happened" and quiz text.
+  - Set corpus to 0.126.1 and updated the roadmap, development
+    contract and work records. No command code changed.
+
+FAILED
+
+  - The first PTY attempt used repeated Down keys and timed out; the
+    attention line ran past the sandbox. A second attempt using
+    `/Sandbox: Worked example` search then Right Arrow succeeded.
+
+CHECKED AGAINST
+
+  - `make corpus` and `make corpus-and-test` pass; all 95 corpus
+    tooling unit tests pass. The nine learning warnings are the
+    pre-existing algorithms and computer-timescales ones.
+  - `make check-repo`, `git diff --check`, internal-link check
+    (0 broken links) and dfn-link check (0 bad dfn) pass.
+  - Pipe preview with TAM_KNOWLEDGE_DIR=knowledge build/tam show
+    --pipe systems/kernel-and-processes.html shows the sandbox goal
+    and the sample line.
+  - A real PTY run opened the sandbox and typed `uname -s`,
+    `printf '%s\n' "$$"` and `uname -r`. Outputs matched the rules,
+    "[x] Print the shell's process ID" and "Goal completed!" were
+    shown, and the pager exited cleanly on q.
+  - No push, install, Test, Run or Release was requested or performed.
+
+HANDOFF
+
+  - Commit W130 corpus, version and record paths on dev with
+    provenance trailers, then rerun make corpus and commit the
+    generated index follow-up.
+  - Await Fred's direction before converting other pages. No stage
+    promotion is authorised.

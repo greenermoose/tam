@@ -3,20 +3,28 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W129
+Updated: 2026-11-24, with W130
 
 STATE
 
-  Command 0.69.7 and corpus 0.125.0 are committed on dev. W129
-  adds corpus 0.126.0 and is uncommitted at this point. W128 was
+  Command 0.69.7 and corpus 0.126.0 are committed on dev. W130
+  adds corpus 0.126.1 and is uncommitted at this point. W129 was
+  committed as 72469d6, with index follow-up acc4aab; W128 was
   committed as 5317a75, with index follow-up 189ad59.
 
-  W129 adds glossary/l/linux.html with three levels: the 1991 origin
+  W130 replaces the static worked example on
+  systems/kernel-and-processes.html with the existing simulated
+  <tam-sandbox>. It answers uname -s, uname -r and the printf form
+  that prints "$$", with a goal, hint, fallback and a tam-init line
+  for pipe readers. This is the first sandbox outside the terminal
+  and shell track; no command code changed.
+
+  W129 added glossary/l/linux.html with three levels: the 1991 origin
   and GNU tools, the distribution families available today, how the
   kernel is developed by maintainers, and how the other layers of a
-  complete system are owned by projects, foundations, standards bodies
-  and individuals. It links from the distro entry and the Operating
-  Systems Reference.
+  complete system are owned by projects, foundations, standards
+  bodies and individuals. It links from the distro entry and the
+  Operating Systems Reference.
 
   W128 added a Desktop / Windowing systems hub with eight three-level
   teaching pages: history, X11, Wayland, why Linux moved from X11,
@@ -58,15 +66,18 @@ STATE
 
 NEXT
 
-  - Commit the W129 corpus, version and record paths on dev with
+  - Commit the W130 corpus, version and record paths on dev with
     provenance trailers. Only claimed paths go into this commit.
   - Rerun make corpus and commit the generated index follow-up if it
     changed; the index records each page's commit history.
-  - Await Fred's direction. No Test, Run or Release is authorised.
+  - Await Fred's direction on converting more Worked examples. No
+    Test, Run or Release is authorised.
 
 WAITING FOR FRED
 
-  - Nothing. Tamlinux 0.6.38 is already being tested.
+  - Whether to convert the other shell-session Worked examples after
+    the W130 pilot is reviewed.
+  - Nothing else. Tamlinux 0.6.38 is already being tested.
 
 WATCH OUT
 
@@ -109,6 +120,16 @@ WATCH OUT
     `python3 tools/corpus_pipeline.py check --fix-glossary`: it moves
     the page, fixes its parent and breadcrumb, rewrites inbound links
     and regenerates the hubs.
+  - Sandbox <tam-cmd match> is a literal glob string, not a shell
+    expression: it does not expand `$$` or variables. Author exact
+    output rules for those commands, and use &quot; for quotes inside
+    a double-quoted match attribute.
+  - Pipe rendering shows a sandbox's goal and <tam-init> line, not
+    its command log. Put a short static exercise in <tam-init> when a
+    pipe reader should still see the worked example.
+  - For an interactive PTY check of a sandbox deep in a page, search
+    with `/Sandbox: <title>` then press Right; repeated Down keys can
+    run the attention line past the sandbox.
   - Tamlinux's desktop plan is its own compositor, tam-pane. Sway and
     wlroots are peer projects or technical examples, not targets.
   - Tamlinux's host/rootstock/bud/scion/cultivar/fruit naming is a
@@ -118,7 +139,7 @@ WATCH OUT
   - Fold notices are transient st->msg text: a movement key clears
     them only when the key did not write a new notice, so reveal-all
     still reports its count.
-  - Command and corpus versions are independent; W129 is corpus only.
+  - Command and corpus versions are independent; W130 is corpus only.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.
