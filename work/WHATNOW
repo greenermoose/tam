@@ -3,77 +3,35 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-25, with W131
+Updated: 2026-11-25, with W133
 
 STATE
 
-  Command 0.69.7 and corpus 0.126.1 are committed on dev. W131
-  adds corpus 0.127.0 and is uncommitted at this point. W130 was
-  committed as 6efb737, with index follow-up 64ba4c5; W129 was
-  committed as 72469d6, with index follow-up acc4aab.
+  Command 0.69.7 and corpus 0.128.0 are on dev. W131 added kernel
+  lifecycle and interrupt lessons. W132 reviewed the six corpus batches:
+  229 pages now have interactive sandboxes, and every sandbox page has
+  novice, learner and expert sections. The seven longest opening
+  paragraphs were shortened.
 
-  W131 expands systems/kernel-and-processes.html with kernel startup
-  through firmware, bootloader and init, shutdown through init to the
-  kernel power action, and the event loop with scheduler handoff. It
-  adds an Interrupts hub with two three-level teaching pages and an
-  interrupt glossary entry, and revises the sandbox to teach uptime,
-  shell PID and interrupt counts instead of uname commands. Stale
-  capture-era text was removed.
+  The sandboxes use simulated files where possible and fixed, explicitly
+  labelled sample output for commands they cannot run. Twenty-one Expert
+  command sessions moved into Learner sandboxes; the keyboard-to-kernel
+  diagram remains a conceptual explanation. The pedagogy and style guides
+  describe the sandbox contract. W133 records the continuation and checks.
 
-  W130 replaced the static worked example on
-  systems/kernel-and-processes.html with the existing simulated
-  <tam-sandbox>, first teaching uname and the shell PID. W129 added a
-  Linux glossary entry on its history, distributions, kernel
-  development and the layers of a complete system. W128 added a
-  Desktop / Windowing systems hub with eight three-level teaching
-  pages, a four-stage goal path, 25 glossary pages and nine
-  bibliography entries.
-
-  W127 extends the status-line fix to fold notices: `Quiz 1/2 revealed`
-  and similar transient messages are cleared when the attention line,
-  selection or page changes, unless the key being handled wrote a
-  fresh notice. Expanding an answer or showing an aside no longer
-  leaves a stale notice behind.
-
-  W126 made the pager status line follow the attention line: `Path = ...`
-  is cleared as soon as the cursor, selection or page changes, and a
-  selected link's destination in the status row uses the same
-  bold/reverse styling and visible background as the highlighted link.
-
-  W125 removed everything above the topic table on tam:topics: the
-  `Topics A to Z` heading and the instructions paragraph are gone. The
-  view opens with the breadcrumb, line Lb and the `Topic` / `Covers`
-  table header. W124 changed tam:paths to open with the breadcrumb, Lb
-  and `Choose your own learning adventure`. W123 changed tam:hubs to
-  open with the breadcrumb, a closed first-time aside and the Using
-  your system group. W122 made line Lb appear on every depth-prepared
-  Guide page; W121 rewrote the welcome page and removed the 1,442 body
-  headings that repeated breadcrumbs across the non-root corpus.
-  TCK32 is minted with four children; next free checklist ID is TCK33.
-
-  Generated views built with tam_page_render() do not go through
-  tam_depth_prepare(), so hubs, paths and topics supply their own
-  opening explicitly (fold renderer for hubs, tam_level_lines() for
-  paths and topics).
-
-  make command, make test-command, make corpus, make corpus-and-test
-  and make check-repo all pass. The nine learning warnings are
-  pre-existing algorithms and computer-timescales ones.
+  The W132 slice was checked with a corpus-wide structure scan and
+  git diff --check. No test suite or build was run in this slice.
+  No command code or Tamlinux stage was changed.
 
 NEXT
 
-  - Commit the W131 corpus, version and record paths on dev with
-    provenance trailers. Only claimed paths go into this commit.
-  - Rerun make corpus and commit the generated index follow-up if it
-    changed; the index records each page's commit history.
-  - Await Fred's direction on converting other Worked examples. No
-    Test, Run or Release is authorised.
+  - Wait for Fred's next direction on tam content. There is no open W132
+    follow-up. No Test, Run or Release is authorised.
 
 WAITING FOR FRED
 
-  - Whether to convert the other shell-session Worked examples after
-    the W130/W131 pilot is reviewed.
-  - Nothing else. Tamlinux 0.6.38 is already being tested.
+  - Fred's next direction. Tamlinux 0.6.38 remains in Test; this corpus
+    change does not move that candidate.
 
 WATCH OUT
 
