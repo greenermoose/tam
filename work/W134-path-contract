@@ -1,0 +1,37 @@
+W134 RESTORE GOAL-PATH STRUCTURE
+
+Date: 2026-11-25
+AI harness: Codex CLI 0.172.0
+AI model: gpt-6-luna
+Commits: 16b4599
+Continues: W133-complete-corpus-sandboxes
+
+GUIDANCE
+
+  Fred: "Find and fix the root cause of this bug:"
+
+DONE
+
+  - W132 moved the stage headings and page links in twelve paths into
+    Expert, left their checkpoint quizzes in Learner, and removed the
+    capstone headings and folded solutions. The path validator then
+    found no quiz within each numbered stage and no capstone.
+  - Restored the original stage and capstone structure in Learner for
+    all twelve affected paths. Recovered command transcripts are now
+    simulated sandboxes; stage quizzes and folded solutions are back.
+  - Bumped the corpus to 0.128.1 and updated the roadmap and decision
+    record.
+  - `make corpus` passed for 1,493 pages after parsing 152 changed
+    pages. A post-commit run reused the validated cache and refreshed the
+    indexes. One non-blocking learning-anatomy warning remains for
+    `hardware/foundations/computer-timescales.html`. `git diff --check`
+    passed. No test suite or install was run.
+
+FAILED
+
+  Nothing.
+
+HANDOFF
+
+  The goal-path contract is restored on dev. Wait for Fred's next
+  direction. Test, Run and Release remain separate instructions.
