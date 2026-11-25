@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>From first query to very large data sets</title>
+<meta name="kind" content="path">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="databases">
+<meta name="summary" content="Start with no data background and finish able to choose, query and justify a storage system for a real workload">
+<meta name="keywords" content="path, databases, data storage, sql, sqlite, postgresql, mysql, indexeddb, graphql, big data">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / From first query to very large data sets</p></nav>
+
+<p>This path takes a reader who has never designed a database from the idea of saved records to choosing between an embedded engine, a server database, a browser store and a distributed data system.</p>
+<p>Every stage names the lens to read with. The examples live in teaching sandboxes; this path installs no database software and asks you to change nothing on your own machine.</p>
+
+<h2>Stage 1: See why stored data needs a system</h2>
+<ol>
+<li><a href="programming/databases/why-databases.html?level=1">Why databases exist</a> &mdash; understand what a database keeps and what a plain file cannot do for you.</li>
+<li><a href="programming/databases/relational-model-and-sql.html?level=1">The relational model and SQL</a> &mdash; meet tables, rows, keys and questions written in SQL.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Why not keep every application record in one hand-written file?</summary>
+<p>A file has no schema enforcement, safe concurrent updates or indexed lookup. As records and readers grow, an application must rebuild all three by hand; a database supplies them as its job.</p>
+</details>
+</section>
+
+<h2>Stage 2: Ask questions and keep changes safe</h2>
+<ol>
+<li><a href="programming/databases/relational-model-and-sql.html?level=2">The relational model and SQL</a> &mdash; read a join, then write a SELECT with a filter.</li>
+<li><a href="programming/databases/indexes-transactions-and-storage.html?level=2">Indexes, transactions and storage</a> &mdash; see how lookup aids and transactions change the cost of a query.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>An index makes a read fast. What is the price?</summary>
+<p>Extra storage and extra work on every write, because the index must stay in step with the table. A query plan shows whether the gain is worth it for a particular query.</p>
+</details>
+</section>
+
+<h2>Stage 3: Compare an embedded engine with a server</h2>
+<ol>
+<li><a href="programming/databases/sqlite.html?level=2">SQLite</a> &mdash; work through a local, single-file database and note where locking applies.</li>
+<li><a href="programming/databases/postgresql.html?level=2">PostgreSQL</a> &mdash; compare roles, schemas and client/server operation with the embedded case.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>When is SQLite the better fit, and when do you need a server?</summary>
+<p>SQLite fits a local application, a test or a small site with one writer. A server fits concurrent writers, shared access, central backups and role-based administration.</p>
+</details>
+</section>
+
+<h2>Stage 4: Widen the choice beyond relational tables</h2>
+<ol>
+<li><a href="programming/databases/mysql.html?level=2">MySQL and InnoDB</a> &mdash; inspect another server engine and its clustered primary-key storage.</li>
+<li><a href="programming/databases/non-sql-databases.html?level=2">Non-SQL databases</a> &mdash; classify document, key-value, column-family and graph stores by access pattern.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>What question helps you choose a non-relational store?</summary>
+<p>Start with how the application will read and write data. Embedded documents suit whole-record access, key-value suits direct lookup, wide columns suit partition-local scale and graphs suit traversals.</p>
+</details>
+</section>
+
+<h2>Stage 5: Put data at the edge and at scale</h2>
+<ol>
+<li><a href="programming/databases/indexeddb.html?level=2">IndexedDB</a> &mdash; see transactional browser storage for offline work.</li>
+<li><a href="programming/databases/graphql.html?level=2">GraphQL</a> &mdash; separate an API contract from the store that answers it.</li>
+<li><a href="programming/databases/very-large-data-sets.html?level=3">Very large data sets</a> &mdash; follow partitioning, columnar files, batch and streams beyond one machine.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Is IndexedDB a replacement for a shared server database?</summary>
+<p>No. It belongs to one browser profile on one device. A server database is shared, authorized and backed up centrally; IndexedDB supports an offline or local-first client.</p>
+</details>
+</section>
+
+<h2>Capstone</h2>
+<p>Design storage for a small reading app that lets a person save bookmarks offline, sync them later and produce a monthly report of the most-read topics. Work on paper or in a scratch file; do not install a database.</p>
+<details class="solution">
+<p>One sound answer: keep browser records in IndexedDB with an object store keyed by bookmark ID and an index on topic, so offline edits remain transactional. Sync through a server API (a GraphQL contract is fine) into PostgreSQL, using a transaction for each batch and a topic index for the report. If the report grows beyond a single database, write raw events to Parquet in an object store and run a batch summary with Spark; use a stream only if the app needs answers within seconds. State which trade-off you are making: local availability, transactional safety, analytical scan cost or operational simplicity. The result is a design, not a claim that one product always wins.</p>
+</details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/web-development.html">From first page to full-stack web developer</a> &mdash; put an API and a store behind a browser application.</li>
+<li><a href="paths/algorithm-analysis.html">Analyzing algorithms</a> &mdash; reason about the cost of a query plan or a distributed join.</li>
+</ul>
+</body>
+</html>

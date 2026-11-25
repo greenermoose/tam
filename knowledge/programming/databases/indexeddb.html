@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>IndexedDB</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="indexeddb">
+<meta name="summary" content="IndexedDB is a browser object store with keys, indexes and transactions, used by web apps that work offline.">
+<meta name="keywords" content="IndexedDB, browser storage, object store, key path, index, transaction, version, asynchronous request, promise, offline web app">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/databases/index.html">
+<meta name="prereqs" content="non-sql-databases">
+<meta name="paths" content="databases:8">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / IndexedDB</p></nav>
+
+<p>A web browser can keep structured data on the device it runs on. <a href="glossary/i/indexeddb.html">IndexedDB</a> is the browser's own <a href="glossary/d/database.html">database</a>, designed for web apps that must work without a network.</p>
+
+<section data-level="novice">
+<h2>Storage inside the browser</h2>
+<p><dfn><a href="glossary/i/indexeddb.html">IndexedDB</a></dfn> keeps records in named object stores. Each record has a key, like a label on a box. An <a href="glossary/d/database-index.html">index</a> helps find records by another field. A version number describes the layout, and a <a href="glossary/t/transaction.html">transaction</a> groups changes so they finish together or not at all.</p>
+<h3>Why it matters</h3>
+<p>A web app that stores its notes, drafts or cached lists in the browser can open again without a connection. The data stays on that device, for that site only.</p>
+<h3>How to think about it</h3>
+<p>Imagine a small filing cabinet beside your own desk. You can add and find your own cards without asking anybody, but somebody on another computer cannot see them. That is useful for offline work and not a substitute for a shared server.</p>
+<h3>New words</h3>
+<dl>
+<dt>IndexedDB</dt><dd>The browser's local database: <a href="glossary/i/indexeddb.html">IndexedDB</a>.</dd>
+<dt>Object store</dt><dd>A named place inside the database that holds records; it resembles a <a href="glossary/k/key-value-database.html">key-value database</a>.</dd>
+<dt>Index</dt><dd>A helper that lets the browser find records by a field: <a href="glossary/d/database-index.html">database index</a>.</dd>
+<dt>Transaction</dt><dd>A group of changes treated as one unit: <a href="glossary/t/transaction.html">transaction</a>.</dd>
+<dt>Promise</dt><dd>An object representing a result that arrives later: <a href="glossary/p/promise.html">promise</a>.</dd>
+<dt>JSON</dt><dd>The text format many web records resemble: <a href="glossary/j/json.html">JSON</a>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read a small storage script</h2>
+<p><strong>Goal:</strong> you will be able to read a short IndexedDB script and explain its sample transcript.</p>
+<tam-sandbox
+  title="Try it: read an IndexedDB script"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="files"
+  goal="Show the sample request result">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="app.js" size="244">const req = indexedDB.open('notes', 1);
+req.onupgradeneeded = () =&gt; {
+  const db = req.result;
+  db.createObjectStore('notes', { keyPath: 'id' });
+};
+req.onsuccess = () =&gt; {
+  const db = req.result;
+  const tx = db.transaction('notes', 'readwrite');
+  tx.objectStore('notes').put({ id: 1, text: 'Offline note' });
+};</file>
+      <file name="result.txt" size="41">Request result: database=notes store=notes key=1</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat app.js" hint="The version is 1, so an upgrade handler creates the store.">
+      <out>const req = indexedDB.open('notes', 1);</out>
+      <out>req.onupgradeneeded = () =&gt; {</out>
+      <out>  const db = req.result;</out>
+      <out>  db.createObjectStore('notes', { keyPath: 'id' });</out>
+      <out>};</out>
+      <out>req.onsuccess = () =&gt; {</out>
+      <out>  const db = req.result;</out>
+      <out>  const tx = db.transaction('notes', 'readwrite');</out>
+      <out>  tx.objectStore('notes').put({ id: 1, text: 'Offline note' });</out>
+      <out>};</out>
+    </tam-cmd>
+    <tam-cmd match="grep createObjectStore app.js" hint="keyPath names the field used as the key.">
+      <out>  db.createObjectStore('notes', { keyPath: 'id' });</out>
+    </tam-cmd>
+    <tam-cmd match="cat result.txt" goal="true" hint="Correct: the sample put used id 1.">
+      <out>Request result: database=notes store=notes key=1</out>
+    </tam-cmd>
+  <tam-init>Try: cat app.js, then grep createObjectStore app.js</tam-init>
+  <tam-hint after="1">Type cat app.js to see the sample script.</tam-hint>
+  <tam-hint after="2">Type cat result.txt for the sample request result.</tam-hint>
+  <tam-fallback>Try cat app.js, grep createObjectStore app.js, or cat result.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p><code>result.txt</code> is a scripted sample transcript, not a browser run and not a measurement from your machine; no browser or database software was started. The script asks to open a database at version 1. The upgrade handler creates an object store whose <code>keyPath</code> takes the key from the <code>id</code> field. A read-write <a href="glossary/t/transaction.html">transaction</a> then puts one record. IndexedDB requests are asynchronous: handlers run after the request completes, and web code often wraps them in a <a href="glossary/p/promise.html">promise</a>.</p>
+<h3>Try it</h3>
+<p>Run <code>grep keyPath app.js</code> and predict what would happen if the script opened version 2 while keeping the same store: the upgrade handler would run again, and creating that store a second time would fail. A browser stores this data only for its own origin, not for a server.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The sandbox did not run the JavaScript.</dt><dd>It reads sample files only. These pages install no database software and open no browser.</dd>
+<dt>I expected this data on another device.</dt><dd>IndexedDB is local to one browser profile and site. A server <a href="glossary/d/database.html">database</a> is needed for shared data.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>Why is a version number needed?</i></summary>
+<p>Browsers create or change object stores only during an upgrade. Raising the version tells the browser to run that upgrade once, rather than on every open.</p>
+</details>
+<details class="q">
+<summary><i>Is IndexedDB a replacement for a server database?</i></summary>
+<p>No. It is local to one browser and device, with storage limits and no shared authority. It helps an app work offline, but shared or durable business data still belongs on a server.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: IndexedDB semantics</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Concept</th><th>Precise meaning</th></tr>
+<tr><td>Database and version</td><td>Named container; an integer version controls structural change</td></tr>
+<tr><td>Object store</td><td>Named collection of records inside one database</td></tr>
+<tr><td>Key path</td><td>Field name the browser reads to obtain a record's key</td></tr>
+<tr><td>Index</td><td>Secondary lookup over a named field; may allow duplicate keys</td></tr>
+<tr><td>Transaction</td><td>Scoped to named stores; commits when its requests finish</td></tr>
+<tr><td>Request</td><td>Asynchronous operation with success and error events</td></tr>
+<tr><td>Cursor</td><td>Iterator over records in key order</td></tr>
+<tr><td>Quota</td><td>Storage limit set by the browser for that origin</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Opening with a higher version starts a versionchange transaction; that is the only place to create or delete object stores and indexes. A key path extracts the key from a stored value, while a key generator can supply one instead. A transaction lists the stores it touches and stays alive only while requests are pending; at an event-loop boundary with nothing outstanding it commits automatically. Requests are ordered within a transaction, and cursors walk records in key order. Values are stored with the structured clone algorithm, so plain data objects work but functions and live DOM nodes do not.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>An open connection in another tab can block a version upgrade until it closes.</li>
+<li>A transaction used after it auto-commits raises an error; start a new one for later work.</li>
+<li>Private browsing may discard the data when the session ends.</li>
+<li>Quota exhaustion fails writes; handle the error rather than assuming unlimited space.</li>
+<li>Concurrent tabs can observe version changes made by one another.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why must new object stores be created in an upgrade transaction?</summary>
+<p>The version acts as a one-time signal that the schema changed. Confining structural changes there prevents two tabs from reshaping the same stores independently.</p>
+</details>
+<details class="q open">
+<summary>What breaks if you await unrelated work inside an open transaction?</summary>
+<p>With no pending IndexedDB requests, the transaction auto-commits. The later request then fails because its transaction is already finished; queue the work as requests instead.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="programming/databases/non-sql-databases.html">Non-SQL databases</a> for the wider families; <a href="programming/databases/graphql.html">GraphQL</a> for the server-side contract a web app may call; <a href="paths/databases.html">the databases path</a>. Primary reference: <cite data-ref="mdn-indexeddb"><a href="bibliography/mdn-indexeddb.html">MDN IndexedDB documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/databases/non-sql-databases.html">Non-SQL databases</a> &mdash; place this store among the four families.</li>
+<li><a href="programming/databases/graphql.html">GraphQL</a> &mdash; see how a web app asks a server for data.</li>
+<li><a href="paths/databases.html">Databases path</a> &mdash; follow the series in order.</li>
+</ul>
+</body>
+</html>

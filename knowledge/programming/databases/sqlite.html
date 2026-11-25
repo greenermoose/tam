@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SQLite</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="sqlite">
+<meta name="summary" content="SQLite is a file-backed relational engine embedded in an application, with no separate server to run.">
+<meta name="keywords" content="SQLite, embedded database, file-backed database, WAL, journal mode, page cache, locking, SQL">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/databases/index.html">
+<meta name="prereqs" content="database-indexes-transactions">
+<meta name="paths" content="databases:4">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / SQLite</p></nav>
+
+<p>SQLite is a database that lives inside your program rather than in a separate server. The whole database is one file, which makes it easy to carry, copy and test.</p>
+
+<section data-level="novice">
+<h2>A database in a file</h2>
+<p>With SQLite, the program reads and writes a <dfn><a href="glossary/f/file.html">file</a></dfn> directly. There is no database server to start, and no network address to configure. The file still holds <a href="glossary/t/table.html">tables</a> of <a href="glossary/r/row.html">rows</a>, and you still use <a href="glossary/s/sql.html">SQL</a> to ask questions.</p>
+<h3>Why it matters</h3>
+<p>For a phone app, a test suite or a small tool on your own machine, a single file is simple to ship and simple to back up. You can copy the file to another computer and the data goes with it.</p>
+<h3>How to think about it</h3>
+<p>Think of a notebook that each program can open and edit itself, rather than a library with a desk and a librarian. That is convenient for one worker; many workers writing at once need rules, and SQLite has a lock so only one writer proceeds at a time.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/d/database.html">Database</a></dt><dd>An organised collection of facts.</dd>
+<dt><a href="glossary/f/file.html">File</a></dt><dd>The single stored object that holds an SQLite database.</dd>
+<dt><a href="glossary/d/database-management-system.html">Embedded engine</a></dt><dd>Database code linked into the application instead of a separate service.</dd>
+<dt><a href="glossary/c/commit.html">Commit</a></dt><dd>The step that makes a group of changes final.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect a one-file database</h2>
+<p><strong>Goal:</strong> you will be able to describe what an application gets from a file-backed database and read a sorted sample result.</p>
+<tam-sandbox
+  title="Try it: list a sample database file and its tables"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="files"
+  goal="Name the earliest title in the sample book list">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="library.db" size="24">SQLite format 3 sample (scripted)</file>
+      <file name="notes.md" size="40">Local notes about the sample library.</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="ls" hint="The database is one file beside an ordinary note.">
+      <out>library.db</out>
+      <out>notes.md</out>
+    </tam-cmd>
+    <tam-cmd match="sqlite3 library.db &quot;.tables&quot;" hint="The sample lists the tables stored in that one file.">
+      <out>books     members</out>
+    </tam-cmd>
+    <tam-cmd match="sqlite3 library.db &quot;SELECT title, year FROM books ORDER BY year;&quot;" goal="true" hint="ORDER BY places the earliest year first.">
+      <out>Atlas|1999</out>
+      <out>Night shapes|2001</out>
+      <out>Mapping the coast|2004</out>
+    </tam-cmd>
+  <tam-init>Try: ls, then the two sample sqlite3 commands</tam-init>
+  <tam-hint after="1">Only one file holds the database; notes.md is just a note.</tam-hint>
+  <tam-hint after="2">The scripted query sorts all sample rows by year, ascending.</tam-hint>
+  <tam-fallback>Try ls, cat notes.md, or either sample sqlite3 command (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p><code>ls</code> really listed the sandbox files. The two <code>sqlite3</code> results are a sample teaching simulation: the sandbox installs no database software, and their output is authored, not a measurement from your machine. In a real application, the engine links into the program and opens <code>library.db</code> itself; no server process starts and no socket is used. <code>ORDER BY year</code> explains why the earliest title comes first.</p>
+<h3>Try it</h3>
+<p>Type <code>cat notes.md</code>. The note is ordinary text beside the database file, which shows the practical difference between an unstructured note and structured tables. Then predict the first row if the order were descending.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>sqlite3</code> is not installed here.</dt><dd>The sandbox does not need it. Only the exact sample commands are scripted; this series installs nothing.</dd>
+<dt>The table list looked too short.</dt><dd>The sample file holds two tables. A real database can hold many more; the fixture is deliberately small.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>Why is SQLite a good fit for tests?</i></summary>
+<p>A test can create a private database file, run SQL against the same engine the application uses, then discard the file. There is no server to configure or reset between runs.</p>
+</details>
+<details class="q">
+<summary><i>What is the main limit of the one-file design?</i></summary>
+<p>Only one writer can hold the write lock at a time. Several programs can read together, but heavy concurrent writing belongs in a client/server engine.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: SQLite internals</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Topic</th><th>Behaviour</th><th>Note</th></tr>
+<tr><td>File format</td><td>One database image in a single file</td><td>Pages hold tables, indexes and metadata</td></tr>
+<tr><td>Page cache</td><td>Pages kept in process memory</td><td>Reduces reads; dirtied pages are flushed later</td></tr>
+<tr><td>Journal mode</td><td>Rollback journal or write-ahead log</td><td>Defines how crash recovery finds changes</td></tr>
+<tr><td>Locking</td><td>One writer at a time</td><td>Readers may share access, depending on mode</td></tr>
+<tr><td>Types</td><td>Dynamic typing with column affinity</td><td>Values carry their own storage class</td></tr>
+<tr><td>Limits</td><td>Very large files in practice, modest concurrency</td><td>Embedded scope, not a network service</td></tr>
+</table>
+<h3>How it works</h3>
+<p>SQLite is a library linked into the application. A statement is compiled into a bytecode program that the virtual machine runs against pages from the database file. The page cache holds those pages; the journal or write-ahead log records enough information to finish or undo a <a href="glossary/c/commit.html">commit</a> after a crash. Locking coordinates processes that open the same file. Because the engine shares the application's process, there is no separate server, no authentication layer of its own and no network protocol.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Long-lived write locks make other writers wait; use short transactions and a busy timeout.</li>
+<li>A database on a network filesystem may not honour locking semantics reliably; keep the file on a local filesystem.</li>
+<li>Without a primary key, row identity depends on the internal rowid, which can change if rows are reorganised.</li>
+<li>Backing up a live file needs the engine's backup API or a consistent snapshot, not a blind copy during writes.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>An application writes heavily from several threads. Why might SQLite be the wrong tool?</summary>
+<p>Writes serialise on a single lock, so throughput will not scale with threads. A client/server engine with row-level concurrency is a better fit; SQLite still suits per-thread private files or mostly-read workloads.</p>
+</details>
+<details class="q open">
+<summary>Why does copying a database file while writes are active need care?</summary>
+<p>The bytes may represent a moment midway through a commit. SQLite's backup interface takes a consistent copy under its own locks, which a raw file copy cannot guarantee.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>Compare with <a href="programming/databases/indexes-transactions-and-storage.html">Indexes, transactions and storage</a> and the next step, <a href="programming/databases/postgresql.html">PostgreSQL</a>. See <a href="glossary/f/file.html">file</a> and <a href="glossary/d/database-index.html">database index</a>. <cite data-ref="sqlite-docs"><a href="bibliography/sqlite-docs.html">SQLite documentation</a></cite> is the primary reference for the file format, pragmas and limits.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/databases/indexes-transactions-and-storage.html">Indexes, transactions and storage</a> &mdash; review the mechanisms SQLite uses.</li>
+<li><a href="programming/databases/postgresql.html">PostgreSQL</a> &mdash; move to a client/server engine when sharing grows.</li>
+<li><a href="paths/databases.html">Databases path</a> &mdash; see where this page sits in the series.</li>
+</ul>
+</body>
+</html>

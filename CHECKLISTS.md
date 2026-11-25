@@ -11,7 +11,7 @@ procedure and design.
 ## Rules
 
 - Mint top-level IDs in sequence (`TCK1`, `TCK2`, ...) across all plans; never
-  restart per plan, reuse or renumber an ID. **Next free: TCK32.** Update this
+  restart per plan, reuse or renumber an ID. **Next free: TCK34.** Update this
   counter and add the item to this file in the same change that adds a new
   top-level item.
 - Mint IDs only while holding a `tam-work` claim on this file and the plan
@@ -83,6 +83,10 @@ labels.
 | `TCK31.1` | Web development pages | [javascript-web-development-curriculum.md](docs/plans/javascript-web-development-curriculum.md) | Completed (2026-11-24) | Hub and ten level-tagged pages with steps 1–10 |
 | `TCK31.2` | Web path and supporting corpus | [javascript-web-development-curriculum.md](docs/plans/javascript-web-development-curriculum.md) | Completed (2026-11-24) | Goal path, thirty glossary pages, five sources, hub links and `web.*` skills |
 | `TCK31.3` | Web bookkeeping and verification | [javascript-web-development-curriculum.md](docs/plans/javascript-web-development-curriculum.md) | Completed (2026-11-24) | Corpus 0.123.0 records; corpus, repository and reader checks |
+| `TCK33` | Databases and data storage curriculum | [database-systems-curriculum.md](docs/plans/database-systems-curriculum.md) | Completed (2026-11-25) | Corpus 0.129.0; hub, ten pages, path, glossary, sources and skills |
+| `TCK33.1` | Databases hub and teaching pages | [database-systems-curriculum.md](docs/plans/database-systems-curriculum.md) | Completed (2026-11-25) | Hub and ten level-tagged pages with path steps 1–10 |
+| `TCK33.2` | Databases path and supporting corpus | [database-systems-curriculum.md](docs/plans/database-systems-curriculum.md) | Completed (2026-11-25) | Five-stage goal path, thirty glossary pages, twelve sources, `data.*` skills |
+| `TCK33.3` | Databases bookkeeping and verification | [database-systems-curriculum.md](docs/plans/database-systems-curriculum.md) | Completed (2026-11-25) | Corpus 0.129.0 records; corpus, repository and reader checks |
 
 ### Knowledge system (corpus 0.31.0)
 

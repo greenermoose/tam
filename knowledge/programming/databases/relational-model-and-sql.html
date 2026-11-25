@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The relational model and SQL</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="relational-model-sql">
+<meta name="summary" content="Learn how tables, rows and keys form the relational model, and how SQL asks questions of them.">
+<meta name="keywords" content="relational model, SQL, table, row, column, schema, primary key, foreign key, join, SELECT, injection">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/databases/index.html">
+<meta name="prereqs" content="databases-why">
+<meta name="paths" content="databases:2">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / The relational model and SQL</p></nav>
+
+<p>Many programs keep facts in tables: one list of members, another list of loans. SQL is the language used to ask questions of those tables and to change the facts they hold.</p>
+
+<section data-level="novice">
+<h2>Tables of facts</h2>
+<p>A <dfn><a href="glossary/t/table.html">table</a></dfn> holds <dfn><a href="glossary/r/row.html">rows</a></dfn>, one for each item, and <dfn><a href="glossary/c/column.html">columns</a></dfn>, one for each kind of fact. The <dfn><a href="glossary/s/schema.html">schema</a></dfn> says what the columns are called and what kind of value each may hold.</p>
+<h3>Why it matters</h3>
+<p>Names and shapes make questions precise. If every member row has an id and a name, you can ask for one member by id without guessing which word in a paragraph is the name.</p>
+<h3>How to think about it</h3>
+<p>Imagine a spreadsheet with a strict rule: every column keeps the same kind of value on every row. A <dfn><a href="glossary/p/primary-key.html">primary key</a></dfn> is like a student number that identifies one row. A <dfn><a href="glossary/f/foreign-key.html">foreign key</a></dfn> points to a row in another table, so a loan can say which member made it.</p>
+<p>A join brings rows from two tables together using a shared value. SQL describes the rows you want; the database works out how to fetch them.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/s/sql.html">SQL</a></dt><dd>The language for asking for and changing table data.</dd>
+<dt><a href="glossary/p/primary-key.html">Primary key</a></dt><dd>A value that identifies one row.</dd>
+<dt><a href="glossary/f/foreign-key.html">Foreign key</a></dt><dd>A value that refers to a row elsewhere.</dd>
+<dt><a href="glossary/s/sql-injection.html">SQL injection</a></dt><dd>A mistake that lets untrusted text become part of a query.</dd>
+</dl>
+</section>
+<section data-level="learner">
+<h2>Read a query and its result</h2>
+<p><strong>Goal:</strong> you will be able to read a small SQL join and say which rows it selects.</p>
+<tam-sandbox
+  title="Try it: follow a join from ids to names"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="files"
+  goal="Name the book checked out by Ada in the sample output">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="members.csv" size="28">id,name
+1,Ada
+2,Bo</file>
+      <file name="checkouts.csv" size="52">member_id,title
+1,Mapping the coast
+2,Night shapes</file>
+      <file name="query.sql" size="118">SELECT m.name, c.title FROM members AS m
+JOIN checkouts AS c ON c.member_id = m.id
+WHERE m.name = 'Ada';</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat members.csv" hint="Each row has an id and a name.">
+      <out>id,name</out>
+      <out>1,Ada</out>
+      <out>2,Bo</out>
+    </tam-cmd>
+    <tam-cmd match="grep 1 checkouts.csv" hint="The checkout row with member_id 1 belongs to Ada.">
+      <out>1,Mapping the coast</out>
+    </tam-cmd>
+    <tam-cmd match="sqlite3 club.db &lt; query.sql" goal="true" hint="The scripted result joins the two files on the id.">
+      <out>Ada|Mapping the coast</out>
+    </tam-cmd>
+  <tam-init>Try: cat members.csv, then grep 1 checkouts.csv</tam-init>
+  <tam-hint after="1">The checkout file stores an id, not a name.</tam-hint>
+  <tam-hint after="2">The sample sqlite3 command runs query.sql as if it were a real database.</tam-hint>
+  <tam-fallback>Try cat members.csv, grep 1 checkouts.csv, or the sample sqlite3 command (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The <code>JOIN</code> matched <code>m.id</code> with <code>c.member_id</code>, then <code>WHERE</code> kept only Ada. The <code>sqlite3</code> result is a sample teaching simulation: the sandbox installs no database software, and the row shown is authored output, not a measurement from your machine. Notice that you described the result rather than the steps to find it; that is what makes SQL declarative.</p>
+<h3>Try it</h3>
+<p>Use <code>grep 2 checkouts.csv</code> and predict which title belongs to Bo. The join would pair that row with the member whose id is 2, without changing either file.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>grep 2</code> matched more than one line.</dt><dd>The digit appears wherever it occurs in the sample text. Check which field holds the member id.</dd>
+<dt>The <code>sqlite3</code> command printed nothing.</dt><dd>Only the exact sample command is scripted. The sandbox has no SQL engine and no real club database.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>What is the difference between a primary key and a foreign key?</i></summary>
+<p>A primary key identifies a row inside its own table. A foreign key is a value in one table that refers to a key in another table, which is how a join finds the matching row.</p>
+</details>
+<details class="q">
+<summary><i>Why do we call SQL declarative?</i></summary>
+<p>You state which rows you want, not the loop or lookup steps to obtain them. The database plans the access, so the same question can use an index or a scan without the query changing.</p>
+</details>
+</section>
+</section>
+<section data-level="expert">
+<h2>Reference: relational terms and SELECT</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Term</th><th>Meaning</th><th>Note</th></tr>
+<tr><td>Relation</td><td>A named table of rows and columns</td><td>Rows have no inherent order in the model</td></tr>
+<tr><td>Tuple / attribute</td><td>One row / one column</td><td>The tuple's values follow the schema</td></tr>
+<tr><td><a href="glossary/p/primary-key.html">Primary key</a></td><td>Identifies one row</td><td>Unique; SQL engines normally reject null keys</td></tr>
+<tr><td><a href="glossary/f/foreign-key.html">Foreign key</a></td><td>Refers to a key in another table</td><td>Engines may enforce the reference on writes</td></tr>
+<tr><td><a href="glossary/n/normalization.html">Normalization</a></td><td>Organising columns to avoid repeated facts</td><td>Trades duplication for more joins</td></tr>
+<tr><td>SELECT</td><td>Reads rows</td><td>Returns a new result, leaving tables unchanged</td></tr>
+<tr><td>INSERT / UPDATE / DELETE</td><td>Add, change or remove rows</td><td>A missing WHERE can affect every row</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A query is parsed into a plan. Conceptually, <code>FROM</code> and <code>JOIN</code> choose source rows, <code>WHERE</code> filters them, <code>GROUP BY</code> and <code>HAVING</code> aggregate groups, the select list forms output columns, and <code>ORDER BY</code> and <code>LIMIT</code> shape the result. Optimisers may reorder these steps when the result stays the same. SQL is a <a href="glossary/a/api.html">language interface</a> to the engine: the statement says what to return, while the engine decides how to read it.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><code>NULL</code> means unknown, not zero or empty text. <code>col = NULL</code> is not true; use <code>IS NULL</code>.</li>
+<li>Without <code>ORDER BY</code>, result order is not guaranteed even when rows look sorted today.</li>
+<li>An inner join drops rows with no match; an outer join keeps them with null columns on the missing side.</li>
+<li><a href="glossary/s/sql-injection.html">SQL injection</a> happens when untrusted text is concatenated into a statement. Use bound parameters instead.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A join returned more rows than the member table contained. What is the likely cause?</summary>
+<p>A one-to-many relationship: one member can have several checkouts, so each matching checkout produces a row. Check the key on the many side and add a filter or aggregation if you wanted one row per member.</p>
+</details>
+<details class="q open">
+<summary>Why should a query with user input use bound parameters?</summary>
+<p>Binding keeps the input as a value, so characters such as quotes cannot change the statement's structure. Concatenating text lets an attacker feed SQL syntax to the parser, which is the injection failure.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>Follow <a href="programming/databases/why-databases.html">Why databases exist</a> for the motivation and <a href="programming/databases/indexes-transactions-and-storage.html">Indexes, transactions and storage</a> for how a query is carried out. See the <a href="glossary/s/sql.html">SQL</a> definition, then <cite data-ref="sqlite-docs"><a href="bibliography/sqlite-docs.html">SQLite documentation</a></cite> and <cite data-ref="postgresql-docs"><a href="bibliography/postgresql-docs.html">PostgreSQL documentation</a></cite> for the language references.</p>
+</section>
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/databases/why-databases.html">Why databases exist</a> &mdash; revisit why structure matters.</li>
+<li><a href="programming/databases/indexes-transactions-and-storage.html">Indexes, transactions and storage</a> &mdash; learn what happens after you submit a query.</li>
+<li><a href="paths/databases.html">Databases path</a> &mdash; continue the guided series.</li>
+</ul>
+</body>
+</html>

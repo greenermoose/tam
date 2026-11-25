@@ -3,24 +3,27 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-25, with W136
+Updated: 2026-11-25, with W137
 
 STATE
 
-  Command 0.69.7 and corpus 0.128.3 are on dev, including W136's checker,
-  page and welcome test fixes. Uncached corpus checks pass for all 1,493
-  pages, and all 96 corpus tooling tests pass. The full suite passes
-  the welcome checks and stops at the tam command page's Makefile
-  targets wording assertion. The welcome rewrite is pending for 0.128.4.
+  Command 0.69.7 and corpus 0.129.0 are on dev. W137 added the
+  Programming / Databases and data storage curriculum: hub, ten
+  three-level pages, five-stage path, 30 glossary entries, 12 sources
+  and data.* skills. make corpus, corpus-and-test and check-repo pass;
+  reader spot checks pass with TAM_KNOWLEDGE_DIR=knowledge.
 
 NEXT
 
-  - Finish the pending 0.128.4 development cycle for the welcome rewrite.
+  1. Commit W137 pages and bookkeeping, then rerun make corpus and
+     commit only the regenerated indexes. Do not push.
+  2. Await Fred's development cycle for corpus 0.129.0. Test, Run and
+     Release still need his exact word.
 
 WAITING FOR FRED
 
-  - Fred's development cycle for the pending corpus change. Tamlinux
-    0.6.38 remains in Test.
+  - Fred's development cycle for corpus 0.129.0. Tamlinux 0.6.38
+    remains in Test.
 
 WATCH OUT
 
@@ -47,6 +50,9 @@ WATCH OUT
     asides; Right Arrow depends on where the attention line sits.
   - Generated corpus indexes trail page commits by one; commit them
     after the pages, then rerun make corpus.
+  - Cross-page links in corpus pages are root-relative from knowledge/,
+    not relative to the current page. Breadcrumb `index.html` is the
+    Guide root link.
   - A page title belongs in <title> and the breadcrumb only. Do not
     add a body heading that repeats the breadcrumb; start with an
     intro paragraph. The root guide index has no breadcrumb and keeps
@@ -85,7 +91,8 @@ WATCH OUT
   - Fold notices are transient st->msg text: a movement key clears
     them only when the key did not write a new notice, so reveal-all
     still reports its count.
-  - Command and corpus versions are independent; W131 is corpus only.
+  - Command and corpus versions are independent; corpus-only work does
+    not bump the command version.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MySQL and InnoDB</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="mysql">
+<meta name="summary" content="MySQL is a client/server SQL database; InnoDB is its transactional storage engine for tables, indexes and recovery.">
+<meta name="keywords" content="MySQL, InnoDB, SQL, storage engine, clustered index, buffer pool, redo log, MVCC, replication">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/databases/index.html">
+<meta name="prereqs" content="postgresql">
+<meta name="paths" content="databases:6">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / MySQL and InnoDB</p></nav>
+
+<p>MySQL keeps data in a server that other programs ask questions of. InnoDB is the part of MySQL that stores the data and protects it while many people change it.</p>
+
+<section data-level="novice">
+<h2>Data in named tables</h2>
+<p>MySQL is a <dfn><a href="glossary/d/database-management-system.html">database management system</a></dfn>. Programs send it questions written in <dfn><a href="glossary/s/sql.html">SQL</a></dfn>. The answers arrive as <a href="glossary/r/row.html">rows</a> from named <a href="glossary/t/table.html">tables</a>. InnoDB is the usual engine that stores those rows.</p>
+<h3>Why it matters</h3>
+<p>A shared server means one copy of the data, with rules about who may change it. InnoDB keeps working after a crash and lets two people edit different rows without losing either change.</p>
+<h3>How to think about it</h3>
+<p>Imagine a set of labelled drawers. A drawer is a table, each card in it is a row, and the headings on the card are columns. An index is the sorted card list that lets you find a card without reading the whole drawer.</p>
+<h3>New words</h3>
+<dl>
+<dt>Database management system</dt><dd>Software that stores data and answers questions about it: <a href="glossary/d/database-management-system.html">database management system</a>.</dd>
+<dt>SQL</dt><dd>The language used to ask a relational database for data: <a href="glossary/s/sql.html">SQL</a>.</dd>
+<dt>Table, row and column</dt><dd>A <a href="glossary/t/table.html">table</a> is a list of records; a <a href="glossary/r/row.html">row</a> is one record and a <a href="glossary/c/column.html">column</a> is one field of every record.</dd>
+<dt>Index</dt><dd>A helper structure that makes finding rows faster: <a href="glossary/d/database-index.html">database index</a>.</dd>
+<dt>Transaction</dt><dd>A group of changes treated as one unit: <a href="glossary/t/transaction.html">transaction</a>.</dd>
+<dt>Replication</dt><dd>Keeping copies of the same data on other servers: <a href="glossary/r/replication.html">replication</a>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read a small schema</h2>
+<p><strong>Goal:</strong> you will be able to read a sample table definition and predict what two simple questions return.</p>
+<tam-sandbox
+  title="Try it: read a sample MySQL session"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="files"
+  goal="Predict which name the SELECT returns">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="schema.sql" size="176">CREATE TABLE people (
+  id INT PRIMARY KEY,
+  name VARCHAR(40),
+  city VARCHAR(40)
+);
+INSERT INTO people VALUES (1, 'Rae', 'Leeds'), (2, 'Sam', 'York');</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat schema.sql" hint="The PRIMARY KEY gives each row an id.">
+      <out>CREATE TABLE people (</out>
+      <out>  id INT PRIMARY KEY,</out>
+      <out>  name VARCHAR(40),</out>
+      <out>  city VARCHAR(40)</out>
+      <out>);</out>
+      <out>INSERT INTO people VALUES (1, 'Rae', 'Leeds'), (2, 'Sam', 'York');</out>
+    </tam-cmd>
+    <tam-cmd match="SHOW TABLES;" hint="SHOW asks the server to list what it holds.">
+      <out>Tables_in_example</out>
+      <out>people</out>
+    </tam-cmd>
+    <tam-cmd match="SELECT name FROM people WHERE city = 'Leeds';" goal="true" hint="Correct: only the Leeds row qualified.">
+      <out>name</out>
+      <out>Rae</out>
+    </tam-cmd>
+  <tam-init>Try: cat schema.sql, then SHOW TABLES;</tam-init>
+  <tam-hint after="1">Type cat schema.sql to see the sample table definition.</tam-hint>
+  <tam-fallback>Try cat schema.sql, SHOW TABLES;, or SELECT name FROM people WHERE city = 'Leeds'; (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The file is sample data. The <code>SHOW</code> and <code>SELECT</code> lines are a scripted teaching simulation: no MySQL server was installed or started, and the output is not a measurement from your machine. In a real session, InnoDB would hold the <a href="glossary/t/table.html">table</a>, the primary key would identify each row, and the <a href="glossary/d/database-index.html">index</a> on that key would help find it.</p>
+<h3>Try it</h3>
+<p>Predict what <code>SELECT city FROM people WHERE name = 'Sam';</code> would return in this sample: one row containing <code>York</code>. Then run <code>grep INSERT schema.sql</code> to check the two inserted rows.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Nothing happens for SHOW TABLES;</dt><dd>That command is scripted, not a built-in sandbox command. Type it exactly, including the semicolon.</dd>
+<dt>The sandbox shows an unfamiliar command error.</dt><dd>Use cat and grep for real file reads; database lines here are samples only.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>Why does the sample give one name for the Leeds question?</i></summary>
+<p>Only one inserted row has city Leeds. The condition filters rows before the name column is returned.</p>
+</details>
+<details class="q">
+<summary><i>What does a primary key do?</i></summary>
+<p>It identifies each row uniquely. InnoDB also uses it to order the stored rows, so choosing it affects both correctness and speed.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: InnoDB and MySQL engines</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Item</th><th>Meaning</th><th>Note</th></tr>
+<tr><td>InnoDB</td><td>Default transactional storage engine</td><td>Rows, indexes and logs in tablespaces</td></tr>
+<tr><td>Clustered primary key index</td><td>Rows stored in primary key order</td><td>One per table</td></tr>
+<tr><td>Secondary index</td><td>Sorted copy of chosen columns</td><td>Leaf entries carry the primary key</td></tr>
+<tr><td>Buffer pool</td><td>In-memory cache of data pages</td><td>Reads and writes pass through it</td></tr>
+<tr><td>Redo log</td><td>Record of physical changes</td><td>Replayed after a crash</td></tr>
+<tr><td>Undo log</td><td>Old row versions</td><td>Supports rollback and consistent reads</td></tr>
+<tr><td>Locks</td><td>Row and gap level access control</td><td>Deadlocks are possible</td></tr>
+<tr><td>Replication</td><td>Copy of changes on another server</td><td>Replicas may lag the primary</td></tr>
+<tr><td>Other engines</td><td>Pluggable alternatives</td><td>Different or absent transaction support</td></tr>
+</table>
+<h3>How it works</h3>
+<p>InnoDB stores a table as a B-tree keyed by the <a href="glossary/p/primary-key.html">primary key</a>; the leaf pages hold the whole row, which is why the clustered key choice matters. A secondary <a href="glossary/d/database-index.html">index</a> holds indexed values plus the primary key used to find the row. Pages are cached in the buffer pool. A <a href="glossary/t/transaction.html">transaction</a> writes change records to the redo log, so committed work survives a crash; undo records keep earlier versions available for consistent reads, the mechanism usually called MVCC. Locks coordinate writers, and gap locks can block inserts into a range. The storage engine sits below SQL, so MySQL can host engines with different guarantees.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>A table without a declared primary key still gets an internal clustered key.</li>
+<li>Random or frequently changed primary keys cause page splits and poor space use.</li>
+<li>Long transactions retain undo versions and can delay cleanup.</li>
+<li>Rows visible to a read depend on the isolation level and transaction snapshot.</li>
+<li>Replication copies committed changes, not a single instant across all servers.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why can a secondary index lookup still touch the clustered index?</summary>
+<p>Because its leaf entries hold the primary key, not the whole row. Finding the row requires a second lookup in the clustered tree, unless the index covers every requested column.</p>
+</details>
+<details class="q open">
+<summary>Which trade-off sits behind choosing a storage engine?</summary>
+<p>InnoDB buys crash recovery and transactions at the cost of logging, locking and cache memory. An engine without those features can be simpler for work that never needs rollback or concurrent edits.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="programming/databases/postgresql.html">PostgreSQL</a> for a second relational design; <a href="programming/databases/non-sql-databases.html">Non-SQL databases</a> for other storage shapes; <a href="paths/databases.html">the databases path</a>. Primary reference: <cite data-ref="mysql-reference"><a href="bibliography/mysql-reference.html">MySQL Reference Manual</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/databases/postgresql.html">PostgreSQL</a> &mdash; compare another relational server.</li>
+<li><a href="programming/databases/non-sql-databases.html">Non-SQL databases</a> &mdash; see what changes when tables are not the only shape.</li>
+<li><a href="paths/databases.html">Databases path</a> &mdash; follow the series in order.</li>
+</ul>
+</body>
+</html>

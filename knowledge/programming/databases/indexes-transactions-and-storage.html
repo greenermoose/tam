@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Indexes, transactions and storage</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="database-indexes-transactions">
+<meta name="summary" content="See how indexes speed lookups, transactions protect changes, and logs and buffers keep stored data safe.">
+<meta name="keywords" content="database index, B-tree, transaction, ACID, commit, rollback, isolation, write-ahead log, buffer, page">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/databases/index.html">
+<meta name="prereqs" content="relational-model-sql">
+<meta name="paths" content="databases:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / Indexes, transactions and storage</p></nav>
+
+<p>A database must find rows quickly and keep them safe while several programs ask for changes. Indexes, transactions and storage rules are the tools it uses for that work.</p>
+
+<section data-level="novice">
+<h2>Finding and protecting facts</h2>
+<p>A <dfn><a href="glossary/d/database-index.html">database index</a></dfn> is an extra structure that helps find rows without reading the whole table. A <dfn><a href="glossary/t/transaction.html">transaction</a></dfn> groups changes into one all-or-nothing step.</p>
+<h3>Why it matters</h3>
+<p>Looking through every row is fine for ten rows and slow for ten million. An index is like the alphabetical list at the back of a book. Transactions matter because a program may fail halfway through; you do not want half a change left behind.</p>
+<h3>How to think about it</h3>
+<p>Imagine a library card catalogue. Adding a new card to the catalogue takes a moment of extra work, but finding a book by title becomes fast. A transaction is like a sealed envelope: it goes into the record whole, or it does not go in at all. A <a href="glossary/c/commit.html">commit</a> seals it; a rollback throws it away.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/d/database-index.html">Database index</a></dt><dd>A helper structure that speeds up finding rows.</dd>
+<dt><a href="glossary/t/transaction.html">Transaction</a></dt><dd>A group of changes treated as one unit.</dd>
+<dt><a href="glossary/c/commit.html">Commit</a></dt><dd>The step that makes a transaction's changes permanent and visible.</dd>
+<dt><a href="glossary/a/acid.html">ACID</a></dt><dd>Four guarantees: atomicity, consistency, isolation and durability.</dd>
+<dt><a href="glossary/p/partition.html">Partition</a></dt><dd>A way to split stored data into smaller pieces.</dd>
+</dl>
+</section>
+<section data-level="learner">
+<h2>Watch a lookup plan and a rollback</h2>
+<p><strong>Goal:</strong> you will be able to explain what an index changes and why a rolled-back change leaves the old value.</p>
+<tam-sandbox
+  title="Try it: plan a lookup, then undo a change"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="files"
+  goal="Say why the year is still 1999 after the sample rollback">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="books.csv" size="72">title,year
+Atlas,1999
+Night shapes,2001
+Mapping the coast,1999</file>
+      <file name="library.db" size="24">sample database (scripted)</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat books.csv" hint="The sample table has three rows, two from 1999.">
+      <out>title,year</out>
+      <out>Atlas,1999</out>
+      <out>Night shapes,2001</out>
+      <out>Mapping the coast,1999</out>
+    </tam-cmd>
+    <tam-cmd match="sqlite3 library.db &quot;CREATE INDEX books_year ON books(year); EXPLAIN QUERY PLAN SELECT title FROM books WHERE year = 1999;&quot;" hint="The plan names an index instead of a full scan.">
+      <out>CREATE INDEX books_year ON books(year);</out>
+      <out>SEARCH books USING INDEX books_year (year=?)</out>
+    </tam-cmd>
+    <tam-cmd match="sqlite3 library.db &quot;BEGIN; UPDATE books SET year = 2000 WHERE title = 'Atlas'; ROLLBACK; SELECT year FROM books WHERE title = 'Atlas';&quot;" goal="true" hint="ROLLBACK discards the update inside this transaction.">
+      <out>BEGIN;</out>
+      <out>UPDATE books SET year = 2000 WHERE title = 'Atlas';</out>
+      <out>ROLLBACK;</out>
+      <out>1999</out>
+    </tam-cmd>
+  <tam-init>Try: cat books.csv, then the two sample sqlite3 commands</tam-init>
+  <tam-hint after="1">The CSV shows the rows a scan would examine one by one.</tam-hint>
+  <tam-hint after="2">EXPLAIN QUERY PLAN reports the access path; it does not return book rows.</tam-hint>
+  <tam-fallback>Try cat books.csv or either sample sqlite3 command (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The plan changed from reading every row to a search through <code>books_year</code>, an index on the year column. That speed has a cost: every insert or update must also update the index. Both <code>sqlite3</code> lines are a sample teaching simulation: the sandbox installs no database software, and the plan and transcript shown are authored output, not a measurement from your machine. The final <code>1999</code> is the original value because <code>ROLLBACK</code> discarded the update.</p>
+<h3>Try it</h3>
+<p>Use <code>grep 1999 books.csv</code> and predict the two lines before you type it. That is the set a full scan would inspect; the index narrows the search without changing which rows qualify.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The plan command did not match.</dt><dd>The sandbox knows the exact sample command. Copy its wording from the hint, including the semicolons.</dd>
+<dt>I expected the year to become 2000.</dt><dd>Only a <a href="glossary/c/commit.html">commit</a> makes a transaction's changes visible. This sample ends with <code>ROLLBACK</code>.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why not put an index on every column?</i></summary>
+<p>Each index costs disk space and extra work on every write. Indexes help reads that match their keys, so columns that are rarely searched usually do not justify that cost.</p>
+</details>
+<details class="q">
+<summary><i>What does a rollback guarantee?</i></summary>
+<p>Changes made in that transaction are discarded, so other readers never see the partial result. Accepted changes from other committed transactions remain.</p>
+</details>
+</section>
+</section>
+<section data-level="expert">
+<h2>Reference: internals and guarantees</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Mechanism</th><th>What it provides</th><th>Trade-off</th></tr>
+<tr><td>B-tree index</td><td>Ordered lookup and range scans</td><td>Write amplification when keys change</td></tr>
+<tr><td>Hash index</td><td>Fast equality lookup</td><td>No useful ordering for ranges</td></tr>
+<tr><td><a href="glossary/a/acid.html">ACID</a> transaction</td><td>All-or-nothing changes</td><td>Locks or version checks, and log writes</td></tr>
+<tr><td>MVCC</td><td>Readers see a consistent version without blocking writers</td><td>Old versions need cleanup</td></tr>
+<tr><td>Write-ahead log</td><td>Durability after a crash</td><td>Flush cost on commit</td></tr>
+<tr><td>Buffer cache</td><td>Pages kept in memory</td><td>Eviction and dirty-page flushes</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Storage is divided into fixed-size pages within the <a href="glossary/f/file.html">file</a>. The buffer manager keeps hot pages in memory and writes dirty pages later. Under a write-ahead log, the engine records the intended change and flushes that record before it lets a page change reach disk, so a crash can be repaired by replaying or undoing logged work. Multi-version concurrency control keeps older row versions so a reader can finish against one snapshot while a writer proceeds. A query plan may use an ordered B-tree walk or a hash lookup depending on the operator and predicate.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Isolation anomalies: dirty reads see uncommitted data, non-repeatable reads see changed rows within one transaction, and phantoms are new rows that match an earlier predicate.</li>
+<li>An index on a low-selectivity column, such as a boolean flag, may be ignored because a scan is cheaper.</li>
+<li>Weaker durability settings can lose the most recent commits after power loss; stronger settings cost more flushes.</li>
+<li>Long transactions hold old versions and can bloat storage until they finish.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A read is slow only for queries filtering on one column. What do you inspect first?</summary>
+<p>Check the query plan and the column's statistics before adding an index. If the plan already uses an index, look at selectivity, stale statistics, or parameter values; an index is not a universal speed-up.</p>
+</details>
+<details class="q open">
+<summary>Why can a committed transaction still be absent from a dirty page on disk?</summary>
+<p>The commit may be durable in the write-ahead log while the changed data page remains in the buffer cache. Recovery replays the log to bring the page up to date, which is why log flush order matters.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>Return to <a href="programming/databases/relational-model-and-sql.html">The relational model and SQL</a> and continue to <a href="programming/databases/sqlite.html">SQLite</a>. Definitions live in <a href="glossary/t/transaction.html">transaction</a> and <a href="glossary/d/database-index.html">database index</a>. <cite data-ref="postgresql-docs"><a href="bibliography/postgresql-docs.html">PostgreSQL documentation</a></cite>, <cite data-ref="mysql-reference"><a href="bibliography/mysql-reference.html">MySQL reference manual</a></cite> and <cite data-ref="sqlite-docs"><a href="bibliography/sqlite-docs.html">SQLite documentation</a></cite> describe these mechanisms in their own engines.</p>
+</section>
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/databases/relational-model-and-sql.html">The relational model and SQL</a> &mdash; revisit the queries that a plan carries out.</li>
+<li><a href="programming/databases/sqlite.html">SQLite</a> &mdash; see these ideas in a small embedded engine.</li>
+<li><a href="paths/databases.html">Databases path</a> &mdash; keep following the series.</li>
+</ul>
+</body>
+</html>

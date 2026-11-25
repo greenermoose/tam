@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PostgreSQL</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="postgresql">
+<meta name="summary" content="PostgreSQL is a client/server database with strong SQL, roles, transactions and extensions for shared work.">
+<meta name="keywords" content="PostgreSQL, Postgres, client-server database, object-relational, schema, roles, replication, backups, MVCC, partitioning">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/databases/index.html">
+<meta name="prereqs" content="sqlite">
+<meta name="paths" content="databases:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / PostgreSQL</p></nav>
+
+<p>PostgreSQL runs as a server that programs connect to over a network or local socket. Teams choose it when several applications must share one database and rely on strong SQL rules.</p>
+
+<section data-level="novice">
+<h2>One database, many clients</h2>
+<p>PostgreSQL is a client/server, object-relational <dfn><a href="glossary/d/database.html">database</a></dfn>. Programs send <a href="glossary/s/sql.html">SQL</a> to the server, and the server manages the stored <a href="glossary/t/table.html">tables</a>. A <dfn><a href="glossary/s/schema.html">schema</a></dfn> groups related tables, while roles say who may read or change them.</p>
+<h3>Why it matters</h3>
+<p>A web application, a reporting tool and a background job can all use the same data without copying files between them. Transactions keep each change whole, backups protect it, and replication can keep another copy for recovery.</p>
+<h3>How to think about it</h3>
+<p>SQLite is a notebook carried by one program; PostgreSQL is a shared library with a counter and a set of rules. You go to the counter with a request, and the library decides whether your role permits it.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/d/database-management-system.html">Database server</a></dt><dd>A separate process that owns data and answers client requests.</dd>
+<dt><a href="glossary/c/commit.html">Commit</a></dt><dd>The step that makes a group of changes final.</dd>
+<dt><a href="glossary/r/replication.html">Replication</a></dt><dd>Keeping a copy of data on another server.</dd>
+<dt><a href="glossary/a/availability.html">Availability</a></dt><dd>How reliably a service is there when needed.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read a schema and a sample session</h2>
+<p><strong>Goal:</strong> you will be able to say what a schema declares and what a client gets back from a simple query.</p>
+<tam-sandbox
+  title="Try it: read a sample schema and psql output"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="files"
+  goal="Name the first member shown in the sample SELECT result">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="schema.sql" size="158">CREATE TABLE members (id integer PRIMARY KEY, name text NOT NULL);
+CREATE TABLE checkouts (member_id integer REFERENCES members(id), title text NOT NULL);</file>
+      <file name="roles.txt" size="48">reader: can list members
+admin: can add members</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat schema.sql" hint="The schema names two tables and a reference between them.">
+      <out>CREATE TABLE members (id integer PRIMARY KEY, name text NOT NULL);</out>
+      <out>CREATE TABLE checkouts (member_id integer REFERENCES members(id), title text NOT NULL);</out>
+    </tam-cmd>
+    <tam-cmd match="psql -d club -c '\dt'" hint="psql is a client that asks the server which tables exist.">
+      <out>List of relations</out>
+      <out> public | checkouts | table | alex</out>
+      <out> public | members   | table | alex</out>
+    </tam-cmd>
+    <tam-cmd match="psql -d club -c &quot;SELECT name FROM members ORDER BY name;&quot;" goal="true" hint="The scripted result is sorted by name.">
+      <out>Ada</out>
+      <out>Bo</out>
+    </tam-cmd>
+  <tam-init>Try: cat schema.sql, then the two sample psql commands</tam-init>
+  <tam-hint after="1">REFERENCES members(id) is a foreign key declared in the schema.</tam-hint>
+  <tam-hint after="2">The psql lines are canned output; no server is running here.</tam-hint>
+  <tam-fallback>Try cat schema.sql, grep admin roles.txt, or either sample psql command (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The schema file declares two tables and a reference from <code>checkouts</code> to <code>members</code>. Both <code>psql</code> results are a sample teaching simulation: the sandbox installs no database software, no server was contacted, and the output is authored, not a measurement from your machine. A real <code>psql</code> client sends SQL to a server process, which checks permissions, plans the query and returns rows. <code>ORDER BY name</code> puts the sample names in order.</p>
+<h3>Try it</h3>
+<p>Type <code>grep admin roles.txt</code>. The sample role file shows that an admin may add members while a reader may only list them. Predict which role could run an <code>INSERT</code> before you type the command.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The <code>psql</code> command did not match.</dt><dd>Only the exact sample commands are scripted. Copy the wording from the hint, including the database name <code>club</code>.</dd>
+<dt>I expected a local database file like SQLite.</dt><dd>PostgreSQL keeps data in a server-managed directory. Clients talk to that server; they do not open one database file per application.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>When would you choose PostgreSQL over SQLite?</i></summary>
+<p>When several applications or users share the same data, need role-based access, and require concurrent writes and central backups. For one application with a private, mostly local file, SQLite is simpler.</p>
+</details>
+<details class="q">
+<summary><i>What does the REFERENCES clause in the sample schema do?</i></summary>
+<p>It declares a foreign key: a checkout's member_id must match a member id. The server can reject writes that would leave that reference pointing nowhere.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: server architecture</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Area</th><th>Behaviour</th><th>Note</th></tr>
+<tr><td>MVCC</td><td>Readers see a snapshot while writers add new row versions</td><td>Vacuum reclaims old versions</td></tr>
+<tr><td>Write-ahead log</td><td>Changes are logged before data pages are durable</td><td>Also feeds replication and point-in-time recovery</td></tr>
+<tr><td>Indexes</td><td>B-tree by default; other types via extensions</td><td>Chosen by the planner from statistics</td></tr>
+<tr><td>Partitioning</td><td>Splits a large table into child relations</td><td>Helps manage and prune scans</td></tr>
+<tr><td>Extensions</td><td>Adds types, functions and access methods</td><td>Installed per database</td></tr>
+<tr><td>Connections</td><td>Each client holds a server connection</td><td>Finite slots; pools are used in front</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A client authenticates as a role and opens a connection to a database in a cluster. The parser and planner turn SQL into a plan that reads pages through the buffer cache. Multi-version concurrency control gives each statement a snapshot, and the write-ahead log makes commits recoverable and streams changes to replicas. Schemas namespace tables and types; extensions add capabilities without changing the core engine. Backups may be logical dumps or base backups combined with logged changes.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Connection limits are per cluster; too many idle clients exhaust slots, so applications pool connections.</li>
+<li>Long transactions delay vacuum and can bloat tables with dead row versions.</li>
+<li>A replica may lag the primary, so a read from it can be slightly stale.</li>
+<li>Partition pruning depends on the predicate matching the partition key; an unrelated filter may scan every child.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A reporting query blocks writes and table size keeps growing. What do you check?</summary>
+<p>Look for long-running transactions holding back vacuum, then check index usage and statistics. A snapshot held open is a common reason dead versions cannot be reclaimed; the fix is to shorten transactions, not to guess at hardware.</p>
+</details>
+<details class="q open">
+<summary>Why does a busy service need a connection pool?</summary>
+<p>Each PostgreSQL connection consumes a server process and a slot. A pool reuses a bounded set of connections so bursts of web requests do not exceed the limit or spend time on repeated setup.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>Compare with <a href="programming/databases/sqlite.html">SQLite</a> and revisit <a href="programming/databases/indexes-transactions-and-storage.html">Indexes, transactions and storage</a>. See <a href="glossary/r/replication.html">replication</a> and <a href="glossary/a/acid.html">ACID</a>. <cite data-ref="postgresql-docs"><a href="bibliography/postgresql-docs.html">PostgreSQL documentation</a></cite> is the primary reference for server configuration, SQL and internals.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/databases/sqlite.html">SQLite</a> &mdash; compare the embedded engine with this server.</li>
+<li><a href="paths/databases.html">Databases path</a> &mdash; review the complete reading order.</li>
+</ul>
+</body>
+</html>

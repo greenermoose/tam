@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Non-SQL databases</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="non-sql-databases">
+<meta name="summary" content="Document, key-value, column-family and graph stores trade joins and fixed tables for flexible shapes and different access patterns.">
+<meta name="keywords" content="NoSQL, document database, key-value store, column family, graph database, MongoDB, Redis, Cassandra, Neo4j, flexible schema">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/databases/index.html">
+<meta name="prereqs" content="mysql">
+<meta name="paths" content="databases:7">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / Non-SQL databases</p></nav>
+
+<p>Not all information fits neatly into tables. Some programs keep whole documents, simple labelled values, wide columns or connections between things instead.</p>
+
+<section data-level="novice">
+<h2>Four shapes of stored data</h2>
+<p>Many people use <dfn><a href="glossary/n/nosql.html">NoSQL</a></dfn> as a name for databases that do not require a fixed relational <a href="glossary/s/schema.html">schema</a>. A <dfn><a href="glossary/d/document-database.html">document database</a></dfn> keeps whole records, often <a href="glossary/j/json.html">JSON</a>-like. A <dfn><a href="glossary/k/key-value-database.html">key-value database</a></dfn> stores a value under a key. A <dfn><a href="glossary/c/column-family-database.html">column-family database</a></dfn> groups related columns. A <dfn><a href="glossary/g/graph-database.html">graph database</a></dfn> stores things and the links between them.</p>
+<h3>Why it matters</h3>
+<p>Real records do not all have the same fields. If one entry gains a new field, a document store can keep it without asking every other entry to change. Other families are fast at one particular job, such as finding a value by its key or following links.</p>
+<h3>How to think about it</h3>
+<p>A relational table is a printed form with fixed boxes. A document is a note that can grow. A key-value store is a shelf of labelled boxes. A graph is a map of places and roads between them. Each shape makes some questions easy and others awkward.</p>
+<h3>New words</h3>
+<dl>
+<dt>NoSQL</dt><dd>A broad name for databases outside the fixed-table tradition: <a href="glossary/n/nosql.html">NoSQL</a>.</dd>
+<dt>Document database</dt><dd>Stores complete, self-contained records: <a href="glossary/d/document-database.html">document database</a>.</dd>
+<dt>Key-value database</dt><dd>Looks up a value by one key: <a href="glossary/k/key-value-database.html">key-value database</a>.</dd>
+<dt>Column-family database</dt><dd>Groups columns that are often read together: <a href="glossary/c/column-family-database.html">column-family database</a>.</dd>
+<dt>Graph database</dt><dd>Stores entities and their relationships: <a href="glossary/g/graph-database.html">graph database</a>.</dd>
+<dt>Schema and consistency</dt><dd>A <a href="glossary/s/schema.html">schema</a> describes expected fields; <a href="glossary/c/consistency.html">consistency</a> describes whether copies agree at the same moment.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read a document-store session</h2>
+<p><strong>Goal:</strong> you will be able to name four database families and read a sample document-store session.</p>
+<tam-sandbox
+  title="Try it: read a sample document session"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="files"
+  goal="Add a document with the insertOne line">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="documents.jsonl" size="132">{&quot;name&quot;:&quot;Rae&quot;,&quot;city&quot;:&quot;Leeds&quot;,&quot;role&quot;:&quot;editor&quot;}
+{&quot;name&quot;:&quot;Sam&quot;,&quot;city&quot;:&quot;York&quot;,&quot;role&quot;:&quot;reader&quot;}
+{&quot;name&quot;:&quot;Jo&quot;,&quot;city&quot;:&quot;Leeds&quot;,&quot;role&quot;:&quot;reader&quot;}</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat documents.jsonl" hint="Each line is one independent document.">
+      <out>{&quot;name&quot;:&quot;Rae&quot;,&quot;city&quot;:&quot;Leeds&quot;,&quot;role&quot;:&quot;editor&quot;}</out>
+      <out>{&quot;name&quot;:&quot;Sam&quot;,&quot;city&quot;:&quot;York&quot;,&quot;role&quot;:&quot;reader&quot;}</out>
+      <out>{&quot;name&quot;:&quot;Jo&quot;,&quot;city&quot;:&quot;Leeds&quot;,&quot;role&quot;:&quot;reader&quot;}</out>
+    </tam-cmd>
+    <tam-cmd match="db.people.find({&quot;city&quot;:&quot;Leeds&quot;})" hint="The filter checks one field; no fixed column list is declared here.">
+      <out>{ &quot;name&quot;: &quot;Rae&quot;, &quot;city&quot;: &quot;Leeds&quot;, &quot;role&quot;: &quot;editor&quot; }</out>
+      <out>{ &quot;name&quot;: &quot;Jo&quot;, &quot;city&quot;: &quot;Leeds&quot;, &quot;role&quot;: &quot;reader&quot; }</out>
+    </tam-cmd>
+    <tam-cmd match="db.people.insertOne({&quot;name&quot;:&quot;Alex&quot;,&quot;city&quot;:&quot;Leeds&quot;})" goal="true" hint="Correct: a document with its own fields was added.">
+      <out>Acknowledged: true</out>
+      <out>Inserted one document into people</out>
+    </tam-cmd>
+  <tam-init>Try: cat documents.jsonl, then the find line below.</tam-init>
+  <tam-hint after="1">Type cat documents.jsonl to see three sample documents.</tam-hint>
+  <tam-hint after="2">Type db.people.find({"city":"Leeds"}) exactly as shown.</tam-hint>
+  <tam-fallback>Try cat documents.jsonl or the two db.people lines (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The <code>db.people</code> lines are an illustrative shell simulation. No database software was installed or started, and these lines are not measurements from your machine. The file holds sample <a href="glossary/j/json.html">JSON</a> data, one document per line. The find line filters on a field; the insert line adds a document whose fields need not match every other document.</p>
+<h3>Try it</h3>
+<p>Predict what <code>db.people.find({"city":"York"})</code> would show in this sample: the single document for Sam. Now imagine adding a document with a <code>phone</code> field; the other documents do not have to change.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The db lines are not understood.</dt><dd>They are scripted samples, not sandbox built-ins. Use cat to read the fixture, or type a scripted line exactly.</dd>
+<dt>I expected an error for a missing field.</dt><dd>A flexible schema does not demand the same fields in every document; the application still decides what it needs.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>Which family fits a lookup by one known key?</i></summary>
+<p>A key-value database: it retrieves a value from its key without scanning every record. A document store is better when you also filter on fields inside the value.</p>
+</details>
+<details class="q">
+<summary><i>What is gained and lost by flexible fields?</i></summary>
+<p>Records can vary and evolve without a table rewrite. The cost is that rules about fields move into the application, and queries must match the chosen indexes.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: four database families</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Family</th><th>Example</th><th>Fits when</th><th>Trade-off</th></tr>
+<tr><td><a href="glossary/d/document-database.html">Document</a></td><td>MongoDB</td><td>Records with nested or varying fields</td><td>Joins are limited; data may be duplicated</td></tr>
+<tr><td><a href="glossary/k/key-value-database.html">Key-value</a></td><td>Redis</td><td>Fast lookup or short-lived shared values</td><td>No general query by fields inside the value</td></tr>
+<tr><td><a href="glossary/c/column-family-database.html">Column-family</a></td><td>Cassandra</td><td>Very wide tables and writes spread over machines</td><td>Query shapes are designed in advance</td></tr>
+<tr><td><a href="glossary/g/graph-database.html">Graph</a></td><td>Neo4j</td><td>Questions about paths and relationships</td><td>Not a natural fit for bulk table scans</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Relational systems plan joins from a fixed schema. These families move work elsewhere. A document store embeds related data in one record and indexes chosen fields, so a read can avoid a join. A key-value store uses a key to reach one value quickly. A column-family store groups columns by a partition key and writes them across nodes, with <a href="glossary/c/consistency.html">consistency</a> levels that trade immediate agreement for progress when nodes are unavailable. A graph store keeps edges as first-class data so traversal follows links directly. Indexes are still needed; flexible shape is not the same as no design.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Denormalised records can disagree with one another after a partial update.</li>
+<li>An access pattern that changes may need a new index or a full data rewrite.</li>
+<li>Replica lag can return a stale value after a successful write.</li>
+<li>A hot key concentrates traffic on one node despite a distributed design.</li>
+<li>Transactions that span many documents or partitions are usually narrower than in a relational server.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>When would you keep the relational table instead?</summary>
+<p>When the same structured facts are queried in many unplanned ways and must agree across rows. Joins, constraints and a fixed schema then do useful work that a document or key-value design must rebuild in application code.</p>
+</details>
+<details class="q open">
+<summary>Why does a column-family design begin with the query?</summary>
+<p>Because rows are laid out around a partition key and clustering columns. A query that does not follow that layout may scatter across nodes, so the access pattern is chosen before the data model is fixed.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="programming/databases/mysql.html">MySQL and InnoDB</a> for the relational comparison; <a href="programming/databases/indexeddb.html">IndexedDB</a> for a document-like store inside the browser; <a href="paths/databases.html">the databases path</a>. Primary references: <cite data-ref="mongodb-docs"><a href="bibliography/mongodb-docs.html">MongoDB documentation</a></cite> and <cite data-ref="cassandra-docs"><a href="bibliography/cassandra-docs.html">Cassandra documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/databases/mysql.html">MySQL and InnoDB</a> &mdash; revisit the fixed-table approach.</li>
+<li><a href="programming/databases/indexeddb.html">IndexedDB</a> &mdash; see document-like storage in a browser.</li>
+<li><a href="paths/databases.html">Databases path</a> &mdash; follow the series in order.</li>
+</ul>
+</body>
+</html>

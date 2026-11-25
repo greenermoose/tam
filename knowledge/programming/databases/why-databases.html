@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Why databases exist</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="databases-why">
+<meta name="summary" content="Programs need to remember and find structured facts; a database keeps those facts organised as needs grow.">
+<meta name="keywords" content="database, data storage, records, rows, queries, durability, sharing, files, CSV">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/databases/index.html">
+<meta name="paths" content="databases:1">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / Why databases exist</p></nav>
+
+<p>A program often needs to remember facts after it stops running. A database stores those facts in an organised way so the program can find them again.</p>
+
+<section data-level="novice">
+<h2>Facts that outlive one run</h2>
+<p>You can write facts into a <dfn><a href="glossary/f/file.html">file</a></dfn>, but plain text is hard to search as it grows. A <dfn><a href="glossary/d/database.html">database</a></dfn> keeps related facts together and lets a program ask for just the ones it needs.</p>
+<h3>Why it matters</h3>
+<p>A shopping list in a text file works until you want to know which items cost more than five coins, or let two people edit it at the same time. A database answers questions about selected facts and keeps stored information intact when a program stops or crashes.</p>
+<h3>How to think about it</h3>
+<p>Think of a shoebox of paper notes beside a labelled filing cabinet. The notes hold the same information, but the cabinet has drawers and labels so you can pull one folder without reading every sheet.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/f/file.html">File</a></dt><dd>A named place on a disk that holds bytes.</dd>
+<dt><a href="glossary/d/database.html">Database</a></dt><dd>An organised collection of facts managed as one unit.</dd>
+<dt><a href="glossary/t/table.html">Table</a></dt><dd>Facts arranged in rows and columns.</dd>
+<dt><a href="glossary/r/row.html">Row</a></dt><dd>One recorded fact, such as one book.</dd>
+<dt><a href="glossary/s/sql.html">Query</a></dt><dd>A question asked of stored data, often written in SQL.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>From loose notes to records</h2>
+<p><strong>Goal:</strong> you will be able to explain why structured records beat free text when a program must find facts later.</p>
+<tam-sandbox
+  title="Try it: compare a note with records"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="files"
+  goal="Show the title of the overdue book from the sample records">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="notes.txt" size="86">Reminder: the atlas is overdue. Bo returned the map on Tuesday.
+Ada still has two books.</file>
+      <file name="records.csv" size="72">title,holder,status
+Atlas,Ada,overdue
+Map,Bo,returned
+Night shapes,Ada,on loan</file>
+      <file name="sample.db" size="24">sample database (scripted)</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat notes.txt" hint="The word overdue is buried in a sentence.">
+      <out>Reminder: the atlas is overdue. Bo returned the map on Tuesday.</out>
+      <out>Ada still has two books.</out>
+    </tam-cmd>
+    <tam-cmd match="grep overdue records.csv" hint="In the CSV, each line has a named status column.">
+      <out>Atlas,Ada,overdue</out>
+    </tam-cmd>
+    <tam-cmd match="sqlite3 sample.db &quot;SELECT title FROM books WHERE status = 'overdue';&quot;" goal="true" hint="The row is authored sample output; the sandbox does not run SQLite.">
+      <out>Atlas</out>
+    </tam-cmd>
+  <tam-init>Try: cat notes.txt, then grep overdue records.csv</tam-init>
+  <tam-hint after="1">The note is prose; the CSV has a status column you can match.</tam-hint>
+  <tam-hint after="2">The scripted sqlite3 command asks for titles whose status is overdue.</tam-hint>
+  <tam-fallback>Try cat notes.txt, grep overdue records.csv, or the sample sqlite3 command (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>First you read prose, where the interesting word is mixed into sentences. Then <code>grep</code> matched a line in <code>records.csv</code>, where each line is one record with named positions. The <code>sqlite3</code> line is a sample teaching simulation: the sandbox installs no database software, and the row shown is authored output, not a measurement from your machine. A database answers the question by looking at a labelled column instead of reading every word.</p>
+<h3>Try it</h3>
+<p>Use <code>grep Ada records.csv</code>. Two lines match because both records name Ada, which shows how a column makes a question precise. Predict both lines before you type the command.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>grep</code> printed nothing.</dt><dd>Check the spelling and case: the sample word is lowercase <code>overdue</code>.</dd>
+<dt>The <code>sqlite3</code> command produced no row.</dt><dd>The sandbox only knows the exact sample command shown in the hint. It does not contain a real database engine.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>Why is matching a CSV line easier than matching a sentence?</i></summary>
+<p>A CSV line puts each fact in a known position, so a tool can match one column. In prose the same fact may be phrased in many ways, and a match may hit an unrelated word.</p>
+</details>
+<details class="q">
+<summary><i>What does it mean for stored facts to be durable?</i></summary>
+<p>Once a change is recorded as complete, it survives a later program stop or crash. Durability is about keeping accepted facts, not about how fast they were written.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: what a database adds</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Need</th><th>Hand-written file</th><th>Database service</th></tr>
+<tr><td>Find a subset</td><td>Read and filter text yourself</td><td>A <a href="glossary/s/sql.html">query</a> names the condition</td></tr>
+<tr><td>Keep structure</td><td>Column order by convention</td><td>A <a href="glossary/s/schema.html">schema</a> names and constrains fields</td></tr>
+<tr><td>Survive a crash</td><td>Risk of a partly written line</td><td>A <a href="glossary/c/commit.html">commit</a> marks a complete change</td></tr>
+<tr><td>Share access</td><td>Edit conflicts between writers</td><td>Coordinated reads and writes</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A <dfn><a href="glossary/d/database-management-system.html">database management system</a></dfn> is the program that owns the stored data. Applications send questions and changes to it; it plans the read, checks rules from the schema, and records completed changes. This separation is why one set of facts can serve several programs without each one inventing its own file format.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>With no schema, different writers can use different column orders; a database rejects writes that do not fit its declared structure.</li>
+<li>Crash consistency is not free: a write must land completely or not at all, which costs extra work on disk.</li>
+<li>Sharing raises concurrency questions. Two readers are cheap, but overlapping writes need coordination.</li>
+<li>A small file is still the better tool when data is written once, read as a whole, and never queried selectively.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A program crashes while writing a note to a text file. Why might a database avoid the resulting mess?</summary>
+<p>A database groups a change into a transaction and makes it visible only when committed. An incomplete change is rolled back, so readers see the old value or the new one, not half a line. A hand-written file has no such boundary unless the program builds one itself.</p>
+</details>
+<details class="q open">
+<summary>When is a plain file the better choice?</summary>
+<p>When the data is small, written once, read as a whole, and never shared or queried selectively. Adding a database then buys structure you do not use while adding setup and operational cost.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>Begin with <a href="programming/databases/relational-model-and-sql.html">The relational model and SQL</a> and the <a href="glossary/d/database.html">database</a> definition. <cite data-ref="sqlite-docs"><a href="bibliography/sqlite-docs.html">SQLite documentation</a></cite> and <cite data-ref="postgresql-docs"><a href="bibliography/postgresql-docs.html">PostgreSQL documentation</a></cite> describe two concrete implementations of these ideas.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/databases/relational-model-and-sql.html">The relational model and SQL</a> &mdash; see how rows and columns become tables you can query.</li>
+<li><a href="paths/databases.html">Databases path</a> &mdash; follow the whole series in order.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>GraphQL</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="graphql">
+<meta name="summary" content="GraphQL is an API query language with a typed schema, resolvers and JSON results, distinct from the database behind it.">
+<meta name="keywords" content="GraphQL, API, schema, query, mutation, resolver, JSON, introspection, pagination, authorisation">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/databases/index.html">
+<meta name="prereqs" content="indexeddb">
+<meta name="paths" content="databases:9">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / GraphQL</p></nav>
+
+<p><a href="glossary/g/graphql.html">GraphQL</a> lets a client program ask a server for named fields. It is a contract between programs, not a place where data is stored.</p>
+
+<section data-level="novice">
+<h2>Asking for named fields</h2>
+<p>Instead of receiving one fixed response, a client sends a <dfn><a href="glossary/g/graphql.html">GraphQL</a></dfn> question listing the fields it wants. A <a href="glossary/s/schema.html">schema</a> says which fields exist. Functions called resolvers gather the values, and the answer usually comes back as <a href="glossary/j/json.html">JSON</a>. A question that reads data is a query; one that changes data is a mutation.</p>
+<h3>Why it matters</h3>
+<p>A phone app and a reporting tool can ask the same service for different fields. Neither has to accept a large response built for somebody else, and the service keeps one public description of what is available.</p>
+<h3>How to think about it</h3>
+<p>Think of a form at a counter. You tick the fields you need, and the clerk collects exactly those from the filing system behind the desk. The form is GraphQL; the filing system may be any kind of <a href="glossary/d/database.html">database</a>.</p>
+<h3>New words</h3>
+<dl>
+<dt>GraphQL</dt><dd>A query language and contract for asking a service for fields: <a href="glossary/g/graphql.html">GraphQL</a>.</dd>
+<dt>API</dt><dd>The agreed way one program talks to another: <a href="glossary/a/api.html">API</a>.</dd>
+<dt>Schema</dt><dd>The list of types and fields a service offers: <a href="glossary/s/schema.html">schema</a>.</dd>
+<dt>Resolver</dt><dd>Code that produces the value of one field.</dd>
+<dt>JSON</dt><dd>The common text format for the response: <a href="glossary/j/json.html">JSON</a>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Match a query to its result</h2>
+<p><strong>Goal:</strong> you will be able to match a sample query to its response and say why each field must be authorised.</p>
+<tam-sandbox
+  title="Try it: read a sample GraphQL exchange"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="files"
+  goal="Show the sample response">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="query.graphql" size="63">query {
+  person(id: 1) {
+    name
+    city
+  }
+}</file>
+      <file name="result.json" size="55">{&quot;data&quot;:{&quot;person&quot;:{&quot;name&quot;:&quot;Rae&quot;,&quot;city&quot;:&quot;Leeds&quot;}}}</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat query.graphql" hint="The selection set names the two fields requested.">
+      <out>query {</out>
+      <out>  person(id: 1) {</out>
+      <out>    name</out>
+      <out>    city</out>
+      <out>  }</out>
+      <out>}</out>
+    </tam-cmd>
+    <tam-cmd match="grep city query.graphql" hint="The client asks for city by name.">
+      <out>    city</out>
+    </tam-cmd>
+    <tam-cmd match="curl -s localhost:4000/graphql -d @query.graphql" goal="true" hint="Correct: the response contains only the requested fields.">
+      <out>{&quot;data&quot;:{&quot;person&quot;:{&quot;name&quot;:&quot;Rae&quot;,&quot;city&quot;:&quot;Leeds&quot;}}}</out>
+    </tam-cmd>
+  <tam-init>Try: cat query.graphql, then grep city query.graphql</tam-init>
+  <tam-hint after="1">Type cat query.graphql to see the selection set.</tam-hint>
+  <tam-hint after="2">Type the curl line exactly, or cat result.txt for the same sample response.</tam-hint>
+  <tam-fallback>Try cat query.graphql, grep city query.graphql, or cat result.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p>The <code>curl</code> line and its response are a scripted teaching simulation. No service was started, no database was queried, and the text is not a measurement from your machine. The query names <code>name</code> and <code>city</code>; the sample response has those fields and nothing else. That shape is the contract: a resolver decided each value, and the server packaged them as <a href="glossary/j/json.html">JSON</a>.</p>
+<h3>Try it</h3>
+<p>Predict what happens if you add <code>id</code> beside <code>name</code> in the selection set: a real service would include an <code>id</code> value if the schema allows it. Asking for a field that is not in the schema instead produces a validation error, not an empty value.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The curl line is not understood.</dt><dd>It is a scripted sample, not a sandbox built-in. Use cat to read the two sample files.</dd>
+<dt>A response has both data and errors.</dt><dd>GraphQL can answer part of a query and report the failed fields separately; inspect both parts.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>Is GraphQL a database?</i></summary>
+<p>No. It is an <a href="glossary/a/api.html">API</a> query language and runtime contract. Resolvers may read a relational server, a document store or another service.</p>
+</details>
+<details class="q">
+<summary><i>Why validate and authorise fields?</i></summary>
+<p>A client chooses the shape of the query, so a service must reject unknown or overly deep selections and check access at the field level. This is the same trust-boundary habit behind preventing <a href="glossary/s/sql-injection.html">SQL injection</a>: never assume the request is friendly.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: the GraphQL contract</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Concept</th><th>Precise meaning</th><th>Pitfall</th></tr>
+<tr><td>Type system</td><td>Types, fields, arguments and nullability in the schema</td><td>Overly broad types leak detail</td></tr>
+<tr><td>Query and mutation</td><td>Read selection and requested write</td><td>Writes need their own checks</td></tr>
+<tr><td>Resolver</td><td>Function that supplies one field's value</td><td>One call per row causes N+1 reads</td></tr>
+<tr><td>Variables</td><td>Values supplied separately from query text</td><td>Unvalidated values can widen a query</td></tr>
+<tr><td>Introspection</td><td>Schema exposed as queryable data</td><td>May reveal more than intended</td></tr>
+<tr><td>Fragments</td><td>Reusable selection sets</td><td>Hidden depth in composed queries</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A request is parsed, validated against the typed schema and executed field by field. Resolvers may batch and cache lookups within one request to avoid an N+1 pattern, where listing twenty records triggers twenty separate database calls. Introspection lets tools discover the schema, so it can be limited in production. Because each client sends different selection text, HTTP caching is less straightforward than for a fixed endpoint; caches key on the query and variables. Large result sets use pagination, often a cursor, rather than unbounded lists.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Deeply nested selections can generate unbounded work; depth or cost limits bound it.</li>
+<li>Field-level authorisation is necessary; authorising only the endpoint is too coarse.</li>
+<li>Partial success sends data and errors together, which clients must handle.</li>
+<li>A resolver that reads a slow store can dominate the whole response.</li>
+<li>Introspection or verbose errors can expose internal types to a client.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why does batching resolvers matter more than a fast single query?</summary>
+<p>A selection that repeats one field across many items can issue one backend call per item. Batching collects the keys and performs one call, turning twenty round trips into one; improving each individual call barely helps.</p>
+</details>
+<details class="q open">
+<summary>Where does caching become difficult, and what is the usual answer?</summary>
+<p>Responses vary with the selection text and variables, so a plain URL cache key misses or mixes results. Keys must include the query and variables, or the service can use persisted queries with stable identifiers.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="programming/databases/indexeddb.html">IndexedDB</a> for the client-side store; <a href="programming/databases/very-large-data-sets.html">Very large data sets</a> for backends that need scale; <a href="paths/databases.html">the databases path</a>. Primary reference: <cite data-ref="graphql-spec"><a href="bibliography/graphql-spec.html">GraphQL specification</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/databases/indexeddb.html">IndexedDB</a> &mdash; return to data held in the browser.</li>
+<li><a href="programming/databases/very-large-data-sets.html">Very large data sets</a> &mdash; see what a backend faces at scale.</li>
+<li><a href="paths/databases.html">Databases path</a> &mdash; follow the series in order.</li>
+</ul>
+</body>
+</html>

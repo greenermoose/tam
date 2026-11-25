@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Very large data sets</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="data.novice, data.learner, data.expert">
+<meta name="topic" content="very-large-data-sets">
+<meta name="summary" content="When one database is not enough, distributed storage, columnar files, batch engines and streams share the work.">
+<meta name="keywords" content="big data, distributed file system, HDFS, Cassandra, HBase, Parquet, Spark, Kafka, data lake, data warehouse, batch, streaming">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/databases/index.html">
+<meta name="prereqs" content="graphql">
+<meta name="paths" content="databases:10">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / Very large data sets</p></nav>
+
+<p>Some collections grow too large for one computer to hold or process quickly. This page names the storage and processing ideas used when data is spread across many machines.</p>
+
+<section data-level="novice">
+<h2>When one machine is not enough</h2>
+<p>A <dfn><a href="glossary/d/distributed-file-system.html">distributed file system</a></dfn> stores files across many machines but presents them as one place. Other systems spread rows across machines by a chosen <a href="glossary/p/partition.html">partition</a>. <a href="glossary/a/parquet.html">Parquet</a> is a file format that stores columns together. A <a href="glossary/s/stream.html">stream</a> carries events as they happen, while a batch job reads a stored collection all at once.</p>
+<h3>Why it matters</h3>
+<p>More machines give more space and more work at once. Copies on different machines also mean the data survives one machine failing.</p>
+<h3>How to think about it</h3>
+<p>Picture a large warehouse with many shelves and a catalogue that says which shelf holds each box. A delivery belt brings new parcels while workers also process piles already on the shelves. That is the difference between a stream and a batch, and the catalogue is like partitioning.</p>
+<h3>New words</h3>
+<dl>
+<dt>Distributed file system</dt><dd>Files spread over several machines: <a href="glossary/d/distributed-file-system.html">distributed file system</a>.</dd>
+<dt>Partition</dt><dd>A slice of data kept together, often on one machine: <a href="glossary/p/partition.html">partition</a>.</dd>
+<dt>Replication</dt><dd>Extra copies for safety and speed: <a href="glossary/r/replication.html">replication</a>.</dd>
+<dt>Parquet</dt><dd>A column-oriented file format for analytics: <a href="glossary/a/parquet.html">Parquet</a>.</dd>
+<dt>Stream</dt><dd>Items arriving over time rather than as a stored pile: <a href="glossary/s/stream.html">stream</a>.</dd>
+<dt>Data lake and data warehouse</dt><dd>Raw files live in a <a href="glossary/d/data-lake.html">data lake</a>; curated tables live in a <a href="glossary/d/data-warehouse.html">data warehouse</a>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read batch and stream samples</h2>
+<p><strong>Goal:</strong> you will be able to tell a batch result from a stream result and say what each sample represents.</p>
+<tam-sandbox
+  title="Try it: read two scale samples"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="files"
+  goal="Show the sample stream output">
+  <tam-fs>
+<dir name="/home/alex">
+      <file name="events.csv" size="56">ts,user,event
+10:01,alex,view
+10:02,rae,click
+10:03,alex,buy</file>
+    </dir>
+  </tam-fs>
+    <tam-cmd match="cat events.csv" hint="Three sample events follow the header line.">
+      <out>ts,user,event</out>
+      <out>10:01,alex,view</out>
+      <out>10:02,rae,click</out>
+      <out>10:03,alex,buy</out>
+    </tam-cmd>
+    <tam-cmd match="spark.read.parquet(&quot;events&quot;)" hint="A batch engine reads stored files.">
+      <out>Sample DataFrame result: 3 rows</out>
+    </tam-cmd>
+    <tam-cmd match="kafka-console-consumer --topic events --from-beginning" goal="true" hint="Correct: these are sample events from a stream.">
+      <out>{&quot;user&quot;:&quot;alex&quot;,&quot;event&quot;:&quot;view&quot;}</out>
+      <out>{&quot;user&quot;:&quot;rae&quot;,&quot;event&quot;:&quot;click&quot;}</out>
+      <out>{&quot;user&quot;:&quot;alex&quot;,&quot;event&quot;:&quot;buy&quot;}</out>
+    </tam-cmd>
+  <tam-init>Try: cat events.csv, then the two sample tool lines.</tam-init>
+  <tam-hint after="1">Type cat events.csv to see the three sample events.</tam-hint>
+  <tam-hint after="2">The kafka line is scripted; type it exactly as shown.</tam-hint>
+  <tam-fallback>Try cat events.csv or the two scripted tool lines (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<p><code>events.csv</code> is sample data, and the <code>spark.read.parquet</code> and <code>kafka-console-consumer</code> outputs are scripted teaching simulations. Neither Spark nor Kafka was installed or run, and nothing here is a measurement from your machine. The batch line reads stored <a href="glossary/a/parquet.html">Parquet</a> files and counts three event rows. The stream line prints events one at a time as if they were arriving, so its order comes from the sample script.</p>
+<h3>Try it</h3>
+<p>Run <code>wc -l events.csv</code>: it reports four lines, the header plus three events. The sample Parquet count is three because a stored file format keeps the field names as schema, not as a row. Ask yourself which question needs all three events together and which can act on each event as it arrives.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The tool lines are not understood.</dt><dd>They are scripted samples rather than sandbox built-ins. Use cat, grep or wc on the fixture instead.</dd>
+<dt>The two outputs look alike.</dt><dd>They show the same sample facts at different times: a batch reads a finished set, a stream reads items over time.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>Which approach fits a running total of events as they arrive?</i></summary>
+<p>A stream processor: it keeps state and updates the total per event. A batch job can recompute the same total later, but only after a stored set is available.</p>
+</details>
+<details class="q">
+<summary><i>Why store analytics files in Parquet?</i></summary>
+<p>A query often reads a few columns across many rows. Keeping each column together lets the engine skip the rest and compress repeated values well.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: storage and processing at scale</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Tool</th><th>Role</th><th>Cost or limit</th></tr>
+<tr><td>HDFS</td><td><a href="glossary/d/distributed-file-system.html">Distributed file system</a> for large files</td><td>Small files waste resources</td></tr>
+<tr><td>Cassandra</td><td>Wide-column store with writes across nodes</td><td>Queries follow the partition design</td></tr>
+<tr><td>HBase</td><td>Column-oriented store over Hadoop storage</td><td>Operational complexity</td></tr>
+<tr><td>Parquet</td><td>Columnar file format for analytics</td><td>Row-by-row writes are awkward</td></tr>
+<tr><td>Spark</td><td>Batch and micro-batch processing engine</td><td>Shuffles data between machines</td></tr>
+<tr><td>Kafka</td><td>Durable event <a href="glossary/s/stream.html">stream</a> with replay</td><td>Ordering is per partition</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Partitioning splits data so work and storage spread across machines; replication keeps copies so a failure does not lose data. Some stores accept <a href="glossary/c/consistency.html">eventual consistency</a>, allowing replicas to catch up rather than waiting for every node. Columnar formats such as <a href="glossary/a/parquet.html">Parquet</a> group values by column, which suits scans and compression. Query engines push filters down toward the files and shuffle rows only when a join or grouping needs it. A <a href="glossary/d/data-lake.html">data lake</a> keeps raw files cheaply; a <a href="glossary/d/data-warehouse.html">data warehouse</a> serves curated tables for reporting, the <a href="glossary/o/olap.html">OLAP</a> side rather than the <a href="glossary/o/oltp.html">OLTP</a> side. Stream processors apply backpressure when consumers cannot keep up, so slow readers do not exhaust the producer.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Hot partitions overload one machine while others stay idle.</li>
+<li>Late events arrive after a batch window has closed and need a correction path.</li>
+<li>Shuffles dominate cost; filtering early is cheaper than moving data.</li>
+<li>Stream ordering is guaranteed within a partition, not across the whole topic.</li>
+<li>More replicas improve survival and reads but cost storage and slower writes.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why might eventual consistency be an acceptable trade?</summary>
+<p>A system that waits for every replica before acknowledging a write loses availability when a node is slow or offline. Accepting a short window of stale reads keeps the service usable; the application must then tolerate that window.</p>
+</details>
+<details class="q open">
+<summary>When does a lake cost more than a warehouse saves?</summary>
+<p>Raw files are cheap to store but costly to trust without curation. If consumers repeatedly clean the same files and need predictable tables, a warehouse with defined schemas repays its extra storage and pipeline work.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="programming/databases/graphql.html">GraphQL</a> for the client-facing contract; <a href="programming/databases/non-sql-databases.html">Non-SQL databases</a> for the store families; <a href="paths/databases.html">the databases path</a>. Primary references: <cite data-ref="hdfs-design"><a href="bibliography/hdfs-design.html">HDFS design document</a></cite>, <cite data-ref="parquet-docs"><a href="bibliography/parquet-docs.html">Parquet documentation</a></cite>, <cite data-ref="spark-docs"><a href="bibliography/spark-docs.html">Spark documentation</a></cite> and <cite data-ref="kafka-docs"><a href="bibliography/kafka-docs.html">Kafka documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/databases/graphql.html">GraphQL</a> &mdash; return to how clients ask for data.</li>
+<li><a href="programming/databases/non-sql-databases.html">Non-SQL databases</a> &mdash; revisit the four store families.</li>
+<li><a href="paths/databases.html">Databases path</a> &mdash; finish the series in order.</li>
+</ul>
+</body>
+</html>

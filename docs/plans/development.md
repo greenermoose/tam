@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-25:** Corpus 0.129.0 (minor): add the Programming / Databases and data storage curriculum: hub, ten three-level pages, five-stage goal path, thirty glossary entries, twelve bibliography sources and `data.*` skills. All teaching examples are sandboxes with sample output labelled as simulated; no database software is installed. Command version 0.69.7 is unchanged.
 - **2026-11-24:** Command 0.69.7 (patch): clear transient status notices such as `Quiz 1/2 revealed` when the attention line, selection or page changes, so expanding an answer or showing an aside does not leave a stale notice after the reader moves. A notice written by the same key is kept. Add a fold regression test.
 - **2026-11-24:** Command 0.69.6 (patch): clear `Path = ...` as soon as the attention line, selection or page changes, so the status row reports the new location or the newly selected link destination instead of a stale address. Draw a selected link's destination with the same selected-link styling used on the page, including its reverse background, so the status row visibly belongs to the highlighted link. Update the manual wording and PTY tests.
 - **2026-11-24:** Command 0.69.5 (patch): remove everything above the topic table on `tam:topics` — the `Topics A to Z` title heading and the three-line instructions paragraph — and open with the breadcrumb, line Lb and the `Topic` / `Covers` table header. As on `tam:paths`, the generated view injects `tam_level_lines()` itself so the table has the same blank separator as depth-prepared Guide pages. The page title and level links stay unchanged.
@@ -1590,6 +1591,23 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
+
+### 2026-11-25 — Databases and data storage curriculum (corpus 0.129.0)
+
+The developer asked for pages on SQLite and IndexedDB in the `tam` knowledge
+corpus, then for a series on database programs and data storage techniques
+featuring influential open source databases such as SQLite, PostgreSQL and
+MySQL, plus GraphQL, non-SQL databases and storage for very large data sets.
+He approved the full-series shape, including a hub, teaching pages, a goal
+path, glossary, sources and skills, with the instruction “Make it so.”
+
+The new canonical home is `knowledge/programming/databases/`, linked from
+Programming and from Files and storage. Ten pages carry a Novice idea, a
+Learner sandbox exercise and an Expert reference. The `databases` goal path
+has five stages with checkpoints and one capstone. All command-like examples
+are teaching simulations; scripted output is described as sample data, and no
+database software is installed. Corpus-only work; command version, stage
+promotion and installation remain developer-directed.
 
 ### 2026-11-25 — Timescales troubleshooting guidance (corpus 0.128.2)
 
