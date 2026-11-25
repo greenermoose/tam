@@ -163,7 +163,6 @@ pass "cultivar version resolution"
 # Piped output must not contain terminal control sequences.
 if "$TAM" | grep -q "$esc"; then fail "bare output contains escape sequences"; fi
 if "$TAM" --help | grep -q "$esc"; then fail "help contains escape sequences"; fi
-if "$TAM" welcome --pipe | grep -q "$esc"; then fail "welcome contains escape sequences"; fi
 if "$TAM" explain | grep -q "$esc"; then fail "bare explain contains escape sequences"; fi
 if "$TAM" explain pipelines --pipe | grep -q "$esc"; then fail "explain contains escape sequences"; fi
 if "$TAM" install | grep -q "$esc"; then fail "install contains escape sequences"; fi
@@ -179,23 +178,30 @@ if "$TAM" --help extra >/dev/null 2>&1; then fail "extra arguments exited 0"; fi
 pass "argument errors"
 
 # Welcome command: displays orientation and records welcome_seen on success.
+welcome_fixture="$root/tests/fixtures/guide"
 w_state="$tmp/welcome_state"
-w_out=$(env HOME="$tmp/w_home" XDG_STATE_HOME="$w_state" "$TAM" welcome --pipe)
-printf '%s\n' "$w_out" | grep -q '^Hello!$' || fail "welcome output missing introduction"
+welcome_cmd() {
+    env TAM_KNOWLEDGE_DIR="$welcome_fixture" HOME="$tmp/w_home" \
+        XDG_STATE_HOME="$w_state" "$TAM" "$@"
+}
+w_expected=$(welcome_cmd show --pipe welcome)
+w_out=$(welcome_cmd welcome --pipe)
+[ -n "$w_expected" ] && [ "$w_out" = "$w_expected" ] || fail "welcome did not render the fixture page"
+if printf '%s\n' "$w_out" | grep -q "$esc"; then fail "welcome contains escape sequences"; fi
 [ -f "$w_state/tamlinux/tam/welcome_seen" ] || fail "welcome did not create tamlinux/tam/welcome_seen"
 [ ! -e "$w_state/tamlinux/welcome_seen" ] || fail "welcome wrote the retired top-level welcome_seen"
 grep -q '^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}T' "$w_state/tamlinux/tam/welcome_seen" \
     || fail "welcome_seen missing timestamp"
-if env HOME="$tmp/w_home" XDG_STATE_HOME="$w_state" "$TAM" welcome extra >/dev/null 2>&1; then
+if welcome_cmd welcome extra >/dev/null 2>&1; then
     fail "welcome with extra arguments exited 0"
 fi
 pass "welcome displays orientation and records welcome_seen"
 
 # hello and hi aliases for welcome
-hello_out=$("$TAM" hello --pipe)
-printf '%s\n' "$hello_out" | grep -q '^Hello!$' || fail "tam hello did not render welcome"
-hi_out=$("$TAM" hi --pipe)
-printf '%s\n' "$hi_out" | grep -q '^Hello!$' || fail "tam hi did not render welcome"
+for name in hello hi; do
+    alias_out=$(welcome_cmd "$name" --pipe)
+    [ "$alias_out" = "$w_out" ] || fail "tam $name did not render welcome"
+done
 pass "hello and hi aliases for welcome"
 
 # Welcome isolation: bare tam, show, help, version, explain, install NEVER write welcome state.
@@ -2775,7 +2781,6 @@ printf '%s\n' "$sh_tam" | grep -qi 'develop -> test -> run -> release' || fail "
 # tam explain topics lists available topics and exits 0.
 ex_topics=$("$TAM" explain topics --pipe)
 printf '%s\n' "$ex_topics" | grep -q 'Topics A to Z:' || fail "explain topics missing heading"
-printf '%s\n' "$ex_topics" | grep -q 'welcome' || fail "explain topics missing welcome"
 printf '%s\n' "$ex_topics" | grep -q 'install' || fail "explain topics missing install"
 printf '%s\n' "$ex_topics" | grep -q 'shell' || fail "explain topics missing shell"
 printf '%s\n' "$ex_topics" | grep -q 'pipelines' || fail "explain topics missing pipelines"
@@ -2793,7 +2798,6 @@ printf '%s\n' "$ex_topics" | grep -q '  lua ' || fail "explain topics missing lu
 ex_terse=$("$TAM" explain topics --terse)
 printf '%s\n' "$ex_terse" | grep -qx 'pipelines' || fail "terse topics missing pipelines"
 printf '%s\n' "$ex_terse" | grep -qx 'jobs' || fail "terse topics missing jobs"
-printf '%s\n' "$ex_terse" | grep -qx 'welcome' || fail "terse topics missing welcome"
 if printf '%s\n' "$ex_terse" | grep -q ' '; then fail "terse output contains spaces"; fi
 
 # tam explain topics --verbose emits detailed metadata and keyword arrays.
@@ -2808,7 +2812,6 @@ printf '%s\n' "$ex_verbose" | grep -Eq 'Revision: +Rev [1-9][0-9]* Last updated 
 ex_expert_terse=$("$TAM" explain topics --level expert --terse)
 printf '%s\n' "$ex_expert_terse" | grep -qx 'pipelines' || fail "expert terse missing pipelines"
 printf '%s\n' "$ex_expert_terse" | grep -qx 'jobs' || fail "expert terse missing jobs"
-printf '%s\n' "$ex_expert_terse" | grep -qx 'welcome' || fail "expert terse missing welcome"
 
 # Multi-word explain resolves via search fallback path.
 ex_multi=$("$TAM" explain cpu load --pipe)
@@ -2983,7 +2986,7 @@ if "$TAM" explain --level invalid pipelines >/dev/null 2>&1; then fail "explain 
 "$TAM" explain --level invalid pipelines 2>&1 | grep -q "unknown level 'invalid'" || fail "missing unknown level message"
 
 # A topic lacking the requested level lists every level under its level line.
-ex_no_exp=$("$TAM" explain --level expert welcome --pipe) || fail "explain --level expert welcome failed"
+ex_no_exp=$(welcome_cmd explain --level expert welcome --pipe) || fail "explain --level expert welcome failed"
 printf '%s\n' "$ex_no_exp" | grep -q "Showing expert text" || fail "missing topic level line"
 
 pass "explain resolves curated topics, handles misses, and treats shell strings as data"

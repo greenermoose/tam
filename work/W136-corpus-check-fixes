@@ -1,0 +1,39 @@
+W136 CORPUS CHECK FIXES
+
+Date: 2026-11-25
+AI harness: Codex CLI 0.172.0
+AI model: gpt-6.2-sol
+
+GUIDANCE
+
+  Fred (excerpt): "Fix this bug in the tam knowledge corpus. Decide
+  whether to fix the checkers or the HTML pages."
+  Fred: "Rewrite the test. I do not want tests to be looking for any
+  specific wording on the welcome page. I want to be able to completely
+  rewrite the welcome page without triggering any make failures."
+  Fred: "Commit and release your work claims"
+
+DONE
+
+  - The corpus and standalone guide checks read actual href attributes
+    from the existing HTML parser. A test covers escaped example text,
+    comments, data-href, and a genuinely broken link.
+  - Formatted the sample home path as code, used Unicode superscripts
+    for the 64-bit ranges, switched the account lesson to Alex, and
+    abbreviated the simulated disk UUIDs.
+  - Uncached corpus checks passed for all 1,493 pages. The 96 corpus
+    tooling unit tests, standalone guide suite and repository check
+    passed.
+  - Welcome and alias tests now compare fixture output and still check
+    the state marker. The live welcome page can change copy and links;
+    the start action still has its own pager test.
+
+FAILED
+
+  - `make test` passed the welcome checks, then stopped at a wording
+    assertion about Makefile targets on the separate tam command page.
+
+HANDOFF
+
+  - Corpus 0.128.3 records these fixes. Fred's welcome edit remains
+    in the working tree with the next pending version, 0.128.4.

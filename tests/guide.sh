@@ -141,30 +141,21 @@ pass "extensionless page names resolve"
 # Referenced links exist on disk. The corpus uses root-relative hrefs
 # (resolved against the knowledge root, never the page's own directory).
 if [ "${TAM_GUIDE_SKIP_PAGES:-0}" != 1 ]; then
-python3 -c '
-import os, re, sys
+python3 -B -c '
+from pathlib import Path
+import sys
 
-knowledge = sys.argv[1]
-href_re = re.compile(r"""href=["\x27]([^"\x27]+)["\x27]""")
-skip_prefixes = ("://", "mailto:", "#", "man:", "tam:", "info:", "tldr:")
+knowledge = Path(sys.argv[1])
+sys.path.insert(0, str(knowledge.parent / "tools"))
+from corpus_pipeline import broken_internal_links, load_module
 
+builder = load_module("build-index")
+available = {p.relative_to(knowledge).as_posix() for p in knowledge.rglob("*") if p.is_file()}
 broken = []
-for dirpath, _, filenames in os.walk(knowledge):
-    for f in filenames:
-        if f.endswith(".html"):
-            p_path = os.path.join(dirpath, f)
-            rel = os.path.relpath(p_path, knowledge)
-            text = open(p_path, encoding="utf-8", errors="replace").read()
-            for href in href_re.findall(text):
-                if any(href.startswith(pfx) or pfx in href for pfx in skip_prefixes):
-                    continue
-                if href.startswith("/") or ".." in href:
-                    broken.append(f"{rel}->{href}")
-                    continue
-                target = href.split("?")[0]
-                if not os.path.isfile(os.path.join(knowledge, target)):
-                    broken.append(f"{rel}->{href}")
-
+for rel in sorted(available):
+    if rel.endswith(".html"):
+        document = builder.LearningHTML((knowledge / rel).read_text(encoding="utf-8", errors="replace"))
+        broken.extend(f"{rel}->{href}" for href in broken_internal_links(document.hrefs, available))
 if broken:
     sys.exit("broken internal links: " + " ".join(broken))
 ' "$knowledge" || fail "broken internal links"
@@ -245,8 +236,5 @@ out=$(env HOME="$tmp/nohome" XDG_DATA_HOME="$tmp/nodata" \
 [ "$out" = "$(guide --pipe welcome)" ] \
     || fail "staged install did not render the current bundled corpus"
 pass "staged install relocates and finds the corpus"
-
-guide --pipe welcome.html | grep -Fq 'tam:start' || fail "welcome.html missing tam:start link"
-pass "welcome.html links to tam:start"
 
 printf 'All tam guide tests passed.\n'

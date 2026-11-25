@@ -3,25 +3,24 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-25, with W135
+Updated: 2026-11-25, with W136
 
 STATE
 
-  Command 0.69.7 and corpus 0.128.2 are on dev. W134 restored the goal
-  path stages, quizzes and capstones. W135 added missing recovery
-  guidance to the computer-timescales Learner section. `make corpus`
-  passes for all 1,493 pages; the coverage report has zero anatomy
-  warnings. No test suite or install was run.
+  Command 0.69.7 and corpus 0.128.3 are on dev, including W136's checker,
+  page and welcome test fixes. Uncached corpus checks pass for all 1,493
+  pages, and all 96 corpus tooling tests pass. The full suite passes
+  the welcome checks and stops at the tam command page's Makefile
+  targets wording assertion. The welcome rewrite is pending for 0.128.4.
 
 NEXT
 
-  - Wait for Fred's next direction on tam content. No warning follow-up
-    remains. No Test, Run or Release is authorised.
+  - Finish the pending 0.128.4 development cycle for the welcome rewrite.
 
 WAITING FOR FRED
 
-  - Fred's next direction. Tamlinux 0.6.38 remains in Test; this
-    corpus correction does not move that candidate.
+  - Fred's development cycle for the pending corpus change. Tamlinux
+    0.6.38 remains in Test.
 
 WATCH OUT
 
@@ -46,8 +45,6 @@ WATCH OUT
     apostrophes in comments or strings inside them.
   - The reveal and hide keys r and a are reliable for first-time
     asides; Right Arrow depends on where the attention line sits.
-  - Escaped href="..." inside a pre block still trips the corpus link
-    checker. Use &quot; around the example attribute value.
   - Generated corpus indexes trail page commits by one; commit them
     after the pages, then rerun make corpus.
   - A page title belongs in <title> and the breadcrumb only. Do not

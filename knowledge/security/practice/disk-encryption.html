@@ -54,11 +54,11 @@
     </dir>
   </tam-fs>
     <tam-cmd match="lsblk -f" goal="true" hint="The crypto_LUKS line is the encrypted container.">
-      <out>NAME        FSTYPE      LABEL  UUID                                 MOUNTPOINT</out>
-      <out>nvme0n1                                                            </out>
-      <out>nvme0n1p1   vfat        ESP    A1B2-C3D4                            /boot</out>
-      <out>nvme0n1p2   crypto_LUKS        11111111-2222-3333-4444-555555555555</out>
-      <out>  luks-...  ext4               abcdef01-2345-6789-abcd-ef0123456789 /</out>
+      <out>NAME        FSTYPE      LABEL  UUID         MOUNTPOINT</out>
+      <out>nvme0n1</out>
+      <out>nvme0n1p1   vfat        ESP    A1B2-C3D4    /boot</out>
+      <out>nvme0n1p2   crypto_LUKS        11111111-…</out>
+      <out>  luks-...  ext4               abcdef01-…   /</out>
     </tam-cmd>
     <tam-cmd match="tam-drive-info /dev/nvme0n1" hint="Sample driver report; it does not inspect your hardware.">
       <out>model: Example NVMe</out>
@@ -72,7 +72,7 @@
   <tam-fallback>Try lsblk -f or tam-drive-info /dev/nvme0n1 (or type help).</tam-fallback>
 </tam-sandbox>
 <h3>What just happened</h3>
-<p>The sample shows an unencrypted EFI boot partition and an encrypted root container. The filesystem appears on the unlocked mapping, not directly on the encrypted partition. Both replies are authored sample output.</p>
+<p>The sample shows an unencrypted EFI boot partition and an encrypted root container. The filesystem appears on the unlocked mapping, not directly on the encrypted partition. The simulated output abbreviates the longer UUIDs.</p>
 <h3>Try it</h3>
 <p>Predict what happens if the passphrase is lost: the stored data cannot be recovered from the ciphertext alone. Keep a recovery key in a separate, safe place before changing passphrases.</p>
 <h3>If it goes wrong</h3>

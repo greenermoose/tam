@@ -127,6 +127,17 @@ class CorpusPipeline(unittest.TestCase):
         (self.root / "knowledge/tldr/pages").mkdir(parents=True)
         self.ok("check")
 
+    def test_link_check_reads_markup_attributes_and_ignores_example_text(self):
+        self.edit("index.html", "</body>",
+                  '<pre>&lt;link rel="stylesheet" href="style.css"&gt;</pre>'
+                  '<p data-href="metadata.html">Example</p>'
+                  '<!-- <a href="comment.html">Draft</a> --></body>')
+        self.ok("check")
+        self.edit("index.html", "</body>", '<a href = "missing.html">Broken</a></body>')
+        rc, _, err = self.run_pipeline("check")
+        self.assertEqual(rc, 1)
+        self.assertIn("broken internal link: missing.html", err)
+
     def test_registry_changes_revalidate_unchanged_pages(self):
         self.ok()
         registry = self.root / "knowledge/learn/skills/skills.json"

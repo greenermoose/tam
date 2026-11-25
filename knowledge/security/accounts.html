@@ -54,18 +54,18 @@
     </dir>
   </tam-fs>
     <tam-cmd match="id" goal="true" hint="The first number is the UID; the groups list is assigned at login.">
-      <out>uid=1000(fred) gid=1000(fred) groups=1000(fred),10(wheel)</out>
+      <out>uid=1000(alex) gid=1000(alex) groups=1000(alex),10(wheel)</out>
     </tam-cmd>
     <tam-cmd match="printf &#x27;Home: %s\n&#x27; &quot;$HOME&quot;" hint="The HOME value points to this account’s personal folder.">
-      <out>Home: /home/fred</out>
+      <out>Home: /home/alex</out>
     </tam-cmd>
-    <tam-cmd match="getent passwd fred" hint="The passwd record stores name, UID, GID, home and shell.">
-      <out>fred:x:1000:1000:Fred:/home/fred:/bin/bash</out>
+    <tam-cmd match="getent passwd alex" hint="The passwd record stores name, UID, GID, home and shell.">
+      <out>alex:x:1000:1000:Alex:/home/alex:/bin/bash</out>
     </tam-cmd>
-  <tam-init>Sample account: fred, UID 1000, home /home/fred.</tam-init>
+  <tam-init>Sample account: alex, UID 1000, home /home/alex</tam-init>
   <tam-hint after="1">Try id to see the numeric identity.</tam-hint>
-  <tam-hint after="2">Now try getent passwd fred for the full record.</tam-hint>
-  <tam-fallback>Try id, getent passwd fred or printf 'Home: %s\n' "$HOME" (or type help).</tam-fallback>
+  <tam-hint after="2">Now try getent passwd alex for the full record.</tam-hint>
+  <tam-fallback>Try id, getent passwd alex or printf 'Home: %s\n' "$HOME" (or type help).</tam-fallback>
 </tam-sandbox>
 <h3>What just happened</h3>
 <p>The sample <code>id</code> reply shows a UID, a primary GID and supplementary groups. The <code>getent</code> line is the account record behind that identity. All replies here are authored sample output.</p>

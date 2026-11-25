@@ -583,7 +583,7 @@ KINDS = {"tutorial", "how-to", "reference", "explanation", "path", "hub",
 
 
 class LearningHTML(HTMLParser):
-    """Read cross-page teaching references and level sections structurally."""
+    """Read links, teaching references and level sections structurally."""
     def __init__(self, text):
         super().__init__(convert_charrefs=True)
         self.stack = []
@@ -591,10 +591,13 @@ class LearningHTML(HTMLParser):
         self.reference_ids = []
         self.sections = []
         self.ids = []
+        self.hrefs = []
         self.feed(text)
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if attrs.get("href"):
+            self.hrefs.append(attrs["href"])
         if attrs.get("id"):
             self.ids.append(attrs["id"])
         if "reference" in attrs.get("class", "").split():

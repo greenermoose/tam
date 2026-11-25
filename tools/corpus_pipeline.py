@@ -30,7 +30,6 @@ OUTPUTS = {"index.tsv", "index.json", "index.parents.tsv", "index.kinds.tsv",
            "index.skills.tsv", "index.paths.tsv", "coverage.json",
            "component-coverage.json", "tldr/index.tsv", ".build_id"}
 REVISION = re.compile(r"^Rev [1-9][0-9]* Last updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}$", re.M)
-HREF = re.compile(r'''href=["']([^"']+)["']''')
 
 
 class CorpusError(Exception):
@@ -209,7 +208,16 @@ def page_summary(builder, root, rel, text, history):
     for section in learning["sections"]:
         section["text"] = [" ".join(section["text"])]
     return {"entry": entry, "errors": errors, "crumbs": builder.breadcrumb_parts(text),
-            "learning": learning, "links": HREF.findall(text)}
+            "learning": learning, "links": document.hrefs}
+
+
+def broken_internal_links(hrefs, available):
+    for href in hrefs:
+        if any(href.startswith(prefix) or prefix in href
+               for prefix in ("://", "mailto:", "#", "man:", "tam:", "info:", "tldr:")):
+            continue
+        if href.startswith("/") or ".." in href or href.split("?")[0] not in available:
+            yield href
 
 
 def identity(root):
@@ -342,12 +350,8 @@ def process(root, mode, state, snap, reader=None, full=False):
             if "lint" not in row:
                 row["lint"] = linter.Page("knowledge/" + rel, snap.texts[rel], rules).check()
             findings.extend(row["lint"])
-            for href in row["links"]:
-                if any(href.startswith(prefix) or prefix in href
-                       for prefix in ("://", "mailto:", "#", "man:", "tam:", "info:", "tldr:")):
-                    continue
-                if href.startswith("/") or ".." in href or href.split("?")[0] not in available:
-                    findings.append(("knowledge/" + rel, 0, "LINK", "broken internal link: " + href))
+            for href in broken_internal_links(row["links"], available):
+                findings.append(("knowledge/" + rel, 0, "LINK", "broken internal link: " + href))
         if findings:
             raise CorpusError("\n".join(f"{p}:{line}: {rule}: {msg}" for p, line, rule, msg in sorted(set(map(tuple, findings)))))
 
