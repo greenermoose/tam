@@ -3,18 +3,25 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W128
+Updated: 2026-11-24, with W129
 
 STATE
 
-  Command 0.69.7 is committed on dev (W127 and earlier). Corpus
-  0.125.0 adds the Windowing systems series from W128 and is
-  uncommitted at this point.
+  Command 0.69.7 and corpus 0.125.0 are committed on dev. W129
+  adds corpus 0.126.0 and is uncommitted at this point. W128 was
+  committed as 5317a75, with index follow-up 189ad59.
 
-  W128 adds a Desktop / Windowing systems hub with eight three-level
+  W129 adds glossary/l/linux.html with three levels: the 1991 origin
+  and GNU tools, the distribution families available today, how the
+  kernel is developed by maintainers, and how the other layers of a
+  complete system are owned by projects, foundations, standards bodies
+  and individuals. It links from the distro entry and the Operating
+  Systems Reference.
+
+  W128 added a Desktop / Windowing systems hub with eight three-level
   teaching pages: history, X11, Wayland, why Linux moved from X11,
   other operating systems, GNOME/KDE Plasma desktops, widget toolkits
-  and read-only graphical session checks. It adds the four-stage
+  and read-only graphical session checks. It added the four-stage
   windowing-systems goal path, 25 glossary pages, nine bibliography
   entries, three windowing.* skills and cross-links.
 
@@ -51,7 +58,7 @@ STATE
 
 NEXT
 
-  - Commit the W128 corpus, version and record paths on dev with
+  - Commit the W129 corpus, version and record paths on dev with
     provenance trailers. Only claimed paths go into this commit.
   - Rerun make corpus and commit the generated index follow-up if it
     changed; the index records each page's commit history.
@@ -94,6 +101,9 @@ WATCH OUT
     its <h1>.
   - make corpus regenerates glossary hubs from tools/glossary_index.py,
     so heading changes there must be made in the generator too.
+  - Glossary pages carry one definition per level and link to
+    teaching pages. Put detailed distro comparisons in the Operating
+    Systems Reference, not in a glossary entry.
   - Glossary pages are filed by the first letter of their title. If a
     check reports a misplaced page, run
     `python3 tools/corpus_pipeline.py check --fix-glossary`: it moves
@@ -108,7 +118,7 @@ WATCH OUT
   - Fold notices are transient st->msg text: a movement key clears
     them only when the key did not write a new notice, so reveal-all
     still reports its count.
-  - Command and corpus versions are independent; W128 is corpus only.
+  - Command and corpus versions are independent; W129 is corpus only.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head>
+<title>Linux</title>
+<meta name="topic" content="glossary-linux">
+<meta name="summary" content="Linux: the free kernel begun by Linus Torvalds, the distributions built around it, and how a complete system is assembled.">
+<meta name="keywords" content="glossary-linux, linux, gnu/linux, linus torvalds, kernel, distribution, distro, history, kernel development">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/l/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/l/index.html">Terms beginning with L</a> / Linux</p></nav>
+
+<p>Linux is a free operating-system kernel first written by Linus Torvalds in 1991. The name also means the complete computer systems that people build around that kernel.</p>
+<section data-level="novice"><p>Linus Torvalds was a student in Finland when he began Linux as a small hobby project, inspired by the Unix-like teaching system <a href="glossary/m/minix.html">MINIX</a>. He published the first version in 1991 and soon placed it under a free-software licence. The <dfn><a href="glossary/k/kernel.html">kernel</a></dfn> is only the part that manages hardware and runs programs; a usable computer also needs commands, libraries and applications. Most of those came from the <dfn><a href="glossary/g/gnu.html">GNU</a></dfn> project, so you will also see the name GNU/Linux. There is no single Linux desktop: different groups put the same kernel together with different tools.</p></section>
+<section data-level="learner"><p>Volunteers made the first complete <dfn><a href="glossary/d/distro.html">distributions</a></dfn> in the early 1990s by combining the kernel with GNU tools and the <a href="glossary/x/x11.html">X11</a> display system. Slackware and Debian appeared in 1993, followed by Red Hat and SUSE in 1994. The families available today include Debian and Ubuntu, Fedora and Red Hat Enterprise Linux, Arch, openSUSE, and independent projects such as Alpine, Gentoo, Slackware, Solus and Void. Android uses the Linux kernel but not the usual GNU desktop. The <a href="systems/operating-systems/index.html">Operating Systems Reference</a> describes these families; Tamlinux uses Arch Linux as its <a href="glossary/r/rootstock.html">rootstock</a> today, with Void Linux planned.
+
+Linus Torvalds still decides which changes enter the main kernel. Developers send <a href="glossary/p/patch.html">patches</a> to subsystem maintainers, who review and merge them into their own trees. During a merge window the maintainers offer that work to Torvalds; release candidates and testing follow before the next final release. Stable and long-term teams backport fixes to older releases.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Two machines run the same Linux kernel version. Why can they still need different commands to install software?</summary><p>The kernel manages hardware and processes; each distribution chooses its own <a href="glossary/p/package-manager.html">package manager</a>, repositories, C library and <a href="glossary/i/init.html">init</a> system. Those choices sit above the shared kernel.</p></details>
+</section>
+</section>
+<section data-level="expert"><p>Kernel development is a distributed, mailing-list-driven process. Torvalds created <a href="glossary/g/git.html">Git</a> to maintain the kernel source, now mirrored at kernel.org; the <code>MAINTAINERS</code> file records who owns each subsystem and driver. Contributors send signed-off patches to the Linux kernel mailing list and subsystem lists, where reviewers test and improve them before a maintainer pulls them into a subsystem tree. After a roughly two-week merge window, release candidates are tested and a final release follows on a regular cadence. The stable and long-term series receive backported fixes. The kernel is licensed under GPL version 2; companies such as hardware vendors, distribution makers and cloud providers pay many of its contributors, while the Linux Foundation supplies infrastructure and volunteers supply much of the review.
+
+A complete system is an assembly of projects with separate owners. Firmware starts a bootloader, which loads the kernel and an initial RAM filesystem; the kernel then starts an <a href="glossary/i/init.html">init</a> or service manager such as <a href="glossary/s/systemd.html">systemd</a>, runit, OpenRC or dinit. Above it sit a <a href="glossary/l/libc.html">C library</a> (glibc or musl), core utilities (GNU Coreutils or BusyBox), a <a href="glossary/c/compiler.html">compiler</a> toolchain (GCC or LLVM with binutils), a package manager (<code>apt</code>, <code>dnf</code>, <code>pacman</code>, <code>apk</code> or XBPS), a display stack (<a href="glossary/x/x11.html">X11</a> or <a href="glossary/w/wayland.html">Wayland</a>), a desktop such as GNOME or KDE Plasma, and applications. The GNU Project, the Linux Foundation, freedesktop.org, the GNOME and KDE foundations, the Qt Company, standards bodies such as IEEE, The Open Group and W3C, and many individual authors each own a layer. A distribution project such as the Debian or Fedora projects, the Arch Linux team or Canonical selects compatible versions, integrates and patches them, signs repository metadata and ships updates. Tamlinux follows the same pattern: an Arch Linux rootstock, the Tamlinux <a href="glossary/s/scion.html">scion</a>, and a Wayland compositor, with its own compositor planned.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul>
+<li><a href="systems/operating-systems/index.html">Operating Systems Reference</a></li>
+<li><a href="systems/operating-systems/arch-family.html">The Arch family</a></li>
+<li><a href="systems/operating-systems/debian-family.html">The Debian family</a></li>
+<li><a href="systems/operating-systems/fedora-family.html">The Fedora family</a></li>
+<li><a href="systems/operating-systems/kernels.html">Kernel architectures</a></li>
+<li><a href="glossary/d/distro.html">Distro (distribution)</a></li>
+<li><a href="glossary/g/gnu.html">GNU</a></li>
+</ul>
+</body></html>

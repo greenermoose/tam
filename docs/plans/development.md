@@ -1591,6 +1591,18 @@ captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
 
+### 2026-11-24 — Linux glossary page (corpus 0.126.0)
+
+The developer asked for a glossary page for Linux that explains its history,
+the distributions available today, how the kernel is developed, and how the
+other parts of a complete system are put together by organizations and
+individuals. The new three-level entry covers the 1991 origin and GNU tools,
+the main distribution families with links to the existing reference pages,
+the maintainer and merge-window development model, and the layers and owners
+above the kernel. Cross-links were added from the distro glossary entry and
+the Operating Systems Reference. This is corpus content only; command version,
+stage promotion and installation remain developer-directed.
+
 ### 2026-11-24 — Own compositor plan (corpus 0.122.3)
 
 The developer said Tamlinux is writing its own compositor and does not plan

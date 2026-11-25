@@ -1,0 +1,59 @@
+W129 LINUX GLOSSARY PAGE
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Add a glossary page for Linux. Explain the history and the
+  various distros available today. Discuss how the kernel is developed
+  and how other parts of a complete system are put together by various
+  organizations and individuals."
+
+GUIDANCE SOURCE
+
+  Direct instruction from Fred in this session.
+
+DONE
+
+  - Added glossary/l/linux.html with three levels. The novice section
+    covers the 1991 origin, MINIX, the free-software licence and why
+    GNU tools are part of the story. The learner section covers the
+    first distributions, the families available today with links to
+    the Operating Systems Reference, and the maintainer/merge-window
+    development model, with a self-check question. The expert section
+    covers Git, MAINTAINERS, mailing lists, stable and long-term
+    series, GPL version 2, and the layers above the kernel with the
+    organizations and individuals that own them.
+  - Linked the new entry from glossary/d/distro.html and from the
+    "Start with the ideas" table on the Operating Systems Reference.
+    Every new dfn links to a glossary page and every internal link
+    resolves.
+  - Bumped corpus to 0.126.0 and updated the roadmap and development
+    contract. Command version stays 0.69.7; stage promotion and
+    installation remain Fred's decisions.
+
+FAILED
+
+  - Nothing.
+
+CHECKED AGAINST
+
+  - General Linux history and development facts are common knowledge;
+    the distribution families and Tamlinux rootstock direction match
+    knowledge/systems/operating-systems/ and its child pages.
+  - make corpus, make corpus-and-test and make check-repo pass. All
+    95 corpus tooling unit tests pass; the nine learning warnings are
+    pre-existing algorithms and computer-timescales ones.
+  - Reader preview of glossary/l/linux.html with
+    TAM_KNOWLEDGE_DIR=knowledge build/tam show --pipe showed all three
+    levels, the folded answer and the Learn more list.
+  - No push, install, Test, Run or Release was requested or performed.
+
+HANDOFF
+
+  - Commit the W129 corpus, version and record paths on dev with
+    provenance trailers, then rerun make corpus and commit the
+    generated index follow-up.
+  - Await Fred's direction. No stage promotion is authorised.
