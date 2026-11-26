@@ -44,7 +44,7 @@
 
 <section data-level="learner">
 <h2>The computer hardware triad and CPU inspection</h2>
-<p><strong>Goal:</strong> you will be able to identify the primary hardware components of a computer, inspect your processor architecture and cache topology using standard commands, and understand the Von Neumann model.</p>
+<p><strong>Goal:</strong> you will be able to identify the primary hardware components of a computer, inspect your processor architecture and cache topology using standard <a href="glossary/c/command.html">commands</a>, and understand the Von Neumann model.</p>
 <p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). All inspection commands in this section are read-only and require no administrative privileges.</p>
 <aside class="first-time">
 <p><strong>New to this?</strong> The <code>$</code> prompt indicates the shell is ready for a command. Do not type the <code>$</code>. The <code>lscpu</code> command reads hardware data from the Linux kernel without changing any system configuration.</p>
@@ -177,7 +177,7 @@ Node 0 MemUsed:        19610156 kB</out>
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Understanding memory bus bottlenecks directly shapes Tamlinux system engineering. Rather than treating RAM merely as passive storage, Tamlinux configures in-RAM compressed memory (ZRAM) with <a href="glossary/l/lz4.html">LZ4</a> or zstd algorithms. Because the CPU can compress and decompress data at memory bus speeds (tens of gigabytes per second), ZRAM trades a negligible fraction of compute cycles to effectively double workstation memory headroom while completely avoiding the massive latency cliffs (tens of microseconds) of solid-state storage.</p>
+<p>Understanding memory bus bottlenecks directly shapes Tamlinux system engineering. Rather than treating RAM merely as passive storage, Tamlinux configures in-RAM compressed memory (ZRAM) with <a href="glossary/l/lz4.html">LZ4</a> or zstd <a href="glossary/a/algorithm.html">algorithms</a>. Because the CPU can compress and decompress data at memory bus speeds (tens of gigabytes per second), ZRAM trades a negligible fraction of compute cycles to effectively double workstation memory headroom while completely avoiding the massive latency cliffs (tens of microseconds) of solid-state storage.</p>
 
 <h3>Edge cases and failure modes</h3>
 

@@ -206,7 +206,7 @@ lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-mouse -&gt
 <p>In the X11 era, the display server ran as root, allowing direct access to <code>/dev/input/event*</code>. In modern Linux and Tamlinux, Wayland compositors (such as <a href="glossary/h/hyprland.html">Hyprland</a> and Sway) run as unprivileged user processes. Access to input devices is mediated by a seat management daemon (such as <code>seatd</code> or <code>systemd-logind</code>):</p>
 
 <ol>
-<li>When the compositor starts, it establishes an <a href="glossary/i/ipc.html">IPC</a> connection (via UNIX domain socket or D-<a href="glossary/b/bus.html">Bus</a>) to the seat manager.</li>
+<li>When the compositor starts, it establishes an <a href="glossary/i/ipc.html">IPC</a> connection (via UNIX domain socket or D-<a href="glossary/d/d-bus.html">Bus</a>) to the seat manager.</li>
 <li>The compositor calls <code>TakeControl</code> to claim the active seat and virtual terminal (VT).</li>
 <li>The compositor requests access to individual input devices (e.g. <code>OpenDevice("/dev/input/event4")</code>).</li>
 <li>The seat manager checks that the calling session is active and currently foregrounded on the VT. It opens the device node with root privileges and passes the open file descriptor back to the compositor using <code>SCM_RIGHTS</code> control messages over the UNIX socket.</li>
@@ -216,7 +216,7 @@ lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-mouse -&gt
 
 <h3>Ring buffer overflow and <a href="glossary/s/syn.html">SYN</a>_DROPPED recovery</h3>
 
-<p>The kernel evdev driver maintains a fixed-size circular ring buffer for each open file descriptor (typically 64 to 512 events). If a user-space application stalls due to CPU starvation or heavy I/O, the queue fills up. The kernel handles overflow gracefully:</p>
+<p>The kernel evdev driver maintains a fixed-size circular ring <a href="glossary/b/buffer.html">buffer</a> for each open file descriptor (typically 64 to 512 events). If a user-space application stalls due to <a href="glossary/c/cpu.html">CPU</a> starvation or heavy I/O, the queue fills up. The kernel handles overflow gracefully:</p>
 
 <ol>
 <li>The kernel discards the overflowing event packet.</li>

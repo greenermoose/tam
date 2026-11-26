@@ -15,7 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/interfaces/index.html">Application interfaces</a> / Selecting files natively with tam-file-select</p></nav>
 
-<p>tam-file-select opens the desktop file chooser so a script can ask you to pick a file. It returns the chosen path and an exit status your script can check.</p>
+<p>tam-<a href="glossary/f/file.html">file</a>-select opens the desktop file chooser so a script can ask you to pick a file. It returns the chosen path and an exit status your script can check.</p>
 
 <section data-level="novice">
 <h2>Letting a person choose</h2>
@@ -53,7 +53,7 @@
 <h3>What just happened</h3>
 <p>The path and status are sample output. The sandbox cannot open a real chooser, and no desktop portal is involved. In a script, a zero <a href="glossary/e/exit-status.html">exit status</a> means the path can be used; a cancelled pick should stop the script.</p>
 <h3>Try it</h3>
-<p>Think about the safe order: check the status first, then quote the path when passing it to another command. A path with spaces would otherwise split into several arguments.</p>
+<p>Think about the safe order: check the status first, then quote the path when passing it to another <a href="glossary/c/command.html">command</a>. A path with spaces would otherwise split into several arguments.</p>
 <aside class="tamlinux"><p><strong>On Tamlinux:</strong> the utility is written in C, links <code>libtam</code>, and is meant for shell scripts and theme tools.</p></aside>
 <h3>If it goes wrong</h3>
 <dl>

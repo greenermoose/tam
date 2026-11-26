@@ -61,7 +61,7 @@
 <h3>What just happened</h3>
 <p>The probe report lists streams inside one container. <code>-vn</code> drops video, <code>-c:a mp3</code> re-encodes audio, and <code>-c:a copy</code> keeps the original audio stream. Every line shown here is authored sample output: the sandbox cannot inspect your media files.</p>
 <h3>Try it</h3>
-<p>Before running the third command, predict which part changes: the picture size or the audio codec. The sample output shows that only the video is scaled.</p>
+<p>Before running the third <a href="glossary/c/command.html">command</a>, predict which part changes: the picture size or the audio codec. The sample output shows that only the video is scaled.</p>
 <h3>If it goes wrong</h3>
 <dl>
 <dt>The sandbox says the command is unavailable.</dt><dd>Only the exact sample commands above are scripted. Type help, or repeat one of the printed commands.</dd>
@@ -92,7 +92,7 @@
 <tr><td><code>-vf</code> / <code>-af</code></td><td>Filter graph</td><td>Transforms video or audio frames</td></tr>
 </table>
 <h3>How it works</h3>
-<p>FFmpeg builds a pipeline of demuxer, decoders, filters, encoders and muxer. Re-encoding costs CPU time and may lose quality; stream copy preserves compressed bytes but only works when the target container accepts them.</p>
+<p>FFmpeg builds a pipeline of demuxer, decoders, filters, encoders and muxer. Re-encoding costs <a href="glossary/c/cpu.html">CPU</a> time and may lose quality; stream copy preserves compressed bytes but only works when the target container accepts them.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li>Filter graphs change frame timing; timestamps may need repair.</li>

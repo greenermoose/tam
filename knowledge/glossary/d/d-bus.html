@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>D-Bus</title>
+<meta name="topic" content="glossary-d-bus">
+<meta name="summary" content="D-Bus: the message bus that lets Linux desktop programs discover services and exchange small messages.">
+<meta name="keywords" content="glossary-d-bus, d-bus, dbus, message bus, desktop bus, interprocess communication">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / D-Bus</p></nav>
+
+<p>D-Bus is a message bus used on Linux desktops so that programs can find each other and exchange small messages without sharing a private connection.</p>
+<section data-level="novice"><p>When one part of the desktop asks another to do something, it can send a message to the bus instead of opening a direct link. The bus passes the message to the service that owns the matching name. This is how a panel can ask a settings service for a value, for example.</p></section>
+<section data-level="learner"><p>A <a href="glossary/b/bus.html">bus</a> here is a shared communication path, not a wire on a circuit board. A system bus carries session-wide services such as power and network state; a session bus carries services for one logged-in user. The names and objects on each bus are well known, so a client does not need to know a service's process ID.</p></section>
+<section data-level="expert"><p>D-Bus defines object paths, interfaces, methods, properties and signals; messages carry a typed body. <a href="bibliography/freedesktop-standards.html">freedesktop.org specifications</a> describe the bus and the higher-level interfaces layered on it. Access policy is enforced by the bus daemon, including who may own a name and who may send to it. Authentication and encryption are separate questions from the transport: a desktop message bus is a local IPC mechanism, not an end-to-end content protection system.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+</body></html>

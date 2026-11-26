@@ -21,7 +21,7 @@
 
 <section data-level="novice">
 <h2>What is a pipeline?</h2>
-<p>When you use a computer from the command line, programs are like small, specialized tools in a workshop. One tool might list names, another tool might search for a word, and a third tool might count lines. A pipeline is the way you connect these tools together in a row: the text produced by the first tool flows directly into the second tool as its input, without you needing to copy and paste or save a temporary file.</p>
+<p>When you use a computer from the <a href="glossary/c/command.html">command</a> line, programs are like small, specialized tools in a workshop. One tool might list names, another tool might search for a word, and a third tool might count lines. A pipeline is the way you connect these tools together in a row: the text produced by the first tool flows directly into the second tool as its input, without you needing to copy and paste or save a temporary file.</p>
 
 <h3>Why it matters</h3>
 <p>Instead of needing one massive program that does everything, Linux gives you hundreds of small, reliable tools that do one job well. Pipelines let you combine them to solve problems that no single tool could handle alone.</p>
@@ -93,7 +93,7 @@ command redirections, then applies redirections from left to right.</p>
 <tr><td><code>PIPESTATUS</code></td><td>Bash array of statuses from the last foreground pipeline; inspect immediately</td></tr></table>
 
 <h3>How it works</h3>
-<p>A Linux pipe is a finite byte buffer, without message boundaries. Writers
+<p>A Linux pipe is a finite byte <a href="glossary/b/buffer.html">buffer</a>, without message boundaries. Writers
 may block when it is full; readers see <a href="glossary/e/eof.html">EOF</a> only when all write descriptors
 are closed. Writes up to <code>PIPE_BUF</code> have an atomicity guarantee;
 that limit is distinct from capacity. Do not assume a fixed capacity.</p>

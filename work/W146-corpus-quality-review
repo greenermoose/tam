@@ -41,6 +41,23 @@ DONE
   - Bumped the corpus to 0.133.2 and updated the roadmap and decision
     record. Ran `make corpus` and `make corpus-and-test`; both passed.
     Command version stays 0.69.7.
+  - Fred approved the curated shortlist. Added ten glossary pages: IP
+    (Internet Protocol), UI (User Interface), Unit interval, Core network,
+    Capability discovery, Mobile paging, D-Bus, Direct-to-device,
+    Measurement and Interoperability. The corpus now has 1,724 pages.
+  - Applied a reviewed corpus-wide sense pass: 104 link retargets or
+    removals across 92 pages. Generic UI now reaches the user interface or
+    unit-interval page, protocol-sense IP reaches the protocol page, D-Bus
+    reaches its own page, and non-electrical Current and hardware Bus links
+    were dropped.
+  - Linked 611 conservative first uses across 342 pages, capped at four
+    new-term and two existing-glossary links per page. Navigation, code,
+    sample output, tables, lists, later mentions and nine reviewed metaphor
+    or verb candidates were excluded.
+  - Bumped the corpus to 0.134.0 and updated the roadmap, decision record
+    and this handoff. `make corpus`, the corpus pipeline check,
+    `make corpus-and-test` and `make check-repo` passed.
+  - Left the unsupported RCS encryption-default claim in place for Fred.
 
 FAILED
 
@@ -55,7 +72,8 @@ CHECKED AGAINST
 
 HANDOFF
 
-  - Show the pilot findings and the curated shortlist of new glossary
-    terms; wait for the developer's approval before writing any new page.
-    Then apply tuned rules corpus-wide, bump the corpus minor version and
-    rerun the checks. Test, Run and Release still need his exact word.
+  - Report the completed corpus-wide review, the wrong-sense retargets,
+    the first-use coverage and the RCS claim left for Fred's decision.
+    Commit the claimed paths, rerun `make corpus`, then commit only the
+    regenerated indexes. Push dev only if he asks. Test, Run and Release
+    still need his exact word.

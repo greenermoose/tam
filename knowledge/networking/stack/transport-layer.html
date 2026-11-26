@@ -23,13 +23,13 @@
 <h3>Why it matters</h3>
 <p>Your computer can run many network programs at once: a browser, chat app, and update service. Transport-layer <a href="glossary/p/port.html">ports</a> keep those conversations separate.</p>
 <h3>How to think about it</h3>
-<p>If an IP address is the building address, a port number is the apartment number. The transport layer makes sure the message reaches the right apartment.</p>
+<p>If an <a href="glossary/i/ip-address.html">IP</a> address is the building address, a port number is the apartment number. The transport layer makes sure the message reaches the right apartment.</p>
 </section>
 
 <section data-level="learner">
 <h2>Compare TCP and UDP endpoints</h2>
 <p><strong>Goal:</strong> read sample socket records and tell which transport each one uses.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: two transports"
@@ -65,7 +65,7 @@ udp: UNCONN 0.0.0.0:5353</file>
 <h3>What just happened</h3>
 <p>TCP records can be listening or established because the protocol sets up a connection. UDP records appear as unconnected sockets because datagrams are sent without that setup. These are sample lines, not live socket state.</p>
 <h3>Try it</h3>
-<p>Use <code>cat clues.txt</code> to compare all four records. Predict which transport a DNS question usually uses: UDP for a small question, with TCP available for larger replies.</p>
+<p>Use <code>cat clues.txt</code> to compare all four records. Predict which transport a <a href="glossary/d/dns.html">DNS</a> question usually uses: UDP for a small question, with TCP available for larger replies.</p>
 <h3>If it goes wrong</h3>
 <dl>
 <dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>

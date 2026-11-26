@@ -14,7 +14,7 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / How a phone joins a cellular network</p></nav>
 
-<p>Before a phone can send a text, it must find a radio cell and be known to the mobile network. The radio link carries the message only a short distance; the rest of the journey happens inside the carrier's core network.</p>
+<p>Before a phone can send a text, it must find a radio cell and be known to the mobile network. The radio link carries the message only a short distance; the rest of the journey happens inside the carrier's <a href="glossary/c/core-network.html">core network</a>.</p>
 
 <section data-level="novice">
 <h2>Cells and a wider network</h2>
@@ -76,7 +76,7 @@ service: message centre to receiver</file>
 <dt>You expected registration to mean a permanent address.</dt><dd>The core tracks an area or state, not a fixed physical location. The phone may move without registering again in every cell.</dd>
 </dl>
 <aside class="tamlinux">
-<p>Tamlinux treats mobile radio as a system to understand, not a setting it manages. No command in this series queries or changes a phone network.</p>
+<p>Tamlinux treats mobile radio as a system to understand, not a setting it manages. No <a href="glossary/c/command.html">command</a> in this series queries or changes a phone network.</p>
 </aside>
 <section class="quiz"><h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -95,7 +95,7 @@ service: message centre to receiver</file>
 <tr><td>Service layer</td><td>Messages, chat, presence and application traffic</td><td>SMSC, MMSC, IMS</td></tr>
 </table>
 <h3>How it works</h3>
-<p><a href="glossary/l/lte.html">LTE (Long-Term Evolution)</a> and <a href="glossary/n/nr.html">NR (New Radio)</a> define how the phone and base station encode radio signals, schedule time and frequency resources, and move between cells. The overall radio behaviour is described in <cite data-ref="spec-3gpp-36-300"><a href="bibliography/spec-3gpp-36-300.html">3GPP TS 36.300</a></cite> and <cite data-ref="spec-3gpp-38-300"><a href="bibliography/spec-3gpp-38-300.html">3GPP TS 38.300</a></cite>. The packet core and 5G system architecture are described in <cite data-ref="spec-3gpp-23-501"><a href="bibliography/spec-3gpp-23-501.html">3GPP TS 23.501</a></cite>. A short message can travel over signalling procedures while rich chat and app text generally use IP bearers; the radio network sees both as traffic to schedule, but the core treats them differently.</p>
+<p><a href="glossary/l/lte.html">LTE (Long-Term Evolution)</a> and <a href="glossary/n/nr.html">NR (New Radio)</a> define how the phone and base station encode radio signals, schedule time and frequency resources, and move between cells. The overall radio behaviour is described in <cite data-ref="spec-3gpp-36-300"><a href="bibliography/spec-3gpp-36-300.html">3GPP TS 36.300</a></cite> and <cite data-ref="spec-3gpp-38-300"><a href="bibliography/spec-3gpp-38-300.html">3GPP TS 38.300</a></cite>. The packet core and 5G system architecture are described in <cite data-ref="spec-3gpp-23-501"><a href="bibliography/spec-3gpp-23-501.html">3GPP TS 23.501</a></cite>. A short message can travel over signalling procedures while rich chat and app text generally use <a href="glossary/i/ip.html">IP</a> bearers; the radio network sees both as traffic to schedule, but the core treats them differently.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>Poor radio does not prove a service failure. The phone can have a usable signal for voice yet fail to reach a message service through a data bearer.</li>

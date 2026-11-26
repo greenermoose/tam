@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / Indexes, transactions and storage</p></nav>
 
-<p>A database must find rows quickly and keep them safe while several programs ask for changes. Indexes, transactions and storage rules are the tools it uses for that work.</p>
+<p>A <a href="glossary/d/database.html">database</a> must find rows quickly and keep them safe while several programs ask for changes. Indexes, transactions and storage rules are the tools it uses for that work.</p>
 
 <section data-level="novice">
 <h2>Finding and protecting facts</h2>
@@ -75,7 +75,7 @@ Mapping the coast,1999</file>
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p>The plan changed from reading every row to a search through <code>books_year</code>, an index on the year column. That speed has a cost: every insert or update must also update the index. Both <code>sqlite3</code> lines are a sample teaching simulation: the sandbox installs no database software, and the plan and transcript shown are authored output, not a measurement from your machine. The final <code>1999</code> is the original value because <code>ROLLBACK</code> discarded the update.</p>
+<p>The plan changed from reading every row to a search through <code>books_year</code>, an index on the year column. That speed has a cost: every insert or update must also update the index. Both <code>sqlite3</code> lines are a sample teaching simulation: the sandbox installs no database software, and the plan and transcript shown are authored output, not a <a href="glossary/m/measurement.html">measurement</a> from your machine. The final <code>1999</code> is the original value because <code>ROLLBACK</code> discarded the update.</p>
 <h3>Try it</h3>
 <p>Use <code>grep 1999 books.csv</code> and predict the two lines before you type it. That is the set a full scan would inspect; the index narrows the search without changing which rows qualify.</p>
 <h3>If it goes wrong</h3>
@@ -111,7 +111,7 @@ Mapping the coast,1999</file>
 <tr><td>Buffer cache</td><td>Pages kept in memory</td><td>Eviction and dirty-page flushes</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Storage is divided into fixed-size pages within the <a href="glossary/f/file.html">file</a>. The buffer manager keeps hot pages in memory and writes dirty pages later. Under a write-ahead log, the engine records the intended change and flushes that record before it lets a page change reach disk, so a crash can be repaired by replaying or undoing logged work. Multi-version concurrency control keeps older row versions so a reader can finish against one snapshot while a writer proceeds. A query plan may use an ordered B-tree walk or a hash lookup depending on the operator and predicate.</p>
+<p>Storage is divided into fixed-size pages within the <a href="glossary/f/file.html">file</a>. The <a href="glossary/b/buffer.html">buffer</a> manager keeps hot pages in memory and writes dirty pages later. Under a write-ahead log, the engine records the intended change and flushes that record before it lets a page change reach disk, so a crash can be repaired by replaying or undoing logged work. Multi-version concurrency control keeps older row versions so a reader can finish against one snapshot while a writer proceeds. A query plan may use an ordered B-tree walk or a hash lookup depending on the operator and predicate.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li>Isolation anomalies: dirty reads see uncommitted data, non-repeatable reads see changed rows within one transaction, and phantoms are new rows that match an earlier predicate.</li>

@@ -20,7 +20,7 @@
 
 <section data-level="novice">
 <h2>Trust nothing from outside</h2>
-<p><a href="glossary/x/xss.html">XSS</a> injects script into a page. <a href="glossary/c/csrf.html">CSRF</a> makes a browser send an unwanted request. <a href="glossary/s/sql-injection.html">SQL injection</a> changes a database query.</p>
+<p><a href="glossary/x/xss.html">XSS</a> injects script into a page. <a href="glossary/c/csrf.html">CSRF</a> makes a browser send an unwanted request. <a href="glossary/s/sql-injection.html">SQL injection</a> changes a <a href="glossary/d/database.html">database</a> query.</p>
 <h3>Why it matters</h3>
 <p>A page may show data from many people. Without boundaries, one person's input can become code, a forged request, or a changed query.</p>
 <h3>How to think about it</h3>
@@ -59,7 +59,7 @@ escaped: &amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;</file>
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p>The escaped line turns angle brackets into character references, so a browser shows the text instead of treating it as a tag. The sample file is authored data; the sandbox is not running a browser or Python. The same idea applies elsewhere, but the escaping rules depend on where the data will go.</p>
+<p>The escaped line turns angle brackets into character references, so a browser shows the text instead of treating it as a tag. The sample <a href="glossary/f/file.html">file</a> is authored data; the sandbox is not running a browser or Python. The same idea applies elsewhere, but the escaping rules depend on where the data will go.</p>
 <h3>Try it</h3>
 <p>Imagine the raw line reaching a database query instead of a page. HTML escaping would not be enough there; queries need parameterisation.</p>
 <h3>If it goes wrong</h3>

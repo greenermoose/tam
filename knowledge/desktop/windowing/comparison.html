@@ -37,7 +37,7 @@
 
 <section data-level="learner">
 <h2>Compare one action</h2>
-<p><strong>Goal:</strong> you will be able to explain why Linux desktops changed display systems without claiming that Wayland is universally faster or simpler for every task.</p>
+<p><strong>Goal:</strong> you will be able to explain why <a href="glossary/l/linux.html">Linux</a> desktops changed display systems without claiming that Wayland is universally faster or simpler for every task.</p>
 <p><strong>Learner path:</strong> back: <a href="desktop/windowing/wayland.html?level=2">How Wayland draws windows</a>; next: <a href="desktop/windowing/other-systems.html?level=2">Windowing on other operating systems</a>.</p>
 <h3>Try the idea in a sandbox</h3>
 <tam-sandbox title="Try it: Compare the client and display-server boundary"
@@ -81,7 +81,7 @@ Wayland: clients submit buffers to a compositor</out>
 <tr><td>Compatibility</td><td>Native model for older applications.</td><td>XWayland bridges older X11 clients.</td></tr>
 </table>
 <h3>Why Linux moved</h3>
-<p>The old X server accumulated extensions while remaining a large, privileged component with a weak isolation boundary between clients. At the same time, compositing, <a href="glossary/g/gpu.html">GPU</a> buffers and high-refresh displays made a single presentation manager more attractive. Wayland shrinks the protocol core, makes rendering buffer-based and gives the compositor clear ownership of input, outputs and frame timing. The result is a cleaner security boundary and a better platform for modern effects &mdash; not an automatic speed win in every workload.</p>
+<p>The old X server accumulated extensions while remaining a large, privileged component with a weak isolation boundary between clients. At the same time, compositing, <a href="glossary/g/gpu.html">GPU</a> <a href="glossary/b/buffer.html">buffers</a> and high-refresh displays made a single presentation manager more attractive. Wayland shrinks the protocol core, makes rendering buffer-based and gives the compositor clear ownership of input, outputs and frame timing. The result is a cleaner security boundary and a better platform for modern effects &mdash; not an automatic speed win in every workload.</p>
 <h3>Advanced usage examples</h3>
 <p>A Wayland compositor can use <a href="glossary/d/dma-buf.html">DMA-BUF</a> and <a href="glossary/d/drm.html">DRM/KMS</a> atomic updates to present a set of surfaces without copying through a server. A remote desktop session instead goes through a portal and a stream protocol, because raw framebuffer access is not a basic client right.</p>
 <h3>Edge cases and failure modes</h3>

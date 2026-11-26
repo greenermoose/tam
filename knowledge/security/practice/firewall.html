@@ -39,7 +39,7 @@
 <section data-level="learner">
 <h2>Read a sample firewall state check</h2>
 <p><strong>Goal:</strong> tell whether the sample nftables and UFW states describe the same active firewall.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: read firewall state"
@@ -87,7 +87,7 @@
 
 <section data-level="expert">
 <h3>Reference</h3>
-<p>Linux packet filtering executes inside kernel <strong>Netfilter</strong> hooks (<code>ingress</code>, <code>prerouting</code>, <code>input</code>, <code>forward</code>, <code>output</code>, <code>postrouting</code>). <code>nftables</code> compiles human-readable rulesets in <code>/etc/nftables.conf</code> into register-based <code>nf_tables</code> VM expressions evaluated atomically in the kernel without full table-lock reloads.</p>
+<p>Linux packet filtering executes inside <a href="glossary/k/kernel.html">kernel</a> <strong>Netfilter</strong> hooks (<code>ingress</code>, <code>prerouting</code>, <code>input</code>, <code>forward</code>, <code>output</code>, <code>postrouting</code>). <code>nftables</code> compiles human-readable rulesets in <code>/etc/nftables.conf</code> into register-based <code>nf_tables</code> VM expressions evaluated atomically in the kernel without full table-lock reloads.</p>
 <h3>How it works</h3>
 <p>Stateful rules rely on <code>nf_conntrack</code>, which tracks 5-tuple flows (<code>src, dst, proto, sport, dport</code>) and classifies packets as <code>new</code>, <code>established</code>, <code>related</code> (such as ICMP errors tied to an active flow), or <code>invalid</code>. Dropping <code>ct state invalid</code> early and accepting <code>established,related</code> before per-port checks keeps hot-path packet latency bounded.</p>
 <h3>Edge cases</h3>

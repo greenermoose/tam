@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/c/index.html">C and native toolchains</a> / Object files, static libraries, and compilation stages</p></nav>
 
-<p>A compiler does not turn source straight into a finished program. It first makes object files, then a linker combines them with libraries.</p>
+<p>A compiler does not turn source straight into a finished program. It first makes object <a href="glossary/f/file.html">files</a>, then a linker combines them with libraries.</p>
 
 <section data-level="novice">
 <h2>From pages to a bound book</h2>
@@ -57,7 +57,7 @@
 <h3>What just happened</h3>
 <p>Compiling produced a relocatable object. Archiving bundled it for reuse. Linking resolved the call from <code>main.c</code> and produced an executable. The short lines are sample output: no files are really compiled or written in the sandbox.</p>
 <h3>Try it</h3>
-<p>Predict what happens if <code>libgreet.a</code> is left out of the link command. The linker cannot find <code>greet</code>, so no program is produced.</p>
+<p>Predict what happens if <code>libgreet.a</code> is left out of the link <a href="glossary/c/command.html">command</a>. The linker cannot find <code>greet</code>, so no program is produced.</p>
 <h3>If it goes wrong</h3>
 <dl>
 <dt>The sandbox does not create files.</dt><dd>It scripts the visible output of the stages. A real build needs a native toolchain.</dd>

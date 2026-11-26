@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / SQLite</p></nav>
 
-<p><dfn><a href="glossary/s/sqlite.html">SQLite</a></dfn> is a database that lives inside your program rather than in a separate server. The whole database is one file, which makes it easy to carry, copy and test.</p>
+<p><dfn><a href="glossary/s/sqlite.html">SQLite</a></dfn> is a <a href="glossary/d/database.html">database</a> that lives inside your program rather than in a separate server. The whole database is one file, which makes it easy to carry, copy and test.</p>
 
 <section data-level="novice">
 <h2>A database in a file</h2>
@@ -69,7 +69,7 @@
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p><code>ls</code> really listed the sandbox files. The two <code>sqlite3</code> results are a sample teaching simulation: the sandbox installs no database software, and their output is authored, not a measurement from your machine. In a real application, the engine links into the program and opens <code>library.db</code> itself; no server process starts and no socket is used. <code>ORDER BY year</code> explains why the earliest title comes first.</p>
+<p><code>ls</code> really listed the sandbox files. The two <code>sqlite3</code> results are a sample teaching simulation: the sandbox installs no database software, and their output is authored, not a <a href="glossary/m/measurement.html">measurement</a> from your machine. In a real application, the engine links into the program and opens <code>library.db</code> itself; no server process starts and no socket is used. <code>ORDER BY year</code> explains why the earliest title comes first.</p>
 <h3>Try it</h3>
 <p>Type <code>cat notes.md</code>. The note is ordinary text beside the database file, which shows the practical difference between an unstructured note and structured tables. Then predict the first row if the order were descending.</p>
 <h3>If it goes wrong</h3>
@@ -107,7 +107,7 @@
 <tr><td>Limits</td><td>Very large files in practice, modest concurrency</td><td>Embedded scope, not a network service</td></tr>
 </table>
 <h3>How it works</h3>
-<p>SQLite is a library linked into the application. A statement is compiled into a bytecode program that the virtual machine runs against pages from the database file. The page cache holds those pages; the journal or write-ahead log records enough information to finish or undo a <a href="glossary/c/commit.html">commit</a> after a crash. Locking coordinates processes that open the same file. Because the engine shares the application's process, there is no separate server, no authentication layer of its own and no network protocol.</p>
+<p>SQLite is a library linked into the application. A statement is compiled into a bytecode program that the virtual machine runs against pages from the database file. The page cache holds those pages; the journal or write-ahead log records enough information to finish or undo a <a href="glossary/c/commit.html">commit</a> after a crash. Locking coordinates processes that open the same file. Because the engine shares the application's process, there is no separate server, no <a href="glossary/a/authentication.html">authentication</a> layer of its own and no network protocol.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li>Long-lived write locks make other writers wait; use short transactions and a busy timeout.</li>

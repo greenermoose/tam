@@ -99,7 +99,7 @@ delivery agent: writes mail into a mailbox</file>
 <h3>How it works</h3>
 <p><cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">RFC 5598</a></cite> names the functional roles; <cite data-ref="rfc-5321"><a href="bibliography/rfc-5321.html">RFC 5321</a></cite> defines the SMTP session and status codes that drive queue decisions. A two-digit class in a reply code separates a temporary 4xx condition from a permanent 5xx condition. A transfer agent records the envelope recipient and attempts each recipient separately, because one recipient can fail while another succeeds.</p>
 <h3>Advanced usage</h3>
-<p>Relay selection uses DNS MX records, address records and connection policy. Delivery may pass through a local <a href="glossary/l/lmtp.html">LMTP</a> service or a filtering stage before the message store. Alias expansion can change the final recipient without changing the visible header.</p>
+<p>Relay selection uses <a href="glossary/d/dns.html">DNS</a> MX records, address records and connection policy. Delivery may pass through a local <a href="glossary/l/lmtp.html">LMTP</a> service or a filtering stage before the message store. Alias expansion can change the final recipient without changing the visible header.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>A queue can hold a message for a long time if every retry is temporary; operators watch queue age and retry counts.</li>

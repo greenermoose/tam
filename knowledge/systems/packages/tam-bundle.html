@@ -24,7 +24,7 @@
 <h2>What is tam-bundle?</h2>
 <p>A program is rarely one file. It comes with helper programs, pictures, settings and manuals. <code>tam-bundle</code> treats all the files of one version as a single <dfn><a href="glossary/b/bundle.html">bundle</a></dfn> with a name, a version number and a fingerprint. It copies the bundle into place as ordinary files, writes down exactly what it installed, and keeps the previous version whole beside it.</p>
 <h3>Why it matters</h3>
-<p>An update that goes wrong is much less frightening when you can undo it at once. Because the old version is kept complete, going back is one command and takes less than a second. Because every file is listed with its fingerprint, you can also ask which version put a file on your computer, and whether anyone has changed it since.</p>
+<p>An update that goes wrong is much less frightening when you can undo it at once. Because the old version is kept complete, going back is one <a href="glossary/c/command.html">command</a> and takes less than a second. Because every file is listed with its fingerprint, you can also ask which version put a file on your computer, and whether anyone has changed it since.</p>
 <h3>How to think about it</h3>
 <p>Think of two bookshelves. One holds the books you are reading now. When a new edition arrives, a helper fills an empty shelf with it, checks every book against a list, and only then swaps the two shelves in one movement. Nobody ever sees a shelf that is half old and half new. The old shelf is kept in the back room, so if the new edition disappoints you, the helper swaps them back.</p>
 <h3>New words</h3>
@@ -60,7 +60,7 @@
   slot/current/  &lt;--- swap ---&gt;  slot/kept/&lt;bundle id&gt;/
                    back: swap again, nothing copied
 </pre>
-<p>A <em>bundle id</em> joins the name, the version and the first twelve characters of the bundle's hash, for example <code>demo-1-198a107655aa</code>. The <code>MANIFEST</code> file lists every directory, file and link with its mode and, for a file, its <a href="glossary/s/sha-256.html">SHA-256</a> hash. <code>BUNDLE</code> holds the name, version, overall hash and the sources and tools it was built from.</p>
+<p>A <em>bundle id</em> joins the name, the version and the first twelve characters of the bundle's hash, for example <code>demo-1-198a107655aa</code>. The <code>MANIFEST</code> file lists every <a href="glossary/d/directory.html">directory</a>, file and link with its mode and, for a file, its <a href="glossary/s/sha-256.html">SHA-256</a> hash. <code>BUNDLE</code> holds the name, version, overall hash and the sources and tools it was built from.</p>
 <h3>Explore: two versions, one rollback</h3>
 <tam-sandbox
   title="Try it: two versions, one rollback"

@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/web-development/index.html">Web development</a> / Testing, debugging, and performance</p></nav>
 
-<p>Tests tell you when behaviour changes, debugging tells you why it changed, and measurement tells you whether a fix helped.</p>
+<p>Tests tell you when behaviour changes, debugging tells you why it changed, and <a href="glossary/m/measurement.html">measurement</a> tells you whether a fix helped.</p>
 
 <section data-level="novice">
 <h2>Three different clues</h2>
@@ -61,7 +61,7 @@ timing: 9.5 ms</file>
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p>The test line answers “does it still behave as expected?”, the trace line points to a place to look, and the timing line records how long a run took. These lines are authored samples in a report file; the sandbox does not run a test suite.</p>
+<p>The test line answers “does it still behave as expected?”, the trace line points to a place to look, and the timing line records how long a run took. These lines are authored samples in a report <a href="glossary/f/file.html">file</a>; the sandbox does not run a test suite.</p>
 <h3>Try it</h3>
 <p>Imagine the first line said <code>FAIL</code>. The trace would help find the call path, and a fresh timing after the fix would show whether the change helped.</p>
 <h3>If it goes wrong</h3>
@@ -94,7 +94,7 @@ timing: 9.5 ms</file>
 <tr><td>Tracing</td><td>Timeline across services</td><td>Needs consistent identifiers</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Tests should fail for a clear reason and stay deterministic. Debugger breakpoints pause execution so state can be inspected. Performance work starts with a representative workload, then measures a baseline and a change under the same conditions. <a href="glossary/e/event-loop.html">Event-loop</a> latency matters as much as average CPU time in interactive pages.</p>
+<p>Tests should fail for a clear reason and stay deterministic. Debugger breakpoints pause execution so state can be inspected. Performance work starts with a representative workload, then measures a baseline and a change under the same conditions. <a href="glossary/e/event-loop.html">Event-loop</a> latency matters as much as average <a href="glossary/c/cpu.html">CPU</a> time in interactive pages.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li>Flaky tests hide real regressions.</li>

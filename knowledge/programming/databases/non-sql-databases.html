@@ -20,7 +20,7 @@
 
 <section data-level="novice">
 <h2>Four shapes of stored data</h2>
-<p>Many people use <dfn><a href="glossary/n/nosql.html">NoSQL</a></dfn> as a name for databases that do not require a fixed relational <a href="glossary/s/schema.html">schema</a>. A <dfn><a href="glossary/d/document-database.html">document database</a></dfn> keeps whole records, often <a href="glossary/j/json.html">JSON</a>-like. A <dfn><a href="glossary/k/key-value-database.html">key-value database</a></dfn> stores a value under a key. A <dfn><a href="glossary/c/column-family-database.html">column-family database</a></dfn> groups related columns. A <dfn><a href="glossary/g/graph-database.html">graph database</a></dfn> stores things and the links between them.</p>
+<p>Many people use <dfn><a href="glossary/n/nosql.html">NoSQL</a></dfn> as a name for <a href="glossary/d/database.html">databases</a> that do not require a fixed relational <a href="glossary/s/schema.html">schema</a>. A <dfn><a href="glossary/d/document-database.html">document database</a></dfn> keeps whole records, often <a href="glossary/j/json.html">JSON</a>-like. A <dfn><a href="glossary/k/key-value-database.html">key-value database</a></dfn> stores a value under a key. A <dfn><a href="glossary/c/column-family-database.html">column-family database</a></dfn> groups related columns. A <dfn><a href="glossary/g/graph-database.html">graph database</a></dfn> stores things and the links between them.</p>
 <h3>Why it matters</h3>
 <p>Real records do not all have the same fields. If one entry gains a new field, a document store can keep it without asking every other entry to change. Other families are fast at one particular job, such as finding a value by its key or following links.</p>
 <h3>How to think about it</h3>
@@ -72,7 +72,7 @@
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p>The <code>db.people</code> lines are an illustrative shell simulation. No database software was installed or started, and these lines are not measurements from your machine. The file holds sample <a href="glossary/j/json.html">JSON</a> data, one document per line. The find line filters on a field; the insert line adds a document whose fields need not match every other document.</p>
+<p>The <code>db.people</code> lines are an illustrative shell simulation. No database software was installed or started, and these lines are not <a href="glossary/m/measurement.html">measurements</a> from your machine. The <a href="glossary/f/file.html">file</a> holds sample <a href="glossary/j/json.html">JSON</a> data, one document per line. The find line filters on a field; the insert line adds a document whose fields need not match every other document.</p>
 <h3>Try it</h3>
 <p>Predict what <code>db.people.find({"city":"York"})</code> would show in this sample: the single document for Sam. Now imagine adding a document with a <code>phone</code> field; the other documents do not have to change.</p>
 <h3>If it goes wrong</h3>

@@ -109,7 +109,7 @@ Disk Swapfile (/swap/swapfile on NVMe/SSD)
 <dd>When storing only a few kilobytes of data, allocator tracking overhead and page table structures can momentarily exceed raw compressed data size. As more pages are paged in, compression savings vastly outweigh allocator overhead.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, ZRAM is managed declaratively via <code>systemd-zram-generator</code> configured in <code>/etc/systemd/zram-generator.conf</code>. Tamlinux configures <code>zram-size = ram</code> using the modern <code>zstd</code> compression algorithm at swap priority 100. This provides approximately 3:1 compression density, ensuring even a fully utilized ZRAM device occupies only about one third of physical RAM while leaving disk swap strictly as a zero-priority emergency fallback.</p>
+<p>On Tamlinux, ZRAM is managed declaratively via <code>systemd-zram-generator</code> configured in <code>/etc/systemd/zram-generator.conf</code>. Tamlinux configures <code>zram-size = ram</code> using the modern <code>zstd</code> compression <a href="glossary/a/algorithm.html">algorithm</a> at swap priority 100. This provides approximately 3:1 compression density, ensuring even a fully utilized ZRAM device occupies only about one third of physical RAM while leaving disk swap strictly as a zero-priority emergency fallback.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -207,7 +207,7 @@ Disk Swapfile (/swap/swapfile on NVMe/SSD)
 <p>Workstation memory policies and swap configurations are managed declaratively in the Tamlinux packaging and desktop repos under <code>tamlinux/systemd/</code> and <code>/etc/systemd/zram-generator.conf</code>.</p>
 </section>
 
-<h2>Next</h2><p><a href="systems/maintenance/resources.html">Resources and performance</a> &mdash; examine overall RAM, CPU load, and <a href="glossary/p/psi.html">PSI</a> pressure metrics.</p>
+<h2>Next</h2><p><a href="systems/maintenance/resources.html">Resources and performance</a> &mdash; examine overall RAM, <a href="glossary/c/cpu.html">CPU</a> load, and <a href="glossary/p/psi.html">PSI</a> pressure metrics.</p>
 <h2>Related</h2><ul><li><a href="terminal/configuration.html">Terminal and editor ergonomics</a> &mdash; explore sub-10ms shell startup and Micro live reload.</li><li><a href="programming/c/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; build native C projects and coordinate shared checkouts.</li><li><a href="tamlinux/development/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li></ul>
 </body>
 </html>

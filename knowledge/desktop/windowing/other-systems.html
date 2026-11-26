@@ -80,9 +80,9 @@ Linux: compositor chosen by the session</out>
 <tr><td>Wayland on Linux</td><td>Compositor owns outputs, input and presentation.</td><td>Wayland protocol clients using xdg-shell and toolkit backends.</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Windows and macOS expose more of their windowing as an operating-system framework: an application links a platform library and receives messages or events from it. Linux keeps the display protocol separate from the toolkit, so GTK and Qt can talk to X11 or Wayland through backends. Android sits between the two models: it has a system compositor service and a platform UI framework supplied together.</p>
+<p>Windows and macOS expose more of their windowing as an operating-system framework: an application links a platform <a href="glossary/l/library.html">library</a> and receives messages or events from it. Linux keeps the display protocol separate from the toolkit, so GTK and Qt can talk to X11 or Wayland through backends. Android sits between the two models: it has a system compositor service and a platform <a href="glossary/u/ui.html">UI</a> framework supplied together.</p>
 <h3>Advanced examples</h3>
-<p>Research and older systems show other splits. Plan 9's Rio offered a minimal window system built from ordinary files; Haiku's app_server centralised drawing; the Amiga used Intuition and screens. They are useful contrasts because they ask the same questions with different boundaries.</p>
+<p>Research and older systems show other splits. Plan 9's Rio offered a minimal window system built from ordinary <a href="glossary/f/file.html">files</a>; Haiku's app_server centralised drawing; the Amiga used Intuition and screens. They are useful contrasts because they ask the same questions with different boundaries.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li>Modern Windows and macOS also use compositors, so "Linux invented compositing" is false; the difference is where the interface boundary sits.</li>

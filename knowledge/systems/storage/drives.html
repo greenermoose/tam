@@ -28,7 +28,7 @@
 <p>Knowing your drive capacity and transfer speed helps detect failing hardware or slow cables. Full disk encryption protects your private documents if a laptop is lost or stolen.</p>
 
 <h3>How to think about it</h3>
-<p>Linux names physical disks as block devices in <code>/dev</code> (for example, <code>/dev/nvme0n1</code> or <code>/dev/sda</code>). Before files can be read or written, a filesystem on the drive is mounted to a directory path. Encrypted disks require unlocking with a passphrase before mounting.</p>
+<p>Linux names physical disks as block devices in <code>/dev</code> (for example, <code>/dev/nvme0n1</code> or <code>/dev/sda</code>). Before files can be read or written, a filesystem on the drive is mounted to a <a href="glossary/d/directory.html">directory</a> path. Encrypted disks require unlocking with a passphrase before mounting.</p>
 
 <h3>New words</h3>
 <dl>
@@ -144,7 +144,7 @@ write 1420</out>
 <tr><td><code>tam-drive-select</code></td><td>Interactive terminal picker to select a drive with capacity and brand details</td></tr>
 <tr><td><code>tam-drive-password</code></td><td>Update encryption passphrase on a selected LUKS encrypted drive</td></tr>
 </table>
-<p>All read-only diagnostic commands run cleanly as an unprivileged user. <a href="glossary/p/passphrase.html">Passphrase</a> changes with <code>tam-drive-password</code> interactively prompt for the existing passphrase before updating LUKS keyslots.</p>
+<p>All read-only diagnostic <a href="glossary/c/command.html">commands</a> run cleanly as an unprivileged user. <a href="glossary/p/passphrase.html">Passphrase</a> changes with <code>tam-drive-password</code> interactively prompt for the existing passphrase before updating LUKS keyslots.</p>
 </section>
 
 <h2>Next</h2><p><a href="systems/maintenance/resources.html">Resources and memory</a> — <a href="glossary/r/ram.html">RAM</a>, swap, and disk headroom.</p>

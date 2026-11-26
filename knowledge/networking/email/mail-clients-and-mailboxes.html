@@ -99,7 +99,7 @@ client: quarantine review requested through webmail</file>
 <h3>How it works</h3>
 <p>IMAP models mailboxes and permanence flags on the server; JMAP models mailboxes and searchable records with batched method calls. Both allow a client to keep a cache. POP centres on downloaded messages and has little shared state. <a href="glossary/e/encryption.html">Encryption</a> in transit protects a connection; end-to-end systems such as OpenPGP or S/MIME protect message content so that the store and intermediate servers cannot read it. Those systems require key management and do not hide envelope routing information.</p>
 <h3>Advanced usage</h3>
-<p>Configuration may be discovered automatically from the domain or supplied by the provider. OAuth-based authentication is common for hosted mail. Synchronisation must reconcile concurrent flag changes, local deletions and sent messages. A robust client keeps a durable local queue for messages composed offline and replays them after reconnecting.</p>
+<p>Configuration may be discovered automatically from the domain or supplied by the provider. OAuth-based <a href="glossary/a/authentication.html">authentication</a> is common for hosted mail. Synchronisation must reconcile concurrent flag changes, local deletions and sent messages. A robust client keeps a durable local queue for messages composed offline and replays them after reconnecting.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>End-to-end encryption breaks server-side content search unless the client searches decrypted local copies.</li>

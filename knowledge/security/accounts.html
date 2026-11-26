@@ -41,7 +41,7 @@
 <section data-level="learner">
 <h2>Read an account record before making changes</h2>
 <p><strong>Goal:</strong> identify the account name, UID, home path and group list in sample output.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: inspect an account"
@@ -83,7 +83,7 @@
 
 <section data-level="expert">
 <h2>Account records and safe change boundaries</h2>
-<p>Linux stores local accounts in the account database and attaches a numeric <a href="glossary/u/uid.html">UID</a> and primary <a href="glossary/g/gid.html">GID</a> to each one. Files record an owner UID and group GID; permissions are checked against those numbers, not the printed name. The <a href="glossary/h/home-directory.html">home directory</a> is a convention backed by the account record, not a special kind of filesystem.</p>
+<p>Linux stores local accounts in the account <a href="glossary/d/database.html">database</a> and attaches a numeric <a href="glossary/u/uid.html">UID</a> and primary <a href="glossary/g/gid.html">GID</a> to each one. Files record an owner UID and group GID; permissions are checked against those numbers, not the printed name. The <a href="glossary/h/home-directory.html">home directory</a> is a convention backed by the account record, not a special kind of filesystem.</p>
 <h3>Changing accounts</h3>
 <p>Creating an unprivileged account with its own home uses <code>useradd -m &lt;name&gt;</code> followed by <code>passwd &lt;name&gt;</code>. Adding supplementary access uses <code>usermod -aG &lt;group&gt; &lt;name&gt;</code>. The <code>-a</code> matters: <code>usermod -G</code> without it replaces the whole supplementary group list. Record <code>id -Gn &lt;user&gt;</code> before any change so the previous membership can be restored.</p>
 <h3>Session boundaries</h3>

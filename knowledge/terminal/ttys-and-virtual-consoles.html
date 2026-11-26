@@ -21,7 +21,7 @@
 <p>A virtual console is a text screen you can use outside the desktop. A terminal is a place to type and read text; a terminal window works inside the desktop.</p>
 <section data-level="novice">
 <h2>What are TTYs and virtual consoles?</h2>
-<p>A <dfn><a href="glossary/v/virtual-console.html">virtual console</a></dfn> (often called a <a href="glossary/t/tty.html">TTY</a>) is a full-screen text interface built directly into the Linux kernel. Even when no graphical desktop is running, your computer provides several independent text consoles you can sign into.</p>
+<p>A <dfn><a href="glossary/v/virtual-console.html">virtual console</a></dfn> (often called a <a href="glossary/t/tty.html">TTY</a>) is a full-screen text interface built directly into the Linux <a href="glossary/k/kernel.html">kernel</a>. Even when no graphical desktop is running, your computer provides several independent text consoles you can sign into.</p>
 <h3>Why it matters</h3>
 <p>A text login often remains usable even when a graphical application or desktop freezes, giving you a reliable place to inspect logs, save work, or restart a stuck session.</p>
 <h3>How to think about it</h3>
@@ -62,7 +62,7 @@
   <tam-fallback>Type ls -d /sys/class/tty/tty0, or type help.</tam-fallback>
 </tam-sandbox>
 <h3>What just happened</h3>
-<p>The sysfs directory exposes kernel state about tty devices. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. A pseudo-terminal in a graphical terminal app has a different path and lifecycle from a virtual console.</p>
+<p>The sysfs <a href="glossary/d/directory.html">directory</a> exposes kernel state about tty devices. The output shown in this sandbox is a sample from fixed teaching data, not a reading from your machine. A pseudo-terminal in a graphical terminal app has a different path and lifecycle from a virtual console.</p>
 <h3>Try it</h3>
 <p>Read the active-console rule and name which tty is selected in the sample.</p>
 <h3>If it goes wrong</h3>

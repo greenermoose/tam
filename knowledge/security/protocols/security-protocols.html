@@ -26,7 +26,7 @@
 <p>Each environment has different rules: a chat app must work even when your friend's phone is turned off; a VPN must recover instantly when your laptop switches from <a href="glossary/w/wi-fi.html">Wi-Fi</a> to a phone hotspot; and a login system must verify your identity without giving every website your password.</p>
 
 <h3>How to think about it</h3>
-<p>Think of protocols as specialized vehicles built from the same engine parts (hashes, symmetric <a href="glossary/a/aead.html">AEAD</a> ciphers, and public-key signatures): WireGuard is a stripped-down armored courier carrying <a href="glossary/i/ip-address.html">IP</a> packets; the Signal protocol shreds and replaces its keys after every single text message; and FIDO2 is a physical badge that signs a unique challenge for each website so phishing pages cannot reuse it.</p>
+<p>Think of protocols as specialized vehicles built from the same engine parts (hashes, symmetric <a href="glossary/a/aead.html">AEAD</a> ciphers, and public-key signatures): WireGuard is a stripped-down armored courier carrying <a href="glossary/i/ip.html">IP</a> packets; the Signal protocol shreds and replaces its keys after every single text message; and FIDO2 is a physical badge that signs a unique challenge for each website so phishing pages cannot reuse it.</p>
 
 <h3>New words</h3>
 <dl>
@@ -40,7 +40,7 @@
 <section data-level="learner">
 <h2>Check readiness for three protocol families</h2>
 <p><strong>Goal:</strong> read sample readiness lines for WireGuard, FIDO2 and DNS security.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: protocol readiness clues"
@@ -73,7 +73,7 @@ dnssec: supported by resolver</file>
   <tam-fallback>Try grep wireguard clues.txt, grep fido2 clues.txt or grep dnssec clues.txt (or type help).</tam-fallback>
 </tam-sandbox>
 <h3>What just happened</h3>
-<p>The prepared lines show three separate families: a VPN protocol, a hardware authentication path and DNS validation. The <code>grep</code> replies come from the prepared file. On a real machine availability depends on the kernel and installed packages.</p>
+<p>The prepared lines show three separate families: a VPN protocol, a hardware <a href="glossary/a/authentication.html">authentication</a> path and DNS validation. The <code>grep</code> replies come from the prepared file. On a real machine availability depends on the kernel and installed packages.</p>
 <h3>Try it</h3>
 <p>Use <code>cat clues.txt</code> to see every line. Each protocol answers a different question: protect a link, prove a user, or protect name answers.</p>
 <h3>If it goes wrong</h3>

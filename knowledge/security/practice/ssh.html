@@ -39,7 +39,7 @@
 <section data-level="learner">
 <h2>Read a sample key and server check</h2>
 <p><strong>Goal:</strong> identify the public key type and the service state in sample SSH output.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: inspect SSH readiness"
@@ -86,7 +86,7 @@
 <h3>Reference</h3>
 <p>Modern OpenSSH keys (<code>ssh-ed25519</code>, <code>sk-ssh-ed25519@openssh.com</code> for FIDO2 hardware-backed keys) store private keys encrypted with <a href="glossary/a/aes-256.html">AES-256</a>-<a href="glossary/c/ctr.html">CTR</a> + bcrypt <a href="glossary/k/kdf.html">KDF</a>. Server host keys authenticate the server during the SSH key-exchange transcript signature.</p>
 <h3>How it works</h3>
-<p><code>sshd</code> enforces privilege separation: an unprivileged pre-authentication sandboxed child parses untrusted network packets and performs key exchange, while the privileged monitor holds host private keys and spawns the user session only after authentication succeeds. For multi-hop connections, <code>ProxyJump</code> (<code>-J</code>) tunnels end-to-end encrypted SSH over an intermediate hop's <a href="glossary/t/tcp.html">TCP</a> forwarding channel without exposing your local <code>ssh-agent</code> <a href="glossary/u/unix.html">Unix</a> socket to the jump host.</p>
+<p><code>sshd</code> enforces privilege separation: an unprivileged pre-<a href="glossary/a/authentication.html">authentication</a> sandboxed child parses untrusted network packets and performs key exchange, while the privileged monitor holds host private keys and spawns the user session only after authentication succeeds. For multi-hop connections, <code>ProxyJump</code> (<code>-J</code>) tunnels end-to-end encrypted SSH over an intermediate hop's <a href="glossary/t/tcp.html">TCP</a> forwarding channel without exposing your local <code>ssh-agent</code> <a href="glossary/u/unix.html">Unix</a> socket to the jump host.</p>
 <h3>Edge cases</h3>
 <dl>
 <dt>Why <code>ForwardAgent yes</code> is dangerous on untrusted hosts</dt>

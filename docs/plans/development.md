@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-26:** Corpus 0.134.0 (minor): extend the quality review across the knowledge corpus. Add the ten approved glossary pages for IP (Internet Protocol), UI (User Interface), Unit interval, Core network, Capability discovery, Mobile paging, D-Bus, Direct-to-device, Measurement and Interoperability. Retarget or remove 104 wrong-sense links, including generic UI to the user-interface or unit-interval page, protocol-sense IP to the protocol page and D-Bus to its own page; keep electrical Current links and hardware Bus links. Add 611 conservative first-use links across 342 pages, skipping navigation, code, sample output, metaphors and later mentions. The unverified RCS encryption-default claim stays in place. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.133.2 (patch): pilot the corpus quality review on the fourteen Systems / Mobile communications texting pages. Read all pilot pages and a corpus-wide link inventory; found no wrong-sense glossary links in the pilot, added conservative first-use links to existing glossary pages, corrected confusing or inaccurate wording and one spelling error, and left the unverified RCS encryption-default claim in place. New glossary pages await an approved shortlist. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.133.1 (patch): standardize 107 glossary acronym titles from `Acronym - Meaning` to `Acronym (Meaning)` and repeat each full title in its breadcrumb. A scripted audit checked every glossary title and breadcrumb; the generated glossary hubs and corpus indexes are refreshed. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.133.0 (minor): add the Systems / Mobile communications texting curriculum: a subject hub, a texting subhub, twelve teaching pages with Novice, Learner and Expert sections, a six-stage goal path, glossary entries for SMS, MMS, RCS and the practical full set of cellular, identity, transport, encryption and anti-abuse terms, 28 bibliography sources and the `texting.*` skill cells. Teaching examples use labelled sandboxes with sample output; no phone service, SIM or messaging app is configured. Command version 0.69.7 is unchanged.
@@ -1599,6 +1600,37 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 `windowing.learner` and `windowing.expert` skills. Session-check examples were
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
+developer-directed.
+
+### 2026-11-26 — Corpus-wide quality review (corpus 0.134.0)
+
+After the pilot, the developer approved the curated shortlist of ten new
+glossary pages: IP (Internet Protocol), UI (User Interface), Unit interval
+(keyword `ui`), Core network, Capability discovery, Mobile paging, D-Bus,
+Direct-to-device, Measurement and Interoperability. A read-only inventory of
+1,714 pages was refreshed after the pilot and the new pages were added,
+giving 1,724 pages and 1,221 glossary pages.
+
+The corpus-wide pass used two reviewed rules. First, links whose sense did
+not fit were retargeted or removed: generic UI links moved to the user
+interface or unit-interval page, protocol-sense IP links moved to the
+protocol page while address-sense IP links stayed on the IP address page,
+D-Bus links stopped pointing at the hardware bus page, non-electrical
+Current links were dropped and the Emacs Meta link was removed. Fontconfig,
+glyph and theme anchors were retargeted to their own pages. In all, 104
+link changes were applied across 92 pages.
+
+Second, first uses of technical terms were linked conservatively: 611 links
+across 342 pages, capped at four new-term links and two existing-glossary
+links per page. Navigation, code, authored sample output, tables, lists,
+metaphors and later mentions were excluded. Nine reviewed candidates were
+dropped during inspection, including library-card and snapshot-date
+metaphors, `packets of light` and a verb use of `process`.
+
+The unverified RCS claim that UP 4.0 requires encryption by default unless
+local regulation prohibits it remains in place: the cited bibliography
+supports `UP_4.0` and RCC.16 MLS/HPKE but not that exact statement. Corpus
+checks passed; command version, stage promotion and installation remain
 developer-directed.
 
 ### 2026-11-25 — Corpus quality review pilot (corpus 0.133.2)

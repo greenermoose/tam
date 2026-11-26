@@ -43,7 +43,7 @@
 <section data-level="learner">
 <h2>Follow one request through the layers</h2>
 <p><strong>Goal:</strong> place four sample replies in the order a web request uses them.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: one request, four layers"
@@ -102,7 +102,7 @@ application: GET / HTTP/1.1</file>
 <tr><td>Local frames</td><td>Link</td><td>Which hardware neighbour receives each frame</td><td><code>ip neigh</code>, <code>ip link</code></td></tr>
 </table>
 <h3>How it works</h3>
-<p>A resolver reads the system's name-service configuration, queries a local cache and, on a miss, sends a UDP question to a configured DNS server. The answer is a set of addresses. The kernel then performs a longest-prefix route lookup for the chosen address, selects a source address, and creates a TCP socket with an ephemeral local port. The three-way handshake establishes sequence numbers and windows. The application writes an encrypted TLS record containing an HTTP request into the socket; TCP segments it, IP addresses it, and the link layer frames it for the next hop. At the far end each layer removes its own header before handing the data upward.</p>
+<p>A resolver reads the system's name-service configuration, queries a local cache and, on a miss, sends a UDP question to a configured <a href="glossary/d/dns.html">DNS</a> server. The answer is a set of addresses. The kernel then performs a longest-prefix route lookup for the chosen address, selects a source address, and creates a TCP socket with an ephemeral local port. The three-way handshake establishes sequence numbers and windows. The application writes an encrypted TLS record containing an HTTP request into the socket; TCP segments it, <a href="glossary/i/ip.html">IP</a> addresses it, and the link layer frames it for the next hop. At the far end each layer removes its own header before handing the data upward.</p>
 <p>Modern browsers prefer <a href="glossary/h/https.html">HTTPS</a> and often negotiate <a href="glossary/h/http.html">HTTP/2</a> over TCP. HTTP/3 instead uses <a href="glossary/q/quic.html">QUIC</a> over UDP, moving the handshake and reliability into user space so a lost packet does not block unrelated streams. Both reach the same application result through different transport choices.</p>
 <h3>Advanced usage</h3>
 

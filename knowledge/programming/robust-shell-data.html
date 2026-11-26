@@ -20,7 +20,7 @@
 
 <section data-level="novice">
 <h2>Names are not words</h2>
-<p>Shells split unquoted text on whitespace. A file called <code>Quarterly Report.pdf</code> can therefore look like two items. <a href="glossary/q/quoting.html">Quoting</a> and <a href="glossary/i/ifs.html">IFS</a> control that splitting.</p>
+<p>Shells split unquoted text on whitespace. A <a href="glossary/f/file.html">file</a> called <code>Quarterly Report.pdf</code> can therefore look like two items. <a href="glossary/q/quoting.html">Quoting</a> and <a href="glossary/i/ifs.html">IFS</a> control that splitting.</p>
 <h3>Why it matters</h3>
 <p>A script that breaks names can rename, overwrite or skip the wrong file. Safe input handling prevents that.</p>
 <h3>How to think about it</h3>
@@ -59,7 +59,7 @@
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p>The first loop unquoted a command substitution, so the spaced name became two words. The second loop read one line at a time with <code>IFS=</code> and <code>-r</code>, preserving the name. The loop output is authored sample text because the sandbox does not run shell control structures.</p>
+<p>The first loop unquoted a <a href="glossary/c/command.html">command</a> substitution, so the spaced name became two words. The second loop read one line at a time with <code>IFS=</code> and <code>-r</code>, preserving the name. The loop output is authored sample text because the sandbox does not run shell control structures.</p>
 <h3>Try it</h3>
 <p>The sample file list also includes a name with a dollar sign. In a real script, quoting and NUL-delimited streams protect that name too.</p>
 <aside class="tamlinux"><p><strong>On Tamlinux:</strong> scripts under your own configuration should handle spaces so desktop paths such as picture names do not break them.</p></aside>

@@ -19,7 +19,7 @@
 
 <p>This page explains how text is turned into visible letters on screens, from Linux virtual consoles to graphical desktops.</p>
 <h2>Before this</h2><p><a href="terminal/ttys-and-virtual-consoles.html">Text screens and terminal windows</a> · <a href="terminal/terminfo-and-termcap.html">How terminals display text</a></p>
-<p>On <a href="glossary/u/unix.html">Unix</a>-like operating systems, typography is not handled by a single monolithic engine. A small text console uses fixed bitmap grids built into kernel memory, while a graphical desktop coordinates multiple libraries to discover font files, shape complex scripts, and draw sharp vector curves on pixel displays. Knowing how this pipeline works allows you to customize your reading environment, troubleshoot missing characters, and write lean desktop software.</p>
+<p>On <a href="glossary/u/unix.html">Unix</a>-like operating systems, typography is not handled by a single monolithic engine. A small text console uses fixed bitmap grids built into kernel memory, while a graphical desktop coordinates multiple libraries to discover font <a href="glossary/f/file.html">files</a>, shape complex scripts, and draw sharp vector curves on pixel displays. Knowing how this pipeline works allows you to customize your reading environment, troubleshoot missing characters, and write lean desktop software.</p>
 
 <section data-level="novice">
 <h2>How does Tamlinux render text?</h2>
@@ -45,7 +45,7 @@
 
 <section data-level="learner">
 <h2>From character codes to screen shapes</h2>
-<p><strong>Goal:</strong> you will be able to inspect which font family supplies monospace text in your terminal, locate font files on your system, and test console font changes using read-only commands.</p>
+<p><strong>Goal:</strong> you will be able to inspect which font family supplies monospace text in your terminal, locate font files on your system, and test console font changes using read-only <a href="glossary/c/command.html">commands</a>.</p>
 <p><strong>Before you start:</strong> open a terminal window. The commands in this section only read information from your font subsystem.</p>
 <aside class="first-time">
 <p>The <code>$</code> at the start of a command line represents your shell prompt. Do not type the <code>$</code>. If a command prints nothing, that usually means no matches were found or the query was completed without error.</p>
@@ -99,11 +99,11 @@ AtkinsonHyperlegibleMono Nerd Font</out>
 
 <h3>What just happened</h3>
 <ol>
-<li><code>fc-match monospace</code> asks the system font matching library, <dfn><a href="glossary/p/program.html">Fontconfig</a></dfn>, which font file will be chosen when an application asks for a generic &ldquo;monospace&rdquo; font. It prints the filename, the family name, and the style variant.</li>
+<li><code>fc-match monospace</code> asks the system font matching library, <dfn><a href="glossary/f/fontconfig.html">Fontconfig</a></dfn>, which font file will be chosen when an application asks for a generic &ldquo;monospace&rdquo; font. It prints the filename, the family name, and the style variant.</li>
 <li><code>fc-list : family</code> lists all font families indexed on your machine. Filtering with <code>grep</code> confirms that the Atkinson family is installed and ready for desktop applications.</li>
 </ol>
 
-<p>A <dfn><a href="glossary/p/package.html">glyph</a></dfn> is the particular visual representation of a character. A font file contains a collection of glyphs along with lookup tables that map character codes to those shapes. In a <em>proportional</em> font, each letter takes up only as much width as it needs (such as a wide &ldquo;W&rdquo; and a narrow &ldquo;I&rdquo;). In a <em>monospace</em> font, every character occupies an identical cell width, which is essential for command-line alignment, code indentation, and terminal applications.</p>
+<p>A <dfn><a href="glossary/g/glyph.html">glyph</a></dfn> is the particular visual representation of a character. A font file contains a collection of glyphs along with lookup tables that map character codes to those shapes. In a <em>proportional</em> font, each letter takes up only as much width as it needs (such as a wide &ldquo;W&rdquo; and a narrow &ldquo;I&rdquo;). In a <em>monospace</em> font, every character occupies an identical cell width, which is essential for command-line alignment, code indentation, and terminal applications.</p>
 
 <p>On Tamlinux, the default interface typeface is <strong>Atkinson Hyperlegible</strong>, designed by the Braille Institute to maximize character distinction for low-vision readers. For terminal and code editors, Tamlinux packages <strong>Atkinson Hyperlegible Mono</strong>, enhanced with icon glyphs from Nerd Fonts.</p>
 <h3>Try it</h3>
@@ -140,7 +140,7 @@ tam-font-current
 </details>
 <details class="q">
 <summary><i>Does Linux have a single, central font server for all programs?</i></summary>
-<p>No. Early Unix X11 systems used a network font server, but modern desktop environments use client-side font discovery (Fontconfig) and client-side rasterization (FreeType), meaning each application or <a href="glossary/g/gui.html">UI</a> toolkit renders its own text.</p>
+<p>No. Early Unix X11 systems used a network font server, but modern desktop environments use client-side font discovery (Fontconfig) and client-side rasterization (FreeType), meaning each application or <a href="glossary/u/ui.html">UI</a> toolkit renders its own text.</p>
 </details>
 </section>
 

@@ -58,7 +58,7 @@
 </tam-sandbox>
 <p>The output is fixed teaching data; the sandbox does not inspect or alter your system.</p>
 <h3>Try it</h3>
-<p>On Linux, <code>lsblk -d -o NAME,ROTA,MODEL,SIZE</code> shows whether a block device rotates (<code>ROTA=1</code> for HDD, <code>0</code> for SSD/flash). <code>cat /sys/block/sda/queue/rotational</code> gives a similar hint for a specific device.</p>
+<p>On <a href="glossary/l/linux.html">Linux</a>, <code>lsblk -d -o NAME,ROTA,MODEL,SIZE</code> shows whether a block device rotates (<code>ROTA=1</code> for HDD, <code>0</code> for SSD/flash). <code>cat /sys/block/sda/queue/rotational</code> gives a similar hint for a specific device.</p>
 
 <h3>If it goes wrong</h3>
 <dl>
@@ -92,7 +92,7 @@
 <p>Flash program and erase operations use high electric fields. Fowler–Nordheim tunneling or hot-carrier injection moves electrons onto a floating gate or into charge-trap sites. Erasing removes charge. These operations stress oxide layers over time. As cells wear, threshold voltage margins shrink, and error rates rise. SSD controllers use error-correcting codes, wear leveling, bad-block remapping, overprovisioning, and firmware management to keep the device usable.</p>
 
 <h3>Speed and persistence trade-offs</h3>
-<p>Flash reads are much faster than HDD seeks: often tens to hundreds of microseconds for SSD access, versus milliseconds for HDD. But flash is still much slower than DRAM and far slower than CPU caches. It is also asymmetric: reads are usually easier than writes, and erases are larger and slower. On the 1 ns = 1 second scale, a 100 µs SSD access is over a day.</p>
+<p>Flash reads are much faster than HDD seeks: often tens to hundreds of microseconds for SSD access, versus milliseconds for HDD. But flash is still much slower than DRAM and far slower than <a href="glossary/c/cpu.html">CPU</a> caches. It is also asymmetric: reads are usually easier than writes, and erases are larger and slower. On the 1 ns = 1 second scale, a 100 µs SSD access is over a day.</p>
 
 <h3>Environmental risks</h3>
 <p>Flash is resistant to shock and vibration, but it is sensitive to total program/erase wear, charge leakage over time, high temperature, and power-loss during writes. Strong radiation can cause bit flips or controller damage; ordinary consumer environments are more often affected by heat, aging, and firmware or power failures. For long-term archival storage, verify data periodically and keep redundant copies.</p>

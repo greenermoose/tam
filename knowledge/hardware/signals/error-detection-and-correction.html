@@ -42,7 +42,7 @@
 <section data-level="learner">
 <h2>Noise, corrupted bits, and parity verification</h2>
 <p><strong>Goal:</strong> you will be able to explain how physical noise flips bits on communication lines, and calculate even and odd parity bits to detect single-bit errors.</p>
-<p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). The commands in this section run standard Python one-liners to calculate parity on <a href="glossary/a/ascii.html">ASCII</a> text.</p>
+<p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). The <a href="glossary/c/command.html">commands</a> in this section run standard Python one-liners to calculate parity on <a href="glossary/a/ascii.html">ASCII</a> text.</p>
 <aside class="first-time">
 <p><strong>New to this?</strong> Think of a parity bit like a quick count verification. If you pack a box with three apples and write "odd number of apples" on the outside tape, the recipient opens the box and counts them. If they count four apples (or two), they instantly know something went wrong during shipment, even without knowing which apple was damaged.</p>
 </aside>
@@ -205,7 +205,7 @@ BER = Errored_Bits / Total_Bits_Transmitted
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Tamlinux prioritizes mathematical verifiability and fault isolation across its system software stack. In high-reliability computing, silent data corruption (cosmic-ray bit flips or degrading transmission lines) is far more dangerous than an outright system panic. By leveraging kernel error counters, hardware ECC reporting via <a href="glossary/e/edac.html">EDAC</a> (Error Detection and Correction), and deterministic checksum algorithms across storage and network layers, Tamlinux ensures that physical channel degradations are exposed to systems operators before data loss occurs.</p>
+<p>Tamlinux prioritizes mathematical verifiability and fault isolation across its system software stack. In high-reliability computing, silent data corruption (cosmic-ray bit flips or degrading transmission lines) is far more dangerous than an outright system panic. By leveraging kernel error counters, hardware ECC reporting via <a href="glossary/e/edac.html">EDAC</a> (Error Detection and Correction), and deterministic checksum <a href="glossary/a/algorithm.html">algorithms</a> across storage and network layers, Tamlinux ensures that physical channel degradations are exposed to systems operators before data loss occurs.</p>
 
 <h3>Edge cases and failure modes</h3>
 

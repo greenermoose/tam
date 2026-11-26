@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/development/index.html">Developing Tamlinux</a> / The tam Command: Architecture, Coding, and Lifecycle</p></nav>
 
-<p>This page covers the tam command’s C11 architecture, source lanes, build targets and the discipline that moves a candidate toward release.</p>
+<p>This page covers the tam <a href="glossary/c/command.html">command</a>’s C11 architecture, source lanes, build targets and the discipline that moves a candidate toward release.</p>
 <h2>Before this</h2><p><a href="tamlinux/development/index.html">Developing Tamlinux</a> · <a href="programming/c/toolchains.html">Tools for building programs</a></p>
 
 <p><code>tam</code> is the flagship utility for Tamlinux.  <a href="tamlinux/developer.html">Fred</a> chose to write it in the C programming language (specifically, the <a href="glossary/c/c11.html">C11</a> standard) built against the <code>libtam</code> library so it starts quickly, uses little resident memory, and operates completely offline without background daemons. Tam should run reliably on any 64-bit hardware from 2006-era budget laptops up to the latest multi-core, multi-screen desktop workstations.</p>
@@ -25,7 +25,7 @@
 <h2>The tam command architecture</h2>
 <p><code>tam</code> is Tamlinux&apos;s native, offline knowledge reader and diagnostic tool. Written in C and compiled into a small binary, it opens documentation, manuals, and glossary pages directly in your terminal without needing a web browser or network connection.</p>
 <h3>Why it matters</h3>
-<p>Because <code>tam</code> compiles cleanly from source and separates its binary version from its documentation corpus version, contributors can test either a code fix or a documentation edit independently in a user-local directory without touching system files.</p>
+<p>Because <code>tam</code> compiles cleanly from source and separates its binary version from its documentation corpus version, contributors can test either a code fix or a documentation edit independently in a user-local <a href="glossary/d/directory.html">directory</a> without touching system files.</p>
 <h3>How to think about it</h3>
 <p>Think of <code>tam</code> as a pocket field-guide reader made of two replaceable halves: the binding and lens (the C command) and the pages inside (the <a href="glossary/h/html.html">HTML</a> knowledge corpus). Either half can be updated on its own schedule.</p>
 <h3>New words</h3>

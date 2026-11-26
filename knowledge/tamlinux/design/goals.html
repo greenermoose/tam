@@ -17,7 +17,7 @@
 <p>Tamlinux design goals give small utility programs measurable targets for startup time, memory use, dependencies and readability.</p>
 <section data-level="novice">
 <h2>What Tamlinux aims for</h2>
-<p>When you run a small Tamlinux command, it should feel immediate and leave room for the work you actually want to do. Tamlinux design goals keep core tools small, quick, and simple so they work well on old and new computers.</p>
+<p>When you run a small Tamlinux <a href="glossary/c/command.html">command</a>, it should feel immediate and leave room for the work you actually want to do. Tamlinux design goals keep core tools small, quick, and simple so they work well on old and new computers.</p>
 <h3>Why it matters</h3>
 <p>Clear goals help developers make consistent choices. If a tool starts slowly, uses too much memory, or depends on many extra pieces, it becomes harder to trust, harder to fix, and harder to run on modest hardware.</p>
 <h3>How to think about it</h3>
@@ -63,7 +63,7 @@
 <h3>Try it</h3>
 <p>Compare the sample listing with the Tamlinux Five table and name which goal it addresses.</p>
 <h3>If it goes wrong</h3>
-<p>A slow measurement may reflect cold caches or scheduler noise; measure repeatedly and report conditions.</p>
+<p>A slow <a href="glossary/m/measurement.html">measurement</a> may reflect cold caches or scheduler noise; measure repeatedly and report conditions.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q"><summary><i>Why is libc-only a goal rather than a universal rule?</i></summary><p>Core utilities benefit from a small audit surface; specialized components may need deliberate exceptions.</p></details>
@@ -83,7 +83,7 @@
 </table>
 
 <h3>How it works</h3>
-<p>These goals reinforce each other. C11 compiles to native code with predictable runtime behavior. A <code>libc</code>-only dependency set keeps the <a href="glossary/a/abi.html">ABI</a> and runtime surface small. Small, fast programs reduce startup overhead in shells, scripts, keybindings, and agent workflows. The same properties also reduce the amount of implicit context that machine intelligence needs: source files, headers, build flags, and libc behavior are usually enough to understand the program.</p>
+<p>These goals reinforce each other. C11 compiles to native code with predictable runtime behavior. A <code>libc</code>-only dependency set keeps the <a href="glossary/a/abi.html">ABI</a> and runtime surface small. Small, fast programs reduce startup overhead in shells, scripts, keybindings, and agent workflows. The same properties also reduce the amount of implicit context that machine intelligence needs: source <a href="glossary/f/file.html">files</a>, headers, build flags, and libc behavior are usually enough to understand the program.</p>
 
 <p>The C11 and low-dependency goals do not mean Tamlinux avoids all other languages or libraries everywhere. Desktop components, rootstock packages, and third-party applications may use different toolchains. The design goal applies most strongly to Tamlinux's own utility programs, where startup cost, memory use, auditability, and portability matter most.</p>
 

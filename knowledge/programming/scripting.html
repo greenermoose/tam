@@ -20,7 +20,7 @@
 
 <section data-level="novice">
 <h2>A recipe the computer repeats</h2>
-<p>A <a href="glossary/s/script.html">script</a> is a text file of commands. A <a href="glossary/s/shebang.html">shebang</a> on the first line tells the system which interpreter should read it.</p>
+<p>A <a href="glossary/s/script.html">script</a> is a text file of <a href="glossary/c/command.html">commands</a>. A <a href="glossary/s/shebang.html">shebang</a> on the first line tells the system which interpreter should read it.</p>
 <h3>Why it matters</h3>
 <p>Repeating a task by hand invites typos. A script records the steps so the same work happens the same way each time.</p>
 <h3>How to think about it</h3>
@@ -59,7 +59,7 @@
 <p><code>-e</code> stops on a failed command, <code>-u</code> stops on an unset variable, and <code>pipefail</code> makes a failed pipeline step count as failure. <code>-x</code> prints each step for debugging. The traces are sample output; the sandbox does not execute Bash scripts.</p>
 <h3>Try it</h3>
 <p>Think about a script that copies a file then deletes the original. With <code>set -e</code>, a failed copy stops the script before deletion.</p>
-<aside class="tamlinux"><p><strong>On Tamlinux:</strong> shared commands use the <code>tam-</code> prefix; personal helper commands use <code>fred-</code>. Development installs stay under your home directory.</p></aside>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> shared commands use the <code>tam-</code> prefix; personal helper commands use <code>fred-</code>. Development installs stay under your home <a href="glossary/d/directory.html">directory</a>.</p></aside>
 <h3>If it goes wrong</h3>
 <dl>
 <dt>The sandbox did not run my script.</dt><dd>Only the two trace samples are scripted. Run your own script with a real shell.</dd>

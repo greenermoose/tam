@@ -103,7 +103,7 @@ backscatter: do not reply to the bounce</file>
 <h3>How it works</h3>
 <p><cite data-ref="rfc-5321"><a href="bibliography/rfc-5321.html">RFC 5321</a></cite> defines reply-code classes and the model in which a server accepts or defers a message for each recipient. <cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">RFC 5598</a></cite> explains why acceptance at one hop is not the end of delivery. Delivery status notifications report the outcome of a transfer attempt; they are evidence about the transfer, not a read receipt.</p>
 <h3>Advanced usage</h3>
-<p>A diagnostic order works well: confirm the envelope recipient, check the queue state, read the first definitive failure code, inspect authentication and <code>Received:</code> lines from the bottom upward, then compare with provider reports. A blocklist listing or rate limit may explain a deferral; an alignment failure may explain a policy rejection. Coordinate with the receiving postmaster when local evidence stops.</p>
+<p>A diagnostic order works well: confirm the envelope recipient, check the queue state, read the first definitive failure code, inspect <a href="glossary/a/authentication.html">authentication</a> and <code>Received:</code> lines from the bottom upward, then compare with provider reports. A blocklist listing or rate limit may explain a deferral; an alignment failure may explain a policy rejection. Coordinate with the receiving postmaster when local evidence stops.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>A message can be accepted and later bounced, producing confusingly successful local logs.</li>

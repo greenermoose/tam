@@ -77,9 +77,9 @@
 <tr><td>FLTK, wxWidgets, Tk and others</td><td>Smaller native or portable widget sets.</td><td>Utilities, scientific tools and older applications.</td></tr>
 </table>
 <h3>How it works</h3>
-<p>A toolkit supplies an event loop, a widget tree, layout, styles, accessibility bridges and backend integration. On Wayland, a toolkit backend connects to protocol globals, creates surfaces, handles configure events and sends buffer releases. On X11, the same toolkit uses an X11 backend. Applications normally see a stable widget API even when the display protocol changes underneath.</p>
+<p>A toolkit supplies an event loop, a widget tree, layout, styles, accessibility bridges and backend integration. On Wayland, a toolkit backend connects to protocol globals, creates surfaces, handles configure events and sends <a href="glossary/b/buffer.html">buffer</a> releases. On X11, the same toolkit uses an X11 backend. Applications normally see a stable widget API even when the display protocol changes underneath.</p>
 <h3>Advanced usage examples</h3>
-<p>A Qt Quick shell can describe a panel declaratively in QML and bind its width to an output geometry exposed by the compositor. A GTK application can use a CSS stylesheet to restyle widgets without changing application logic. Both ultimately commit finished buffers; neither sends raw drawing commands to the display server in the X11 sense.</p>
+<p>A Qt Quick shell can describe a panel declaratively in QML and bind its width to an output geometry exposed by the compositor. A GTK application can use a CSS stylesheet to restyle widgets without changing application logic. Both ultimately commit finished buffers; neither sends raw drawing <a href="glossary/c/command.html">commands</a> to the display server in the X11 sense.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li>Toolkit backends differ in feature support, so global shortcuts, screen capture and translation may need portal negotiation.</li>

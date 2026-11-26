@@ -19,7 +19,7 @@
 
 <section data-level="novice">
 <h2>Asking a library for its settings</h2>
-<p>A <a href="glossary/l/library.html">library</a> needs include paths for its headers and link flags for its code. <code>pkg-config</code> reads a small description file and prints those settings.</p>
+<p>A <a href="glossary/l/library.html">library</a> needs include paths for its headers and link flags for its code. <code>pkg-config</code> reads a small description <a href="glossary/f/file.html">file</a> and prints those settings.</p>
 <h3>Why it matters</h3>
 <p>Hard-coded paths break when a package is installed somewhere else. Asking the library keeps a build portable across user and system installs.</p>
 <h3>How to think about it</h3>
@@ -59,7 +59,7 @@
 <h3>What just happened</h3>
 <p>The version, include path and link flags are authored samples for a user-local <code>libtam</code> install. The sandbox does not inspect your system. Include flags help the <a href="glossary/c/compiler.html">compiler</a> find headers; link flags help the <a href="glossary/l/linker.html">linker</a> find code.</p>
 <h3>Try it</h3>
-<p>Run <code>pkg-config --cflags --libs libtam</code>. Build scripts often place this whole answer directly on a compiler command line.</p>
+<p>Run <code>pkg-config --cflags --libs libtam</code>. Build scripts often place this whole answer directly on a compiler <a href="glossary/c/command.html">command</a> line.</p>
 <h3>If it goes wrong</h3>
 <dl>
 <dt>The paths mention <code>/home/alex</code>.</dt><dd>That is the sample account used by the sandbox. On your system the answer depends on where the library was installed.</dd>

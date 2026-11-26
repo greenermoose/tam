@@ -15,7 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Internet layer</p></nav>
 
-<p>The internet layer gives packets source and destination addresses and decides which next hop carries them toward a destination across multiple networks.</p>
+<p>The internet layer gives <a href="glossary/p/packet.html">packets</a> source and destination addresses and decides which next hop carries them toward a destination across multiple networks.</p>
 
 <section data-level="novice">
 <h2>What the internet layer does</h2>
@@ -36,7 +36,7 @@
 <section data-level="learner">
 <h2>Read an internet-layer address and route</h2>
 <p><strong>Goal:</strong> find the local address and the next-hop decision in sample records.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: address and next hop"
@@ -93,7 +93,7 @@ icmp: echo reply from 192.0.2.1</file>
 </table>
 
 <h3>How it works</h3>
-<p>The internet layer wraps transport data in an IP header containing source and destination addresses, hop limit/<a href="glossary/t/ttl.html">TTL</a>, next-protocol field, and fragmentation or flow-related fields depending on version. Routers perform longest-prefix-match forwarding on the destination address. They do not maintain end-to-end application state; they forward each packet based on routing information. <a href="glossary/i/ipv4.html">IPv4</a> is defined by <cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite> and <a href="glossary/i/ipv6.html">IPv6</a> by <cite data-ref="rfc8200"><a href="bibliography/rfc8200.html">RFC 8200</a></cite>.</p>
+<p>The internet layer wraps transport data in an <a href="glossary/i/ip.html">IP</a> header containing source and destination addresses, hop limit/<a href="glossary/t/ttl.html">TTL</a>, next-protocol field, and fragmentation or flow-related fields depending on version. Routers perform longest-prefix-match forwarding on the destination address. They do not maintain end-to-end application state; they forward each packet based on routing information. <a href="glossary/i/ipv4.html">IPv4</a> is defined by <cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite> and <a href="glossary/i/ipv6.html">IPv6</a> by <cite data-ref="rfc8200"><a href="bibliography/rfc8200.html">RFC 8200</a></cite>.</p>
 
 <h3>Advanced usage</h3>
 

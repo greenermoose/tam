@@ -44,7 +44,7 @@
 <p><strong>Goal:</strong> you will be able to read recent messages for one unit and report what happened without changing the system.</p>
 
 
-<p><strong>Before you start:</strong> open a terminal. Read <a href="paths/first-steps.html?level=1">First steps</a> if needed. These commands only read logs; they do not restart services or remove evidence.</p>
+<p><strong>Before you start:</strong> open a terminal. Read <a href="paths/first-steps.html?level=1">First steps</a> if needed. These <a href="glossary/c/command.html">commands</a> only read logs; they do not restart services or remove evidence.</p>
 <aside class="first-time"><p>Type the command after <code>$</code>, without typing that prompt. <code>--no-pager</code> prints the result and returns to your shell.</p></aside>
 
 
@@ -119,7 +119,7 @@ journalctl -b -u systemd-journald.service -n 2 --no-pager
 <h2>Separate missing evidence from competing causes</h2>
 <h3>Reference and how it works</h3>
 <p>Different journal fields combine as AND; alternative values for the same field combine as OR. A separate <code>+</code> combines match groups as OR. Use <a href="man:systemd.journal-fields(7)">journal fields</a> when a unit selector is too broad. Preserve the query with the boot ID and time bounds so another investigator can repeat the selection.</p>
-<p>The kernel's <code>printk</code> messages occupy a bounded ring buffer. <code>dmesg</code> reads kernel messages, not saved prior boots. Journald can retain kernel messages beyond that buffer's lifetime. Volatile storage under <code>/run/log/journal</code> does not survive reboot; persistent storage is under <code>/var/log/journal</code>. Configuration, access and retention determine which history a query can actually read.</p>
+<p>The kernel's <code>printk</code> messages occupy a bounded ring <a href="glossary/b/buffer.html">buffer</a>. <code>dmesg</code> reads kernel messages, not saved prior boots. Journald can retain kernel messages beyond that buffer's lifetime. Volatile storage under <code>/run/log/journal</code> does not survive reboot; persistent storage is under <code>/var/log/journal</code>. Configuration, access and retention determine which history a query can actually read.</p>
 <p><code>journalctl --verify</code> checks internal journal-file consistency. Authenticity verification additionally requires a journal created with Forward Secure Sealing and the matching verification key supplied with <code>--verify-key</code>. A structural pass does not prove that all events were recorded or that a message's causal interpretation is correct.</p>
 <h3>Think through a diagnosis</h3>
 <p>Suppose a display is dark after wake. First separate “the machine never resumed” from “the machine resumed but the display did not.” Match the reported time to kernel sleep/resume messages and session evidence. Evidence that a session process continued after resume weakens the first explanation; it does not prove the monitor link is healthy. If the journal ends abruptly, leave both a hard hang and missing/unflushed evidence open. Each branch needs an observation that could disprove it.</p>

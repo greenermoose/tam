@@ -14,7 +14,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/memory/index.html">Memory technology</a> / Volatile memory and CPU caches</p></nav>
 
-<p>Volatile memory loses its contents when power is removed. Computers use RAM and small CPU caches as fast working storage.</p>
+<p>Volatile memory loses its contents when power is removed. Computers use RAM and small <a href="glossary/c/cpu.html">CPU</a> caches as fast working storage.</p>
 
 <section data-level="novice">
 <h2>Fast memory near the work</h2>
@@ -42,7 +42,7 @@
 
 <h3>L1 and L2 caches in detail</h3>
 <p>The <a href="glossary/c/cpu-caches.html">CPU cache hierarchy</a> usually has separate <strong>L1 instruction</strong> and <strong>L1 data</strong> caches per core. L1 is the smallest and fastest: often tens of kilobytes, with access around 4 cycles or a few nanoseconds. It is optimized for the CPU's immediate needs.</p>
-<p><strong>L2</strong> is usually larger, often hundreds of kilobytes to a few megabytes per core on many designs. It is slower than L1 but still much faster than RAM. L2 catches data that does not fit in L1 and acts as a second buffer before going to shared L3 or main memory. Some CPUs have private L2 per core; others share or have different arrangements, but the common pattern is L1 closest/smallest, L2 next.</p>
+<p><strong>L2</strong> is usually larger, often hundreds of kilobytes to a few megabytes per core on many designs. It is slower than L1 but still much faster than RAM. L2 catches data that does not fit in L1 and acts as a second <a href="glossary/b/buffer.html">buffer</a> before going to shared L3 or main memory. Some CPUs have private L2 per core; others share or have different arrangements, but the common pattern is L1 closest/smallest, L2 next.</p>
 <p><strong>L3</strong> is larger still, often several to tens of megabytes, and commonly shared among cores on a chip. It helps cores share data and reduces trips to DRAM. Access is slower than L2 but much faster than main memory.</p>
 
 <h3>Caches on other chips</h3>

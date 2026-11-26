@@ -44,7 +44,7 @@ information from the kernel (the operating system's core). See <a href="paths/fi
 for terminal help and <a href="systems/maintenance/resources.html?level=1">resources</a>
 for an introduction to memory.</p>
 <aside class="first-time"><p>RAM is working memory used by running programs.
-It needs power to retain data. The files below are kernel interfaces: reading
+It needs power to retain data. The <a href="glossary/f/file.html">files</a> below are kernel interfaces: reading
 them asks a question; writing to them can change system behavior. This lesson
 uses <code>cat</code> to read only.</p></aside>
 <h3>Mental model</h3>
@@ -109,7 +109,7 @@ A restore kernel must locate and load the image before handing control back
 to the saved kernel. Image creation, storage write, power-down and device
 restoration are separate failure boundaries.</p>
 <p><code>/sys/power/image_size</code> is a best-effort upper limit in bytes,
-not a preallocated buffer or a report of the last image's size. If the target
+not a preallocated <a href="glossary/b/buffer.html">buffer</a> or a report of the last image's size. If the target
 cannot be met, the kernel can still try the smallest possible image. Zero
 requests the smallest possible image; it does not guarantee allocation,
 successful resume, or reclamation of every clean cache page.</p>
@@ -129,7 +129,7 @@ hibernation problem is an image-size problem.</p>
 <p>Wake sources, suspend residency and standby draw depend on firmware,
 devices and policy. Neither a watt figure nor a fixed wake time follows from
 a sleep label. Measure energy and latency on the actual hardware, and keep
-display power, platform standby and external peripherals in the measurement's
+display power, platform standby and external peripherals in the <a href="glossary/m/measurement.html">measurement</a>'s
 scope. Hibernation permits RAM to lose power after the image is saved, but
 does not promise literal zero wall-plug draw.</p>
 <p>Do not modify filesystems from another operating system and then resume an

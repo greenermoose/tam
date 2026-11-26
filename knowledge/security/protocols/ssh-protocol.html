@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/protocols/index.html">Secure protocols</a> / The SSH Protocol Internals</p></nav>
 
-<p>The SSH protocol builds an encrypted channel over TCP, verifies the server’s host key, and then multiplexes authentication and terminal or file-transfer sessions.</p>
+<p>The SSH protocol builds an encrypted channel over TCP, verifies the server’s host key, and then multiplexes <a href="glossary/a/authentication.html">authentication</a> and terminal or file-transfer sessions.</p>
 
 <section data-level="novice">
 <h2>Proving both sides before opening a remote terminal</h2>
@@ -100,7 +100,7 @@
 </pre>
 
 <h3>How it works: Transport KEX, Session ID binding, and UserAuth</h3>
-<p><strong><a href="glossary/b/binary.html">Binary</a> <a href="glossary/p/packet.html">Packet</a> Protocol &amp; KEX:</strong> After exchanging plaintext version banners (<code>SSH-2.0-...</code>), both sides send <code>SSH_MSG_KEXINIT</code> listing algorithm preferences and a 16-byte random cookie. In ephemeral ECDH / hybrid KEX (e.g., <code>mlkem768x25519-sha256</code>), client and server exchange ephemeral public values <code>Q_C, Q_S</code>, compute shared secret <code>K</code>, and compute the exchange hash:</p>
+<p><strong><a href="glossary/b/binary.html">Binary</a> <a href="glossary/p/packet.html">Packet</a> Protocol &amp; KEX:</strong> After exchanging plaintext version banners (<code>SSH-2.0-...</code>), both sides send <code>SSH_MSG_KEXINIT</code> listing <a href="glossary/a/algorithm.html">algorithm</a> preferences and a 16-byte random cookie. In ephemeral ECDH / hybrid KEX (e.g., <code>mlkem768x25519-sha256</code>), client and server exchange ephemeral public values <code>Q_C, Q_S</code>, compute shared secret <code>K</code>, and compute the exchange hash:</p>
 <pre>
 H = SHA-256(V_C || V_S || I_C || I_S || K_S || Q_C || Q_S || K)
 </pre>

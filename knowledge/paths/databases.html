@@ -14,7 +14,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / From first query to very large data sets</p></nav>
 
-<p>This path takes a reader who has never designed a database from the idea of saved records to choosing between an embedded engine, a server database, a browser store and a distributed data system.</p>
+<p>This path takes a reader who has never designed a <a href="glossary/d/database.html">database</a> from the idea of saved records to choosing between an embedded engine, a server database, a browser store and a distributed data system.</p>
 <p>Every stage names the lens to read with. The examples live in teaching sandboxes; this path installs no database software and asks you to change nothing on your own machine.</p>
 
 <h2>Stage 1: See why stored data needs a system</h2>
@@ -89,7 +89,7 @@
 </section>
 
 <h2>Capstone</h2>
-<p>Design storage for a small reading app that lets a person save bookmarks offline, sync them later and produce a monthly report of the most-read topics. Work on paper or in a scratch file; do not install a database.</p>
+<p>Design storage for a small reading app that lets a person save bookmarks offline, sync them later and produce a monthly report of the most-read topics. Work on paper or in a scratch <a href="glossary/f/file.html">file</a>; do not install a database.</p>
 <details class="solution">
 <p>One sound answer: keep browser records in IndexedDB with an object store keyed by bookmark ID and an index on topic, so offline edits remain transactional. Sync through a server API (a GraphQL contract is fine) into PostgreSQL, using a transaction for each batch and a topic index for the report. If the report grows beyond a single database, write raw events to Parquet in an object store and run a batch summary with Spark; use a stream only if the app needs answers within seconds. State which trade-off you are making: local availability, transactional safety, analytical scan cost or operational simplicity. The result is a design, not a claim that one product always wins.</p>
 </details>

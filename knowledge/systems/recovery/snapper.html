@@ -46,7 +46,7 @@ must already be installed and its configuration readable. Do not install it
 or create a configuration to complete this lesson.</p>
 <aside class="first-time"><p>Type after the dollar
 sign in your terminal. The first line printed names the columns; each following
-line names a configuration and its subvolume. This command lists configuration,
+line names a configuration and its subvolume. This <a href="glossary/c/command.html">command</a> lists configuration,
 not your saved checkpoints.</p></aside>
 <h3>Mental model</h3>
 <pre>
@@ -92,7 +92,7 @@ procedure are still required.</p></details>
 <p>If Snapper is absent, stop at the paper example.
 If access is denied or a configuration is missing, record that limitation;
 do not create a config or escalate privileges as practice. Direct operation
-bypasses D-<a href="glossary/b/bus.html">Bus</a>, not filesystem permissions.</p>
+bypasses D-<a href="glossary/d/d-bus.html">Bus</a>, not filesystem permissions.</p>
 <aside class="tamlinux"><p>The current native updater
 requests a snapshot with description “pre: Tamlinux native update” after its
 recovery gates and before the native transaction. It does not specify type
@@ -123,7 +123,7 @@ known targets, preserved later writes and approval for that specific step.</p>
 <h3>How it works</h3><p>In the usual root Btrfs layout, Snapper keeps
 <code>/.snapshots/N/info.xml</code> metadata beside the snapshot subvolume at
 <code>/.snapshots/N/snapshot</code>. Configured subvolume and filesystem layout
-are authoritative. D-Bus coordinates requests through snapperd; direct mode
+are authoritative. <a href="glossary/d/d-bus.html">D-Bus</a> coordinates requests through snapperd; direct mode
 uses filesystem access without granting permissions; direct mutations can also
 bypass snapperd's coordination. A live environment's
 root is not the installed root: <code>--root</code> needs an already verified,

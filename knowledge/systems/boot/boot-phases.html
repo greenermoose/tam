@@ -22,10 +22,10 @@
 <li><strong>Kernel and early userspace:</strong> the Linux kernel starts hardware and runs the initramfs, a temporary early environment that prepares the installed system. If the root disk is encrypted, this environment may ask for its unlock password.</li>
 <li><strong>Resume or normal startup:</strong> after required storage is available, a valid hibernation image can restore the earlier session. Otherwise the installed root filesystem is mounted and the init system starts services and a text login prompt.</li>
 </ol>
-<p>A changing font or a blank screen can accompany a console or display-driver change. It does not by itself identify which program is running. A unified kernel image can package the kernel, initramfs and settings in one file.</p>
+<p>A changing font or a blank screen can accompany a console or display-driver change. It does not by itself identify which program is running. A unified kernel image can package the kernel, initramfs and settings in one <a href="glossary/f/file.html">file</a>.</p>
 <h2>After the boot phases</h2>
-<p>Signing in authenticates a user and starts a text session, usually with a command shell. Disk unlock and user login are separate steps. A resumed session may return directly to its previous state rather than show a fresh login.</p>
-<p><a href="glossary/c/current.html">Current</a> Tamlinux cultivars use console-first startup: after login you work in a text session, and you start the graphical desktop only when requested with <code>tam-desktop</code>. The <a href="glossary/v/virtual-console.html">virtual console</a> remains a way to work with text. A graphical session is optional; it is not a separate boot phase.</p>
+<p>Signing in authenticates a user and starts a text session, usually with a <a href="glossary/c/command.html">command</a> shell. Disk unlock and user login are separate steps. A resumed session may return directly to its previous state rather than show a fresh login.</p>
+<p>Current Tamlinux cultivars use console-first startup: after login you work in a text session, and you start the graphical desktop only when requested with <code>tam-desktop</code>. The <a href="glossary/v/virtual-console.html">virtual console</a> remains a way to work with text. A graphical session is optional; it is not a separate boot phase.</p>
 <section data-level="novice">
 <h2>Remember the difference</h2>
 <p>Unlocking lets the computer access encrypted storage. Signing in identifies the user. You may need to do both.</p>

@@ -74,7 +74,7 @@
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p><code>events.csv</code> is sample data, and the <code>spark.read.parquet</code> and <code>kafka-console-consumer</code> outputs are scripted teaching simulations. Neither Spark nor Kafka was installed or run, and nothing here is a measurement from your machine. The batch line reads stored <a href="glossary/a/parquet.html">Parquet</a> files and counts three event rows. The stream line prints events one at a time as if they were arriving, so its order comes from the sample script.</p>
+<p><code>events.csv</code> is sample data, and the <code>spark.read.parquet</code> and <code>kafka-console-consumer</code> outputs are scripted teaching simulations. Neither Spark nor Kafka was installed or run, and nothing here is a <a href="glossary/m/measurement.html">measurement</a> from your machine. The batch line reads stored <a href="glossary/a/parquet.html">Parquet</a> files and counts three event rows. The stream line prints events one at a time as if they were arriving, so its order comes from the sample script.</p>
 <h3>Try it</h3>
 <p>Run <code>wc -l events.csv</code>: it reports four lines, the header plus three events. The sample Parquet count is three because a stored file format keeps the field names as schema, not as a row. Ask yourself which question needs all three events together and which can act on each event as it arrives.</p>
 <h3>If it goes wrong</h3>
@@ -83,7 +83,7 @@
 <dt>The two outputs look alike.</dt><dd>They show the same sample facts at different times: a batch reads a finished set, a stream reads items over time.</dd>
 </dl>
 <aside class="tamlinux">
-<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no database software.</p>
+<p>These pages are part of Tamlinux's offline guide. The sandbox is a teaching simulation; this series installs no <a href="glossary/d/database.html">database</a> software.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>

@@ -78,9 +78,9 @@
 <tr><td>2008 onward</td><td>Wayland</td><td>Compositor as display server; isolation between clients and a smaller protocol core.</td></tr>
 </table>
 <h3>How it works</h3>
-<p>The important transition is not "graphics got newer" but "who owns the final picture". X11 keeps a display server that owns drawing resources and a window manager that behaves like a privileged client. Wayland makes the compositor the display server, so the same process that places windows also presents buffers and routes input. Desktop environments then layer policy, panels and applications over whichever model they use.</p>
+<p>The important transition is not "graphics got newer" but "who owns the final picture". X11 keeps a display server that owns drawing resources and a window manager that behaves like a privileged client. Wayland makes the compositor the display server, so the same process that places windows also presents <a href="glossary/b/buffer.html">buffers</a> and routes input. Desktop environments then layer policy, panels and applications over whichever model they use.</p>
 <h3>Advanced examples</h3>
-<p>Compare three lineages: X11's protocol-and-toolkit model; Apple's <a href="glossary/q/quartz.html">Quartz</a> and <a href="glossary/a/appkit.html">AppKit</a> family; and Windows' USER/GDI and <a href="glossary/d/dwm.html">Desktop Window Manager</a> family. Each solves placement, drawing and input, but they divide the work across different libraries and kernel interfaces.</p>
+<p>Compare three lineages: X11's protocol-and-toolkit model; Apple's <a href="glossary/q/quartz.html">Quartz</a> and <a href="glossary/a/appkit.html">AppKit</a> family; and Windows' USER/GDI and <a href="glossary/d/dwm.html">Desktop Window Manager</a> family. Each solves placement, drawing and input, but they divide the work across different libraries and <a href="glossary/k/kernel.html">kernel</a> interfaces.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li>History is not one straight ladder: overlapping research systems, X11 and commercial desktops developed in parallel.</li>

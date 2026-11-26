@@ -25,7 +25,7 @@
 <p>Names and shapes make questions precise. If every member row has an id and a name, you can ask for one member by id without guessing which word in a paragraph is the name.</p>
 <h3>How to think about it</h3>
 <p>Imagine a spreadsheet with a strict rule: every column keeps the same kind of value on every row. A <dfn><a href="glossary/p/primary-key.html">primary key</a></dfn> is like a student number that identifies one row. A <dfn><a href="glossary/f/foreign-key.html">foreign key</a></dfn> points to a row in another table, so a loan can say which member made it.</p>
-<p>A join brings rows from two tables together using a shared value. SQL describes the rows you want; the database works out how to fetch them.</p>
+<p>A join brings rows from two tables together using a shared value. SQL describes the rows you want; the <a href="glossary/d/database.html">database</a> works out how to fetch them.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/s/sql.html">SQL</a></dt><dd>The language for asking for and changing table data.</dd>
@@ -74,9 +74,9 @@ WHERE m.name = 'Ada';</file>
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p>The <code>JOIN</code> matched <code>m.id</code> with <code>c.member_id</code>, then <code>WHERE</code> kept only Ada. The <code>sqlite3</code> result is a sample teaching simulation: the sandbox installs no database software, and the row shown is authored output, not a measurement from your machine. Notice that you described the result rather than the steps to find it; that is what makes SQL declarative.</p>
+<p>The <code>JOIN</code> matched <code>m.id</code> with <code>c.member_id</code>, then <code>WHERE</code> kept only Ada. The <code>sqlite3</code> result is a sample teaching simulation: the sandbox installs no database software, and the row shown is authored output, not a <a href="glossary/m/measurement.html">measurement</a> from your machine. Notice that you described the result rather than the steps to find it; that is what makes SQL declarative.</p>
 <h3>Try it</h3>
-<p>Use <code>grep 2 checkouts.csv</code> and predict which title belongs to Bo. The join would pair that row with the member whose id is 2, without changing either file.</p>
+<p>Use <code>grep 2 checkouts.csv</code> and predict which title belongs to Bo. The join would pair that row with the member whose id is 2, without changing either <a href="glossary/f/file.html">file</a>.</p>
 <h3>If it goes wrong</h3>
 <dl>
 <dt><code>grep 2</code> matched more than one line.</dt><dd>The digit appears wherever it occurs in the sample text. Check which field holds the member id.</dd>

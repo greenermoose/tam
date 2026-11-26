@@ -85,7 +85,7 @@ req.onsuccess = () =&gt; {
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p><code>result.txt</code> is a scripted sample transcript, not a browser run and not a measurement from your machine; no browser or database software was started. The script asks to open a database at version 1. The upgrade handler creates an object store whose <code>keyPath</code> takes the key from the <code>id</code> field. A read-write <a href="glossary/t/transaction.html">transaction</a> then puts one record. IndexedDB requests are asynchronous: handlers run after the request completes, and web code often wraps them in a <a href="glossary/p/promise.html">promise</a>.</p>
+<p><code>result.txt</code> is a scripted sample transcript, not a browser run and not a <a href="glossary/m/measurement.html">measurement</a> from your machine; no browser or database software was started. The script asks to open a database at version 1. The upgrade handler creates an object store whose <code>keyPath</code> takes the key from the <code>id</code> field. A read-write <a href="glossary/t/transaction.html">transaction</a> then puts one record. IndexedDB requests are asynchronous: handlers run after the request completes, and web code often wraps them in a <a href="glossary/p/promise.html">promise</a>.</p>
 <h3>Try it</h3>
 <p>Run <code>grep keyPath app.js</code> and predict what would happen if the script opened version 2 while keeping the same store: the upgrade handler would run again, and creating that store a second time would fail. A browser stores this data only for its own origin, not for a server.</p>
 <h3>If it goes wrong</h3>
@@ -125,7 +125,7 @@ req.onsuccess = () =&gt; {
 <tr><td>Quota</td><td>Storage limit set by the browser for that origin</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Opening with a higher version starts a versionchange transaction; that is the only place to create or delete object stores and indexes. A key path extracts the key from a stored value, while a key generator can supply one instead. A transaction lists the stores it touches and stays alive only while requests are pending; at an event-loop boundary with nothing outstanding it commits automatically. Requests are ordered within a transaction, and cursors walk records in key order. Values are stored with the structured clone algorithm, so plain data objects work but functions and live DOM nodes do not.</p>
+<p>Opening with a higher version starts a versionchange transaction; that is the only place to create or delete object stores and indexes. A key path extracts the key from a stored value, while a key generator can supply one instead. A transaction lists the stores it touches and stays alive only while requests are pending; at an event-loop boundary with nothing outstanding it commits automatically. Requests are ordered within a transaction, and cursors walk records in key order. Values are stored with the structured clone <a href="glossary/a/algorithm.html">algorithm</a>, so plain data objects work but functions and live DOM nodes do not.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li>An open connection in another tab can block a version upgrade until it closes.</li>

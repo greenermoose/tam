@@ -15,7 +15,7 @@
 
 <p>This page shows how to see how much electricity your computer's main chip is using, and what keeps it busy.</p>
 <h2>Before this</h2><p><a href="systems/power.html">When your computer rests or sleeps</a> · <a href="systems/maintenance/resources.html">How your computer uses its resources</a></p>
-<p>The <code>tam-meter</code> command reads the computer's own sensors. It only reads; it changes nothing and needs no administrator rights.</p>
+<p>The <code>tam-meter</code> <a href="glossary/c/command.html">command</a> reads the computer's own sensors. It only reads; it changes nothing and needs no administrator rights.</p>
 
 <section data-level="novice">
 <h2>What tam-meter tells you</h2>
@@ -98,7 +98,7 @@
 <tr><td>Memory (<code>reading</code>)</td><td>Available memory and swap in use, from <code>/proc/meminfo</code></td></tr>
 </table>
 <h3>How it works</h3>
-<p><code>reading</code> sleeps for the settle time, samples for the window, then reports mean, median and range. It also reports the CPU time it used itself, so you can see that the meter is not what is being measured. Each report ends with a <q>Not measured</q> line: wall power, the <a href="glossary/r/rapl.html">RAPL</a> package energy counter when only root can read it, and everything outside the APU.</p>
+<p><code>reading</code> sleeps for the settle time, samples for the window, then reports mean, median and range. It also reports the <a href="glossary/c/cpu.html">CPU</a> time it used itself, so you can see that the meter is not what is being measured. Each report ends with a <q>Not measured</q> line: wall power, the <a href="glossary/r/rapl.html">RAPL</a> package energy counter when only root can read it, and everything outside the APU.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>Package power reported by the chip is a model of its own draw, useful for comparing one state with another on the same machine, not a calibrated wall measurement.</li>

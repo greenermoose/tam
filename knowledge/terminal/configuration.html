@@ -22,7 +22,7 @@
 
 <section data-level="novice">
 <h2>What makes a terminal editor approachable?</h2>
-<p>A terminal editor lets you edit plain-text files right inside a text window. Unlike older editors that require learning separate command and typing modes first, Micro uses the same everyday save, undo, and quit shortcuts found in standard desktop editors.</p>
+<p>A terminal editor lets you edit plain-text files right inside a text window. Unlike older editors that require learning separate <a href="glossary/c/command.html">command</a> and typing modes first, Micro uses the same everyday save, undo, and quit shortcuts found in standard desktop editors.</p>
 <h3>Why it matters</h3>
 <p>Many system configuration files live in plain text and are easiest to edit in a terminal. An editor with familiar shortcuts lets you make small, safe edits on day one without memorizing a new editing language.</p>
 <h3>How to think about it</h3>
@@ -94,7 +94,7 @@ Saved line</out>
 
 <p>Tamlinux standardizes on <code>foot</code> as its primary Wayland terminal emulator. Unlike bloated <a href="glossary/e/electron.html">Electron</a> or heavy <a href="glossary/v/vte.html">VTE</a>/<a href="glossary/g/gtk.html">GTK</a>-based terminals that consume over 100MB of memory and take 200ms+ to initialize, <code>foot</code> communicates directly with the Wayland compositor over a UNIX domain stream socket located at <code>$XDG_RUNTIME_DIR/wayland-0</code> (or <code>wayland-1</code>).</p>
 
-<p>When terminal output arrives from a running command, <code>foot</code> processes the VT escape sequences in an internal grid buffer. It computes the exact bounding rectangle of modified character cells and transmits a <code>wl_surface.damage_buffer</code> request followed by <code>wl_surface.commit</code>. When no output is being generated, the terminal client sends zero Wayland protocol messages and the compositor performs zero redraws, consuming zero GPU cycles.</p>
+<p>When terminal output arrives from a running command, <code>foot</code> processes the VT escape sequences in an internal grid <a href="glossary/b/buffer.html">buffer</a>. It computes the exact bounding rectangle of modified character cells and transmits a <code>wl_surface.damage_buffer</code> request followed by <code>wl_surface.commit</code>. When no output is being generated, the terminal client sends zero Wayland protocol messages and the compositor performs zero redraws, consuming zero GPU cycles.</p>
 
 <p>To verify the compositor/client protocol exchanges directly, you can launch a client with <code>WAYLAND_DEBUG=1</code>, which prints every wire protocol request and event passing between the terminal client and the compositor.</p>
 

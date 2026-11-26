@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/databases/index.html">Databases and data storage</a> / GraphQL</p></nav>
 
-<p><a href="glossary/g/graphql.html">GraphQL</a> lets a client program ask a server for named fields. It is a contract between programs, not a place where data is stored.</p>
+<p><a href="glossary/g/graphql.html">GraphQL</a> lets a client <a href="glossary/p/program.html">program</a> ask a server for named fields. It is a contract between programs, not a place where data is stored.</p>
 
 <section data-level="novice">
 <h2>Asking for named fields</h2>
@@ -76,7 +76,7 @@
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p>The <code>curl</code> line and its response are a scripted teaching simulation. No service was started, no database was queried, and the text is not a measurement from your machine. The query names <code>name</code> and <code>city</code>; the sample response has those fields and nothing else. That shape is the contract: a resolver decided each value, and the server packaged them as <a href="glossary/j/json.html">JSON</a>.</p>
+<p>The <code>curl</code> line and its response are a scripted teaching simulation. No service was started, no database was queried, and the text is not a <a href="glossary/m/measurement.html">measurement</a> from your machine. The query names <code>name</code> and <code>city</code>; the sample response has those fields and nothing else. That shape is the contract: a resolver decided each value, and the server packaged them as <a href="glossary/j/json.html">JSON</a>.</p>
 <h3>Try it</h3>
 <p>Predict what happens if you add <code>id</code> beside <code>name</code> in the selection set: a real service would include an <code>id</code> value if the schema allows it. Asking for a field that is not in the schema instead produces a validation error, not an empty value.</p>
 <h3>If it goes wrong</h3>

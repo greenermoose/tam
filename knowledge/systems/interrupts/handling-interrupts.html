@@ -13,13 +13,13 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/interrupts/index.html">Interrupts</a> / How interrupt handling works</p></nav>
 
-<p>The kernel answers an interrupt in a short, deliberate sequence, then gives the processor back to ordinary work.</p>
+<p>The <a href="glossary/k/kernel.html">kernel</a> answers an interrupt in a short, deliberate sequence, then gives the processor back to ordinary work.</p>
 
 <section data-level="novice">
 <h2>What happens when the doorbell rings</h2>
 <p>When an interrupt arrives, the <a href="glossary/c/cpu.html">CPU</a> finishes the instruction it is on, notes where the interrupted program had reached, and starts a small piece of kernel code. That code deals with the urgent part of the event. Then the CPU restores the saved place and the program carries on as if nothing had happened.</p>
 <h3>Why it matters</h3>
-<p>The interrupted program does not need to know that a key press or a packet arrived. It simply resumes. That is one reason several programs can appear to run at once on a single CPU core.</p>
+<p>The interrupted program does not need to know that a key press or a <a href="glossary/p/packet.html">packet</a> arrived. It simply resumes. That is one reason several programs can appear to run at once on a single CPU core.</p>
 <h3>How to think about it</h3>
 <p>Put a bookmark in a book, answer the door, then return to the same line. The bookmark is the CPU's saved state; answering the door is the kernel's handler.</p>
 <h3>New words</h3>

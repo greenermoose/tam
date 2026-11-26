@@ -20,7 +20,7 @@
 
 <section data-level="novice">
 <h2>What is init?</h2>
-<p><code>init</code> is the very first regular program the Linux kernel starts after booting. It launches and supervises background services—such as networking, system logging, audio, and login prompts—for the entire time the computer is running.</p>
+<p><code>init</code> is the very first regular program the Linux <a href="glossary/k/kernel.html">kernel</a> starts after booting. It launches and supervises background services—such as networking, system logging, audio, and login prompts—for the entire time the computer is running.</p>
 <h3>Why it matters</h3>
 <p>Networking, logging, and many desktop helpers all run as managed services. Knowing which manager started a service—and how to check its status—prevents guesswork and unnecessary reboots when a background feature stops working.</p>
 <h3>How to think about it</h3>
@@ -35,7 +35,7 @@
 <section data-level="learner">
 <h2>Services after login</h2>
 <p><strong>Goal:</strong> you will be able to say what an init system does and find whether <dfn><a href="glossary/s/systemd.html">systemd</a></dfn> tools exist on your machine.</p>
-<p><strong>Before you start:</strong> read-only commands only.</p>
+<p><strong>Before you start:</strong> read-only <a href="glossary/c/command.html">commands</a> only.</p>
 <aside class="first-time"><p>Do not restart services while learning. Looking is enough.</p></aside>
 <h3>Mental model</h3>
 <p>Process ID 1 (init) starts the system and supervises services. On the current Arch <a href="glossary/r/rootstock.html">rootstock</a>, that manager is <strong>systemd</strong>. A planned Void rootstock uses <strong>runit</strong>. Seat access for graphics is a related but separate boundary (<code>logind</code> today; <code>seatd</code> on runit targets).</p>

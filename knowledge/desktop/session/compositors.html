@@ -22,7 +22,7 @@
 <h2>What does a compositor do?</h2>
 <p>A <dfn><a href="glossary/c/compositor.html">compositor</a></dfn> is the program that draws every application window onto your screen, arranges where each window sits, and routes your keyboard and mouse input to the active window.</p>
 <h3>Why it matters</h3>
-<p>Knowing that the compositor is separate from the rest of the operating system helps when graphics freeze: a stuck desktop often still leaves the underlying system healthy and reachable from a text console.</p>
+<p>Knowing that the compositor is separate from the rest of the <a href="glossary/o/operating-system.html">operating system</a> helps when graphics freeze: a stuck desktop often still leaves the underlying system healthy and reachable from a text console.</p>
 <h3>How to think about it</h3>
 <p>Imagine each open program painting onto its own clear sheet of glass. The compositor is the stage manager who stacks those sheets in order, places them side by side or overlapping, and shines the spotlight on whichever window receives your typing.</p>
 <h3>New words</h3>
@@ -65,7 +65,7 @@
 </section>
 <section data-level="expert">
 <h2>Blank-screen boundaries</h2>
-<p>Separate panel power, cable/protocol, <a href="glossary/d/drm.html">DRM/KMS</a> programming, compositor process, and client faults. <a href="glossary/p/plugin.html">Plugin</a> <a href="glossary/a/abi.html">ABI</a> churn and carried multi-monitor patches are reasons Tamlinux plans to move from Hyprland to <code>tam-pane</code>; contribution policy also blocks some upstream paths. Capture <code>hyprctl</code> or DRM connector evidence from a working VT when documenting a fault. Do not restart display stacks as a first exploratory step.</p>
+<p>Separate panel power, cable/protocol, <a href="glossary/d/drm.html">DRM/KMS</a> programming, compositor <a href="glossary/p/process.html">process</a>, and client faults. <a href="glossary/p/plugin.html">Plugin</a> <a href="glossary/a/abi.html">ABI</a> churn and carried multi-monitor patches are reasons Tamlinux plans to move from Hyprland to <code>tam-pane</code>; contribution policy also blocks some upstream paths. Capture <code>hyprctl</code> or DRM connector evidence from a working VT when documenting a fault. Do not restart display stacks as a first exploratory step.</p>
 <section class="quiz"><h3>Check yourself</h3>
 <details class="q open"><summary>Text VTs work but the <a href="glossary/g/gui.html">GUI</a> is black. Which layer have you roughly cleared?</summary><p>Early boot and basic input/<a href="glossary/g/gpu.html">GPU</a> text paths are at least partly alive. <a href="glossary/f/focus.html">Focus</a> on the graphical session, compositor, and display modes next.</p></details>
 </section>

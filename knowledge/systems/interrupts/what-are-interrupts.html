@@ -17,7 +17,7 @@
 
 <section data-level="novice">
 <h2>When the CPU is interrupted</h2>
-<p>A <a href="glossary/c/cpu.html">CPU</a> core runs one stream of instructions at a time. If you press a key while a program is running, the program does not notice the key itself. The keyboard sends a signal, and the <dfn><a href="glossary/i/interrupt.html">interrupt</a></dfn> makes the CPU pause that program briefly so the kernel can deal with the key press.</p>
+<p>A <a href="glossary/c/cpu.html">CPU</a> core runs one stream of instructions at a time. If you press a key while a program is running, the program does not notice the key itself. The keyboard sends a signal, and the <dfn><a href="glossary/i/interrupt.html">interrupt</a></dfn> makes the CPU pause that program briefly so the <a href="glossary/k/kernel.html">kernel</a> can deal with the key press.</p>
 <h3>Why it matters</h3>
 <p>Without interrupts, the kernel would have to ask every device over and over whether it needed anything. That would waste time. Interrupts let the kernel wait until something actually happens.</p>
 <h3>How to think about it</h3>
@@ -38,7 +38,7 @@
 </pre>
 <p>A hardware device raises an <a href="glossary/i/irq.html">IRQ</a>. An interrupt controller decides which CPU core receives it. The CPU saves a little state, runs the kernel's handler, then returns to the program it was running. A timer also interrupts regularly even when no device needs attention; that gives the kernel a chance to decide which task should run next.</p>
 
-<p>Type the command in the sandbox to see the shape of the kernel's interrupt record.</p>
+<p>Type the <a href="glossary/c/command.html">command</a> in the sandbox to see the shape of the kernel's interrupt record.</p>
 <tam-sandbox
   title="Worked example: read interrupt counts"
   prompt="you@tamlinux:~ $ "

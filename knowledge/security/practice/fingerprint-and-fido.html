@@ -15,7 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/practice/index.html">Protect your computer</a> / Fingerprints and FIDO2 security keys</p></nav>
 
-<p>Fingerprint sensors and FIDO2 keys can replace typed passwords at authorization prompts, using a local match or a hardware-backed key held by the token.</p>
+<p>Fingerprint sensors and FIDO2 keys can replace typed <a href="glossary/p/password.html">passwords</a> at authorization prompts, using a local match or a hardware-backed key held by the token.</p>
 
 <section data-level="novice">
 <h2>Unlocking prompts with a touch</h2>
@@ -41,7 +41,7 @@
 <section data-level="learner">
 <h2>Read a sample hardware-readiness check</h2>
 <p><strong>Goal:</strong> name the PAM modules and hardware signals in a sample fingerprint and FIDO check.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: check authenticator readiness"
@@ -88,7 +88,7 @@
 <h3>Reference</h3>
 <p>FIDO2 combines WebAuthn (for browsers) with CTAP2 (Client to Authenticator Protocol 2 over USB <a href="glossary/h/hid.html">HID</a>, NFC, or BLE). Each Relying Party receives a distinct ECDSA P-256 or Ed25519 key pair bound to its Relying Party ID (RP ID), preventing cross-site tracking and phishing.</p>
 <h3>How it works</h3>
-<p><code>pam_u2f</code> issues a 32-byte random challenge over <code>libfido2</code>; the hardware token signs <code>SHA-256(rpId) || flags || signCount || challenge</code> inside its secure element only after physical user presence (UP) and optional user verification (UV/PIN). For biometrics, <code>pam_fprintd</code> communicates over D-<a href="glossary/b/bus.html">Bus</a> with <code>fprintd</code>, which matches sensor templates locally—though unlike FIDO2, a biometric match alone does not produce a cryptographic signature over a remote challenge.</p>
+<p><code>pam_u2f</code> issues a 32-byte random challenge over <code>libfido2</code>; the hardware token signs <code>SHA-256(rpId) || flags || signCount || challenge</code> inside its secure element only after physical user presence (UP) and optional user verification (UV/PIN). For biometrics, <code>pam_fprintd</code> communicates over D-<a href="glossary/d/d-bus.html">Bus</a> with <code>fprintd</code>, which matches sensor templates locally—though unlike FIDO2, a biometric match alone does not produce a cryptographic signature over a remote challenge.</p>
 <h3>Edge cases</h3>
 <dl>
 <dt>Match-on-host vs. match-on-chip fingerprint readers</dt>

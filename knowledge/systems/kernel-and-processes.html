@@ -48,12 +48,12 @@
 <h3>Mental model</h3>
 <pre>your program --&gt; syscall --&gt; kernel --&gt; driver --&gt; hardware
 </pre>
-<p>Programs ask the kernel for services (open a file, send a packet, map memory). Drivers are kernel code (or modules) that talk to devices. A fault can sit in the program, the kernel path, or the device.</p>
+<p>Programs ask the kernel for services (open a <a href="glossary/f/file.html">file</a>, send a packet, map memory). Drivers are kernel code (or modules) that talk to devices. A fault can sit in the program, the kernel path, or the device.</p>
 <h3>How the kernel starts and stops</h3>
 <p><a href="glossary/f/firmware.html">Firmware</a> chooses a <a href="glossary/b/bootloader.html">bootloader</a>, and the bootloader loads the kernel into memory. The kernel sets up hardware, mounts the root filesystem and starts <a href="glossary/i/init.html">init</a>, the first user-space program. Init then starts the services and login you use. Trace those stages in <a href="systems/boot/boot-phases.html">Boot phases</a>.</p>
 <p>Stopping goes the other way. It is not a signal sent to the kernel like any other process: init asks running programs to finish, flushes storage and asks the kernel to halt or restart the machine. The kernel performs the final power action and firmware or hardware takes over again. Sleep is different: the running kernel and memory are preserved, so the kernel has not stopped. See <a href="systems/power.html">When your computer rests or sleeps</a>.</p>
 
-<p>In the sandbox, observe three things: how long the kernel has been running, which process is your shell, and how the kernel records events from devices. Each command reads information only.</p>
+<p>In the sandbox, observe three things: how long the kernel has been running, which process is your shell, and how the kernel records events from devices. Each <a href="glossary/c/command.html">command</a> reads information only.</p>
 <tam-sandbox
   title="Worked example: observe the kernel"
   prompt="you@tamlinux:~ $ "

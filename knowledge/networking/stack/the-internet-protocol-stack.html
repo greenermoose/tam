@@ -43,7 +43,7 @@
 <section data-level="learner">
 <h2>Name the four layers from sample records</h2>
 <p><strong>Goal:</strong> match sample records to the application, transport, internet and link layers.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: match records to layers"
@@ -104,7 +104,7 @@ link: enp1s0 -&gt; next hop 10:0c:6b:20:34:e6</file>
 [ IP header  ][ TCP header ][ application data ] datagram
 [ Ethernet header ][ IP header ][ TCP ][ data ][ FCS ] frame
 </pre>
-<p>Each layer reads only the header meant for it and passes the rest upward or downward. On the receive path a network interface places frames into memory, the driver raises an interrupt and the kernel's NAPI loop polls in batches to avoid an interrupt per packet. Each <code>sk_buff</code> carries header offsets that let layers add or remove headers without copying the payload. Netfilter hooks sit at PREROUTING, INPUT, FORWARD, OUTPUT and POSTROUTING, which is why a firewall rule can see a packet before or after a routing decision.</p>
+<p>Each layer reads only the header meant for it and passes the rest upward or downward. On the receive path a network interface places frames into memory, the driver raises an interrupt and the <a href="glossary/k/kernel.html">kernel</a>'s NAPI loop polls in batches to avoid an interrupt per packet. Each <code>sk_buff</code> carries header offsets that let layers add or remove headers without copying the payload. Netfilter hooks sit at PREROUTING, INPUT, FORWARD, OUTPUT and POSTROUTING, which is why a firewall rule can see a packet before or after a routing decision.</p>
 <h3>Advanced usage</h3>
 
 <p>This shows the same route decision as data, including the source address the kernel would choose. Illustrative output from the workstation used above; your values will differ.</p>
@@ -117,7 +117,7 @@ link: enp1s0 -&gt; next hop 10:0c:6b:20:34:e6</file>
 </ul>
 
 <h3>Sources</h3>
-<p><cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite> for IP, <cite data-ref="rfc9293"><a href="bibliography/rfc9293.html">RFC 9293</a></cite> for TCP, and <a href="man:ip(8)">ip(8)</a>, <a href="man:ss(8)">ss(8)</a> and <a href="man:netns(8)">netns(8)</a> for the Linux view.</p>
+<p><cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite> for <a href="glossary/i/ip.html">IP</a>, <cite data-ref="rfc9293"><a href="bibliography/rfc9293.html">RFC 9293</a></cite> for TCP, and <a href="man:ip(8)">ip(8)</a>, <a href="man:ss(8)">ss(8)</a> and <a href="man:netns(8)">netns(8)</a> for the Linux view.</p>
 </section>
 
 <h2>Related reading</h2>

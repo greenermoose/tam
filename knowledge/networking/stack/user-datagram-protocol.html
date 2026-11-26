@@ -41,7 +41,7 @@
 <section data-level="learner">
 <h2>Find a datagram service in sample output</h2>
 <p><strong>Goal:</strong> identify the mDNS and DNS ports in sample UDP socket records.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: read UDP sockets"
@@ -94,7 +94,7 @@
 </table>
 <p>The eight-byte header is the entire transport overhead. There are no sequence numbers, acknowledgements, window fields or connection states.</p>
 <h3>How it works</h3>
-<p>UDP is specified in <a href="glossary/r/rfc.html">RFC</a> 768. A program creates a socket, binds an address and port if it expects replies, and sends each datagram with <code>sendto(2)</code>. The kernel adds the UDP header and hands the result to the internet layer. On receipt, the kernel looks up the destination address and port, verifies the checksum when it is present, and places the datagram in the socket's queue. Message boundaries survive: one send produces one datagram, and one receive returns one whole datagram, provided the buffer is large enough.</p>
+<p>UDP is specified in <a href="glossary/r/rfc.html">RFC</a> 768. A program creates a socket, binds an address and port if it expects replies, and sends each datagram with <code>sendto(2)</code>. The kernel adds the UDP header and hands the result to the internet layer. On receipt, the kernel looks up the destination address and port, verifies the checksum when it is present, and places the datagram in the socket's queue. Message boundaries survive: one send produces one datagram, and one receive returns one whole datagram, provided the <a href="glossary/b/buffer.html">buffer</a> is large enough.</p>
 <p>Because there is no handshake, a UDP sender can transmit immediately. Because there is no retransmission, correctness belongs to the application: DNS retries a question and falls back to TCP when an answer is too large; multicast DNS repeats announcements; real-time media simply accepts some loss; <a href="glossary/q/quic.html">QUIC</a> builds its own reliability over UDP.</p>
 <h3>Advanced usage</h3>
 

@@ -32,7 +32,7 @@
 <details class="q"><summary><i>If SPF passes, must the visible From domain be authorised?</i></summary><p>No. SPF checks an envelope domain. DMARC is the mechanism that requires alignment with the visible From domain.</p></details>
 
 <h2>Stage 3: Read mail from the client side</h2>
-<p>Now change viewpoint. The retrieval protocol decides where folders and flags live, and the client may keep a local copy that is not the authoritative mailbox.</p>
+<p>Now change viewpoint. The retrieval <a href="glossary/p/protocol.html">protocol</a> decides where folders and flags live, and the client may keep a local copy that is not the authoritative mailbox.</p>
 <ol>
 <li><a href="networking/email/retrieval-pop-imap-and-jmap.html?level=2">POP, IMAP and JMAP</a> &mdash; local download, shared server state and modern structured access.</li>
 <li><a href="networking/email/mail-clients-and-mailboxes.html?level=1">Mail clients and mailboxes</a> &mdash; account setup, flags, aliases, offline work and encryption.</li>
@@ -40,7 +40,7 @@
 <details class="q"><summary><i>Which protocol best supports the same folders on a phone and a laptop?</i></summary><p>IMAP, because folders and flags are kept on the server. POP normally centres on a download to one device.</p></details>
 
 <h2>Stage 4: Follow DNS and trust signals</h2>
-<p>Connect the network lookup to the records that publish policy. Notice that DNS can route mail, help authenticate a domain and describe how servers should encrypt a hop.</p>
+<p>Connect the network lookup to the records that publish policy. Notice that <a href="glossary/d/dns.html">DNS</a> can route mail, help authenticate a domain and describe how servers should encrypt a hop.</p>
 <ol>
 <li><a href="networking/email/dns-and-email.html?level=2">DNS and email</a> &mdash; MX, addresses, reverse names, DNSSEC and record prefixes.</li>
 <li><a href="networking/email/identity-and-transport-security.html?level=2">Identity and transport security</a> &mdash; SPF, DKIM, DMARC, ARC, DANE, MTA-STS and reports.</li>

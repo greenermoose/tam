@@ -20,7 +20,7 @@
 
 <section data-level="novice">
 <h2>A workshop for building programs</h2>
-<p>A <a href="glossary/t/toolchain.html">toolchain</a> includes the compiler, assembler, linker and build driver. <a href="glossary/m/make.html">Make</a> reads a recipe file and runs only the steps whose inputs changed.</p>
+<p>A <a href="glossary/t/toolchain.html">toolchain</a> includes the compiler, assembler, linker and build driver. <a href="glossary/m/make.html">Make</a> reads a recipe <a href="glossary/f/file.html">file</a> and runs only the steps whose inputs changed.</p>
 <h3>Why it matters</h3>
 <p>Knowing the chain helps you read a build log, understand a version report, and avoid mixing tools from different phases.</p>
 <h3>How to think about it</h3>
@@ -60,7 +60,7 @@
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p>A <a href="glossary/d/dry-run.html">dry run</a> shows commands without executing them. The version report and shared-library list are sample output, not facts about your checkout. The build recipe's dependency graph decides which command runs first.</p>
+<p>A <a href="glossary/d/dry-run.html">dry run</a> shows <a href="glossary/c/command.html">commands</a> without executing them. The version report and shared-library list are sample output, not facts about your checkout. The build recipe's dependency graph decides which command runs first.</p>
 <h3>Try it</h3>
 <p>Look for the <code>-c</code> flag in the dry-run sample. It means compile one source file to an object without linking the final program yet.</p>
 <aside class="tamlinux"><p><strong>On Tamlinux:</strong> bespoke software builds with <code>make</code> and installs with <code>make install</code>; package managers supply ecosystem dependencies. Agents share the checkout and claim paths before editing.</p></aside>

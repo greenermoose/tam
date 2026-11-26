@@ -24,7 +24,7 @@
 <h3>Why it matters</h3>
 <p>Without ports, a computer could only run one network program at a time. Ports let a web browser, a mail program and a printer service all use the same connection at the same time.</p>
 <h3>How to think about it</h3>
-<p>Think of a large apartment building. The street address gets a letter to the building; the apartment number gets it to the right household. The IP address is the street address and the port is the apartment number. A socket is the doorway that a program stands at to hand letters in and out.</p>
+<p>Think of a large apartment building. The street address gets a letter to the building; the apartment number gets it to the right household. The <a href="glossary/i/ip-address.html">IP</a> address is the street address and the port is the apartment number. A socket is the doorway that a program stands at to hand letters in and out.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/p/port.html">Port</a></dt>
@@ -41,7 +41,7 @@
 <section data-level="learner">
 <h2>Separate a port from a socket</h2>
 <p><strong>Goal:</strong> read sample listening records and identify the SSH port and its transport protocol.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: read listening sockets"
@@ -74,7 +74,7 @@ UNCONN 0.0.0.0:5353      0.0.0.0:*</file>
   <tam-fallback>Try grep :22 clues.txt, grep :53 clues.txt or grep UNCONN clues.txt (or type help).</tam-fallback>
 </tam-sandbox>
 <h3>What just happened</h3>
-<p>Port 22 is the conventional SSH listener in this sample. Port 53 is DNS and 5353 is mDNS. The <code>ss</code> replies are authored sample output; they show the shape of listening TCP and UDP records, not your machine’s current sockets.</p>
+<p>Port 22 is the conventional SSH listener in this sample. Port 53 is <a href="glossary/d/dns.html">DNS</a> and 5353 is mDNS. The <code>ss</code> replies are authored sample output; they show the shape of listening TCP and UDP records, not your machine’s current sockets.</p>
 <h3>Try it</h3>
 <p>Use <code>cat clues.txt</code> to read all records. Predict why a UDP service appears as <code>UNCONN</code> rather than <code>LISTEN</code>: UDP has no connection setup.</p>
 <h3>If it goes wrong</h3>

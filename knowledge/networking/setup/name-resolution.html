@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/setup/index.html">Network setup</a> / Name resolution</p></nav>
 
-<p>Name resolution turns a host name into an address. A local resolver may answer from cache or ask DNS servers, following delegation until it finds the zone that knows.</p>
+<p>Name resolution turns a host name into an address. A local resolver may answer from cache or ask <a href="glossary/d/dns.html">DNS</a> servers, following delegation until it finds the zone that knows.</p>
 
 <section data-level="novice">
 <h2>A phone book that asks other phone books</h2>
@@ -53,7 +53,7 @@ example.com
 <section data-level="learner">
 <h2>Read a sample resolver answer</h2>
 <p><strong>Goal:</strong> connect a host name to an address without treating the sample as a live lookup.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: read a resolver answer"
@@ -113,7 +113,7 @@ example.com
 </table>
 
 <h3>How it works</h3>
-<p>A recursive resolver follows delegations from the root through top-level domains to an authoritative server, caching each answer for its time to live. An iterative client does that walk itself; most applications ask a recursive resolver instead. systemd-resolved exposes the result through a local stub and through the <code>Resolve</code> D-<a href="glossary/b/bus.html">Bus</a> <a href="glossary/a/api.html">API</a>, while <code>/etc/nsswitch.conf</code> decides whether an application consults files, mDNS or DNS first.</p>
+<p>A recursive resolver follows delegations from the root through top-level domains to an authoritative server, caching each answer for its time to live. An iterative client does that walk itself; most applications ask a recursive resolver instead. systemd-resolved exposes the result through a local stub and through the <code>Resolve</code> D-<a href="glossary/d/d-bus.html">Bus</a> <a href="glossary/a/api.html">API</a>, while <code>/etc/nsswitch.conf</code> decides whether an application consults files, mDNS or DNS first.</p>
 <p>Search domains append a suffix to a short name. A link marked <code>+DefaultRoute</code> is eligible for all queries; a link with a routing domain is used only for names inside that domain, which is how split DNS keeps a corporate name inside the tunnel. DNSSEC validation, when enabled, verifies signatures from the root down; it proves integrity and origin, not confidentiality. DNS over <a href="glossary/t/tls.html">TLS</a> and DNS over <a href="glossary/h/https.html">HTTPS</a> address confidentiality by encrypting the query.</p>
 
 <h3>Advanced usage</h3>

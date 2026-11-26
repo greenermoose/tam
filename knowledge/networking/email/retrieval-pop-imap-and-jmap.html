@@ -70,7 +70,7 @@ JMAP: can submit outgoing messages too</file>
 <li>JMAP used structured requests and included submission as well as reading.</li>
 <li>Webmail was not a fourth protocol: a browser page is a client that uses one of these protocols or a provider-specific interface.</li>
 </ol>
-<p>The files and output above are teaching samples. This sandbox does not connect to a mail account, download messages or change any mailbox.</p>
+<p>The <a href="glossary/f/file.html">files</a> and output above are teaching samples. This sandbox does not connect to a mail account, download messages or change any mailbox.</p>
 <h3>Try it</h3>
 <p>Run <code>grep download pop.txt</code>. Predict whether a POP client that deletes server copies can show the same mail on a second device.</p>
 <h3>If it goes wrong</h3>
@@ -97,7 +97,7 @@ JMAP: can submit outgoing messages too</file>
 <tr><td>JMAP</td><td>Server with a structured data model</td><td>RFC 8620 and RFC 8621</td><td>Efficient clients, batching and push</td></tr>
 </table>
 <h3>How it works</h3>
-<p><cite data-ref="rfc-1939"><a href="bibliography/rfc-1939.html">RFC 1939</a></cite> defines POP3 with a small command set for listing and retrieving messages. It has limited folder and flag support. <cite data-ref="rfc-9051"><a href="bibliography/rfc-9051.html">RFC 9051</a></cite> defines IMAP4rev2 and obsoletes RFC 3501; it models mailboxes on the server, supports permanence flags, and allows a client to fetch selected message parts. JMAP core is defined by <cite data-ref="rfc-8620"><a href="bibliography/rfc-8620.html">RFC 8620</a></cite> and its mail extension by <cite data-ref="rfc-8621"><a href="bibliography/rfc-8621.html">RFC 8621</a></cite>. JMAP batches methods into one HTTP request and uses push events to tell clients what changed.</p>
+<p><cite data-ref="rfc-1939"><a href="bibliography/rfc-1939.html">RFC 1939</a></cite> defines POP3 with a small <a href="glossary/c/command.html">command</a> set for listing and retrieving messages. It has limited folder and flag support. <cite data-ref="rfc-9051"><a href="bibliography/rfc-9051.html">RFC 9051</a></cite> defines IMAP4rev2 and obsoletes RFC 3501; it models mailboxes on the server, supports permanence flags, and allows a client to fetch selected message parts. JMAP core is defined by <cite data-ref="rfc-8620"><a href="bibliography/rfc-8620.html">RFC 8620</a></cite> and its mail extension by <cite data-ref="rfc-8621"><a href="bibliography/rfc-8621.html">RFC 8621</a></cite>. JMAP batches methods into one HTTP request and uses push events to tell clients what changed.</p>
 <h3>Advanced usage</h3>
 <p>IMAP extensions such as IDLE provide push-style notifications, while CONDSTORE and QRESYNC let clients resynchronise flags without a full mailbox scan. JMAP has an analogous event model through its push protocol. Clients commonly authenticate with a password-based mechanism or OAuth, depending on the provider.</p>
 <h3>Edge cases</h3>

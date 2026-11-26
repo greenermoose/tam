@@ -78,7 +78,7 @@ INSERT INTO people VALUES (1, 'Rae', 'Leeds'), (2, 'Sam', 'York');</file>
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p>The file is sample data. The <code>SHOW</code> and <code>SELECT</code> lines are a scripted teaching simulation: no MySQL server was installed or started, and the output is not a measurement from your machine. In a real session, InnoDB would hold the <a href="glossary/t/table.html">table</a>, the primary key would identify each row, and the <a href="glossary/d/database-index.html">index</a> on that key would help find it.</p>
+<p>The <a href="glossary/f/file.html">file</a> is sample data. The <code>SHOW</code> and <code>SELECT</code> lines are a scripted teaching simulation: no MySQL server was installed or started, and the output is not a <a href="glossary/m/measurement.html">measurement</a> from your machine. In a real session, InnoDB would hold the <a href="glossary/t/table.html">table</a>, the primary key would identify each row, and the <a href="glossary/d/database-index.html">index</a> on that key would help find it.</p>
 <h3>Try it</h3>
 <p>Predict what <code>SELECT city FROM people WHERE name = 'Sam';</code> would return in this sample: one row containing <code>York</code>. Then run <code>grep INSERT schema.sql</code> to check the two inserted rows.</p>
 <h3>If it goes wrong</h3>
@@ -119,7 +119,7 @@ INSERT INTO people VALUES (1, 'Rae', 'Leeds'), (2, 'Sam', 'York');</file>
 <tr><td>Other engines</td><td>Pluggable alternatives</td><td>Different or absent transaction support</td></tr>
 </table>
 <h3>How it works</h3>
-<p>InnoDB stores a table as a B-tree keyed by the <a href="glossary/p/primary-key.html">primary key</a>; the leaf pages hold the whole row, which is why the clustered key choice matters. A secondary <a href="glossary/d/database-index.html">index</a> holds indexed values plus the primary key used to find the row. Pages are cached in the buffer pool. A <a href="glossary/t/transaction.html">transaction</a> writes change records to the redo log, so committed work survives a crash; undo records keep earlier versions available for consistent reads, the mechanism usually called MVCC. Locks coordinate writers, and gap locks can block inserts into a range. The storage engine sits below SQL, so MySQL can host engines with different guarantees.</p>
+<p>InnoDB stores a table as a B-tree keyed by the <a href="glossary/p/primary-key.html">primary key</a>; the leaf pages hold the whole row, which is why the clustered key choice matters. A secondary <a href="glossary/d/database-index.html">index</a> holds indexed values plus the primary key used to find the row. Pages are cached in the <a href="glossary/b/buffer.html">buffer</a> pool. A <a href="glossary/t/transaction.html">transaction</a> writes change records to the redo log, so committed work survives a crash; undo records keep earlier versions available for consistent reads, the mechanism usually called MVCC. Locks coordinate writers, and gap locks can block inserts into a range. The storage engine sits below SQL, so MySQL can host engines with different guarantees.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li>A table without a declared primary key still gets an internal clustered key.</li>

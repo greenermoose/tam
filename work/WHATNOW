@@ -3,35 +3,34 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-25, with W146
+Updated: 2026-11-26, with W146
 
 STATE
 
-  Command 0.69.7 and corpus 0.133.2 are on dev. W146 piloted the corpus
-  quality review on the fourteen Systems / Mobile communications texting
-  pages. It found no wrong-sense existing glossary links in the pilot,
-  added conservative first-use links to existing glossary pages, corrected
-  two confusing or inaccurate statements and one spelling error, and left
-  the unverified RCS encryption-default claim in place. Read-only reports
-  cover all 1,714 pages for the later corpus-wide pass. `make corpus` and
-  `make corpus-and-test` passed. W146 is committed on dev as 7031103;
-  the regenerated indexes follow in the next commit.
+  Command 0.69.7 and corpus 0.134.0 are on dev in the working tree.
+  W146 piloted the review on the fourteen texting pages, then completed
+  it corpus-wide after Fred approved ten new glossary pages. The pass
+  retargeted or removed 104 wrong-sense links and added 611 conservative
+  first-use links across 342 pages. Two confusing statements, a spelling
+  error and the nine reviewed metaphor or verb candidates were handled in
+  the pilot and this pass. The unverified RCS encryption-default claim
+  remains in place. `make corpus`, the pipeline check,
+  `make corpus-and-test` and `make check-repo` passed. W146's pilot
+  commits are 7031103 and 3f8eb36; the corpus-wide work is uncommitted.
 
 NEXT
 
-  1. Show the pilot findings and the curated shortlist of new glossary
-     terms. Do not write a new glossary page until Fred approves it.
-  2. With tuned rules, apply the review corpus-wide: remove wrong-sense
-     links, add first-use links to existing pages, create only approved
-     terms, then bump the corpus minor version and rerun the checks.
-  3. Commit the claimed paths, rerun `make corpus`, then commit only the
-     regenerated indexes. Push only dev if Fred asks: check
-     `git log @{u}..` for other agents' commits first.
+  1. Commit the claimed corpus and record paths with AI trailers. Rerun
+     `make corpus`, then commit only the regenerated indexes.
+  2. Report the completed review and the RCS claim left for Fred's
+     decision. Push only dev if he asks: check `git log @{u}..` for other
+     agents' commits first.
+  3. Await his development cycle for corpus 0.134.0.
 
 WAITING FOR FRED
 
-  - Approval of the curated new-glossary shortlist.
-  - His development cycle for corpus 0.133.2. Test, Run and Release need
+  - His ruling on the unsupported RCS encryption-default claim.
+  - His development cycle for corpus 0.134.0. Test, Run and Release need
     his exact word; Tamlinux 0.6.38 remains in Test.
 
 WATCH OUT

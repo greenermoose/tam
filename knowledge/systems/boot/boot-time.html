@@ -15,7 +15,7 @@
 
 <p>This page shows how to find out where the time went between pressing the power button and being ready to work.</p>
 <h2>Before this</h2><p><a href="systems/boot/boot-phases.html">Boot phases</a> · <a href="systems/maintenance/logs.html">Reading messages about what happened</a></p>
-<p>The <code>tam-boot</code> command reads the record the system keeps of each startup and explains it. It only reads; it changes nothing and needs no administrator rights.</p>
+<p>The <code>tam-boot</code> <a href="glossary/c/command.html">command</a> reads the record the system keeps of each startup and explains it. It only reads; it changes nothing and needs no administrator rights.</p>
 
 <section data-level="novice">
 <h2>What tam-boot tells you</h2>
@@ -107,7 +107,7 @@
 <tr><td>slowest steps</td><td>Gaps of 0.3 s or more between consecutive kernel messages, excluding the passphrase wait</td></tr>
 </table>
 <h3>How it works</h3>
-<p><code>tam-boot</code> runs <code>journalctl</code> with the boot selector and reads its export format; it does not open journal files itself. A boot argument is either a relative number (<code>0</code>, <code>-1</code>, …) or a boot ID from <code>tam-boot list</code>.</p>
+<p><code>tam-boot</code> runs <code>journalctl</code> with the boot selector and reads its export format; it does not open journal <a href="glossary/f/file.html">files</a> itself. A boot argument is either a relative number (<code>0</code>, <code>-1</code>, …) or a boot ID from <code>tam-boot list</code>.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>The user-session and desktop rows read only UID 1000, the first account created on a typical install. Other accounts' sessions are not reported.</li>

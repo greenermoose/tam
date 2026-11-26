@@ -21,7 +21,7 @@
 
 <section data-level="novice">
 <h2>How do terminals describe their capabilities?</h2>
-<p>Different terminal programs support different colors, cursor movements, and special keys. Linux stores a small database of terminal descriptions—called <em>terminfo</em>—so full-screen programs can look up what your terminal understands instead of guessing.</p>
+<p>Different terminal programs support different colors, cursor movements, and special keys. Linux stores a small <a href="glossary/d/database.html">database</a> of terminal descriptions—called <em>terminfo</em>—so full-screen programs can look up what your terminal understands instead of guessing.</p>
 <h3>Why it matters</h3>
 <p>Full-screen tools, editors, and pagers rely on the terminal name in the <code>TERM</code> variable to decide how to clear the screen, draw colors, and read arrow keys. If that name is wrong or missing, keys and layouts misbehave.</p>
 <h3>How to think about it</h3>
@@ -90,7 +90,7 @@
 
 <h3>How it works</h3>
 
-<p><code>setupterm</code> and related library calls load the compiled entry for <code>$TERM</code>. Tools such as <code>tput</code> and libraries such as ncurses expand parameterized capabilities (for example cursor address) into the sequences the emulator understands. Capability names are stable labels; the bytes behind them differ across <code>linux</code>, <code>xterm-256color</code>, <code>foot</code>, and others. Emulator behavior and the database entry can disagree: an entry may advertise a feature the emulator implements poorly, or the reverse.</p>
+<p><code>setupterm</code> and related <a href="glossary/l/library.html">library</a> calls load the compiled entry for <code>$TERM</code>. Tools such as <code>tput</code> and libraries such as ncurses expand parameterized capabilities (for example cursor address) into the sequences the emulator understands. Capability names are stable labels; the bytes behind them differ across <code>linux</code>, <code>xterm-256color</code>, <code>foot</code>, and others. Emulator behavior and the database entry can disagree: an entry may advertise a feature the emulator implements poorly, or the reverse.</p>
 
 
 

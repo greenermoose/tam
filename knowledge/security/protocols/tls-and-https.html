@@ -72,7 +72,7 @@
   <tam-fallback>Try openssl ciphers -v -s -tls1_3 or openssl s_client -connect 127.0.0.1:18443 -tls1_3 -brief (or type help).</tam-fallback>
 </tam-sandbox>
 <h3>What just happened</h3>
-<p>Each sample suite names an authenticated encryption algorithm and a hash. AEAD means encryption and integrity checking are combined. The handshake summary shows why a self-signed certificate produces a verification error even when encryption succeeds. All replies are authored samples.</p>
+<p>Each sample suite names an authenticated encryption <a href="glossary/a/algorithm.html">algorithm</a> and a hash. AEAD means encryption and integrity checking are combined. The handshake summary shows why a self-signed certificate produces a verification error even when encryption succeeds. All replies are authored samples.</p>
 <h3>Try it</h3>
 <p>HTTPS adds HTTP semantics on top of TLS. On a real machine the padlock means the connection was verified against a trusted certificate, not that the site itself is honest.</p>
 <h3>If it goes wrong</h3>
@@ -87,7 +87,7 @@
 
 <section data-level="expert">
 <h2>TLS 1.3 <a href="glossary/r/rfc.html">RFC</a> 8446 state machine, HKDF key schedule, and HTTPS</h2>
-<p><strong>Reference:</strong> TLS 1.3 (RFC 8446) separates the protocol into the <strong>Handshake Protocol</strong> (key agreement, server/client authentication, parameter negotiation) and the <strong>Record Layer</strong> (authenticated symmetric framing). Every TLS 1.3 cipher suite specifies only an AEAD algorithm and an HKDF hash—never key-exchange or signature algorithms, which are negotiated independently via extensions.</p>
+<p><strong>Reference:</strong> TLS 1.3 (RFC 8446) separates the protocol into the <strong>Handshake Protocol</strong> (key agreement, server/client <a href="glossary/a/authentication.html">authentication</a>, parameter negotiation) and the <strong>Record Layer</strong> (authenticated symmetric framing). Every TLS 1.3 cipher suite specifies only an AEAD algorithm and an HKDF hash—never key-exchange or signature algorithms, which are negotiated independently via extensions.</p>
 
 <pre>
 Client                                           Server

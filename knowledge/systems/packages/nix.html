@@ -17,7 +17,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/packages/index.html">Software packages</a> / How Nix and Home Manager work</p></nav>
 
 
-<p>This page explains how Nix builds software and how Home Manager uses Nix to create the software and settings in your home directory.</p>
+<p>This page explains how Nix builds software and how Home Manager uses Nix to create the software and settings in your home <a href="glossary/d/directory.html">directory</a>.</p>
 <h2>Before this</h2><p><a href="systems/packages/packaging.html">How software is delivered</a></p>
 <p>Tamlinux uses these tools to deliver its desktop. You do not need to know them to use Tamlinux, but knowing them makes updates, rollbacks and configuration changes much easier to understand.</p>
 
@@ -25,7 +25,7 @@
 <h2>What are Nix and Home Manager?</h2>
 <p><dfn><a href="glossary/n/nix.html">Nix</a></dfn> is a functional package manager that stores every built program in its own isolated, hash-named directory instead of overwriting files in place, and <dfn><a href="glossary/h/home-manager.html">Home Manager</a></dfn> is a Nix tool that applies the same model to a user&apos;s personal configuration files. Tamlinux previously used Nix and Home Manager and has since retired them in favor of native rootstock packages and source builds; this page explains the Nix model as general Linux knowledge.</p>
 <h3>Why it matters</h3>
-<p>Because Nix keeps each version in its own immutable directory and switches between them with symbolic links, you can see exactly which files a command uses and roll back to an earlier selection when a change causes trouble.</p>
+<p>Because Nix keeps each version in its own immutable directory and switches between them with symbolic links, you can see exactly which files a <a href="glossary/c/command.html">command</a> uses and roll back to an earlier selection when a change causes trouble.</p>
 <h3>How to think about it</h3>
 <p>Think of an ordinary package manager like editing a document in place, and Nix like keeping every past printed edition on a numbered shelf and moving a single bookmark to whichever edition you want active today.</p>
 <h3>New words</h3>

@@ -30,7 +30,7 @@
 <li>A full-screen program parses those bytes again, sometimes as escape sequences, and acts.</li>
 </ol>
 
-<p>On a Linux <a href="glossary/v/virtual-console.html">virtual console</a>, steps 3 and 4 are different: the kernel itself applies a console keymap and delivers bytes or escape sequences to the program on that text screen. The destination is still a program reading bytes from a terminal.</p>
+<p>On a Linux <a href="glossary/v/virtual-console.html">virtual console</a>, steps 3 and 4 are different: the <a href="glossary/k/kernel.html">kernel</a> itself applies a console keymap and delivers bytes or escape sequences to the program on that text screen. The destination is still a program reading bytes from a terminal.</p>
 
 <h2>Read the section</h2>
 
@@ -59,7 +59,7 @@
 
 <h2>The Ctrl + H puzzle</h2>
 
-<p>The chord <code>Ctrl + H</code> produces byte <code>0x08</code>, which is the <a href="glossary/a/ascii.html">ASCII</a> Backspace control. Many terminals send <code>0x7F</code> for the Backspace key instead, so the two are usually different bytes. But not always: foot sends <code>0x08</code> for <code>Ctrl + Backspace</code>, and the key parser in libtam 0.7.0 decodes both <code>0x08</code> and <code>0x7F</code> as the same Backspace event. A help command bound to <code>Ctrl + H</code> can therefore open when the reader presses Backspace. The last page of this section works through that case and the alternatives.</p>
+<p>The chord <code>Ctrl + H</code> produces byte <code>0x08</code>, which is the <a href="glossary/a/ascii.html">ASCII</a> Backspace control. Many terminals send <code>0x7F</code> for the Backspace key instead, so the two are usually different bytes. But not always: foot sends <code>0x08</code> for <code>Ctrl + Backspace</code>, and the key parser in libtam 0.7.0 decodes both <code>0x08</code> and <code>0x7F</code> as the same Backspace event. A help <a href="glossary/c/command.html">command</a> bound to <code>Ctrl + H</code> can therefore open when the reader presses Backspace. The last page of this section works through that case and the alternatives.</p>
 
 <h2>Where to start</h2>
 

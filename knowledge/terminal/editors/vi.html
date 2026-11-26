@@ -15,7 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/editors/index.html">Classic text editors</a> / The vi screen editor</p></nav>
 
-<p>vi combines a full-screen view with a modal command language, so the same keystroke can mean different things in different modes.</p>
+<p>vi combines a full-screen view with a modal <a href="glossary/c/command.html">command</a> language, so the same keystroke can mean different things in different modes.</p>
 <section data-level="novice">
 <h2>A screen with two jobs</h2>
 
@@ -112,7 +112,7 @@ command: ex commands after :</out>
 
 <h3>How it works</h3>
 
-<p>vi keeps an edit buffer, a cursor position, a set of registers, marks, and an undo state. The screen is a view of the buffer, not the file. Changes accumulate in memory until <code>:w</code> writes them. In Vim, the undo tree also records branches, and an optional undo file can persist that history across sessions.</p>
+<p>vi keeps an edit <a href="glossary/b/buffer.html">buffer</a>, a cursor position, a set of registers, marks, and an undo state. The screen is a view of the buffer, not the file. Changes accumulate in memory until <code>:w</code> writes them. In Vim, the undo tree also records branches, and an optional undo file can persist that history across sessions.</p>
 
 <p>vi and ex are two interfaces to the same state. POSIX specifies the screen editor in the vi utility and the command language in the ex utility; the vi specification covers only open and visual modes and refers to ex for the rest. <code>Q</code> enters ex mode; the ex command <code>visual</code> returns to the screen. A colon in vi starts an ex command line, which is why the same <code>s</code>, <code>g</code>, and <code>w</code> commands work in both.</p>
 

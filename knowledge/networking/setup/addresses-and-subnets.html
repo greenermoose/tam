@@ -57,7 +57,7 @@ usable:      192.168.1.1 - 192.168.1.254
 <section data-level="learner">
 <h2>Read a prefix from an address line</h2>
 <p><strong>Goal:</strong> extract the address and prefix length from sample interface output.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: read an interface address"
@@ -90,7 +90,7 @@ method: dhcp</file>
 <h3>What just happened</h3>
 <p>The address line carries both an interface address and a <code>/24</code> prefix. A /24 leaves eight host bits in IPv4, so the sample block has 256 addresses. The router shown is inside that block, which is why it is a local next hop. All values here are sample data.</p>
 <h3>Try it</h3>
-<p>Use <code>cat clues.txt</code> to see every line, then predict whether changing the prefix to /16 would make the local block larger or smaller. The python rule prints an authored calculation, not a measurement.</p>
+<p>Use <code>cat clues.txt</code> to see every line, then predict whether changing the prefix to /16 would make the local block larger or smaller. The python rule prints an authored calculation, not a <a href="glossary/m/measurement.html">measurement</a>.</p>
 <h3>If it goes wrong</h3>
 <dl>
 <dt>The sandbox does not answer a command</dt><dd>Type <code>help</code> to see the simulated commands, or use the command in the goal exactly as written. Press Esc to close the sandbox.</dd>
@@ -115,7 +115,7 @@ method: dhcp</file>
 </table>
 
 <h3>How it works</h3>
-<p>A prefix length is a count of leading one bits in the mask. The kernel applies a bitwise AND between an address and the mask to find the subnet, and routing uses longest-prefix match: among all routes whose prefix contains the destination, the one with the most leading bits wins. That is why a <code>/32</code> host route overrides a <code>/24</code> route.</p>
+<p>A prefix length is a count of leading one bits in the mask. The <a href="glossary/k/kernel.html">kernel</a> applies a bitwise AND between an address and the mask to find the subnet, and routing uses longest-prefix match: among all routes whose prefix contains the destination, the one with the most leading bits wins. That is why a <code>/32</code> host route overrides a <code>/24</code> route.</p>
 <p><a href="glossary/i/ipv4.html">IPv4</a> private ranges are <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code> and <code>192.168.0.0/16</code>; they are not routed on the public internet and are translated at the boundary by <a href="glossary/n/nat.html">NAT</a>. <a href="glossary/i/ipv6.html">IPv6</a> uses global unicast, link-local <code>fe80::/10</code> and unique local <code>fc00::/7</code>. Link-local addresses need an interface scope, written <code>fe80::1%enp1s0</code>, because the same prefix may exist on several interfaces.</p>
 <p>On <a href="glossary/i/ipv4.html">IPv4</a>, ARP broadcasts a request asking "who owns this address?" and the owner replies with its hardware address; the result enters the neighbor table. <a href="glossary/i/ipv6.html">IPv6</a> replaces this with ICMPv6 Neighbor Solicitation and Advertisement, adds duplicate address detection before an address is used, and discovers routers through <a href="glossary/r/router.html">Router</a> Advertisements. A gratuitous ARP announcement can also update neighbors after an address move, which is useful for failover but opens the door to spoofing.</p>
 

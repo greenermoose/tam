@@ -70,7 +70,7 @@ The notes are attached.</file>
 <li><code>grep server roles.txt</code> kept the background roles: submission, transfer and delivery.</li>
 <li><code>cat message.eml</code> showed a message as text. The visible <code>From:</code> and <code>To:</code> lines are not the same thing as the routing information used by servers.</li>
 </ol>
-<p>The files and output in this sandbox are teaching samples. This series does not install or configure a mail server or client.</p>
+<p>The <a href="glossary/f/file.html">files</a> and output in this sandbox are teaching samples. This series does not install or configure a mail server or client.</p>
 <h3>Try it</h3>
 <p>Run <code>grep client roles.txt</code>. Predict which single line will remain before you type it.</p>
 <h3>If it goes wrong</h3>
@@ -98,7 +98,7 @@ The notes are attached.</file>
 <tr><td>Mail delivery agent (MDA)</td><td>A receiving domain</td><td>Local mailbox or message store</td></tr>
 </table>
 <h3>How it works</h3>
-<p>The <cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">Internet Mail Architecture</a></cite> separates these roles because each has a different trust boundary. A client may authenticate to submit a message; relays use DNS to find the next hop; a receiving agent applies policy and writes to a store. The role names describe functions, not necessarily separate machines: one product may combine several roles.</p>
+<p>The <cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">Internet Mail Architecture</a></cite> separates these roles because each has a different trust boundary. A client may authenticate to submit a message; relays use <a href="glossary/d/dns.html">DNS</a> to find the next hop; a receiving agent applies policy and writes to a store. The role names describe functions, not necessarily separate machines: one product may combine several roles.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>Store and forward gives resilience, not a guarantee. A message can be delayed, rejected or filtered after it leaves the client.</li>

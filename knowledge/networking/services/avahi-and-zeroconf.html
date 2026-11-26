@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/services/index.html">Local services and discovery</a> / Avahi and Zeroconf</p></nav>
 
-<p>Avahi lets devices announce and find services on a local network without a central server, using multicast DNS and DNS-Based Service Discovery.</p>
+<p>Avahi lets devices announce and find services on a local network without a central server, using multicast <a href="glossary/d/dns.html">DNS</a> and DNS-Based Service Discovery.</p>
 
 <section data-level="novice">
 <h2>Finding things on a network with no central list</h2>
@@ -51,7 +51,7 @@ Your computer             --- asks --------&gt;  everyone on the local link
 <section data-level="learner">
 <h2>Match a service type to an advertised record</h2>
 <p><strong>Goal:</strong> pick the Internet Printer record from sample Avahi browse output.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: discover a local printer"
@@ -102,10 +102,10 @@ Your computer             --- asks --------&gt;  everyone on the local link
 </table>
 
 <h3>How it works</h3>
-<p>mDNS uses the DNS wire format without a configured server. A query is sent to the multicast group with a destination port of 5353 and <a href="glossary/i/ip-address.html">IP</a> <a href="glossary/t/ttl.html">TTL</a> 255; every host on the link receives it, and the host that owns the answer multicasts a response. Responses are delayed by a random interval of 20 to 120 milliseconds so that several hosts answering at once do not collide. A host choosing a name first probes for it with tentative records, then announces it with unsolicited responses; a later claimant that wins a conflict sends its own announcement while the loser picks a new name. A withdrawal is announced with a record whose TTL is zero, called a goodbye packet.</p>
+<p>mDNS uses the DNS wire format without a configured server. A query is sent to the multicast group with a destination port of 5353 and <a href="glossary/i/ip.html">IP</a> <a href="glossary/t/ttl.html">TTL</a> 255; every host on the link receives it, and the host that owns the answer multicasts a response. Responses are delayed by a random interval of 20 to 120 milliseconds so that several hosts answering at once do not collide. A host choosing a name first probes for it with tentative records, then announces it with unsolicited responses; a later claimant that wins a conflict sends its own announcement while the loser picks a new name. A withdrawal is announced with a record whose TTL is zero, called a goodbye packet.</p>
 <p>Unique records, such as an address record for a host name, carry a cache-flush bit so receivers discard older copies; shared records do not. Negative answers use NSEC records to prove that a name or type does not exist, which avoids repeated multicast queries for missing names. Known-suppression keeps a host from repeating an answer it recently heard from someone else, at the cost of losing some redundancy.</p>
 <p>DNS-SD adds naming structure to those DNS records. A service instance is named <code>&lt;Instance&gt;.&lt;Service&gt;.&lt;Domain&gt;</code>, for example <code>Demo Printer._ipp._tcp.local</code>. A PTR query for <code>_ipp._tcp.local</code> enumerates instances; resolving an instance fetches its SRV record, which gives host and port, and its TXT record, which carries small key/value attributes. Every DNS-SD service has a TXT record even when it is empty. Service type enumeration uses <code>_services._dns-sd._udp.local</code>, and subtypes such as <code>_printer._sub._ipp._tcp.local</code> narrow a browse.</p>
-<p>Avahi is the Linux implementation: <code>avahi-daemon</code> owns multicast responses and records, applications talk to it over D-<a href="glossary/b/bus.html">Bus</a>, and <code>avahi-browse</code>, <code>avahi-resolve</code> and <code>avahi-publish</code> are clients of that interface. Its configuration file controls <code>host-name</code>, <code>domain-name</code>, <code>use-ipv4</code>, <code>use-ipv6</code>, <code>allow-interfaces</code>, <code>deny-interfaces</code>, <code>enable-dbus</code>, the <code>publish-*</code> switches and <code>enable-wide-area</code>. Host-name resolution for applications uses a Name Service Switch module such as <code>nss-mdns</code>, which is separate from the daemon.</p>
+<p>Avahi is the Linux implementation: <code>avahi-daemon</code> owns multicast responses and records, applications talk to it over D-<a href="glossary/d/d-bus.html">Bus</a>, and <code>avahi-browse</code>, <code>avahi-resolve</code> and <code>avahi-publish</code> are clients of that interface. Its configuration file controls <code>host-name</code>, <code>domain-name</code>, <code>use-ipv4</code>, <code>use-ipv6</code>, <code>allow-interfaces</code>, <code>deny-interfaces</code>, <code>enable-dbus</code>, the <code>publish-*</code> switches and <code>enable-wide-area</code>. Host-name resolution for applications uses a Name Service Switch module such as <code>nss-mdns</code>, which is separate from the daemon.</p>
 
 <h3>Advanced usage</h3>
 

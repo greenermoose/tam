@@ -23,7 +23,7 @@
 <p>Imagine sending a letter. You need a way to hand it to the postal service, a street address for the recipient, knowledge of which sorting office handles other towns, and a way to look up an address from a person's name. A computer asks the same four questions.</p>
 
 <h3>Why it matters</h3>
-<p>When something breaks, these four layers fail independently. A cable can be unplugged while the address is still assigned; an address can be correct while the router is wrong; the router can work while a name lookup fails. Answering the questions in order turns a vague "the internet is down" into a specific fault.</p>
+<p>When something breaks, these four layers fail independently. A cable can be unplugged while the address is still assigned; an address can be correct while the <a href="glossary/r/router.html">router</a> is wrong; the router can work while a name lookup fails. Answering the questions in order turns a vague "the internet is down" into a specific fault.</p>
 
 <h3>How to think about it</h3>
 <pre>
@@ -54,7 +54,7 @@
 <section data-level="learner">
 <h2>Find the four answers in sample records</h2>
 <p><strong>Goal:</strong> match a sample interface, route and resolver line to the question each one answers.</p>
-<p><strong>Before you start:</strong> The sandbox is a local model. Command replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
+<p><strong>Before you start:</strong> The sandbox is a local model. <a href="glossary/c/command.html">Command</a> replies here are authored sample output, not readings from your machine. Nothing you type changes your system.</p>
 <h3>Sandbox</h3>
 <tam-sandbox
   title="Worked example: four questions, four records"
@@ -88,7 +88,7 @@ resolver: example.test -&gt; 192.0.2.20</file>
   <tam-fallback>Try grep link clues.txt, grep address clues.txt, grep route clues.txt or grep resolver clues.txt (or type help).</tam-fallback>
 </tam-sandbox>
 <h3>What just happened</h3>
-<p>Each prepared line answers one question. The link line names an active interface, the address line gives its IP and prefix, the route line names the next router, and the resolver line maps a name to an address. This is sample text, not a scan of your machine.</p>
+<p>Each prepared line answers one question. The link line names an active interface, the address line gives its <a href="glossary/i/ip-address.html">IP</a> and prefix, the route line names the next router, and the resolver line maps a name to an address. This is sample text, not a scan of your machine.</p>
 <h3>Try it</h3>
 <p>Use <code>cat clues.txt</code> to read all four records at once. Then hide the answer and try to say which record you would check first if a browser failed but a numeric address replied.</p>
 <h3>If it goes wrong</h3>

@@ -21,7 +21,7 @@
 <section data-level="novice">
 <h2>Several programs share one keyboard</h2>
 
-<p>You press one key, but several programs are running. The desktop, the terminal window, the shell, an editor, a multiplexer and a remote server may all care about that key. Only one of them gets to act on it.</p>
+<p>You press one key, but several <a href="glossary/p/program.html">programs</a> are running. The desktop, the terminal window, the shell, an editor, a multiplexer and a remote server may all care about that key. Only one of them gets to act on it.</p>
 
 <p>The rule is usually focus plus priority. The desktop sees every key first and may act on a shortcut. Then the focused window sees it, and the terminal may act on its own shortcuts. Whatever is left is written to the program as bytes. If a program never receives a key you pressed, something earlier in that list took it.</p>
 
@@ -108,7 +108,7 @@
 
 <p>A terminal emulator is a client like any other. foot receives keycodes and decides between its own bindings and encoding bytes for the program. Its manual notes that key bindings use the translated form of a chord, so <code>Control+Shift+c</code> matches the character the layout produces, while raw-mode bindings match the key position. That distinction matters on layouts where Shift changes the character.</p>
 
-<p>Inside the pty, the line discipline runs next. After that, a shell's Readline consumes its editing chords. A full-screen program clears the discipline's editing and signal handling and parses bytes itself, which is why the same chord can be a signal at the prompt and a command inside an editor.</p>
+<p>Inside the pty, the line discipline runs next. After that, a shell's Readline consumes its editing chords. A full-screen program clears the discipline's editing and signal handling and parses bytes itself, which is why the same chord can be a signal at the prompt and a <a href="glossary/c/command.html">command</a> inside an editor.</p>
 
 <p>Remote and multiplexed sessions add their own layer:</p>
 

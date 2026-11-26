@@ -43,7 +43,7 @@
 
 <section data-level="learner">
 <h2>Pixels, screen resolution, and framebuffers</h2>
-<p><strong>Goal:</strong> you will be able to explain what a pixel is, identify your screen resolution and color depth, and inspect your system framebuffer using read-only terminal commands.</p>
+<p><strong>Goal:</strong> you will be able to explain what a pixel is, identify your screen resolution and color depth, and inspect your system framebuffer using read-only terminal <a href="glossary/c/command.html">commands</a>.</p>
 <p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). All commands in this section only read system information and make no changes to your computer.</p>
 <aside class="first-time">
 <p><strong>New to this?</strong> The <code>$</code> character represents your command-line prompt. Type only the words that follow the prompt and press Enter. If a path begins with <code>/sys/</code>, it refers to a virtual filesystem where the Linux kernel presents hardware details as readable text files.</p>
@@ -123,7 +123,7 @@ Geometric Primitives (Vertices, Lines, Triangles in 3D Space)
 <dd>The display may be running in a fallback low-resolution mode or using desktop scaling. Check compositor status with <code>wlr-randr</code> or <code>hyprctl monitors</code>.</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> the desktop relies on the <a href="glossary/w/wayland.html">Wayland</a> protocol, which guarantees tear-free rendering by requiring clients to commit complete frame buffers before the compositor presents them to the display hardware. For older machines lacking hardware 3D support, wlroots-based compositors can render on the <a href="glossary/c/cpu.html">CPU</a> using <code>pixman</code> (<code>WLR_RENDERER=pixman</code>); that is a technique from another compositor, not a Tamlinux dependency. Tamlinux is writing its own compositor, <code>tam-pane</code>, and does not plan to use Sway or wlroots.</p>
+<p><strong>On Tamlinux:</strong> the desktop relies on the <a href="glossary/w/wayland.html">Wayland</a> protocol, which guarantees tear-free rendering by requiring clients to commit complete frame <a href="glossary/b/buffer.html">buffers</a> before the compositor presents them to the display hardware. For older machines lacking hardware 3D support, wlroots-based compositors can render on the <a href="glossary/c/cpu.html">CPU</a> using <code>pixman</code> (<code>WLR_RENDERER=pixman</code>); that is a technique from another compositor, not a Tamlinux dependency. Tamlinux is writing its own compositor, <code>tam-pane</code>, and does not plan to use Sway or wlroots.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>

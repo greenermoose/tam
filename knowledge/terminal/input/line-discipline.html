@@ -23,7 +23,7 @@
 
 <p>When you type at a shell prompt, the letters appear as you type and nothing runs until you press Enter. Something is collecting and editing that line, and it is not the shell. It is a part of the kernel called the line discipline, attached to your terminal.</p>
 
-<p>The line discipline is why Backspace works before a command runs, why <code>Ctrl + C</code> stops a command, and why <code>Ctrl + D</code> can close a shell. It is a small, quiet editor that sits between the keyboard and every ordinary program.</p>
+<p>The line discipline is why Backspace works before a <a href="glossary/c/command.html">command</a> runs, why <code>Ctrl + C</code> stops a command, and why <code>Ctrl + D</code> can close a shell. It is a small, quiet editor that sits between the keyboard and every ordinary program.</p>
 
 <h3>Why it matters</h3>
 
@@ -120,7 +120,7 @@ struct termios {
 
 <h3>How it works</h3>
 
-<p>The discipline is implemented in the kernel's N_TTY code, reached through the tty layer for a pseudo-terminal or a real console. In canonical mode it keeps a line buffer, applies erase, word-erase and kill to that buffer, and wakes a reader when a line delimiter arrives. The buffer is bounded; a line longer than the limit is truncated or refused, and the terminal may beep. A reader's <code>read</code> returns at most one line, so a large write by the program does not correspond to one read by the reader.</p>
+<p>The discipline is implemented in the kernel's N_TTY code, reached through the tty layer for a pseudo-terminal or a real console. In canonical mode it keeps a line <a href="glossary/b/buffer.html">buffer</a>, applies erase, word-erase and kill to that buffer, and wakes a reader when a line delimiter arrives. The buffer is bounded; a line longer than the limit is truncated or refused, and the terminal may beep. A reader's <code>read</code> returns at most one line, so a large write by the program does not correspond to one read by the reader.</p>
 
 <p>The special characters are interpreted before the buffer, in this order of precedence:</p>
 

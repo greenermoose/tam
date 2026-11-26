@@ -72,9 +72,9 @@ admin: can add members</file>
 </tam-sandbox>
 
 <h3>What just happened</h3>
-<p>The schema file declares two tables and a reference from <code>checkouts</code> to <code>members</code>. Both <code>psql</code> results are a sample teaching simulation: the sandbox installs no database software, no server was contacted, and the output is authored, not a measurement from your machine. A real <code>psql</code> client sends SQL to a server process, which checks permissions, plans the query and returns rows. <code>ORDER BY name</code> puts the sample names in order.</p>
+<p>The schema file declares two tables and a reference from <code>checkouts</code> to <code>members</code>. Both <code>psql</code> results are a sample teaching simulation: the sandbox installs no database software, no server was contacted, and the output is authored, not a <a href="glossary/m/measurement.html">measurement</a> from your machine. A real <code>psql</code> client sends SQL to a server process, which checks permissions, plans the query and returns rows. <code>ORDER BY name</code> puts the sample names in order.</p>
 <h3>Try it</h3>
-<p>Type <code>grep admin roles.txt</code>. The sample role file shows that an admin may add members while a reader may only list them. Predict which role could run an <code>INSERT</code> before you type the command.</p>
+<p>Type <code>grep admin roles.txt</code>. The sample role file shows that an admin may add members while a reader may only list them. Predict which role could run an <code>INSERT</code> before you type the <a href="glossary/c/command.html">command</a>.</p>
 <h3>If it goes wrong</h3>
 <dl>
 <dt>The <code>psql</code> command did not match.</dt><dd>Only the exact sample commands are scripted. Copy the wording from the hint, including the database name <code>club</code>.</dd>
@@ -110,7 +110,7 @@ admin: can add members</file>
 <tr><td>Connections</td><td>Each client holds a server connection</td><td>Finite slots; pools are used in front</td></tr>
 </table>
 <h3>How it works</h3>
-<p>A client authenticates as a role and opens a connection to a database in a cluster. The parser and planner turn SQL into a plan that reads pages through the buffer cache. Multi-version concurrency control gives each statement a snapshot, and the write-ahead log makes commits recoverable and streams changes to replicas. Schemas namespace tables and types; extensions add capabilities without changing the core engine. Backups may be logical dumps or base backups combined with logged changes.</p>
+<p>A client authenticates as a role and opens a connection to a database in a cluster. The parser and planner turn SQL into a plan that reads pages through the <a href="glossary/b/buffer.html">buffer</a> cache. Multi-version concurrency control gives each statement a snapshot, and the write-ahead log makes commits recoverable and streams changes to replicas. Schemas namespace tables and types; extensions add capabilities without changing the core engine. Backups may be logical dumps or base backups combined with logged changes.</p>
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li>Connection limits are per cluster; too many idle clients exhaust slots, so applications pool connections.</li>
