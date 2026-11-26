@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-25:** Corpus 0.130.1 (patch): expand the ACID glossary title to "ACID (Atomicity, Consistency, Isolation, Durability)" and explain what each letter stands for in the novice, learner and expert sections. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.130.0 (minor): add glossary entries for SQLite, PostgreSQL and MySQL, link them from their teaching pages, and verify that the pager's `w` / `whatis:` prompt resolves each name to its own glossary entry. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.129.0 (minor): add the Programming / Databases and data storage curriculum: hub, ten three-level pages, five-stage goal path, thirty glossary entries, twelve bibliography sources and `data.*` skills. All teaching examples are sandboxes with sample output labelled as simulated; no database software is installed. Command version 0.69.7 is unchanged.
 - **2026-11-24:** Command 0.69.7 (patch): clear transient status notices such as `Quiz 1/2 revealed` when the attention line, selection or page changes, so expanding an answer or showing an aside does not leave a stale notice after the reader moves. A notice written by the same key is kept. Add a fold regression test.
@@ -1592,6 +1593,16 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
+
+### 2026-11-25 — ACID glossary acronym (corpus 0.130.1)
+
+The developer asked for the acronym on `glossary/a/acid.html` to be written
+out in parentheses in the glossary title and for the page to explain what
+A, C, I and D stand for. The title and breadcrumb now read "ACID (Atomicity,
+Consistency, Isolation, Durability)". Each level gives the four names and
+their meaning, with a bank-transfer example for the Learner and mechanism
+detail for the Expert. This is a corpus correction only; command version,
+stage promotion and installation remain developer-directed.
 
 ### 2026-11-25 — Database glossary discoverability (corpus 0.130.0)
 

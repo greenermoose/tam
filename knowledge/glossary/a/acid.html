@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html><head>
-<title>ACID</title>
+<title>ACID (Atomicity, Consistency, Isolation, Durability)</title>
 <meta name="topic" content="glossary-acid">
-<meta name="summary" content="ACID: atomicity, consistency, isolation and durability, the classic guarantees of a database transaction.">
-<meta name="keywords" content="glossary-acid, transaction, atomicity, consistency, isolation, durability">
+<meta name="summary" content="ACID: Atomicity, Consistency, Isolation and Durability, the four guarantees of a reliable database transaction.">
+<meta name="keywords" content="glossary-acid, acid, atomicity, consistency, isolation, durability, database transaction">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="glossary">
 <meta name="parent" content="glossary/a/index.html">
 <meta name="kind" content="glossary">
 <meta name="skills" content="">
 </head><body>
-<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / ACID</p></nav>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / ACID (Atomicity, Consistency, Isolation, Durability)</p></nav>
 
-<p>ACID is a shorthand for the four safety properties people expect from a reliable database transaction.</p>
-<section data-level="novice"><p>It is a four-part promise: the whole change happens or none does, rules stay true, overlapping work does not interfere, and a finished change survives a crash.</p></section>
-<section data-level="learner"><p>A bank transfer is the usual example: money must not vanish or appear twice, even if two transfers run together or power fails.</p></section>
-<section data-level="expert"><p>Real systems implement ACID with write-ahead logs, locks or multiversion concurrency control, and configurable durability. Distributed systems may relax isolation or consistency for availability.</p></section>
+<p>ACID (Atomicity, Consistency, Isolation, Durability) names the four safety properties people expect from a reliable database <a href="glossary/t/transaction.html">transaction</a>. A stands for Atomicity, C for Consistency, I for Isolation and D for Durability.</p>
+<section data-level="novice"><p><strong>A &ndash; Atomicity:</strong> the whole change happens or none of it does. <strong>C &ndash; Consistency:</strong> the stored data still follows the rules. <strong>I &ndash; Isolation:</strong> overlapping changes do not interfere with each other. <strong>D &ndash; Durability:</strong> a finished change survives a crash or power loss.</p></section>
+<section data-level="learner"><p>A bank transfer shows the difference. Atomicity means both balances change together, or neither does. <a href="glossary/c/consistency.html">Consistency</a> means money is not created or lost and rules such as "no negative balance" still hold. Isolation means two transfers running at once leave the same result as running them one after the other. Durability means a confirmed transfer is still there after the machine restarts.</p></section>
+<section data-level="expert"><p>Database engines implement these properties with different mechanisms: write-ahead logs and commit records for atomicity and durability, constraints and triggers for consistency, and locks or multiversion concurrency control for isolation. Each property also has levels; a system may offer snapshot isolation rather than full serializability, or delay acknowledgement until storage has been flushed. Distributed systems sometimes relax consistency or isolation for availability, so ACID names a set of guarantees rather than a single algorithm.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="programming/databases/indexes-transactions-and-storage.html">Indexes, transactions and storage</a></li></ul>
 </body></html>

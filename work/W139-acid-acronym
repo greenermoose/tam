@@ -1,0 +1,35 @@
+W139 ACID GLOSSARY ACRONYM
+
+Date: 2026-11-25
+AI harness: opencode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "ACID needs to be written out and explained. Acronyms must show
+  their expansion in parentheses in the glossary title. Fix
+  page:glossary/a/acid.html. Explain what the A, C, I and D stand for."
+
+DONE
+
+  - Changed the title and breadcrumb to "ACID (Atomicity,
+    Consistency, Isolation, Durability)" following the style used by
+    the CIA and MESI glossary entries.
+  - The intro names all four letters; each level explains them. Novice
+    gives plain meanings, Learner maps them to a bank transfer, and
+    Expert names the mechanisms and levels of each guarantee.
+  - Bumped the corpus to 0.130.1 and updated the roadmap and decision
+    record. Command version stays 0.69.7.
+  - make corpus, make corpus-and-test, make check-repo and the coverage
+    report pass. Reader spot check shows the expanded title and the
+    letter meanings. No install, stage, tag or push action.
+
+FAILED
+
+  Nothing.
+
+HANDOFF
+
+  - Commit the page and bookkeeping, then rerun make corpus and commit
+    only the regenerated indexes. Await Fred's development cycle;
+    Test, Run and Release each need his exact word.

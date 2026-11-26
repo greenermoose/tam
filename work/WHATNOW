@@ -3,30 +3,31 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-25, with W138
+Updated: 2026-11-25, with W139
 
 STATE
 
-  Command 0.69.7 and corpus 0.130.0 are on dev. W137 added the
-  Programming / Databases and data storage curriculum: hub, ten
-  three-level pages, five-stage path, 30 glossary entries, 12 sources
-  and data.* skills; it is committed. W138 added SQLite, PostgreSQL and
-  MySQL glossary entries so the pager's `whatis` prompt resolves each
-  name. W138 and its generated index follow-ups are committed on dev and
-  not pushed. make corpus, corpus-and-test, check-repo, coverage report
-  and reader spot checks pass; a live-corpus PTY check confirms all
-  three names.
+  Command 0.69.7 and corpus 0.130.1 are on dev. W137 added the
+  Programming / Databases and data storage curriculum; W138 added
+  SQLite, PostgreSQL and MySQL glossary entries for pager `whatis`.
+  W139 expanded the ACID glossary title to include Atomicity,
+  Consistency, Isolation and Durability, and explains each letter at
+  all three levels. W139 is uncommitted. make corpus,
+  corpus-and-test, check-repo and coverage report pass; reader spot
+  check renders the expanded title and letter meanings.
 
 NEXT
 
-  1. Await Fred's development cycle for corpus 0.130.0. Test, Run and
+  1. Commit W139 pages and bookkeeping, then rerun make corpus and
+     commit only the regenerated indexes. Do not push.
+  2. Await Fred's development cycle for corpus 0.130.1. Test, Run and
      Release still need his exact word.
-  2. If he asks for a push, check `git log @{u}..` for other agents'
+  3. If he asks for a push, check `git log @{u}..` for other agents'
      commits first, then push only dev.
 
 WAITING FOR FRED
 
-  - Fred's development cycle for corpus 0.130.0. Tamlinux 0.6.38
+  - Fred's development cycle for corpus 0.130.1. Tamlinux 0.6.38
     remains in Test.
 
 WATCH OUT
@@ -53,6 +54,9 @@ WATCH OUT
   - Glossary pages carry one definition per level and link to
     teaching pages. Put detailed distro comparisons in the Operating
     Systems Reference, not in a glossary entry.
+  - Acronym glossary titles spell the expansion in parentheses, and
+    the breadcrumb repeats the full title. The page body should say
+    what each letter stands for.
   - Glossary pages are filed by the first letter of their title. If a
     check reports a misplaced page, run
     `python3 tools/corpus_pipeline.py check --fix-glossary`: it moves
