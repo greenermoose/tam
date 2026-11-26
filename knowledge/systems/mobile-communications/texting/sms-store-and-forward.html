@@ -78,7 +78,7 @@ expiry: validity period ends the attempt</file>
 <dt>You expected a long message to be one unlimited message.</dt><dd>SMS has a small payload. Longer text is split into segments that are reassembled by the receiving device.</dd>
 </dl>
 <aside class="tamlinux">
-<p>Tamlinux's email lesson uses the same store-and-forward idea with different protocols. Compare the two, but do not assume their receipts or identity checks mean the same thing.</p>
+<p>Tamlinux's email lesson uses the same store-and-forward idea with different <a href="glossary/p/protocol.html">protocols</a>. Compare the two, but do not assume their receipts or identity checks mean the same thing.</p>
 </aside>
 <section class="quiz"><h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -98,7 +98,7 @@ expiry: validity period ends the attempt</file>
 <tr><td><a href="glossary/d/delivery-receipt.html">Delivery receipt</a></td><td>Status report</td><td>Report about a delivery attempt, not proof of reading.</td></tr>
 </table>
 <h3>How it works</h3>
-<p><cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite> defines the short message service, including the transfer protocol, segmentation and status reports. <cite data-ref="spec-3gpp-24-011"><a href="bibliography/spec-3gpp-24-011.html">3GPP TS 24.011</a></cite> covers the radio-interface side of point-to-point short messages. The default alphabet allows about 160 seven-bit characters in one payload; using a wider character set reduces that count. Longer messages carry user-data headers that identify segments for reassembly. Application-to-person traffic often reaches the centre through <cite data-ref="smpp"><a href="bibliography/smpp.html">SMPP version 3.4</a></cite>, while carrier systems use MAP procedures to find a serving system and forward the message.</p>
+<p><cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite> defines the short message service, including the transfer protocol, segmentation and status reports. <cite data-ref="spec-3gpp-24-011"><a href="bibliography/spec-3gpp-24-011.html">3GPP TS 24.011</a></cite> covers the radio-interface side of point-to-point short messages. The default alphabet allows about 160 seven-bit characters in one <a href="glossary/p/payload.html">payload</a>; using a wider character set reduces that count. Longer messages carry user-data headers that identify segments for reassembly. Application-to-person traffic often reaches the centre through <cite data-ref="smpp"><a href="bibliography/smpp.html">SMPP version 3.4</a></cite>, while carrier systems use MAP procedures to find a serving system and forward the message.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>A validity period can expire while the receiver is unreachable. The message is then discarded or reported as expired; delivery is not guaranteed.</li>

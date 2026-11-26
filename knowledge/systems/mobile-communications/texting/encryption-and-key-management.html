@@ -18,7 +18,7 @@
 
 <section data-level="novice">
 <h2>Who holds the key?</h2>
-<p>Encryption turns a readable message into scrambled data. A key is the secret that lets a device turn it back into words. If the service provider holds that key, the provider can read the message. If only the two people's devices hold it, the message is <a href="glossary/e/e2ee.html">E2EE (End-to-End Encryption)</a>.</p>
+<p><dfn><a href="glossary/e/encryption.html">Encryption</a></dfn> turns a readable message into scrambled data. A key is the secret that lets a device turn it back into words. If the service provider holds that key, the provider can read the message. If only the two people's devices hold it, the message is <a href="glossary/e/e2ee.html">E2EE (End-to-End Encryption)</a>.</p>
 <h3>Why it matters</h3>
 <p>A message can travel through many systems. Link encryption protects one hop at a time. End-to-end encryption stays with the message from sender to receiver, so a store or relay in the middle cannot read the content.</p>
 <h3>How to think about it</h3>
@@ -92,12 +92,12 @@ question: who holds the key?</file>
 <table><tr><th>Mechanism</th><th>Scope</th><th>Property it supplies</th></tr>
 <tr><td><a href="glossary/e/e2ee.html">E2EE (End-to-End Encryption)</a></td><td>Sender device to receiver device</td><td>Relays cannot read content</td></tr>
 <tr><td><a href="glossary/s/signal-protocol.html">Signal Protocol</a></td><td>One-to-one and small groups</td><td>Per-message keys, forward secrecy and post-compromise recovery</td></tr>
-<tr><td><a href="glossary/m/mls.html">MLS (Messaging Layer Security)</a></td><td>Scaleable groups</td><td>Efficient group key agreement with membership changes</td></tr>
+<tr><td><a href="glossary/m/mls.html">MLS (Messaging Layer Security)</a></td><td>Scalable groups</td><td>Efficient group key agreement with membership changes</td></tr>
 <tr><td>Transport Layer Security</td><td>Device to provider</td><td>Protection against network observers on that connection</td></tr>
 <tr><td><a href="glossary/o/otp.html">OTP (One-Time Password)</a> or <a href="glossary/numeric/2fa.html">2FA (Two-Factor Authentication)</a></td><td>Account access</td><td>Extra check before a new device joins the account</td></tr>
 </table>
 <h3>How it works</h3>
-<p>The <a href="glossary/s/signal-protocol.html">Signal Protocol</a> establishes a session with an authenticated key agreement and then uses a Double Ratchet: each message advances a symmetric key so that compromise of one key does not reveal older messages, and fresh randomness helps recover security after a compromise. <a href="glossary/m/mls.html">MLS (Messaging Layer Security)</a> is specified in <cite data-ref="rfc9420"><a href="bibliography/rfc9420.html">RFC 9420</a></cite> and uses a tree structure to update group keys when members join or leave. Carrier radio and core networks also encrypt traffic on their own links; 5G authentication and key agreement are described in <cite data-ref="spec-3gpp-33-501"><a href="bibliography/spec-3gpp-33-501.html">3GPP TS 33.501</a></cite>. Those protections are not the same as content encryption controlled by the people chatting.</p>
+<p>The <a href="glossary/s/signal-protocol.html">Signal Protocol</a> establishes a session with an authenticated key agreement and then uses a Double Ratchet: each message advances a symmetric key so that compromise of one key does not reveal older messages, and fresh randomness helps recover security after a compromise. <a href="glossary/m/mls.html">MLS (Messaging Layer Security)</a> is specified in <cite data-ref="rfc9420"><a href="bibliography/rfc9420.html">RFC 9420</a></cite> and uses a tree structure to update group keys when members join or leave. Carrier radio and core networks also encrypt traffic on their own links; 5G <a href="glossary/a/authentication.html">authentication</a> and key agreement are described in <cite data-ref="spec-3gpp-33-501"><a href="bibliography/spec-3gpp-33-501.html">3GPP TS 33.501</a></cite>. Those protections are not the same as content encryption controlled by the people chatting.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>Forward secrecy protects past messages after a later key theft. Post-compromise security aims to restore future sessions after an attacker's access ends; not every protocol supplies both.</li>

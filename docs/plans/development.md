@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-25:** Corpus 0.133.2 (patch): pilot the corpus quality review on the fourteen Systems / Mobile communications texting pages. Read all pilot pages and a corpus-wide link inventory; found no wrong-sense glossary links in the pilot, added conservative first-use links to existing glossary pages, corrected confusing or inaccurate wording and one spelling error, and left the unverified RCS encryption-default claim in place. New glossary pages await an approved shortlist. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.133.1 (patch): standardize 107 glossary acronym titles from `Acronym - Meaning` to `Acronym (Meaning)` and repeat each full title in its breadcrumb. A scripted audit checked every glossary title and breadcrumb; the generated glossary hubs and corpus indexes are refreshed. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.133.0 (minor): add the Systems / Mobile communications texting curriculum: a subject hub, a texting subhub, twelve teaching pages with Novice, Learner and Expert sections, a six-stage goal path, glossary entries for SMS, MMS, RCS and the practical full set of cellular, identity, transport, encryption and anti-abuse terms, 28 bibliography sources and the `texting.*` skill cells. Teaching examples use labelled sandboxes with sample output; no phone service, SIM or messaging app is configured. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.132.0 (minor): add the Networking / Email curriculum: a subject hub, ten teaching pages with Novice, Learner and Expert sections, a five-stage goal path, glossary entries for the requested mail protocols and the practical full set of DNS, identity, transport-security and anti-spam standards, 24 bibliography sources and the `mail.*` skill cells. Teaching examples use labelled sandboxes with sample output; no mail software is installed. The MX mail-exchange entry is distinct from MX Linux, and `whatis` resolves the requested names at this corpus version. Command version 0.69.7 is unchanged.
@@ -1598,6 +1599,26 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 `windowing.learner` and `windowing.expert` skills. Session-check examples were
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
+developer-directed.
+
+### 2026-11-25 — Corpus quality review pilot (corpus 0.133.2)
+
+The developer asked for a careful review of every page in the tam knowledge
+corpus: find information that is wrong, confusing or contradictory; remove
+links where the glossary sense does not fit; link first uses of technical
+terms; and add missing glossary pages. Before writing any new page, this
+pilot read all fourteen Systems / Mobile communications texting pages and
+built a read-only inventory of 1,714 pages, 1,211 glossary pages and 10,216
+glossary links. The pilot had no anchor mismatches or wrong-sense links in its
+existing glossary links. Of 92 first-use candidates, a conservative subset
+was linked to existing glossary pages; terms whose glossary definition
+carries a different sense, such as Core, Session, Capability, Filter and
+Service, were deliberately left alone. Two confusing or inaccurate
+statements and a spelling error were corrected. The RCS claim that UP 4.0
+requires encryption by default unless local regulation prohibits it is not
+supported by the cited bibliography and was left in place for the developer
+to decide. New glossary pages await approval of a curated shortlist. Corpus
+checks passed; command version, stage promotion and installation remain
 developer-directed.
 
 ### 2026-11-25 — Glossary acronym title cleanup (corpus 0.133.1)

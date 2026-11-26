@@ -54,7 +54,7 @@ attempt 2: route found, delivered
 attempt 3: acknowledgement lost, try again</file>
 </dir>
   </tam-fs>
-  <tam-cmd match="cat states.txt" hint="Some states are intermediate; two are endings."><out>accepted: the service took the message</out><out>queued: the service is waiting for a route</out><out>delivered: the receiving network reported acceptance</out><out>read: the receiver opened the conversation</out><out>expired: the validity period ended</out><out>duplicate: a retry repeated an already delivered message</out></tam-cmd>
+  <tam-cmd match="cat states.txt" hint="States describe reported events; delivered is not the same as read."><out>accepted: the service took the message</out><out>queued: the service is waiting for a route</out><out>delivered: the receiving network reported acceptance</out><out>read: the receiver opened the conversation</out><out>expired: the validity period ended</out><out>duplicate: a retry repeated an already delivered message</out></tam-cmd>
   <tam-cmd match="grep expired states.txt" goal="true" hint="Find the state where waiting ends without delivery."><out>expired: the validity period ended</out></tam-cmd>
   <tam-cmd match="cat retry.txt" hint="A lost acknowledgement can make a sender retry a message that already arrived."><out>attempt 1: no route, keep the message</out><out>attempt 2: route found, delivered</out><out>attempt 3: acknowledgement lost, try again</out></tam-cmd>
   <tam-init>Try: cat states.txt, then grep expired states.txt</tam-init>
@@ -98,7 +98,7 @@ attempt 3: acknowledgement lost, try again</file>
 <tr><td>Idempotency key</td><td>Application layer</td><td>A receiver can collapse repeated submissions</td></tr>
 </table>
 <h3>How it works</h3>
-<p><cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite> defines short message status reports and validity handling; reports are optional and their exact meaning depends on the network path. <cite data-ref="smpp"><a href="bibliography/smpp.html">SMPP</a></cite> adds message identifiers and delivery receipts for application-submitted traffic. <cite data-ref="spec-3gpp-23-140"><a href="bibliography/spec-3gpp-23-140.html">3GPP TS 23.140</a></cite> adds delivery and read reports for multimedia messages. Internet apps define their own receipts above the transport. Across all these systems, retries make delivery closer to at-least-once than exactly-once; application-level identifiers are needed when a duplicate would matter.</p>
+<p><cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite> defines short message status reports and validity handling; reports are optional and their exact meaning depends on the network path. <cite data-ref="smpp"><a href="bibliography/smpp.html">SMPP</a></cite> adds message identifiers and <a href="glossary/d/delivery-receipt.html">delivery receipts</a> for application-submitted traffic. <cite data-ref="spec-3gpp-23-140"><a href="bibliography/spec-3gpp-23-140.html">3GPP TS 23.140</a></cite> adds delivery and read reports for multimedia messages. Internet apps define their own receipts above the transport. Across all these systems, retries make delivery closer to at-least-once than exactly-once; application-level identifiers are needed when a duplicate would matter.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>Concatenated short messages can be delivered as segments. One segment may fail while others arrive; the phone may show nothing until all parts are present.</li>
