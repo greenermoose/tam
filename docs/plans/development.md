@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-25:** Corpus 0.133.1 (patch): standardize 107 glossary acronym titles from `Acronym - Meaning` to `Acronym (Meaning)` and repeat each full title in its breadcrumb. A scripted audit checked every glossary title and breadcrumb; the generated glossary hubs and corpus indexes are refreshed. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.133.0 (minor): add the Systems / Mobile communications texting curriculum: a subject hub, a texting subhub, twelve teaching pages with Novice, Learner and Expert sections, a six-stage goal path, glossary entries for SMS, MMS, RCS and the practical full set of cellular, identity, transport, encryption and anti-abuse terms, 28 bibliography sources and the `texting.*` skill cells. Teaching examples use labelled sandboxes with sample output; no phone service, SIM or messaging app is configured. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.132.0 (minor): add the Networking / Email curriculum: a subject hub, ten teaching pages with Novice, Learner and Expert sections, a five-stage goal path, glossary entries for the requested mail protocols and the practical full set of DNS, identity, transport-security and anti-spam standards, 24 bibliography sources and the `mail.*` skill cells. Teaching examples use labelled sandboxes with sample output; no mail software is installed. The MX mail-exchange entry is distinct from MX Linux, and `whatis` resolves the requested names at this corpus version. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.131.1 (patch): expand the OLAP glossary title to "OLAP (Online Analytical Processing)" and repeat the full title in the breadcrumb. The summary and keywords also carry the expansion. Command version 0.69.7 is unchanged.
@@ -1597,6 +1598,21 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 `windowing.learner` and `windowing.expert` skills. Session-check examples were
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
+developer-directed.
+
+### 2026-11-25 — Glossary acronym title cleanup (corpus 0.133.1)
+
+The developer asked for a careful pass over glossary titles so that every
+acronym entry uses `Acronym (Meaning)` rather than `Acronym - Meaning`, giving
+MAC (Message Authentication Code) as the example. A script checked all
+glossary page titles and breadcrumbs, found 107 entries using the wrong
+separator and converted each title and breadcrumb. The one title with a
+parenthesized qualifier in its expansion, UTF-8, became
+`UTF-8 (Unicode Transformation Format, 8-bit)`; the dual-name BPF / eBPF
+entry was reviewed and left as an intentional paired title. A repeated audit
+found no wrong-format separator and no breadcrumb mismatch. `make corpus`
+regenerated the glossary hubs and corpus indexes. This is a corpus correction
+only; command version, stage promotion and installation remain
 developer-directed.
 
 ### 2026-11-25 — Texting and mobile messaging curriculum (corpus 0.133.0)

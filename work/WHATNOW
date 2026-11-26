@@ -3,31 +3,31 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-25, with W144
+Updated: 2026-11-25, with W145
 
 STATE
 
-  Command 0.69.7 and corpus 0.133.0 are on dev. W144 added the
-  Systems / Mobile communications texting curriculum: two hubs,
-  twelve three-level teaching pages, the six-stage `texting` goal
-  path, 47 new and one revised glossary entry, 28 sources and the
-  `texting.*` skills. Examples are labelled sandboxes; no phone
-  service, SIM, network setting or messaging app was configured.
-  make corpus, corpus-and-test, check-repo, the coverage report and
-  reader spot checks pass; live whatis resolves the requested names.
-  W144 and its generated index follow-ups are committed on dev and
-  are not pushed.
+  Command 0.69.7 and corpus 0.133.1 are on dev. W145 audited every
+  glossary title and breadcrumb and converted 107 acronym titles from
+  `Acronym - Meaning` to `Acronym (Meaning)`. The paired BPF / eBPF
+  title was reviewed and kept. A repeated audit found no wrong-format
+  acronym title or breadcrumb mismatch; make corpus regenerated the
+  glossary hubs and indexes. W145 and the bookkeeping are not yet
+  committed.
 
 NEXT
 
-  1. Await Fred's development cycle for corpus 0.133.0. Test, Run and
+  1. Commit the claimed page, version, roadmap, decision record and
+     work-record paths. Rerun `make corpus` and commit only the
+     regenerated index follow-ups.
+  2. Await Fred's development cycle for corpus 0.133.1. Test, Run and
      Release still need his exact word.
   3. If he asks for a push, check `git log @{u}..` for other agents'
      commits first, then push only dev.
 
 WAITING FOR FRED
 
-  - Fred's development cycle for corpus 0.133.0. Tamlinux 0.6.38
+  - Fred's development cycle for corpus 0.133.1. Tamlinux 0.6.38
     remains in Test.
 
 WATCH OUT
@@ -56,7 +56,11 @@ WATCH OUT
     Systems Reference, not in a glossary entry.
   - Acronym glossary titles spell the expansion in parentheses, and
     the breadcrumb repeats the full title. The page body should say
-    what each letter stands for.
+    what each letter stands for. A scripted audit found 107 old
+    `Acronym - Meaning` titles; none remain.
+  - Preserve paired acronym titles such as BPF / eBPF when both names
+    share one expansion. Avoid nested parentheses: UTF-8 uses a comma
+    before `8-bit`.
   - Glossary pages are filed by the first letter of their title. If a
     check reports a misplaced page, run
     `python3 tools/corpus_pipeline.py check --fix-glossary`: it moves

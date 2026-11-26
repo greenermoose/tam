@@ -1,0 +1,52 @@
+W145 GLOSSARY ACRONYM TITLE CLEANUP
+
+Date: 2026-11-25
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Continues: W144
+
+GUIDANCE
+
+  Fred: "Clean up the glossary titles to be in a standard format.
+  All glossary pages that defines acronyms should have titles of the
+  format Acronym (Meaning), not Acronym - Meaning, e.g.
+
+  MAC (Message Authentication Code)
+
+  not
+
+  MAC - Message Authenticaiton Code
+
+  Do a careful pass through (probably good to use a script) to catch
+  all typos that use the wrong format."
+
+DONE
+
+  - Audited every glossary page title and breadcrumb with a script.
+    Found 107 pages using `Acronym - Meaning` and changed each title
+    and breadcrumb to `Acronym (Meaning)`.
+  - Kept the expansion wording, including commas in FIFO and RGB.
+    UTF-8 became `UTF-8 (Unicode Transformation Format, 8-bit)` to
+    avoid nested parentheses. Reviewed the paired BPF / eBPF title
+    and left it as an intentional dual-name entry.
+  - Repeated the audit: no wrong-format acronym title and no
+    breadcrumb mismatch remains. `make corpus` regenerated the A-Z
+    glossary hubs and corpus indexes.
+  - Bumped the corpus to 0.133.1 and updated the roadmap and decision
+    record. Command version stays 0.69.7. Tests are recorded below.
+
+FAILED
+
+  - Nothing.
+
+CHECKED AGAINST
+
+  - `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`,
+    `docs/plan-maintenance.md`, `work/README-work` and the A-Z
+    glossary hub generator output.
+
+HANDOFF
+
+  - Commit the claimed paths, rerun `make corpus`, then commit only
+    the regenerated indexes. Await Fred's development cycle; Test,
+    Run and Release each need his exact word.
