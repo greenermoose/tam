@@ -1,0 +1,52 @@
+W152 CANONICAL ID LOOKUP
+
+Date: 2026-11-26
+AI harness: opencode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Add a canonical one-line description and stable ID to each page."
+  Fred: "1) reuse topic and summary rather than introduce new meta names
+  2) use a 160-character cap and shorten the 13 outliers now
+  3) put exact-name lookup in the same change"
+  Fred: "I accept your recommendation: no new flag or verb.
+
+  Plan approved. Make it so."
+
+DONE
+
+  - tools/build-index.py requires topic and summary, enforces the slug
+    rule and 160-character cap, and rejects duplicate topics.
+  - tools/lint-corpus.py checks meta tag spelling and values with narrow
+    checks; both tool suites have unit tests.
+  - src/corpus.c and src/tam.c resolve `tam show <stable-id>` before
+    path suffixes. Ambiguous exact matches keep the choices view; a
+    genuine miss exits 3 with a search hint, while a path miss exits 1.
+  - Added fixture pages and tests/run.sh checks for ID-over-path
+    precedence, ambiguity, miss exit codes and the new command version.
+  - Shortened 13 summaries over 160 characters and documented the
+    contract in docs/corpus-authoring.md and man/tam.1.
+  - Bumped command 0.70.0 and corpus 0.136.0 in all version records.
+
+FAILED
+
+  - First edits to ml-dsa and ml-kem missed the HTML-escaped apostrophe
+    in their summary lines; reading the exact meta line fixed them.
+  - The first command build hit a stale resolve_page_path declaration;
+    updating its signature cleared the conflicting types error.
+  - Moving exact lookup ahead of path fallback let the shared keyword
+    `index` open a choices view and broke corpus checks. Stable-ID
+    lookup now matches only the authored `topic` field; titles and
+    keywords remain search aliases.
+  - Restricting exact lookup to topics also broke `tam show VOLT`,
+    which relies on a title/keyword alias. Real guide paths now win
+    before aliases, and aliases stay after paths without setting the
+    stable-ID miss code.
+
+HANDOFF
+
+  - Canonical metadata and exact stable-ID lookup are ready on dev.
+  - Generated indexes trail the page commit by one; commit them in a
+    follow-up after make corpus.
+  - Do not move Test, Run or Release without Fred's exact word.

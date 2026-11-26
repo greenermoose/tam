@@ -13,6 +13,7 @@ docs/corpus-authoring.md.
 """
 
 import argparse
+import html
 from html.parser import HTMLParser
 import re
 import sys
@@ -31,6 +32,11 @@ SUPER_MOD = re.compile(
     r"\bthe SUPER key\b|\bSUPER key\b|\bthe Super key\b|\bSuper key\b)"
 )
 BLOCKS = {"p", "li", "dd", "dt", "td", "pre"}
+META_TAG = re.compile(r'<meta\b(?:[^>"\'/]|"[^"]*"|\'[^\']*\')*>', re.I)
+META_NAME = re.compile(r'(?<![\w-])name\s*=\s*["\']([^"\']*)["\']', re.I)
+META_CONTENT = re.compile(r'(?<![\w-])content\s*=\s*["\']([^"\']*)["\']', re.I)
+TOPIC_SLUG = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+SUMMARY_MAX = 160
 
 TAG = re.compile(r"<(/?)([A-Za-z][A-Za-z0-9]*)(?:[^>\"']|\"[^\"]*\"|'[^']*')*>"
                  r"|<![^>]*>")
@@ -194,6 +200,28 @@ class Page:
         return self.findings
 
     def check_raw(self):
+        # Only supplied tags are checked: older fixtures may omit the canonical
+        # meta block, and the corpus build enforces that every real page has it.
+        for m in META_TAG.finditer(self.text):
+            tag = m.group(0)
+            name_m = META_NAME.search(tag)
+            content_m = META_CONTENT.search(tag)
+            if not name_m or content_m is None:
+                continue
+            name = name_m.group(1).lower()
+            raw = html.unescape(content_m.group(1))
+            value = raw.strip()
+            if name == "topic":
+                if not TOPIC_SLUG.match(value):
+                    self.add(m.start(), "META", "topic meta is not a stable ID slug")
+            elif name == "summary":
+                if not value:
+                    self.add(m.start(), "META", "summary meta is empty")
+                elif "\n" in raw or "\r" in raw:
+                    self.add(m.start(), "META", "summary meta must be one line")
+                elif len(value) > SUMMARY_MAX:
+                    self.add(m.start(), "META",
+                             f"summary meta is {len(value)} characters; maximum is {SUMMARY_MAX}")
         for m in ENTITY.finditer(self.text):
             if m.group(1) not in self.entities:
                 self.add(m.start(), "ENTITY",

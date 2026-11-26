@@ -3,36 +3,32 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-26, with W151
+Updated: 2026-11-26, with W152
 
 STATE
 
-  Command 0.69.8 and corpus 0.135.1 are on dev. W150 softened the RCS
-  encryption-default sentence at Fred's choice, and W148 added the
-  Hardware / Lifecycle curriculum. W151 researched 29 projects and
-  tools from Linux distributions, desktops, terminal docs and docs
-  platforms; the results are 29 idea files plus synthesis.md under
-  ideas/, with README-ideas updated. All verdicts there are research
-  judgments, not approvals. No code, corpus page, version or plan was
-  changed. The working tree holds the new ideas files, W151 and this
-  handoff; the RCS commits are already pushed to origin/dev.
+  Command 0.70.0 and corpus 0.136.0 are on dev after W152. Each page
+  now declares topic and summary as its stable ID and authored one-line
+  description. Build and lint reject missing, empty, duplicate,
+  multi-line or overlong summaries, and the 13 outliers were shortened.
+  `tam show <stable-id>` resolves topic before a path suffix; ambiguous
+  matches keep the choices view and a genuine miss exits 3. W151's
+  29 project notes and synthesis.md remain research only.
 
 NEXT
 
-  1. Commit only the claimed ideas/ and work/ paths, add the private
-     ledger row, and finish the claim. Check git log @{u}.. before
-     pushing dev if Fred asks.
-  2. Let Fred choose which ideas become plans. Start with the five
-     first moves in ideas/synthesis.md; do not start implementation
-     from an idea file alone.
-  3. Re-check the snippet-heavy Fedora, Debian wiki, elementary, LXQt
+  1. Let Fred choose which documentation ideas in ideas/synthesis.md
+     become plans. Do not start implementation from an idea file alone.
+  2. Re-check the snippet-heavy Fedora, Debian wiki, elementary, LXQt
      and Docsy details before treating any of them as settled.
+  3. Await Fred's word before any Test, Run or Release move.
 
 WAITING FOR FRED
 
   - His choice of which documentation ideas to turn into plans.
-  - His development cycle for corpus 0.135.1. Test, Run and Release
-    need his exact word; Tamlinux 0.6.38 remains in Test.
+  - His development cycle for command 0.70.0 / corpus 0.136.0. Test,
+    Run and Release need his exact word; Tamlinux 0.6.38 remains in
+    Test.
 
 WATCH OUT
 
@@ -126,6 +122,13 @@ WATCH OUT
     still reports its count.
   - Command and corpus versions are independent; corpus-only work does
     not bump the command version.
+  - Every page's topic is its stable ID; summary is the authored
+    one-line description, capped at 160 characters. Do not add a new
+    meta name for either.
+  - `tam show` resolves an authored `topic` before a guide-path suffix.
+    Real paths win before title/keyword aliases, and aliases stay
+    aliases rather than stable IDs. Ambiguous topics show choices, a
+    genuine ID miss exits 3, and a path miss exits 1.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.

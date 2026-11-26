@@ -147,6 +147,15 @@ blocks; the pager synthesizes path navigation dynamically and preserves the
 reader's active path across multi-path pages. The skills map publishes the same
 can-do statements for readers.
 
+Every page declares `<meta name="topic">` and `<meta name="summary">`. The
+topic is the page's permanent stable ID: it does not change when the page
+moves or its title changes, and retiring an ID needs an explicit alias
+decision. The summary is the canonical one-line description, written by the
+author rather than copied from the opening paragraph. It is plain text on one
+line, at most 160 characters, and the build rejects missing, empty, duplicate,
+multi-line or overlong values. `tam show <topic>` resolves that stable ID
+before guide-path suffixes.
+
 Topic IDs are slugs: lowercase letters, digits, and hyphens only
 (`^[a-z0-9][a-z0-9-]*$`). When a topic name contains `/`, replace each `/`
 with `-` in the `<meta name="topic">` value and filename, collapse repeated
@@ -212,8 +221,9 @@ Readers see the text that `tam show` renders, not the HTML.
   ```
 
 - Start a new page from a template in `docs/templates/`. `tools/build-index.py`
-  validates the `topic`, `summary`, `keywords`, `level`, `track` and
-  `prereqs` metadata, the `data-level` sections and blocks, and the breadcrumb.
+  requires a unique stable `topic` and a one-line `summary` of at most 160
+  characters, and validates the `keywords`, `level`, `track` and `prereqs`
+  metadata, the `data-level` sections and blocks, and the breadcrumb.
 - In the All view the first heading of each tagged section receives its level
   label automatically. Do not hand-type `Novice:`, `Learner:`, `Beginner:`,
   `Intermediate:` or `Expert:` prefixes; the linter rejects them.

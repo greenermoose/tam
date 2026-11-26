@@ -52,7 +52,7 @@
 static int knowledge_ok(const char *dir);
 static int knowledge_file_exists(const char *root, const char *rel);
 static bool resolve_page_path(const char *root, const char *page, char *out,
-                              size_t cap);
+                              size_t cap, bool *exact_hit);
 static int shared_prereqs(const tam_index_entry_t *a, const tam_index_entry_t *b);
 static int parent_relation(const tam_index_entry_t *page,
                     const tam_index_entry_t *e);
@@ -168,10 +168,65 @@ static int knowledge_file_exists(const char *root, const char *rel)
     return ok;
 }
 
+bool tam_topic_slug(const char *page)
+{
+    if (page == NULL || page[0] == '\0') return false;
+    if (!((page[0] >= 'a' && page[0] <= 'z') ||
+          (page[0] >= '0' && page[0] <= '9'))) return false;
+    for (const char *p = page + 1; *p != '\0'; p++) {
+        if (!((*p >= 'a' && *p <= 'z') ||
+              (*p >= '0' && *p <= '9') || *p == '-')) return false;
+    }
+    return true;
+}
+
+typedef const tam_index_entry_t *(*exact_lookup_fn)(const tam_index_t *,
+                                                     const char *, bool *);
+
+/* Look up a name through the chosen index rule. True means `out` holds either
+ * a page path or a choices view; `choices` reports which. Only an authored
+ * stable ID sets `exact_hit`; titles and keywords stay search aliases. */
+static bool exact_page(const char *root, const char *page, char *out,
+                       size_t cap, bool *exact_hit, bool *choices,
+                       exact_lookup_fn lookup, bool mark_exact)
+{
+    tam_index_t *idx = tam_index_load(root);
+    if (idx == NULL) return false;
+    bool ambiguous = false;
+    const tam_index_entry_t *entry = lookup(idx, page, &ambiguous);
+    if (entry != NULL && entry->path != NULL) {
+        snprintf(out, cap, "%s", entry->path);
+        tam_index_free(idx);
+        if (mark_exact && exact_hit != NULL) *exact_hit = true;
+        if (choices != NULL) *choices = false;
+        return true;
+    }
+    tam_index_free(idx);
+    if (!ambiguous) return false;
+    char *encoded = url_encode(page);
+    if (encoded == NULL) return false;
+    int written = snprintf(out, cap, "tam:explain?topic=%s", encoded);
+    free(encoded);
+    if (written <= 0 || (size_t)written >= cap) return false;
+    if (mark_exact && exact_hit != NULL) *exact_hit = true;
+    if (choices != NULL) *choices = true;
+    return true;
+}
+
 static bool resolve_page_path(const char *root, const char *page, char *out,
-                              size_t cap)
+                              size_t cap, bool *exact_hit)
 {
     static const char suffix[] = ".html";
+    if (exact_hit != NULL) *exact_hit = false;
+
+    /* An authored stable ID wins over a same-named file. Ambiguous topics
+     * still open the choices view; a miss continues to the path fallback. */
+    if (tam_topic_slug(page)) {
+        bool choices = false;
+        if (exact_page(root, page, out, cap, exact_hit, &choices,
+                       tam_index_lookup_topic_exact, true))
+            return choices;
+    }
     if (strstr(page, ".html") != NULL) {
         snprintf(out, cap, "%s", page);
         return false;
@@ -187,36 +242,23 @@ static bool resolve_page_path(const char *root, const char *page, char *out,
         snprintf(out, cap, "%s", cand);
         return false;
     }
-    tam_index_t *idx = tam_index_load(root);
-    if (idx != NULL) {
-        bool ambiguous;
-        const tam_index_entry_t *entry = tam_index_lookup_exact(idx, page, &ambiguous);
-        if (entry != NULL && entry->path != NULL) {
-            snprintf(out, cap, "%s", entry->path);
-            tam_index_free(idx);
-            return false;
-        }
-        tam_index_free(idx);
-        if (ambiguous) {
-            char *encoded = url_encode(page);
-            if (encoded != NULL) {
-                int written = snprintf(out, cap, "tam:explain?topic=%s", encoded);
-                free(encoded);
-                if (written > 0 && (size_t)written < cap) return true;
-            }
-        }
-    }
+    /* Titles and keywords remain aliases after real paths, but they are not
+     * stable IDs and must not change the miss exit code. */
+    bool choices = false;
+    if (exact_page(root, page, out, cap, exact_hit, &choices,
+                   tam_index_lookup_exact, false))
+        return choices;
     snprintf(out, cap, "%s%s", page, suffix);
     return false;
 }
 
 /* Resolve a page name and preserve its lens. True means a choices view. */
 bool resolve_page(const char *root, const char *page, char *out,
-                  size_t cap)
+                  size_t cap, bool *exact_hit)
 {
     const char *q = strchr(page, '?');
     if (q == NULL) {
-        return resolve_page_path(root, page, out, cap);
+        return resolve_page_path(root, page, out, cap, exact_hit);
     }
     char base[600];
     size_t n = (size_t)(q - page);
@@ -226,7 +268,7 @@ bool resolve_page(const char *root, const char *page, char *out,
     memcpy(base, page, n);
     base[n] = '\0';
     char path[1800];
-    bool choices = resolve_page_path(root, base, path, sizeof(path));
+    bool choices = resolve_page_path(root, base, path, sizeof(path), exact_hit);
     snprintf(out, cap, "%s%c%s", path, choices ? '&' : '?', q + 1);
     return choices;
 }

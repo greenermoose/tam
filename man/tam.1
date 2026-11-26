@@ -131,6 +131,10 @@ or an address beginning with
 .BR tldr: ,
 or
 .BR tam: .
+A one-word lowercase slug is looked up first as a stable topic ID from the
+corpus index, before guide-path suffixes. An exact match opens that page;
+an ambiguous match opens a choice view. If neither a page nor a stable ID
+matches, the command prints suggestions and exits 3.
 Manual page addresses contain parentheses (such as
 .BR 'man:ls(1)' )
 and must be quoted in the shell. If
@@ -606,6 +610,22 @@ User state directory (defaults to
 .BR tam 's
 state in
 .IR tamlinux/tam/ .
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+A guide, discovery or external-format page could not be opened.
+.TP
+.B 2
+Usage error.
+.TP
+.B 3
+.B tam show
+was given a stable topic ID for which no page exists; use
+.B tam search
+to find related pages.
 .SH FILES
 .TP
 .I ~/.local/state/tamlinux/tam/welcome_seen

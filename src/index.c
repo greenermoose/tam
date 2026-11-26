@@ -718,6 +718,28 @@ const tam_index_entry_t *tam_index_lookup_exact(const tam_index_t *idx, const ch
     return *q ? lookup_exact(idx, q, false, ambiguous) : NULL;
 }
 
+/* Stable IDs are authored topics only. Titles and keywords are search
+ * aliases; treating them as IDs lets a shared word shadow a guide path. */
+const tam_index_entry_t *tam_index_lookup_topic_exact(const tam_index_t *idx,
+                                                      const char *query,
+                                                      bool *ambiguous)
+{
+    *ambiguous = false;
+    char buf[512];
+    if (idx == NULL || query == NULL || strlen(query) >= sizeof(buf)) return NULL;
+    strcpy(buf, query);
+    char *q = normalize_query(buf);
+    if (!*q) return NULL;
+    const tam_index_entry_t *best = NULL;
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
+        if (e->topic == NULL || strcasecmp(q, e->topic) != 0) continue;
+        if (best == NULL) best = e;
+        else *ambiguous = true;
+    }
+    return *ambiguous ? NULL : best;
+}
+
 const char *tam_index_purpose(const tam_index_entry_t *e)
 {
     if (is_glossary_index_entry(e)) return "Definitions";

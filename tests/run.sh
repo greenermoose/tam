@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.69.9' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.70.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -230,6 +230,40 @@ sh_out=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --pipe)
 printf '%s\n' "$sh_out" | grep -q 'Fixture Guide' || fail "tam show --pipe failed"
 sh_page=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show welcome --pipe)
 printf '%s\n' "$sh_page" | grep -q 'Fixture Welcome' || fail "tam show welcome failed"
+
+fixture="$root/tests/fixtures/guide"
+# A stable ID is looked up before a guide path with the same name.
+sh_stable=$(TAM_KNOWLEDGE_DIR="$fixture" "$TAM" show shadow-path --pipe) || fail "stable ID lookup failed"
+printf '%s\n' "$sh_stable" | grep -q 'FIXTURE_STABLE_ID' || fail "stable ID did not win over a path"
+if printf '%s\n' "$sh_stable" | grep -q 'FIXTURE_SHADOW_PATH'; then fail "stable ID opened the shadow path"; fi
+
+# A shared keyword is a search alias, not a stable ID; its path still wins.
+sh_keyword=$(TAM_KNOWLEDGE_DIR="$fixture" "$TAM" show keyword-shadow --pipe) || fail "keyword-shadow page failed"
+printf '%s\n' "$sh_keyword" | grep -q 'FIXTURE_KEYWORD_SHADOW' || fail "keyword shadowed a guide path"
+if printf '%s\n' "$sh_keyword" | grep -q 'Topic Guide: keyword-shadow'; then fail "keyword opened a choices view"; fi
+
+# Ambiguous exact matches keep the existing choices view.
+sh_ambiguous=$(TAM_KNOWLEDGE_DIR="$fixture" "$TAM" show ambiguous-id --pipe) || fail "ambiguous stable ID lookup failed"
+printf '%s\n' "$sh_ambiguous" | grep -q 'Topic Guide: ambiguous-id' || fail "ambiguous ID lost its choices view"
+printf '%s\n' "$sh_ambiguous" | grep -q 'ambiguous-a.html' || fail "ambiguous choices missing first page"
+printf '%s\n' "$sh_ambiguous" | grep -q 'ambiguous-b.html' || fail "ambiguous choices missing second page"
+
+# A genuine stable-ID miss is distinct from an ordinary guide-path miss.
+set +e
+sh_id_miss=$(TAM_KNOWLEDGE_DIR="$fixture" "$TAM" show no-such-id --pipe 2>&1)
+sh_id_miss_rc=$?
+set -e
+[ "$sh_id_miss_rc" -eq 3 ] || fail "stable ID miss expected exit 3, got $sh_id_miss_rc"
+printf '%s\n' "$sh_id_miss" | grep -q "no guide page or stable ID named 'no-such-id' (not found)" || fail "stable ID miss message missing"
+printf '%s\n' "$sh_id_miss" | grep -q "Try 'tam search no-such-id' for related pages." || fail "stable ID miss suggestion missing"
+
+set +e
+sh_path_miss=$(TAM_KNOWLEDGE_DIR="$fixture" "$TAM" show missing/page --pipe 2>&1)
+sh_path_miss_rc=$?
+set -e
+[ "$sh_path_miss_rc" -eq 1 ] || fail "guide path miss expected exit 1, got $sh_path_miss_rc"
+printf '%s\n' "$sh_path_miss" | grep -q 'guide page not found: missing/page.html' || fail "guide path miss message missing"
+
 sh_topics=$("$TAM" show topics --pipe)
 printf '%s\n' "$sh_topics" | grep -q '^Topic .*Covers' || fail "tam show topics table missing"
 if printf '%s\n' "$sh_topics" | grep -q 'Topics A to Z'; then fail "tam show topics repeated the breadcrumb in a heading"; fi

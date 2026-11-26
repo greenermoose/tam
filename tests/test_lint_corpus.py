@@ -83,6 +83,24 @@ class LintCorpus(unittest.TestCase):
         self.check('<details class="q"><summary>Question?</summary><p><em>Answer</em></p></details>', [], 0)
         self.check('<details class="hint"><summary>Hint?</summary></details>', [], 0)
 
+    def test_canonical_meta_tags_are_bounded_when_present(self):
+        good = ('<meta name="topic" content="good-id">'
+                '<meta name="summary" content="A short summary">')
+        self.check(good, [], 0)
+        cases = [
+            ('<meta name="topic" content="">', "topic meta is not a stable ID slug"),
+            ('<meta name="topic" content="Bad_ID">', "topic meta is not a stable ID slug"),
+            ('<meta name="summary" content="">', "summary meta is empty"),
+            ('<meta name="summary" content="first&#10;second">',
+             "summary meta must be one line"),
+            ('<meta name="summary" content="' + "x" * 161 + '">',
+             "summary meta is 161 characters; maximum is 160"),
+        ]
+        for tag, message in cases:
+            with self.subTest(tag=tag):
+                self.check(tag, [self.finding("META", message)], 1)
+        self.check("<p>No meta block</p>", [], 0)
+
     def test_risk_labels_required_for_privileged_commands(self):
         commands = ("sudo true", "pkexec true", "pacman -S example", "pacman -Rns example",
                     "pacman -U example.pkg.tar.zst", "pacman --sync example", "limine-install",

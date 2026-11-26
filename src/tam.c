@@ -44,6 +44,7 @@
 
 #define TAM_EXIT_USAGE 2
 #define TAM_EXIT_FAILURE 1
+#define TAM_EXIT_NOT_FOUND 3
 
 #include "corpus.h"
 
@@ -196,7 +197,8 @@ static int record_welcome_seen(void);
 static char *read_all_stdin(size_t *out_len);
 static int view_document(const char *root, const char *href, const char *src,
                   size_t len, int pipe, const tam_depth_info_t *info);
-static int view_knowledge_page(const char *root, const char *href, int pipe);
+static int view_knowledge_page(const char *root, const char *href, int pipe,
+                               bool *not_found);
 static int level_usage_error(const char *bad);
 static int cmd_show(int n, char **args);
 static int cmd_welcome(int n, char **args);
@@ -255,7 +257,8 @@ static void print_tam_help(int tier)
             "  tam hi [--pipe]\n"
             "      first-run orientation and welcome guide (aliases: hello, hi)\n"
             "  tam show [PAGE|-] [--pipe]\n"
-            "      open the offline guide, a specific page, or render HTML from stdin\n"
+            "      open the offline guide, a page or stable topic ID, or render HTML from stdin\n"
+            "      a stable ID miss exits 3; use tam search to find related pages\n"
             "  tam search [--json|--pipe] TERM...\n"
             "      search guide topics and keywords; results open in the pager\n"
             "  tam explain [TOPIC] [--level LEVEL] [--pipe]\n"
@@ -317,7 +320,7 @@ static void print_tam_help(int tier)
         "  tam <subcommand> [arguments] [--options]\n\n"
         "  tam hi                    first-run orientation\n\n"
         "Guide subcommands to try:\n"
-        "  tam show [PAGE]           open the guide or a specific page\n"
+        "  tam show [PAGE]           open the guide, a page or a stable ID\n"
         "  tam explain [TOPIC]       browse all topics or show a topic\n"
         "  tam man [SECTION] PAGE    view hyperlinked manual page\n"
         "  tam info [MANUAL [NODE]]  browse GNU Info manuals\n"
@@ -490,14 +493,20 @@ static int view_document(const char *root, const char *href, const char *src,
     return rc;
 }
 
-static int view_knowledge_page(const char *root, const char *href, int pipe)
+static int view_knowledge_page(const char *root, const char *href, int pipe,
+                               bool *not_found)
 {
     unsigned level = 0;
+    if (not_found != NULL) *not_found = false;
     char *rel = tam_depth_split_href(href, &level);
     char *path = rel != NULL ? corpus_join(root, rel) : NULL;
     free(rel);
     if (path == NULL || !tam_fs_file_exists(path)) {
-        fprintf(stderr, TAM_COMMAND_NAME ": guide page not found: %s\n", href);
+        if (not_found != NULL) {
+            *not_found = true;
+        } else {
+            fprintf(stderr, TAM_COMMAND_NAME ": guide page not found: %s\n", href);
+        }
         free(path);
         return TAM_EXIT_FAILURE;
     }
@@ -603,11 +612,24 @@ static int cmd_show(int n, char **args)
         const char *alias = tam_addr_cli_alias(page);
         if (alias != NULL) page = alias;
     }
+    char slug_name[600];
+    const char *lookup_name = page;
+    const char *qmark = page != NULL ? strchr(page, '?') : NULL;
+    if (qmark != NULL) {
+        size_t n = (size_t)(qmark - page);
+        if (n >= sizeof(slug_name)) n = sizeof(slug_name) - 1;
+        memcpy(slug_name, page, n);
+        slug_name[n] = '\0';
+        lookup_name = slug_name;
+    }
+    bool slug_lookup = lookup_name != NULL && tam_topic_slug(lookup_name);
     tam_addr_kind_t kind = tam_addr_kind(page);
     char resolved[1800];
+    bool exact_hit = false;
     if (page != NULL && kind != TAM_ADDR_MAN && kind != TAM_ADDR_INFO &&
         kind != TAM_ADDR_TLDR && kind != TAM_ADDR_ARCHWIKI && kind != TAM_ADDR_VIEW) {
-        if (resolve_page(root, page, resolved, sizeof(resolved))) kind = TAM_ADDR_VIEW;
+        if (resolve_page(root, page, resolved, sizeof(resolved), &exact_hit))
+            kind = TAM_ADDR_VIEW;
         page = resolved;
     }
     if (kind == TAM_ADDR_MAN || kind == TAM_ADDR_INFO || kind == TAM_ADDR_TLDR ||
@@ -668,7 +690,19 @@ static int cmd_show(int n, char **args)
         }
     }
 
-    int rc = view_knowledge_page(root, href, pipe);
+    bool missing = false;
+    int rc = view_knowledge_page(root, href, pipe, &missing);
+    if (missing) {
+        if (slug_lookup && !exact_hit) {
+            fprintf(stderr, TAM_COMMAND_NAME ": no guide page or stable ID named '%s' (not found)\n",
+                    lookup_name);
+            fprintf(stderr, "Try '%s search %s' for related pages.\n",
+                    TAM_COMMAND_NAME, lookup_name);
+            rc = TAM_EXIT_NOT_FOUND;
+        } else {
+            fprintf(stderr, TAM_COMMAND_NAME ": guide page not found: %s\n", href);
+        }
+    }
     free(root);
     return rc;
 }
@@ -695,7 +729,7 @@ static int cmd_welcome(int n, char **args)
         return TAM_EXIT_FAILURE;
     }
 
-    int rc = view_knowledge_page(root, "welcome.html", pipe);
+    int rc = view_knowledge_page(root, "welcome.html", pipe, NULL);
     if (rc == 0) {
         record_welcome_seen();
     }

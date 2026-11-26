@@ -3,11 +3,15 @@
 knowledge/index.tsv, knowledge/index.json and knowledge/index.parents.tsv.
 
 Each page declares its metadata in <meta> tags: topic, summary, keywords,
-level, track, optional parent and prereqs. Level lists the lenses a page offers (novice,
-learner, expert); a page offering more than one wraps each level in
-<section data-level="..."> (the content-level ladder). The build fails on
-unknown levels or tracks, on topics that are not slugs, on prerequisites that
-name no topic, and on laddered pages whose sections do not match their declared levels.
+level, track, optional parent and prereqs. `topic` is the page's permanent
+stable ID and `summary` its canonical one-line description; both are required,
+topics are unique, and summaries are at most 160 characters. Level lists the
+lenses a page offers (novice, learner, expert); a page offering more than one
+wraps each level in <section data-level="..."> (the content-level ladder). The
+build fails on missing or duplicate topics, missing, multi-line or overlong
+summaries, unknown levels or tracks, on topics that are not slugs, on
+prerequisites that name no topic, and on laddered pages whose sections do not
+match their declared levels.
 
 Every page except the guide index carries a breadcrumb nav before its opening
 paragraph, which introduces the page without repeating the breadcrumb title.
@@ -202,6 +206,8 @@ D221_PILOT_PAGES = D221_PILOT_PAGES | LEGACY_PILOT_PAGES
 
 # A topic is one command-line word and one line of `tam explain topics --terse`.
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+# The canonical summary is authored text for one pager line, not a page excerpt.
+SUMMARY_MAX = 160
 
 
 def level_matches(skill_level, page_levels):
@@ -361,11 +367,20 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
         name_lower = name.lower()
         if name_lower == "topic":
             topic = content.strip()
-            if not TOPIC_RE.match(topic):
+            if not topic:
+                errors.append(f"{rel_path}: topic meta is empty; every page needs a stable ID")
+            elif not TOPIC_RE.match(topic):
                 errors.append(f"{rel_path}: topic {topic!r} is not a slug"
                               f" (lowercase letters, digits and hyphens)")
         elif name_lower == "summary":
-            summary = content.strip()
+            raw_summary = content
+            summary = raw_summary.strip()
+            if not summary:
+                errors.append(f"{rel_path}: summary meta is empty; every page needs a one-line description")
+            elif "\n" in raw_summary or "\r" in raw_summary:
+                errors.append(f"{rel_path}: summary must be one line")
+            elif len(summary) > SUMMARY_MAX:
+                errors.append(f"{rel_path}: summary is {len(summary)} characters; maximum is {SUMMARY_MAX}")
         elif name_lower == "keywords":
             keywords.extend(split_list(content))
         elif name_lower == "level":
@@ -402,6 +417,11 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
                 seen_page_paths.add(pid)
                 paths.append({"id": pid, "step": int(step_raw)})
 
+    if topic is None:
+        errors.append(f"{rel_path}: topic meta is missing; every page needs a stable ID")
+    if summary is None:
+        errors.append(f"{rel_path}: summary meta is missing; every page needs a one-line description")
+
     # Laddered sections define the page's levels; smaller tagged blocks may
     # refine any of those levels without adding another ladder section.
     sections = []
@@ -421,7 +441,7 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
             errors.append(f"{rel_path}: {kind} has unknown data-level {value!r}")
 
     if not topic:
-        # Fallback topic
+        # Placeholder only: the missing-meta error above already fails the build.
         base = rel_path.replace(".html", "")
         if base.endswith("/index"):
             topic = base[:-6]
@@ -431,6 +451,7 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
             topic = base
 
     if not summary:
+        # Placeholder only: the missing-meta error above already fails the build.
         summary = title
 
     rev, updated = git_page_revision(root, path, rel_path, git_cache=git_cache)

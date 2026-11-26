@@ -83,6 +83,43 @@ class BuildIndex(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("prerequisite cycle", result.stderr)
 
+    def test_topic_and_summary_are_canonical(self):
+        base = page("Guide")
+        cases = [
+            (base.replace('<meta name="topic" content="guide">', ""),
+             "topic meta is missing; every page needs a stable ID"),
+            (base.replace('<meta name="summary" content="Guide summary">', ""),
+             "summary meta is missing; every page needs a one-line description"),
+            (base.replace('content="guide"', 'content=""'),
+             "topic meta is empty; every page needs a stable ID"),
+            (base.replace('content="Guide summary"', 'content="  "'),
+             "summary meta is empty; every page needs a one-line description"),
+            (base.replace('content="Guide summary"',
+                          'content="first line&#10;second line"'),
+             "summary must be one line"),
+            (base.replace('content="Guide summary"', 'content="' + "x" * 161 + '"'),
+             "summary is 161 characters; maximum is 160"),
+        ]
+        for text, message in cases:
+            with self.subTest(message=message):
+                root = self.fixture("0.90.0", {"index.html": base})
+                valid = self.build(root)
+                self.assertEqual(valid.returncode, 0, valid.stderr)
+                (root / "knowledge/index.html").write_text(text)
+                before = self.outputs(root)
+                result = self.build(root)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn(message, result.stderr)
+                self.assertEqual(before, self.outputs(root))
+
+    def test_duplicate_topic_ids_are_rejected(self):
+        a = page("A", "help", "index.html", [("index.html", "Guide")])
+        a = a.replace('content="a"', 'content="guide"')
+        docs = {"index.html": page("Guide"), "a.html": a}
+        result = self.build(self.fixture("0.90.0", docs))
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("duplicate topic 'guide'", result.stderr)
+
     def test_learning_sidecars_and_truthful_page_path_gaps(self):
         text = page("Guide").replace("</head>", '<meta name="kind" content="tutorial"><meta name="skills" content="shell.novice"></head>')
         root = self.fixture("0.39.0", {"index.html": text})

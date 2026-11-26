@@ -70,6 +70,11 @@ const tam_index_entry_t *tam_index_lookup_path(const tam_index_t *idx, const cha
 const tam_index_entry_t *tam_index_lookup_exact(const tam_index_t *idx, const char *query,
                                                 bool *ambiguous);
 
+/* Return the page with an exact authored topic, or report duplicate topics. */
+const tam_index_entry_t *tam_index_lookup_topic_exact(const tam_index_t *idx,
+                                                      const char *query,
+                                                      bool *ambiguous);
+
 /* Search the index. Populates results (up to max_results) sorted by score descending.
  * Returns the number of results written. */
 size_t tam_index_search(const tam_index_t *idx, const char *query,
