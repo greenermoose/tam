@@ -18,19 +18,15 @@ STATE
   conservative first-use links across 342 pages. The unverified RCS
   encryption-default claim remains in place. `make corpus`,
   `make corpus-and-test` and `make check-repo` pass. Pages and records
-  are committed; the first commit was corrected with a path-limited amend
-  after it swept in a neighbour's staged `src/` files, which remain in
-  the working tree for that session. Generated indexes await a follow-up
-  commit.
+  are committed (6e6e6bf, f40221d); the first commit was corrected with a
+  path-limited amend after it swept in a neighbour's staged `src/` files,
+  which remain in the working tree for that session.
 
 NEXT
 
-  1. Confirm the correction left the neighbour's `src/` edits intact,
-     then rerun `make corpus` and commit only the regenerated indexes.
-  2. Add the private ledger row, finish both claims, and report. Push
-     only dev if Fred asks: check `git log @{u}..` for other agents'
-     commits first.
-  3. Await his development cycle for corpus 0.135.0.
+  1. Finish both path claims and report to Fred. Push only dev if he
+     asks: check `git log @{u}..` for other agents' commits first.
+  2. Await his development cycle for corpus 0.135.0.
 
 WAITING FOR FRED
 
