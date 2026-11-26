@@ -12,18 +12,17 @@ STATE
   three-level pages, five-stage path, 30 glossary entries, 12 sources
   and data.* skills; it is committed. W138 added SQLite, PostgreSQL and
   MySQL glossary entries so the pager's `whatis` prompt resolves each
-  name. W138 is uncommitted. make corpus, corpus-and-test, check-repo,
-  coverage report and reader spot checks pass; a live-corpus PTY check
-  confirms all three names.
+  name. W138 and its generated index follow-ups are committed on dev and
+  not pushed. make corpus, corpus-and-test, check-repo, coverage report
+  and reader spot checks pass; a live-corpus PTY check confirms all
+  three names.
 
 NEXT
 
-  1. Commit W138 pages and bookkeeping, including the new work record
-     and this file, with provenance trailers. Do not push.
-  2. Rerun make corpus, then commit only the regenerated indexes. Check
-     the diff for private identifiers before any push.
-  3. Await Fred's development cycle for corpus 0.130.0. Test, Run and
+  1. Await Fred's development cycle for corpus 0.130.0. Test, Run and
      Release still need his exact word.
+  2. If he asks for a push, check `git log @{u}..` for other agents'
+     commits first, then push only dev.
 
 WAITING FOR FRED
 
