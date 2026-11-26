@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-25:** Corpus 0.131.0 (minor): add a glossary page for OAuth, covering its history and the difference between OAuth 1.0 and OAuth 2.0, and link existing OAuth mentions to it. OAuth is an authorization framework; OIDC supplies authentication on top. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.130.2 (patch): expand the OLTP glossary title to "OLTP (Online Transaction Processing)" and explain Online, Transaction and Processing at all three levels. The intro also states that O and L form Online, T is Transaction and P is Processing. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.130.1 (patch): expand the ACID glossary title to "ACID (Atomicity, Consistency, Isolation, Durability)" and explain what each letter stands for in the novice, learner and expert sections. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.130.0 (minor): add glossary entries for SQLite, PostgreSQL and MySQL, link them from their teaching pages, and verify that the pager's `w` / `whatis:` prompt resolves each name to its own glossary entry. Command version 0.69.7 is unchanged.
@@ -1594,6 +1595,19 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
+
+### 2026-11-25 — OAuth glossary page (corpus 0.131.0)
+
+The developer first asked for an Oath page, then corrected the name to OAuth and
+asked for the authentication and authorization system's history, the difference
+between Oauth1 and Oauth2, and links from pages mentioning Oauth. The corpus uses
+the standard spelling OAuth. The new glossary page explains that OAuth delegates
+authorization without sharing a password and that OIDC adds authentication. It
+traces the work from 2006 through OAuth Core 1.0, the 1.0a security revision,
+RFC 5849 and RFC 6749, then contrasts OAuth 1.0 request signing with OAuth 2.0
+bearer tokens. The first visible OAuth mention on each existing teaching,
+glossary and path page now links to the entry. This is a corpus addition only;
+command version, stage promotion and installation remain developer-directed.
 
 ### 2026-11-25 — OLTP glossary acronym (corpus 0.130.2)
 

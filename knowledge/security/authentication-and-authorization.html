@@ -115,7 +115,7 @@
 
 <h3>Edge cases and open research problems</h3>
 <dl>
-<dt>OAuth 2.0 / <a href="glossary/o/oidc.html">OIDC</a> and ReBAC vs. confused deputies</dt>
+<dt><a href="glossary/o/oauth.html">OAuth</a> 2.0 / <a href="glossary/o/oidc.html">OIDC</a> and ReBAC vs. confused deputies</dt>
 <dd>Distributed authorization separates Identity Providers (IdP) issuing signed JWTs/OIDC tokens from Policy Decision Points (<a href="glossary/o/opa.html">OPA</a>/Rego, Cedar, Zanzibar ReBAC). Subtle failure modes include token-audience confusion, algorithm confusion (<code>alg=none</code> or <a href="glossary/h/hs256.html">HS256</a>/<a href="glossary/r/rs256.html">RS256</a> key confusion), and stale revocation caches violating complete mediation.</dd>
 <dt><a href="glossary/c/capability.html">Capability</a>-based vs. ambient-authority OS designs</dt>
 <dd>POSIX ambient authority ties rights to a global UID namespace, making fine-grained sandboxing awkward. Object-capability systems (Capsicum, seL4, <a href="glossary/w/wasi.html">WASI</a> preview 2) bind rights to unforgeable handles, eliminating whole classes of path-traversal and confused-deputy bugs.</dd>
