@@ -452,6 +452,12 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-26:** Corpus 0.139.1 (patch): Tamlinux's C compile standard is now
+  C17. Build flags across the bespoke C repositories use `-std=c17`, with
+  `-std=gnu17` in libtam's header check, and current docs and corpus pages
+  state C17 for Tamlinux's own code. The C11 teaching page, glossary entry,
+  `c11` topic and `c11-systems` path stay as lessons about that edition.
+  This is a corpus correction; command version is unchanged here.
 - **2026-11-26:** Command 0.72.0 (minor): `tam:paths` opens with the approved
   friendly introduction, an in-page menu linking to every indexed path and
   fixed category sections in the authored order. A path summary and its detail

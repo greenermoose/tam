@@ -16,10 +16,10 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/development/index.html">Developing Tamlinux</a> / The tam Command: Architecture, Coding, and Lifecycle</p></nav>
 
-<p>This page covers the tam <a href="glossary/c/command.html">command</a>’s C11 architecture, source lanes, build targets and the discipline that moves a candidate toward release.</p>
+<p>This page covers the tam <a href="glossary/c/command.html">command</a>’s C17 architecture, source lanes, build targets and the discipline that moves a candidate toward release.</p>
 <h2>Before this</h2><p><a href="tamlinux/development/index.html">Developing Tamlinux</a> · <a href="programming/c/toolchains.html">Tools for building programs</a></p>
 
-<p><code>tam</code> is the flagship utility for Tamlinux.  <a href="tamlinux/developer.html">Fred</a> chose to write it in the C programming language (specifically, the <a href="glossary/c/c11.html">C11</a> standard) built against the <code>libtam</code> library so it starts quickly, uses little resident memory, and operates completely offline without background daemons. Tam should run reliably on any 64-bit hardware from 2006-era budget laptops up to the latest multi-core, multi-screen desktop workstations.</p>
+<p><code>tam</code> is the flagship utility for Tamlinux.  <a href="tamlinux/developer.html">Fred</a> chose to write it in the C programming language (specifically, the <a href="glossary/c/c17.html">C17</a> standard) built against the <code>libtam</code> library so it starts quickly, uses little resident memory, and operates completely offline without background daemons. Tam should run reliably on any 64-bit hardware from 2006-era budget laptops up to the latest multi-core, multi-screen desktop workstations.</p>
 
 <section data-level="novice">
 <h2>The tam command architecture</h2>
@@ -30,8 +30,8 @@
 <p>Think of <code>tam</code> as a pocket field-guide reader made of two replaceable halves: the binding and lens (the C command) and the pages inside (the <a href="glossary/h/html.html">HTML</a> knowledge corpus). Either half can be updated on its own schedule.</p>
 <h3>New words</h3>
 <dl>
-<dt><a href="glossary/c/c11.html">C11 standard</a></dt>
-<dd>The <a href="glossary/i/iso.html">ISO</a>/IEC 9899:2011 standard for the C programming language.</dd>
+<dt><a href="glossary/c/c17.html">C17 standard</a></dt>
+<dd>The <a href="glossary/i/iso.html">ISO</a>/IEC 9899:2018 standard for the C programming language.</dd>
 <dt><a href="glossary/d/decoupled-versioning.html">Decoupled versioning</a></dt>
 <dd>A design where the binary executable version and documentation corpus version advance on independent schedules.</dd>
 <dt><a href="glossary/d/development-prefix.html">Development prefix</a></dt>
@@ -61,7 +61,7 @@ libtam 0.7.0
 Tamlinux cultivar 0.6.22</out>
   </tam-cmd>
   <tam-cmd match="make command" hint="make command builds only the C executable, not the knowledge index.">
-    <out>cc -std=c11 -Wall -Wextra -Wpedantic src/tam.c ... -o build/tam</out>
+    <out>cc -std=c17 -Wall -Wextra -Wpedantic src/tam.c ... -o build/tam</out>
   </tam-cmd>
   <tam-init>A fixed report shows command, corpus, library and cultivar versions.</tam-init>
    <tam-hint after="1">The command lane and corpus lane can move independently.</tam-hint>
@@ -80,13 +80,13 @@ Tamlinux cultivar 0.6.22</out>
 </section>
 </section>
 <section data-level="expert">
-<h2>C11 architecture, transactional generations, and 4-stage lifecycle</h2>
+<h2>C17 architecture, transactional generations, and 4-stage lifecycle</h2>
 
 <h3>Reference</h3>
 
 <table>
 <tr><th>Component / Flag</th><th>Value or Path</th><th>Mechanism</th><th>Function</th></tr>
-<tr><td>Compiler dialect</td><td><code>-std=c11</code></td><td>ISO C11 standard</td><td>Enforces portable C semantics without <a href="glossary/g/gnu.html">GNU</a> extensions</td></tr>
+<tr><td>Compiler dialect</td><td><code>-std=c17</code></td><td>ISO C17 standard</td><td>Enforces portable C semantics without <a href="glossary/g/gnu.html">GNU</a> extensions</td></tr>
 <tr><td>Warning policy</td><td><code>-Wall -Wextra -Wpedantic</code></td><td>Strict compiler warnings</td><td>Treats questionable constructs and portability violations as errors</td></tr>
 <tr><td>Baked-in datadir</td><td><code>-DTAM_DATADIR=\"$(DATADIR)\"</code></td><td>Preprocessor macro</td><td>Fallback path to installed documentation corpus when unconfigured</td></tr>
 <tr><td><a href="glossary/b/build.html">Build</a> identifier</td><td><code>-DTAM_BUILD=\"$(TAM_BUILD_ID)\"</code></td><td>Git describe hash</td><td>Embeds exact commit revision into binary version strings</td></tr>
@@ -120,8 +120,8 @@ Tamlinux cultivar 0.6.22</out>
 <h3>How it works</h3>
 
 <ol>
-<li><strong>C11 Architecture and the Tamlinux Five target:</strong>
-<code>tam</code> is written entirely in ISO C11. It avoids heavy runtimes, <a href="glossary/j/jit.html">JIT</a> compilation pauses, and dynamic module loading. At launch, the binary initializes terminal state via <code>libtam</code>, parses command-line arguments using a single-pass scanner, loads index structures via zero-copy memory mapping or sequential TSV streaming, and draws the first screenful of formatted text. As a <code>tam-*</code> utility program, <code>tam</code> follows the <strong>Tamlinux Five</strong> performance target: it starts and exits in 5 milliseconds and uses under 5 megabytes of memory.</li>
+<li><strong>C17 Architecture and the Tamlinux Five target:</strong>
+<code>tam</code> is written entirely in ISO C17. It avoids heavy runtimes, <a href="glossary/j/jit.html">JIT</a> compilation pauses, and dynamic module loading. At launch, the binary initializes terminal state via <code>libtam</code>, parses command-line arguments using a single-pass scanner, loads index structures via zero-copy memory mapping or sequential TSV streaming, and draws the first screenful of formatted text. As a <code>tam-*</code> utility program, <code>tam</code> follows the <strong>Tamlinux Five</strong> performance target: it starts and exits in 5 milliseconds and uses under 5 megabytes of memory.</li>
 
 <li><strong>Decoupled Versioning and Dynamic Runtime Resolution:</strong>
 The binary version (<code>src/version.h</code>) is decoupled from the corpus version (<code>knowledge/version</code>). When invoked, <code>src/tam.c</code> discovers the corpus root by checking <code>$TAM_KNOWLEDGE_DIR</code>, followed by the user prefix <code>~/.local/share/tamlinux/knowledge</code>, and finally the compiled datadir <code>/usr/share/tamlinux/knowledge</code>. It reads <code>knowledge/version</code> dynamically at runtime. This allows documentation fixes and new lessons to land without recompiling the C executable, and guarantees multi-agent concurrency across command and corpus lanes.</li>
@@ -155,7 +155,7 @@ Release (Tamlinux release)
 
 <h3>Why Fred chose this</h3>
 
-<p>A flagship system utility must remain available when the workstation is in distress. By compiling to a standalone C11 binary linked against <code>libtam</code> with zero background daemons, <code>tam</code> operates reliably in single-user recovery consoles even if <a href="glossary/w/wayland.html">Wayland</a> compositors, graphics drivers, or package managers are broken. Decoupling command and corpus versioning allows documentation to evolve rapidly without recompilation churn, and the 4-stage lifecycle guarantees byte-for-byte reproducibility from development to release.</p>
+<p>A flagship system utility must remain available when the workstation is in distress. By compiling to a standalone C17 binary linked against <code>libtam</code> with zero background daemons, <code>tam</code> operates reliably in single-user recovery consoles even if <a href="glossary/w/wayland.html">Wayland</a> compositors, graphics drivers, or package managers are broken. Decoupling command and corpus versioning allows documentation to evolve rapidly without recompilation churn, and the 4-stage lifecycle guarantees byte-for-byte reproducibility from development to release.</p>
 
 <h3>Edge cases and failure modes</h3>
 

@@ -1,0 +1,58 @@
+W156 C17 COMPILE STANDARD
+
+Date: 2026-11-26
+AI harness: opencode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "We are changing the standard for our C programs for Tamlinux
+  to the C17 standard, from C11. Update every instance of describing
+  the C language spec Tamlinux code compiles against."
+
+  The scope was active code and current docs: build flags, READMEs,
+  roadmaps, plans and corpus pages that state what Tamlinux compiles
+  against. Historical and work records, branch names such as `c11`,
+  stable IDs and topics such as `c11` and `c11-systems`, paths, and the
+  C11 teaching page and glossary stay as they are.
+
+DONE
+
+  - Build flags in the bespoke C repositories now use `-std=c17`, with
+    `-std=gnu17` in libtam's header check. Claude held tam's Makefile,
+    the command Makefiles and that check; it committed tam's change as
+    d12a804, noting that C17 is C11 with defect reports applied and no
+    new language features.
+  - Current docs across tam-clif, tam-knox, tam-last, tam-clam,
+    tam-hide, tam-view, tam-edit, tam-pane, tam-ring, tam-file,
+    tam-data, tamlinux-tools, tamlinux-packages and planning documents
+    now describe C17: 113 replacements in total.
+  - Corpus pages for Tamlinux's language choice, design goals, the tam
+    architecture, components, GCC, ISO 9899 and the standards list now
+    state C17. The C11 lesson, glossary entry, `c11` topic and
+    `c11-systems` path remain teaching content; their Tamlinux asides
+    point at C17.
+  - Corpus 0.139.1 (patch) records the correction in knowledge/version,
+    ROADMAP.md (header, dev row and delivered-history row) and the
+    decision record. The command version stays 0.72.0. The live-corpus
+    assertion in tests/run.sh now checks for C17.
+  - make corpus-and-test and make test-command pass: 1790-page corpus
+    checks, 108 tooling tests, 23 command tests, 15 upgrade tests,
+    eight renderer goldens and both repository consistency checks.
+    Regenerated indexes changed only C11-to-C17 terms, keywords,
+    summaries and headings.
+
+FAILED
+
+  - The bulk corpus script stopped at toolchains.html because that page
+    had two `-std=c11` occurrences, not one. Both were replaced by
+    hand and the remaining pages finished separately.
+  - Two bulk replacement scripts printed a trailing NameError from the
+    shell heredoc after applying every intended edit. Verification
+    found all edits present, so no re-run was needed.
+
+HANDOFF
+
+  - Commit the corpus and shared paths, then refresh and commit the
+    generated indexes. Check git log @{u}.. before pushing dev.
+  - Test, Run and Release still need Fred's exact word for a candidate.

@@ -175,7 +175,7 @@ Following the repository's modularity guidelines:
 ## 5. Verification and Acceptance Plan
 
 1. **Compilation & Static Checks:**
-   - Clean build with zero warnings under `-Wall -Wextra -Wpedantic -std=c11`.
+   - Clean build with zero warnings under `-Wall -Wextra -Wpedantic -std=c17`.
 2. **Behavioral Test Suite (`tests/run.sh`):**
    - `tam --version` asserts `0.5.0`.
    - `tam install inspect` exits 0 and outputs expected OS, architecture, kernel, package tools, and supported profile.

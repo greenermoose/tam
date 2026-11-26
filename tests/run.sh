@@ -2808,7 +2808,7 @@ printf '%s\n' "$ex_tg_tam" | grep -q 'tamlinux/development/tam.html' || fail "ex
 # tam show tam directly displays the dedicated tam page
 sh_tam=$("$TAM" show tam --pipe)
 printf '%s\n' "$sh_tam" | grep -q 'The tam Command' || fail "tam show tam missing heading"
-printf '%s\n' "$sh_tam" | grep -qi 'C11' || fail "tam show tam missing C11 language"
+printf '%s\n' "$sh_tam" | grep -qi 'C17' || fail "tam show tam missing C17 language"
 printf '%s\n' "$sh_tam" | grep -Eq 'Make(file)? targets?' || fail "tam show tam missing Make targets"
 printf '%s\n' "$sh_tam" | grep -q 'libtam' || fail "tam show tam missing libtam"
 printf '%s\n' "$sh_tam" | grep -qi 'develop -> test -> run -> release' || fail "tam show tam missing release cycle"

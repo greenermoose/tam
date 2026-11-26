@@ -158,4 +158,4 @@ tam explain <topic> extra   # error: too many arguments (exit 2)
 - `tam explain <topic>` resolves curated topics and renders them accurately.
 - `tam explain "cat | grep"` and malicious shell strings are never executed.
 - Unmatched topics report a helpful error pointing to `tam show`.
-- All tests pass cleanly under GCC `-Wall -Wextra -Wpedantic -std=c11`.
+- All tests pass cleanly under GCC `-Wall -Wextra -Wpedantic -std=c17`.

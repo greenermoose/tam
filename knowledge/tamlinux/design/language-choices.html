@@ -3,8 +3,8 @@
 <head>
 <title>Systems programming philosophy and language choices</title>
 <meta name="topic" content="language-choices">
-<meta name="summary" content="Why Tamlinux writes core utilities in C11 instead of Rust, Go, or C++, and how AI agents synthesize open-source ideas">
-<meta name="keywords" content="c11, rust, go, c++, languages, systems-programming, ai, agents, libtam, performance, memory, startup, bloat, verification, sanitizers, tam-launch-journal">
+<meta name="summary" content="Why Tamlinux writes core utilities in C17 instead of Rust, Go, or C++, and how AI agents synthesize open-source ideas">
+<meta name="keywords" content="c17, rust, go, c++, languages, systems-programming, ai, agents, libtam, performance, memory, startup, bloat, verification, sanitizers, tam-launch-journal">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="tamlinux">
 <meta name="parent" content="tamlinux/design/index.html">
@@ -21,18 +21,18 @@
 
 <section data-level="novice">
 <h2>Why does language choice matter in Tamlinux?</h2>
-<p>When you use an operating system, the programs you run every day &mdash; such as text editors, guide readers, launchers, and system monitors &mdash; are written in different programming languages. Some languages include large automated background machinery, while others compile straight to bare-metal instructions. In Tamlinux, core utilities are written in standard C11 so they start quickly and keep computing fast and responsive. Tamlinux <code>tam-*</code> utility programs follow the <strong>Tamlinux Five</strong> performance target: they start and exit in 5 milliseconds and use under 5 megabytes of memory.</p>
+<p>When you use an operating system, the programs you run every day &mdash; such as text editors, guide readers, launchers, and system monitors &mdash; are written in different programming languages. Some languages include large automated background machinery, while others compile straight to bare-metal instructions. In Tamlinux, core utilities are written in standard C17 so they start quickly and keep computing fast and responsive. Tamlinux <code>tam-*</code> utility programs follow the <strong>Tamlinux Five</strong> performance target: they start and exit in 5 milliseconds and use under 5 megabytes of memory.</p>
 
 <h3>Why it matters</h3>
-<p>Tamlinux is designed to run reliably on modern workstations as well as budget laptops from 2006. If basic system tools require large language runtimes, heavy background threads, or dozens of megabytes of memory just to show a help page or launch a journal entry, older hardware slows down and battery life suffers. Writing core Tamlinux <code>tam-*</code> utilities in native C11 supports the <strong>Tamlinux Five</strong> performance target: they start and exit in 5 milliseconds and use under 5 megabytes of memory, leaving system resources available for what you want to do.</p>
+<p>Tamlinux is designed to run reliably on modern workstations as well as budget laptops from 2006. If basic system tools require large language runtimes, heavy background threads, or dozens of megabytes of memory just to show a help page or launch a journal entry, older hardware slows down and battery life suffers. Writing core Tamlinux <code>tam-*</code> utilities in native C17 supports the <strong>Tamlinux Five</strong> performance target: they start and exit in 5 milliseconds and use under 5 megabytes of memory, leaving system resources available for what you want to do.</p>
 
 <h3>How to think about it</h3>
-<p>Think of programming languages like different kinds of vehicles. A garbage-collected language like Go is like a tour bus: spacious and convenient with built-in facilities, but heavy and slow to park. Rust is like an armored security truck: exceptionally safe and reinforced against structural damage, but requiring a massive specialized repair facility to maintain. Standard C11 is like a lightweight racing bicycle: streamlined, direct, and possessing zero extra mass. It requires careful balance and attention, but it goes anywhere instantly and can be maintained with simple, universal hand tools.</p>
+<p>Think of programming languages like different kinds of vehicles. A garbage-collected language like Go is like a tour bus: spacious and convenient with built-in facilities, but heavy and slow to park. Rust is like an armored security truck: exceptionally safe and reinforced against structural damage, but requiring a massive specialized repair facility to maintain. Standard C17 is like a lightweight racing bicycle: streamlined, direct, and possessing zero extra mass. It requires careful balance and attention, but it goes anywhere instantly and can be maintained with simple, universal hand tools.</p>
 
 <h3>New words</h3>
 <dl>
-<dt><a href="glossary/c/c11.html">C11</a></dt>
-<dd>The international standard for the C language published in 2011, providing modern compile-time checks and alignment without runtime bloat.</dd>
+<dt><a href="glossary/c/c17.html">C17</a></dt>
+<dd>The international standard for the C language published in 2018, providing modern compile-time checks and alignment without runtime bloat.</dd>
 <dt><a href="glossary/m/machine-code.html">Machine code</a></dt>
 <dd>The native binary instructions that a computer's central processing unit executes directly.</dd>
 <dt><a href="glossary/c/compiler.html">Compiler</a></dt>
@@ -89,21 +89,21 @@
 
 <table>
 <tr><th>Language</th><th>Startup <a href="glossary/l/latency.html">Latency</a></th><th>Resident Set (<a href="glossary/r/rss.html">RSS</a>)</th><th>Toolchain Weight</th><th>Long-Term Stability</th><th>Tamlinux Tier &amp; Role</th></tr>
-<tr><td><strong>C11 + libtam</strong></td><td>&lt; 2&ndash;5 ms</td><td>&lt; 2&ndash;4 <a href="glossary/b/byte.html">MB</a></td><td>Minimal (~50 MB)</td><td>Highest (<a href="glossary/i/iso.html">ISO</a> standard)</td><td><strong>Tier 1:</strong> Core terminal tools, daemons, shared libraries.</td></tr>
+<tr><td><strong>C17 + libtam</strong></td><td>&lt; 2&ndash;5 ms</td><td>&lt; 2&ndash;4 <a href="glossary/b/byte.html">MB</a></td><td>Minimal (~50 MB)</td><td>Highest (<a href="glossary/i/iso.html">ISO</a> standard)</td><td><strong>Tier 1:</strong> Core terminal tools, daemons, shared libraries.</td></tr>
 <tr><td><strong>Rust</strong></td><td>~5&ndash;15 ms</td><td>~10&ndash;20 MB</td><td>Heavy (~1.5 <a href="glossary/b/byte.html">GB</a>)</td><td>Medium (edition &amp; crate churn)</td><td><strong>Tier 2:</strong> Targeted security/concurrency components; watch crate sprawl.</td></tr>
 <tr><td><strong>Go</strong></td><td>~8&ndash;25 ms</td><td>~15&ndash;35 MB</td><td>Moderate (~500 MB)</td><td>Medium (runtime &amp; module drift)</td><td><strong>Tier 2:</strong> Rapid prototyping; avoided for core tools due to binary floor.</td></tr>
 <tr><td><strong>C++</strong></td><td>~5&ndash;10 ms</td><td>~10&ndash;25 MB</td><td>Heavy (~1 GB)</td><td>Fragile (<a href="glossary/a/abi.html">ABI</a> &amp; stdlib shifts)</td><td><strong>Tier 3:</strong> Interfacing with existing desktop libraries (Qt/<a href="glossary/h/hyprland.html">Hyprland</a>); no new CLIs.</td></tr>
 <tr><td><strong>Python 3</strong></td><td>~30&ndash;80 ms</td><td>~25&ndash;50 MB</td><td>Moderate (~200 MB)</td><td>High (Standard library)</td><td><strong>Tier 1:</strong> System automation, test suites, agent orchestration; not for <a href="glossary/t/tty.html">TTY</a> hot paths.</td></tr>
 </table>
 
-<h3>Why Tamlinux chooses C11 over Rust, Go, and C++</h3>
+<h3>Why Tamlinux chooses C17 over Rust, Go, and C++</h3>
 
-<p>Fred (<a href="tamlinux/about.html">About Tamlinux</a>) establishes strict guidelines for package languages and tool efficiency. The choice of C11 for core utilities rests on three technical pillars:</p>
+<p>Fred (<a href="tamlinux/about.html">About Tamlinux</a>) establishes strict guidelines for package languages and tool efficiency. The choice of C17 for core utilities rests on three technical pillars:</p>
 
 <ol>
-<li><strong>Anti-bloat and resource efficiency:</strong> Managed runtimes like Go impose an 8&ndash;15 megabyte minimum binary floor and spawn background garbage collector and runtime scheduler threads. For high-frequency <a href="glossary/c/cli.html">CLI</a> commands, window manager hooks, and terminal utilities, this overhead wastes <a href="glossary/c/cpu.html">CPU</a> cycles and battery energy. C11 executables compiled with <code>-O2</code> support the <strong>Tamlinux Five</strong> performance target for <code>tam-*</code> utility programs: start and exit in 5 milliseconds and use under 5 megabytes of memory.</li>
-<li><strong>Toolchain ubiquity and 20-year source longevity:</strong> ISO C11 (ISO/IEC 9899:2011) is a mature, frozen standard supported by GCC since version 4.9 and Clang since version 3.1. A C11 program written today will compile cleanly decades from now. In contrast, modern ecosystems like Rust suffer from rapid compiler edition churn, deep transitive dependency graphs (Cargo sprawl), and toolchains exceeding 1.5 gigabytes that cannot run inside minimal rescue environments or chroots.</li>
-<li><strong>Zero Foreign Function Interface (FFI) friction:</strong> The Linux kernel, <a href="glossary/p/posix.html">POSIX</a> APIs, <a href="glossary/w/wayland.html">Wayland</a> protocols, and terminal libraries (such as <code>libncursesw</code>) expose native C application binary interfaces (ABIs). Writing core tools in C11 allows direct invocation of operating system interfaces without foreign language marshalling or wrapper layers.</li>
+<li><strong>Anti-bloat and resource efficiency:</strong> Managed runtimes like Go impose an 8&ndash;15 megabyte minimum binary floor and spawn background garbage collector and runtime scheduler threads. For high-frequency <a href="glossary/c/cli.html">CLI</a> commands, window manager hooks, and terminal utilities, this overhead wastes <a href="glossary/c/cpu.html">CPU</a> cycles and battery energy. C17 executables compiled with <code>-O2</code> support the <strong>Tamlinux Five</strong> performance target for <code>tam-*</code> utility programs: start and exit in 5 milliseconds and use under 5 megabytes of memory.</li>
+<li><strong>Toolchain ubiquity and 20-year source longevity:</strong> ISO C17 (ISO/IEC 9899:2018) is a stable, widely supported revision of C11 available in modern GCC and Clang releases. A C17 program written today will compile cleanly decades from now. In contrast, modern ecosystems like Rust suffer from rapid compiler edition churn, deep transitive dependency graphs (Cargo sprawl), and toolchains exceeding 1.5 gigabytes that cannot run inside minimal rescue environments or chroots.</li>
+<li><strong>Zero Foreign Function Interface (FFI) friction:</strong> The Linux kernel, <a href="glossary/p/posix.html">POSIX</a> APIs, <a href="glossary/w/wayland.html">Wayland</a> protocols, and terminal libraries (such as <code>libncursesw</code>) expose native C application binary interfaces (ABIs). Writing core tools in C17 allows direct invocation of operating system interfaces without foreign language marshalling or wrapper layers.</li>
 </ol>
 
 <h3>The AI synthesis workflow: extracting ideas across languages</h3>
@@ -112,23 +112,23 @@
 
 <table>
 <tr><td><strong>Algorithmic extraction</strong></td><td>AI agents examine open source projects written in Go, Rust, Python, or Plan 9 C, analyze their core data structures and logic, and strip away framework-specific baggage.</td></tr>
-<tr><td><strong>Clean C11 implementation</strong></td><td>The agent translates the distilled algorithm into standard C11 linked against <a href="glossary/l/library.html">libtam</a>.</td></tr>
+<tr><td><strong>Clean C17 implementation</strong></td><td>The agent translates the distilled algorithm into standard C17 linked against <a href="glossary/l/library.html">libtam</a>.</td></tr>
 <tr><td><strong>Self-contained autonomy</strong></td><td>The resulting program has zero external dependencies beyond standard C and system libraries, eliminating the supply-chain security and maintenance burdens of large package registries.</td></tr>
 <tr><td><strong>Human direction and playful testing</strong></td><td>AI agents handle the mechanical drudgery of writing C boilerplate, bounds checks, and test harnesses. The developer directs the architecture, reviews the code, and tests the tools interactively in daily computing.</td></tr>
 </table>
 
-<h3>Addressing C11's safety and library deficits</h3>
+<h3>Addressing C17's safety and library deficits</h3>
 
-<p>While C11 provides speed and simplicity, it lacks built-in memory safety and a rich standard collection library. Tamlinux mitigates these limitations with two engineering safeguards:</p>
+<p>While C17 provides speed and simplicity, it lacks built-in memory safety and a rich standard collection library. Tamlinux mitigates these limitations with two engineering safeguards:</p>
 
 <table>
 <tr><td><strong>The <code>libtam</code> foundational library</strong></td><td>Standalone C library providing safe dynamic strings, bounds-checked dynamic arrays, hash maps, <a href="glossary/j/json.html">JSON</a> parsing, and atomic filesystem operations, inspired by lightweight libraries like <code>sds</code> and <code>cJSON</code> without the weight of GLib.</td></tr>
-<tr><td><strong>Strict compiler flags and runtime sanitizers</strong></td><td>Tamlinux compiles all C code with <code>-std=c11 -Wall -Wextra -Wpedantic</code> to catch suspicious constructs at build time. During development and testing, code is built with <a href="programming/c/sanitizers.html">AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan)</a> to catch buffer overflows, memory leaks, and use-after-free conditions before software is released.</td></tr>
+<tr><td><strong>Strict compiler flags and runtime sanitizers</strong></td><td>Tamlinux compiles all C code with <code>-std=c17 -Wall -Wextra -Wpedantic</code> to catch suspicious constructs at build time. During development and testing, code is built with <a href="programming/c/sanitizers.html">AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan)</a> to catch buffer overflows, memory leaks, and use-after-free conditions before software is released.</td></tr>
 </table>
 
 <h3>Sources</h3>
 <ul>
-<li>ISO/IEC 9899:2011 &mdash; Information technology &mdash; Programming languages &mdash; C.</li>
+<li>ISO/IEC 9899:2018 &mdash; Information technology &mdash; Programming languages &mdash; C.</li>
 <li><a href="glossary/p/posix.html">POSIX.1</a>-2008 / IEEE Std 1003.1-2008 &mdash; The Open Group Base Specifications Issue 7.</li>
 <li>Tamlinux package languages, libtam, and systems programming guidelines.</li>
 </ul>

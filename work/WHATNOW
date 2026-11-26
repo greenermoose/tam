@@ -3,26 +3,27 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-26, with W155
+Updated: 2026-11-26, with W156
 
 STATE
 
-  Command 0.72.0 and corpus 0.139.0 are ready on dev after W155.
-  `tam:paths` opens with the approved friendly introduction, a menu
-  linking to every path and fixed category sections; each path summary
-  and detail shows its authored outcome, prerequisites and time. All
-  37 paths carry `path-category` and `path-order`, projected into five
-  columns appended after `skills`; older readers and older corpora still
-  load. W154's outcomes, exact prerequisites, stage-count times, stuck
-  notes and checkpoint sandbox state remain in force. W153's search
-  terms and anchor graph and W152's canonical IDs are unchanged.
+  Command 0.72.0 and corpus 0.139.1 are ready on dev after W156.
+  Tamlinux's own C code now targets C17: Makefiles use `-std=c17`, with
+  `-std=gnu17` in libtam's header check, and current docs and corpus
+  pages say C17. The C11 lesson, glossary entry, `c11` topic and
+  `c11-systems` path stay as teaching content. W155's `tam:paths`
+  introduction, menu, fixed categories and clear path details remain
+  in force. W154's outcomes, exact prerequisites, stage-count times,
+  stuck notes and checkpoint sandbox state remain in force. W153's
+  search terms and anchor graph and W152's canonical IDs are unchanged.
   W151's 29 project notes and synthesis.md remain research only.
   W151 (Claude) also landed command 0.71.1 on dev.
 
 NEXT
 
-  1. Commit the W155 source and work record, rerun make corpus and
-     commit any index follow-up. Check git log @{u}.. before pushing dev.
+  1. Commit W156's corpus and shared paths, rerun make corpus and
+     commit the index follow-up. Check git log @{u}.. before pushing
+     dev; tam/Makefile's C17 change is already committed (d12a804).
   2. Let Fred choose which documentation ideas in ideas/synthesis.md
      become plans. Do not start implementation from an idea file alone.
   3. Re-check the snippet-heavy Fedora, Debian wiki, elementary, LXQt
@@ -32,7 +33,7 @@ NEXT
 WAITING FOR FRED
 
   - His choice of which documentation ideas to turn into plans.
-  - His development cycle for command 0.72.0 / corpus 0.139.0. Test,
+  - His development cycle for command 0.72.0 / corpus 0.139.1. Test,
     Run and Release need his exact word; Tamlinux 0.6.38 remains in
     Test.
 
@@ -141,6 +142,9 @@ WATCH OUT
     still reports its count.
   - Command and corpus versions are independent; corpus-only work does
     not bump the command version.
+  - Tamlinux's own C targets C17 (`-std=c17`; libtam's header check uses
+    `-std=gnu17`). Keep C11 only in teaching content, stable IDs such
+    as `c11` and `c11-systems`, and historical records.
   - Every page's topic is its stable ID; summary is the authored
     one-line description, capped at 160 characters. Do not add a new
     meta name for either.

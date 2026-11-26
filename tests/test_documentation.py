@@ -51,7 +51,7 @@ class Documentation(unittest.TestCase):
     def compile(self,name,sources,main,*flags):
         source=self.root/(name+'.c');source.write_text(main)
         binary=self.root/name
-        subprocess.run(['cc','-D_GNU_SOURCE','-std=c11','-I'+str(ROOT/'src'),'-I'+str(LIB/'include'),
+        subprocess.run(['cc','-D_GNU_SOURCE','-std=c17','-I'+str(ROOT/'src'),'-I'+str(LIB/'include'),
                         *flags,*[str(ROOT/s) for s in sources],str(source),str(LIB/'lib/libtam.a'),'-lz','-o',str(binary)],check=True,capture_output=True)
         return binary
 

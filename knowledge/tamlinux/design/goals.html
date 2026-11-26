@@ -3,8 +3,8 @@
 <head>
 <title>Design goals</title>
 <meta name="topic" content="design-goals">
-<meta name="summary" content="Tamlinux design goals: fast small C11 utilities, minimal dependencies, and code that machine intelligence can understand and improve">
-<meta name="keywords" content="design goals, tamlinux five, performance, 5 milliseconds, 5 megabytes, c11, libc, dependencies, machine intelligence, ai, agents, simplicity, tam-*">
+<meta name="summary" content="Tamlinux design goals: fast small C17 utilities, minimal dependencies, and code that machine intelligence can understand and improve">
+<meta name="keywords" content="design goals, tamlinux five, performance, 5 milliseconds, 5 megabytes, c17, libc, dependencies, machine intelligence, ai, agents, simplicity, tam-*">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="tamlinux">
 <meta name="parent" content="tamlinux/design/index.html">
@@ -78,14 +78,14 @@
 <tr><th>Goal</th><th>Target</th><th>Scope</th></tr>
 <tr><td>Tamlinux Five</td><td>Start and exit in 5 milliseconds; use under 5 megabytes of memory</td><td>Tamlinux <code>tam-*</code> utility programs</td></tr>
 <tr><td>Dependencies</td><td>No dependencies other than <code>libc</code></td><td>Tamlinux utility programs, as a design goal</td></tr>
-<tr><td>Language</td><td>Standard C11</td><td>Tamlinux utility programs and shared low-level code</td></tr>
+<tr><td>Language</td><td>Standard C17</td><td>Tamlinux utility programs and shared low-level code</td></tr>
 <tr><td>Machine intelligence</td><td>Code should be easy for automated tools and AI agents to inspect and modify</td><td>Implementation style, interfaces, and dependency choices</td></tr>
 </table>
 
 <h3>How it works</h3>
-<p>These goals reinforce each other. C11 compiles to native code with predictable runtime behavior. A <code>libc</code>-only dependency set keeps the <a href="glossary/a/abi.html">ABI</a> and runtime surface small. Small, fast programs reduce startup overhead in shells, scripts, keybindings, and agent workflows. The same properties also reduce the amount of implicit context that machine intelligence needs: source <a href="glossary/f/file.html">files</a>, headers, build flags, and libc behavior are usually enough to understand the program.</p>
+<p>These goals reinforce each other. C17 compiles to native code with predictable runtime behavior. A <code>libc</code>-only dependency set keeps the <a href="glossary/a/abi.html">ABI</a> and runtime surface small. Small, fast programs reduce startup overhead in shells, scripts, keybindings, and agent workflows. The same properties also reduce the amount of implicit context that machine intelligence needs: source <a href="glossary/f/file.html">files</a>, headers, build flags, and libc behavior are usually enough to understand the program.</p>
 
-<p>The C11 and low-dependency goals do not mean Tamlinux avoids all other languages or libraries everywhere. Desktop components, rootstock packages, and third-party applications may use different toolchains. The design goal applies most strongly to Tamlinux's own utility programs, where startup cost, memory use, auditability, and portability matter most.</p>
+<p>The C17 and low-dependency goals do not mean Tamlinux avoids all other languages or libraries everywhere. Desktop components, rootstock packages, and third-party applications may use different toolchains. The design goal applies most strongly to Tamlinux's own utility programs, where startup cost, memory use, auditability, and portability matter most.</p>
 
 <h3>Advanced usage</h3>
 <p>When evaluating a proposed change to a <code>tam-*</code> utility, treat the goals as review questions:</p>
@@ -100,12 +100,12 @@
 
 <h3>Sources</h3>
 <p><a href="tamlinux/design/language-choices.html">Systems programming philosophy and language choices</a>, <a href="tamlinux/design/philosophy.html">Philosophy</a>, <a href="programming/c/c11.html">The C11 programming language and portable systems code</a>.</p>
-<p><strong>Further reading in this topic:</strong> <a href="glossary/c/c11.html">C11</a>.</p>
+<p><strong>Further reading in this topic:</strong> <a href="glossary/c/c17.html">C17</a>.</p>
 </section>
 
 <h2>Where next</h2>
 <ul>
-<li><a href="tamlinux/design/language-choices.html">Systems programming philosophy and language choices</a> &mdash; why Tamlinux uses C11 for core utilities.</li>
+<li><a href="tamlinux/design/language-choices.html">Systems programming philosophy and language choices</a> &mdash; why Tamlinux uses C17 for core utilities.</li>
 <li><a href="tamlinux/design/philosophy.html">Philosophy: Free Software, Open Standards, and Efficiency</a> &mdash; the broader principles behind Tamlinux design.</li>
 </ul>
 

@@ -58,7 +58,7 @@ A comprehensive documentation page is added for `tam` at `knowledge/tam.html`:
 - Reachable via `tam show tam` (direct page display).
 - Discovered via `tam explain tam` (Topic Guide listing pages with `tam` in metadata).
 - Authored with Beginner, Intermediate, and Expert depth levels:
-  - **C Implementation:** Pure C (C11 standard), sub-5ms startup, <4MB RSS, zero background daemons.
+  - **C Implementation:** Pure C (C17 standard), sub-5ms startup, <4MB RSS, zero background daemons.
   - **Makefile Targets:** Comprehensive description of all targets: `all`, `command`, `corpus`, `test`, `test-command`, `test-corpus`, `check`, `install`, `uninstall`, `clean`, and `FORCE`.
-  - **Compiler Chain & Libraries:** GCC/Clang flags (`-O2 -Wall -Wextra -Wpedantic -std=c11`), preprocessor definitions (`-DTAM_DATADIR`, `-DTAM_BUILD`), `libtam` linking (`-I$(LIBTAM_PREFIX)/include`, `-L$(LIBTAM_PREFIX)/lib -ltam`, `-Wl,-rpath`), and `zlib` (`-lz`). The exact compilation command executed by the makefile.
+  - **Compiler Chain & Libraries:** GCC/Clang flags (`-O2 -Wall -Wextra -Wpedantic -std=c17`), preprocessor definitions (`-DTAM_DATADIR`, `-DTAM_BUILD`), `libtam` linking (`-I$(LIBTAM_PREFIX)/include`, `-L$(LIBTAM_PREFIX)/lib -ltam`, `-Wl,-rpath`), and `zlib` (`-lz`). The exact compilation command executed by the makefile.
   - **Tamlinux Release Lifecycle:** The full develop -> test -> run -> release cycle, managed deployment via `tamlinux-packages` and Nix/Home Manager, immutable `/nix/store` package outputs, single managed endpoint activation, and generational rollback.
