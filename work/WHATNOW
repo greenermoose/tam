@@ -3,34 +3,36 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-26, with W150
+Updated: 2026-11-26, with W151
 
 STATE
 
-  Command 0.69.8 and corpus 0.135.1 are on dev. Fred chose the
-  conservative RCS wording, so W150 replaced the unsourced UP 4.0
-  default-on sentence with a deployment caveat. W148 added the Hardware
-  / Lifecycle and environment curriculum: a hub, eight three-level
-  pages, a five-stage goal path, Computer materials, 29 new and one
-  revised glossary entry, 26 sources and the `lifecycle.*` skills. The
-  command lane committed 0.69.8 at f20ae0b; the working tree is clean.
-  `make corpus`, `make corpus-and-test` and `make check-repo` passed for
-  0.135.0; the 0.135.1 patch awaits its checks and commit.
+  Command 0.69.8 and corpus 0.135.1 are on dev. W150 softened the RCS
+  encryption-default sentence at Fred's choice, and W148 added the
+  Hardware / Lifecycle curriculum. W151 researched 29 projects and
+  tools from Linux distributions, desktops, terminal docs and docs
+  platforms; the results are 29 idea files plus synthesis.md under
+  ideas/, with README-ideas updated. All verdicts there are research
+  judgments, not approvals. No code, corpus page, version or plan was
+  changed. The working tree holds the new ideas files, W151 and this
+  handoff; the RCS commits are already pushed to origin/dev.
 
 NEXT
 
-  1. Run `make corpus`, `make corpus-and-test` and `make check-repo`;
-     spot-check the revised RCS paragraph.
-  2. Commit only the claimed paths, rerun `make corpus`, then commit
-     only the regenerated indexes. Add the private ledger row and finish
-     the claims. Push only dev if Fred asks: check `git log @{u}..`
-     first.
-  3. Await his development cycle for corpus 0.135.1.
+  1. Commit only the claimed ideas/ and work/ paths, add the private
+     ledger row, and finish the claim. Check git log @{u}.. before
+     pushing dev if Fred asks.
+  2. Let Fred choose which ideas become plans. Start with the five
+     first moves in ideas/synthesis.md; do not start implementation
+     from an idea file alone.
+  3. Re-check the snippet-heavy Fedora, Debian wiki, elementary, LXQt
+     and Docsy details before treating any of them as settled.
 
 WAITING FOR FRED
 
-  - His development cycle for corpus 0.135.1. Test, Run and Release need
-    his exact word; Tamlinux 0.6.38 remains in Test.
+  - His choice of which documentation ideas to turn into plans.
+  - His development cycle for corpus 0.135.1. Test, Run and Release
+    need his exact word; Tamlinux 0.6.38 remains in Test.
 
 WATCH OUT
 
@@ -51,7 +53,7 @@ WATCH OUT
     add a body heading that repeats the breadcrumb; start with an
     intro paragraph. The root guide index has no breadcrumb and keeps
     its <h1>.
-  - A `<dfn>` needs a glossary link inside the element, not around it.
+  - A <dfn> needs a glossary link inside the element, not around it.
   - Glossary links must match the sense in the page. The existing
     glossary defines Core as a CPU unit, Session as a login session,
     Capability as a Linux permission bit, Filter as a Unix filter,
@@ -73,7 +75,7 @@ WATCH OUT
     and regenerates the hubs. Digit-leading titles belong in
     glossary/numeric/.
   - Bibliography IDs must start with a letter. Prefix numeric standards
-    such as 3GPP with `spec-` in filenames, `data-ref` values and links.
+    such as 3GPP with `spec-` in filenames, data-ref values and links.
   - A path stage's step count includes checkpoint links carrying
     `?level=`. Keep answer prose free of levelled page links or reduce
     the numbered steps to stay within four.
@@ -129,3 +131,5 @@ WATCH OUT
   - work/history/ is read-only; new sessions use work/W<n>-<name>.
   - make dev is Fred's loop; agents do not run it. Do not install a
     build as a side effect of content changes.
+  - Ideas verdicts are research judgments, not approvals. No code was
+    taken, so UPSTREAM.md and COPYRIGHT stay unchanged.
