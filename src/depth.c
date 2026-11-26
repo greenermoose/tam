@@ -175,7 +175,7 @@ unsigned tam_lens_get(void)
         return g_lens;
     }
     size_t len = 0;
-    char *text = tam_fs_read_file(path, &len);
+    char *text = tam_fs_read(path, 0, &len);
     free(path);
     if (text == NULL) {
         return g_lens;
@@ -212,7 +212,7 @@ void tam_lens_set(unsigned level)
     char line[32];
     int n = snprintf(line, sizeof(line), "%s\n",
                      level == 0 ? "all" : tam_level_name(level));
-    (void)tam_fs_write_atomic(path, line, (size_t)n, 0644);
+    (void)tam_fs_write_atomic(path, line, (size_t)n, 0, 0644);
     free(path);
 }
 

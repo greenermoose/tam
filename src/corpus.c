@@ -571,7 +571,7 @@ char *read_corpus_page(const char *root, const char *href,
         return NULL;
     }
     size_t len = 0;
-    char *src = tam_fs_read_file(path, &len);
+    char *src = tam_fs_read(path, 0, &len);
     free(path);
     if (src == NULL) {
         free(rel);

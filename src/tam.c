@@ -61,7 +61,7 @@ static void print_version(void);
 static bool manifest_has_path(const char *manifest_path, const char *rel)
 {
     size_t len = 0;
-    char *text = tam_fs_read_file(manifest_path, &len);
+    char *text = tam_fs_read(manifest_path, 0, &len);
     if (!text) return false;
     size_t rlen = strlen(rel);
     char *needle = malloc(rlen + 4);
@@ -90,7 +90,7 @@ static bool manifest_has_path(const char *manifest_path, const char *rel)
 static bool extract_json_current(const char *active_path, char *out, size_t max_len)
 {
     size_t len = 0;
-    char *text = tam_fs_read_file(active_path, &len);
+    char *text = tam_fs_read(active_path, 0, &len);
     if (!text) return false;
     const char *p = strstr(text, "\"current\"");
     bool ok = false;
@@ -403,7 +403,7 @@ static int record_welcome_seen(void)
     char buf[64];
     size_t len = strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ\n", &tm);
 
-    bool ok = tam_fs_write_atomic(path, buf, len, 0644);
+    bool ok = tam_fs_write_atomic(path, buf, len, 0, 0644) >= 0;
     free(path);
     return ok ? 0 : -1;
 }

@@ -145,7 +145,7 @@ static void load_parent_projection(tam_index_t *idx, const char *root)
 {
     char *path = tam_path_join(root, "index.parents.tsv");
     if (path == NULL) return;
-    char *content = tam_fs_read_file(path, NULL);
+    char *content = tam_fs_read(path, 0, NULL);
     free(path);
     if (content == NULL) return; /* Older corpora have no parent projection. */
 
@@ -180,7 +180,7 @@ static void load_kind_projection(tam_index_t *idx, const char *root)
 {
     char *path = tam_path_join(root, "index.kinds.tsv");
     if (path == NULL) return;
-    char *content = tam_fs_read_file(path, NULL);
+    char *content = tam_fs_read(path, 0, NULL);
     free(path);
     if (content == NULL) return; /* Older corpora have no parent projection. */
 
@@ -226,7 +226,7 @@ static void load_paths_projection(tam_index_t *idx, const char *root)
 {
     char *path = tam_path_join(root, "index.paths.tsv");
     if (path == NULL) return;
-    char *content = tam_fs_read_file(path, NULL);
+    char *content = tam_fs_read(path, 0, NULL);
     free(path);
     if (content == NULL) return; /* Older corpora have no paths projection. */
 
@@ -335,7 +335,7 @@ tam_index_t *tam_index_load(const char *root)
         return NULL;
     }
     size_t len = 0;
-    char *content = tam_fs_read_file(path, &len);
+    char *content = tam_fs_read(path, 0, &len);
     free(path);
     if (content == NULL) {
         return NULL;

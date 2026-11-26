@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.69.7' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.69.8' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -2774,7 +2774,7 @@ printf '%s\n' "$ex_tg_tam" | grep -q 'tamlinux/development/tam.html' || fail "ex
 sh_tam=$("$TAM" show tam --pipe)
 printf '%s\n' "$sh_tam" | grep -q 'The tam Command' || fail "tam show tam missing heading"
 printf '%s\n' "$sh_tam" | grep -qi 'C11' || fail "tam show tam missing C11 language"
-printf '%s\n' "$sh_tam" | grep -Eq 'Makefile targets?' || fail "tam show tam missing Makefile targets"
+printf '%s\n' "$sh_tam" | grep -Eq 'Make(file)? targets?' || fail "tam show tam missing Make targets"
 printf '%s\n' "$sh_tam" | grep -q 'libtam' || fail "tam show tam missing libtam"
 printf '%s\n' "$sh_tam" | grep -qi 'develop -> test -> run -> release' || fail "tam show tam missing release cycle"
 

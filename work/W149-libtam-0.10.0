@@ -1,0 +1,39 @@
+W149 COMMAND 0.69.8: LIBTAM 0.10.0
+
+Date: 2026-11-26
+AI harness: Claude Code 2.1.332
+AI model: claude-opus-5-5
+
+
+GUIDANCE
+
+  Fred: "do 0.10.0" (libtam's 0.7 refactor: fix the core semantics and
+  migrate every caller in the same slice).
+  Fred: "Try again for tam. Has opencode released its claim?"
+
+
+DONE
+
+  - Build against libtam 0.10.0: 21 tam_fs_read_file calls become
+    tam_fs_read; tam_fs_write_atomic calls pass flags 0 and check the
+    new int result. The Makefile requires libtam 0.10.0, and
+    source-build.json pins libtam d3fb287 (0.10.0) for tam-upgrade.
+  - /proc reads now return contents, so the /proc/1/comm init fallback
+    in install.c works; before, it always read an empty string.
+  - tests/run.sh accepts "Make target" on the tam page; corpus ec4d9ca
+    had reworded it, and the check was failing before this change.
+  - make command, make test-command and tools/check-repo.py pass.
+  - ROADMAP.md and docs/plans/development.md lines for 0.69.8 came in
+    W148's commit, by handoff.
+
+
+FAILED
+
+  - Nothing.
+
+
+HANDOFF
+
+  - Later libtam slices (0.11.0) bring tam_which, tam_spawn_detached
+    and tam_xdg_base, which replace tam's own copies in external.c,
+    corpus.c and identity.c (libtam plans/P1).

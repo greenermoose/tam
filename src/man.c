@@ -412,7 +412,7 @@ static char *render_man_with_groff(const char *path)
 
     int compressed = input != NULL;
     if (!compressed) {
-        input = tam_fs_read_file(path, &input_len);
+        input = tam_fs_read(path, 0, &input_len);
         if (input == NULL) return NULL;
     }
     const char *encoding = man_fallback_encoding(input, input_len);
@@ -426,7 +426,7 @@ static char *render_man_with_groff(const char *path)
      * filename for plain sources and stage only decompressed sources. */
     char *source_copy = compressed ? tam_path_join(scratch, "source") : NULL;
     if (compressed && (source_copy == NULL ||
-                       !tam_fs_write_atomic(source_copy, input, input_len, 0600))) {
+                       tam_fs_write_atomic(source_copy, input, input_len, 0, 0600) < 0)) {
         remove_scratch_dir(scratch);
         free(source_copy);
         free(scratch);
@@ -499,7 +499,7 @@ static char *render_man_to_html(const char *path)
     char *file = man_cache_file(source);
     free(source);
     size_t stamp_len = strlen(stamp), len = 0;
-    char *cached = file != NULL ? tam_fs_read_file(file, &len) : NULL;
+    char *cached = file != NULL ? tam_fs_read(file, 0, &len) : NULL;
     if (cached != NULL && len > stamp_len && memcmp(cached, stamp, stamp_len) == 0) {
         memmove(cached, cached + stamp_len, len - stamp_len + 1);
         free(file);
@@ -510,7 +510,7 @@ static char *render_man_to_html(const char *path)
     if (html != NULL && file != NULL) {
         tam_str_t entry = tam_str_cat(tam_str_new(stamp), html);
         if (entry != NULL) {
-            (void)tam_fs_write_atomic(file, entry, tam_str_len(entry), 0600);
+            (void)tam_fs_write_atomic(file, entry, tam_str_len(entry), 0, 0600);
             tam_str_free(entry);
         }
     }

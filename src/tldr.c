@@ -613,7 +613,7 @@ tam_document_t *tam_tldr_load(const char *spec, int width)
     }
 
     size_t len = 0;
-    char *md = tam_fs_read_file(path, &len);
+    char *md = tam_fs_read(path, 0, &len);
     if (md == NULL) {
         free(tldr_root);
         return NULL;
@@ -658,7 +658,7 @@ static tldr_index_t *tldr_index_load(const char *tldr_root)
     char path[1024];
     snprintf(path, sizeof(path), "%s/index.tsv", tldr_root);
     size_t len = 0;
-    char *raw = tam_fs_read_file(path, &len);
+    char *raw = tam_fs_read(path, 0, &len);
     if (raw == NULL) return NULL;
 
     tldr_index_t *idx = calloc(1, sizeof(*idx));

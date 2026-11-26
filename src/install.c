@@ -129,11 +129,11 @@ static char *os_release_read(const char *path)
 {
     const char *root = getenv("TAM_INSPECT_ROOT");
     if (root == NULL || root[0] == '\0') {
-        return tam_fs_read_file(path, NULL);
+        return tam_fs_read(path, 0, NULL);
     }
     char full[4096];
     snprintf(full, sizeof(full), "%s%s", root, path);
-    return tam_fs_read_file(full, NULL);
+    return tam_fs_read(full, 0, NULL);
 }
 
 static void parse_os_release_data(os_release_t *info, char *data);
@@ -394,7 +394,7 @@ static const char *get_init_system(void)
         return "runit";
     }
     size_t len = 0;
-    char *comm = tam_fs_read_file("/proc/1/comm", &len);
+    char *comm = tam_fs_read("/proc/1/comm", 0, &len);
     if (comm != NULL) {
         char *nl = strchr(comm, '\n');
         if (nl != NULL) {

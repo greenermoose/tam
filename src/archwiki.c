@@ -721,7 +721,7 @@ tam_document_t *tam_archwiki_load(const char *spec, int width)
     if (path == NULL) return NULL;
 
     size_t len = 0;
-    char *raw = tam_fs_read_file(path, &len);
+    char *raw = tam_fs_read(path, 0, &len);
     free(path);
     if (raw == NULL) return NULL;
 

@@ -732,7 +732,7 @@ int tam_cmd_ask(int argc, char **argv)
         char *full_path = tam_path_join(root, entry->path);
 
         size_t fsize = 0;
-        char *html = tam_fs_read_file(full_path, &fsize);
+        char *html = tam_fs_read(full_path, 0, &fsize);
         free(full_path);
 
         if (html != NULL) {

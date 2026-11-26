@@ -91,7 +91,7 @@ static char *adjacent_root(void)
 /* Takes ownership of path and returns it only for a valid VERSION file. */
 static char *read_version_identity(char *path, char **version)
 {
-    char *text = path ? tam_fs_read_file(path, NULL) : NULL;
+    char *text = path ? tam_fs_read(path, 0, NULL) : NULL;
     if (!text) { free(path); return NULL; }
     trim_in_place(text);
     if (!valid_version_token(text)) { free(text); free(path); return NULL; }
@@ -225,7 +225,7 @@ static char *read_cultivar_file(char *path)
         return NULL;
     }
 
-    char *buf = tam_fs_read_file(path, NULL);
+    char *buf = tam_fs_read(path, 0, NULL);
     free(path);
     if (buf == NULL) {
         return NULL;
@@ -305,7 +305,7 @@ char *tam_corpus_version(const char *root)
     if (path == NULL) {
         return NULL;
     }
-    char *buf = tam_fs_read_file(path, NULL);
+    char *buf = tam_fs_read(path, 0, NULL);
     free(path);
     if (buf != NULL) {
         trim_in_place(buf);
@@ -326,7 +326,7 @@ char *tam_corpus_build_id(const char *root)
     if (path == NULL) {
         return NULL;
     }
-    char *buf = tam_fs_read_file(path, NULL);
+    char *buf = tam_fs_read(path, 0, NULL);
     free(path);
     if (buf != NULL) {
         trim_in_place(buf);
