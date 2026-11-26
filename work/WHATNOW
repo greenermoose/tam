@@ -22,10 +22,10 @@ STATE
 
 NEXT
 
-  1. Check Claude's reply on libtam/Makefile and
-     tam-monitor/Makefile: both lack an explicit -std and inherited
-     GCC 16's gnu23 default. Claude offered to add -std=c17 there.
-     Verify before calling the C17 change complete.
+  1. Claude has added -std=c17 to libtam/Makefile and
+     tam-monitor/Makefile, which had inherited GCC 16's gnu23 default.
+     They were uncommitted when checked; confirm Claude tests, commits
+     and pushes them before calling the C17 change complete.
   2. Check git log @{u}.. and push dev for the changed repositories;
      the private planning repository stays local on main.
   3. Let Fred choose which documentation ideas in ideas/synthesis.md
