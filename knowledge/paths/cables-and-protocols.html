@@ -18,6 +18,13 @@
 <p>This learning path guides you from zero prior knowledge of computing hardware to mastery of computer cables, electrical signaling, optical fiber, wireless radiation, protocol framing, and bench-level board repair.</p>
 <p>Fred designed Tamlinux on the principle of transparency: a computer should never be an impenetrable black box. True computing literacy does not stop at the operating system or <a href="glossary/c/command.html">command</a> line; it begins in the physical universe with the flow of electrons through closed circuits, the quantum bandgap of semiconductors, the pulses of photons through silica glass, and the electromagnetic radiation of radio waves. By following this sequential curriculum, you will build an unbroken mental model connecting basic electrical physics to modern high-speed communication networks and hardware diagnostics.</p>
 
+<p><strong>Outcome:</strong> After this path, you can explain electrical, optical and wireless signaling, protocol framing and bench-level board repair.</p>
+<p><strong>Prerequisites:</strong> <a href="paths/from-atoms-to-bits.html">From atoms to bits</a></p>
+<p><strong>Time:</strong> About 50 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: Electricity, semiconductors, and power loops</h2>
 <p><a href="hardware/foundations/circuits-and-power.html?level=1">Electricity, semiconductors, and power distribution</a>: Learn how voltage pushes electric current through closed conducting loops, how power supplies convert AC mains into regulated DC rails, and how semiconductor P-N junctions form diodes and transistor switches.</p>
 
@@ -26,11 +33,11 @@
 <details class="q">
 <summary><i>Why can electrical current never flow through a single disconnected wire?</i></summary>
 <p>Because every electrical circuit requires an unbroken closed loop. Electrons can only move continuously if they have a complete return path back to the power source that maintains an electromotive force (voltage) pushing them forward.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>How does a semiconductor diode allow current to flow in only one direction?</i></summary>
 <p>A diode joins P-type and N-type silicon to form a P-N junction with an internal depletion zone. Forward voltage pushes electrons and holes across the junction to conduct current; reverse voltage widens the depletion zone, blocking current flow.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Channels and bit movement</h2>
@@ -41,7 +48,7 @@
 <details class="q">
 <summary><i>Why did high-speed computer architectures transition from 64-bit parallel buses to point-to-point serial links like <a href="glossary/p/pcie.html">PCIe</a>?</i></summary>
 <p>At gigahertz frequencies, microscopic variations in wire length cause clock skew (bits arriving out of alignment), and closely packed parallel wires suffer severe capacitive crosstalk. Serial links eliminate skew and achieve orders-of-magnitude higher speeds using embedded clock recovery.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Media and signaling: copper, fiber, and wireless waves</h2>
@@ -52,11 +59,11 @@
 <details class="q">
 <summary><i>How does an optical transceiver convert digital electronic bits into light pulses and back again?</i></summary>
 <p>A laser diode or <a href="glossary/v/vcsel.html">VCSEL</a> transmitter converts electrical logic voltage into nanosecond pulses of photons. At the receiving end, a semiconductor photodiode absorbs incoming photons, generating a minute electrical current via the photoelectric effect, which a transimpedance amplifier boosts back into digital voltage swings.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Why does twisting copper wire pairs together reject electromagnetic interference?</i></summary>
 <p>Twisting ensures that external electromagnetic noise strikes both wires equally, inducing an identical voltage spike on both. When the differential receiver subtracts the negative wire from the positive wire, the common noise terms cancel out completely.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Protocols, framing, and channel reliability</h2>
@@ -67,11 +74,11 @@
 <details class="q">
 <summary><i>If an asynchronous serial link is configured as 115,200 baud, 8N1, what is the maximum number of data characters it can transmit per second?</i></summary>
 <p>Each character requires 10 physical bit periods (1 Start bit + 8 Data bits + 0 <a href="glossary/p/parity.html">Parity</a> bits + 1 Stop bit). Dividing 115,200 baud by 10 bits per frame yields a maximum throughput of 11,520 characters (payload bytes) per second.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>What is the difference between error detection (like <a href="glossary/c/crc-32.html">CRC-32</a>) and Forward Error Correction (like Hamming codes)?</i></summary>
 <p>Error detection calculates a mathematical remainder that tells the receiver whether a frame was corrupted, requiring a retransmission protocol (<a href="glossary/a/arq.html">ARQ</a>) to request a new copy. Forward Error Correction (<a href="glossary/f/fec.html">FEC</a>) adds geometric redundancy that allows the receiver to locate and invert the exact corrupted bits on the fly without retransmission.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: Bench diagnostics and board repair</h2>
@@ -82,7 +89,7 @@
 <details class="q">
 <summary><i>What does a successful serial loopback test (connecting TX directly to RX) prove about a computer system?</i></summary>
 <p>It proves that the entire local communication stack &mdash; user-space software, OS kernel drivers, <a href="glossary/u/usb.html">USB</a> host controllers, hardware UART registers, and line transceiver output/input circuitry &mdash; is 100% operational. Any remaining fault must reside in the external field cable or remote device.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: End-to-end field link diagnostics</h2>

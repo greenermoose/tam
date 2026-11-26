@@ -16,6 +16,13 @@
 
 <p>This path shows where <a href="glossary/f/file.html">files</a> live, how to inspect archives before extracting them, and how to open applications without risking real documents.</p>
 
+<p><strong>Outcome:</strong> After this path, you can find and inspect files, move data safely, manage permissions and open applications without risking real documents.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 50 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <section data-level="novice">
 <p>Practice in temporary folders and on copies. A move, extraction or removal is hard to undo once it succeeds, so read the listing before you act on real documents.</p>
 <h2>Files, folders and safe copies</h2>
@@ -63,7 +70,7 @@ sub/note.txt</out>
 <p>If the listing shows an absolute path or an unexpected parent directory, stop before extracting and inspect the archive.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>Why list before extracting?</i></summary><p>To see the contained paths and choose a destination that will not overwrite real files.</p></details>
+<details class="q"><summary><i>Why list before extracting?</i></summary><p>To see the contained paths and choose a destination that will not overwrite real files.</p><p><strong>Expected sandbox state:</strong> tar -tzf lists sub/ and sub/note.txt, extraction into out/ succeeds, and cat out/sub/note.txt prints hello.</p></details>
 </section>
 <h2>Stage 1: Where files live</h2>
 <ol>
@@ -77,11 +84,11 @@ sub/note.txt</out>
 <details class="q">
 <summary><i>Should everyday documents be saved in <code>/tmp</code>?</i></summary>
 <p>No. <code>/tmp</code> is scratch space and may be cleared across reboots. Lasting work belongs under your home directory.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i><code>chmod</code> printed nothing. Did it fail?</i></summary>
 <p>Not necessarily. Many successful commands are silent. Inspect the mode with <code>stat -c '%A %a %n' FILE</code> before assuming failure.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Move data safely</h2>
@@ -95,11 +102,11 @@ sub/note.txt</out>
 <details class="q">
 <summary><i>What must you do before unplugging a USB stick?</i></summary>
 <p>Unmount or eject it, and wait for the desktop to confirm. Pulling it while writes are pending can corrupt the filesystem.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Why list an archive before extracting it?</i></summary>
 <p>The listing shows the paths it contains, so you can choose a target folder and notice unexpected absolute paths or entries before they land.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Open and edit</h2>
@@ -114,11 +121,11 @@ sub/note.txt</out>
 <details class="q">
 <summary><i>Why launch a misbehaving graphical program from a terminal once?</i></summary>
 <p>The terminal shows standard error messages that a menu launcher hides.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Which command reports configured printer queues?</i></summary>
 <p><code>lpstat -p</code>. If it prints nothing, no queue is configured yet.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Media and web apps</h2>
@@ -132,11 +139,11 @@ sub/note.txt</out>
 <details class="q">
 <summary><i>When converting a photo or clip, what should you protect?</i></summary>
 <p>The original. Write the converted copy to a new file name and check it before replacing anything.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>How do you undo a web app installation?</i></summary>
 <p>Remove it with <code>tam-webapp-remove "NAME"</code>, using the same name you installed it with.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: Everyday file tools</h2>
@@ -150,11 +157,11 @@ sub/note.txt</out>
 <details class="q">
 <summary><i>Where does <code>tam-journal</code> store a day's entry?</i></summary>
 <p>In a plain <a href="glossary/u/utf-8.html">UTF-8</a> file named by date, for example <code>~/Journal/2026-11-12.txt</code>, or under <code>TAM_JOURNAL_DIR</code> when that is set.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>What does <code>tam-file-select</code> return when you cancel the dialog?</i></summary>
 <p>Exit status 1. Status 0 means at least one path was printed, and 2 means the chooser could not open.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Pack, inspect, unpack and verify a folder</h2>

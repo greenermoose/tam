@@ -13,19 +13,26 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Session and desktop</p></nav>
 
 <p>These readings follow sign-in from a text console to a graphical desktop and back.</p>
+<p><strong>Outcome:</strong> After this path, you can follow console login, compositor and input into a working desktop.</p>
+<p><strong>Prerequisites:</strong> <a href="paths/how-software-runs.html">How software runs</a></p>
+<p><strong>Time:</strong> About 40 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: Consoles and login</h2>
 <p><a href="terminal/ttys-and-virtual-consoles.html?level=2">TTYs and virtual consoles</a>, then <a href="desktop/session/sddm.html?level=2">display managers</a> as the optional or historical greeter model. Current cultivars: text login, then <code>tam-desktop</code>.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>On console-first Tamlinux, when does the graphical desktop start?</i></summary><p>When you run <code>tam-desktop</code> (or an equivalent documented launcher), not automatically at greeter time.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>On console-first Tamlinux, when does the graphical desktop start?</i></summary><p>When you run <code>tam-desktop</code> (or an equivalent documented launcher), not automatically at greeter time.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 2: <a href="glossary/c/compositor.html">Compositor</a></h2>
 <p><a href="desktop/session/compositors.html?level=2">Compositors</a> and <a href="desktop/navigation/index.html?level=1">the desktop</a>.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Which compositor does Tamlinux run today?</i></summary><p><a href="glossary/h/hyprland.html">Hyprland</a>. Tamlinux is writing its own compositor, <code>tam-pane</code>; Sway is not planned.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Which compositor does Tamlinux run today?</i></summary><p><a href="glossary/h/hyprland.html">Hyprland</a>. Tamlinux is writing its own compositor, <code>tam-pane</code>; Sway is not planned.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 3: Input</h2>
 <p><a href="desktop/session/evdev.html?level=2">evdev</a> and <a href="desktop/navigation/meta-key.html?level=2">the Meta key</a>.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>If keys work on a VT but not in the <a href="glossary/g/gui.html">GUI</a>, where is the fault more likely?</i></summary><p>In the graphical input path (compositor, seat, libinput) rather than the physical keyboard alone.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>If keys work on a VT but not in the <a href="glossary/g/gui.html">GUI</a>, where is the fault more likely?</i></summary><p>In the graphical input path (compositor, seat, libinput) rather than the physical keyboard alone.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 4: Everyday devices</h2>
 <p><a href="desktop/tasks/keyboard-touchpad.html?level=2">touchpad and shortcuts</a>,
 <a href="desktop/tasks/audio.html?level=2">sound devices</a>, and <a href="desktop/tasks/bluetooth.html?level=2">Bluetooth devices</a>.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Which command prints the current audio output sink?</i></summary><p><code>tam-audio-output-sink</code>. The audio panel is <code>Meta + Ctrl + A</code>.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Which command prints the current audio output sink?</i></summary><p><code>tam-audio-output-sink</code>. The audio panel is <code>Meta + Ctrl + A</code>.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Capstone</h2>
 <p>Write the shortest recovery note for "GUI frozen, keyboard dead in GUI": VT chord, what you will record, what you will not restart yet.</p>
 <details class="solution"><p>Use Ctrl+Alt+Fn to reach a text console. Record time, last action, whether VTs accept input, and whether <code>tam-desktop</code> or the compositor process is alive. Do not restart display managers as a first guess; collect evidence first.</p></details>

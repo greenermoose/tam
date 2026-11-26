@@ -15,13 +15,20 @@
 <p>This path follows one text from the person who writes it to the research questions that remain after it arrives. Each stage tells you which lens to read with: Novice for the idea, Learner for a worked sample, and Expert for standards and failure modes.</p>
 <p>All examples live in labelled teaching sandboxes. Nothing here sends a real text, changes a SIM or installs a messaging app.</p>
 
+<p><strong>Outcome:</strong> After this path, you can explain cellular access, SMS, MMS, RCS, internet apps, encryption, delivery and open research questions.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 60 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: The whole journey</h2>
 <ol>
 <li><a href="systems/mobile-communications/texting/what-is-texting.html?level=2">What is texting?</a> &mdash; name the person-side app and the background services.</li>
 <li><a href="systems/mobile-communications/texting/how-a-phone-joins-a-cellular-network.html?level=2">How a phone joins a cellular network</a> &mdash; separate the radio hop from the core and service layers.</li>
 </ol>
 <section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
-<details class="q"><summary><i>Why can a text arrive after both people have left their current locations?</i></summary><p>A service stores it and forwards it later. The radio link only carries one hop; the core tracks where to send it and the message service keeps it until delivery or expiry. Reread <a href="systems/mobile-communications/texting/what-is-texting.html?level=1">What is texting?</a> if the store-and-forward idea is unclear.</p></details>
+<details class="q"><summary><i>Why can a text arrive after both people have left their current locations?</i></summary><p>A service stores it and forwards it later. The radio link only carries one hop; the core tracks where to send it and the message service keeps it until delivery or expiry. Reread <a href="systems/mobile-communications/texting/what-is-texting.html?level=1">What is texting?</a> if the store-and-forward idea is unclear.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Identity and addressing</h2>
@@ -30,7 +37,7 @@
 <li><a href="systems/mobile-communications/texting/addressing-and-routing.html?level=2">Addresses, numbers and routing</a> &mdash; turn a visible phone number into a current route.</li>
 </ol>
 <section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
-<details class="q"><summary><i>Why does moving a SIM to a new phone not change the subscriber?</i></summary><p>The subscription credential moves with the SIM; the equipment identity belongs to the phone. Reread <a href="systems/mobile-communications/texting/sim-and-subscriber-identity.html?level=1">SIM cards and subscriber identity</a>, then compare it with <a href="systems/mobile-communications/texting/addressing-and-routing.html?level=1">Addresses, numbers and routing</a>.</p></details>
+<details class="q"><summary><i>Why does moving a SIM to a new phone not change the subscriber?</i></summary><p>The subscription credential moves with the SIM; the equipment identity belongs to the phone. Reread <a href="systems/mobile-communications/texting/sim-and-subscriber-identity.html?level=1">SIM cards and subscriber identity</a>, then compare it with <a href="systems/mobile-communications/texting/addressing-and-routing.html?level=1">Addresses, numbers and routing</a>.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Carrier messaging</h2>
@@ -40,7 +47,7 @@
 <li><a href="systems/mobile-communications/texting/rcs-and-ims.html?level=2">RCS and IMS</a> &mdash; compare rich chat, capability discovery and fallback.</li>
 </ol>
 <section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
-<details class="q"><summary><i>Why is a delivery receipt not proof that a person read a text?</i></summary><p>It reports a system event such as handoff to a network or device. Reading is a separate client event.</p></details>
+<details class="q"><summary><i>Why is a delivery receipt not proof that a person read a text?</i></summary><p>It reports a system event such as handoff to a network or device. Reading is a separate client event.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Internet messaging</h2>
@@ -48,7 +55,7 @@
 <li><a href="systems/mobile-communications/texting/internet-messaging-apps.html?level=2">Internet messaging apps</a> &mdash; trace push, fetch, account identity and sync.</li>
 </ol>
 <section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
-<details class="q"><summary><i>What does an over-the-top app use that a carrier text service does not?</i></summary><p>A data connection to the app provider's own servers, plus push notifications from the device operating system. Reread <a href="systems/mobile-communications/texting/internet-messaging-apps.html?level=1">Internet messaging apps</a>.</p></details>
+<details class="q"><summary><i>What does an over-the-top app use that a carrier text service does not?</i></summary><p>A data connection to the app provider's own servers, plus push notifications from the device operating system. Reread <a href="systems/mobile-communications/texting/internet-messaging-apps.html?level=1">Internet messaging apps</a>.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: Trust and delivery</h2>
@@ -57,7 +64,7 @@
 <li><a href="systems/mobile-communications/texting/delivery-and-reliability.html?level=2">Delivery, retries and reliability</a> &mdash; read status labels as events, not promises.</li>
 </ol>
 <section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
-<details class="q"><summary><i>Why can an end-to-end encrypted message still be delivered late?</i></summary><p>Encryption changes who can read the content, not how queues, paging, retries and push notifications behave. Reread <a href="systems/mobile-communications/texting/encryption-and-key-management.html?level=1">Encryption and key management</a> and <a href="systems/mobile-communications/texting/delivery-and-reliability.html?level=1">Delivery, retries and reliability</a>.</p></details>
+<details class="q"><summary><i>Why can an end-to-end encrypted message still be delivered late?</i></summary><p>Encryption changes who can read the content, not how queues, paging, retries and push notifications behave. Reread <a href="systems/mobile-communications/texting/encryption-and-key-management.html?level=1">Encryption and key management</a> and <a href="systems/mobile-communications/texting/delivery-and-reliability.html?level=1">Delivery, retries and reliability</a>.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 6: Abuse and research</h2>
@@ -66,7 +73,7 @@
 <li><a href="systems/mobile-communications/texting/texting-research-frontiers.html?level=2">Texting research frontiers</a> &mdash; separate settled standards from open questions.</li>
 </ol>
 <section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
-<details class="q"><summary><i>Why does encryption not stop a convincing request for a one-time code?</i></summary><p>The attacker targets the reader rather than the transport. Reread <a href="systems/mobile-communications/texting/spam-smishing-and-abuse.html?level=1">Spam, smishing and abuse</a>, then read the threat-model guidance in <a href="systems/mobile-communications/texting/texting-research-frontiers.html?level=1">Texting research frontiers</a>.</p></details>
+<details class="q"><summary><i>Why does encryption not stop a convincing request for a one-time code?</i></summary><p>The attacker targets the reader rather than the transport. Reread <a href="systems/mobile-communications/texting/spam-smishing-and-abuse.html?level=1">Spam, smishing and abuse</a>, then read the threat-model guidance in <a href="systems/mobile-communications/texting/texting-research-frontiers.html?level=1">Texting research frontiers</a>.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone</h2>

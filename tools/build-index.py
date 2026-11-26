@@ -1021,6 +1021,11 @@ PATH_LEVEL_RE = re.compile(r'level=[0-3]')
 PATH_DETAILS_RE = re.compile(r'<details\b([^>]*)>(.*?)</details>', re.I | re.S)
 PATH_HREF_RE = re.compile(r'<a\b[^>]*href\s*=\s*["\']([^"\']+)["\']', re.I)
 PATH_NON_PAGES = ("glossary/", "bibliography/", "paths/", "learn/glossary/", "learn/bibliography/", "learn/paths/")
+PATH_TIME_BY_STAGES = {3: 30, 4: 40, 5: 50, 6: 60}
+PATH_FIELD_RE = r'<strong>\s*{0}\s*:</strong>\s*(.*?)</p>'
+PATH_STATE_RE = re.compile(
+    r'<strong>\s*Expected sandbox state:\s*</strong>\s*(.*?)(?:</p>|$)',
+    re.I | re.S)
 
 
 def _plain(fragment):
@@ -1132,6 +1137,48 @@ def validate_path_pages(knowledge, entries, errors, version="0.0.0", texts=None)
             if not any(not link.startswith(("http://", "https://", "mailto:", "man:", "tam:"))
                        for link in PATH_HREF_RE.findall(body)):
                 errors.append(f"{rel}: Next paths needs at least one internal link")
+
+        first_heading = headings[0][0] if headings else len(text)
+        opening = text[:first_heading]
+        for label in ("Outcome", "Prerequisites", "Time"):
+            field = re.search(PATH_FIELD_RE.format(label), opening, re.I | re.S)
+            if field is None or not _plain(field.group(1)):
+                errors.append(f"{rel}: path opening needs a {label.lower()} line")
+        prereq = re.search(PATH_FIELD_RE.format("Prerequisites"), opening, re.I | re.S)
+        if prereq is not None:
+            for link in PATH_HREF_RE.findall(prereq.group(1)):
+                target = link.split("#", 1)[0].split("?", 1)[0]
+                if target and not (knowledge / target).is_file():
+                    errors.append(f"{rel}: prerequisite link {link!r} "
+                                  "does not name an existing page")
+        timed = re.search(r'<strong>\s*Time\s*:</strong>\s*About\s+(\d+)\s+minutes?',
+                          opening, re.I)
+        if timed is not None and len(stages) in PATH_TIME_BY_STAGES:
+            expected = PATH_TIME_BY_STAGES[len(stages)]
+            if int(timed.group(1)) != expected:
+                errors.append(f"{rel}: time should be about {expected} minutes "
+                              f"for {len(stages)} stages")
+        aside = re.search(r'<aside\b([^>]*)>(.*?)</aside>', opening, re.I | re.S)
+        if (aside is None or "note" not in _class_tokens(aside.group(1)) or
+                not re.search(r"<strong>\s*If you're stuck:\s*</strong>",
+                              aside.group(2), re.I)):
+            errors.append(f"{rel}: path opening needs an If you're stuck note")
+        else:
+            for needle, label in (("tam man", "manuals"),
+                                  ("tam help", "built-in help"),
+                                  ("tam search", "search"),
+                                  ("help/manuals.html", "manuals page")):
+                if needle not in aside.group(2):
+                    errors.append(f"{rel}: failure branch needs {label}")
+        checkpoints = [(attrs, block) for attrs, block in PATH_DETAILS_RE.findall(text)
+                       if "q" in _class_tokens(attrs)]
+        for number, (_, block) in enumerate(checkpoints, 1):
+            answer = re.sub(r'<summary\b[^>]*>.*?</summary>', '', block, count=1,
+                            flags=re.I | re.S)
+            state = PATH_STATE_RE.search(answer)
+            if state is None or not _plain(state.group(1)):
+                errors.append(f"{rel}: checkpoint {number} needs an expected "
+                              "sandbox state")
 
 
 def index_outputs(entries, coverage):

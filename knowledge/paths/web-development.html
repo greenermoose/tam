@@ -17,6 +17,13 @@
 <p>This path takes a reader who has never written a web page from the idea of a script to building, securing, testing and shipping a small full-stack application.</p>
 <p>Each page has a novice, learner and expert lens. The stages name the lens to start with; after you finish, reread the pages at the expert lens to turn practice into reference knowledge. Work in a scratch <a href="glossary/d/directory.html">directory</a>. Nothing here changes your system, and the worked examples use local servers that you stop with Ctrl+C.</p>
 
+<p><strong>Outcome:</strong> After this path, you can build, secure, test, deploy and package a full-stack web application from a first page.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 50 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: The language and the page</h2>
 <p><a href="programming/web-development/javascript.html?level=1">JavaScript: language, history and engines</a> first: learn what the language is, where it came from, and why one language now runs in browsers, servers and desktop apps. Then read <a href="programming/web-development/html-and-css.html?level=1">HTML and CSS foundations</a> to see the structure and presentation that a page is made of.</p>
 
@@ -25,7 +32,7 @@
 <details class="q">
 <summary><i>Which part of a page comes from HTML, which from CSS, and which from JavaScript?</i></summary>
 <p>HTML describes the structure and meaning of the content. CSS describes how that structure looks. JavaScript reads and changes the page after it loads. Reread the novice sections of both pages if you would describe all three as "the code".</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: How the browser runs a page</h2>
@@ -36,7 +43,7 @@
 <details class="q">
 <summary><i>Why does a line printed after <code>await</code> appear later than a line written after the whole async function call?</i></summary>
 <p><code>await</code> pauses only the async function that contains it. The <a href="glossary/e/event-loop.html">event loop</a> carries on with other work, then resumes that function when the promise settles. The Learner example on the async page shows the exact order.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: The server half</h2>
@@ -47,7 +54,7 @@
 <details class="q">
 <summary><i>What can the server enforce that browser code cannot?</i></summary>
 <p>The server runs where the data lives. It can check identity and permission, omit private fields and refuse a request before replying. Anything sent to the browser can be read or changed by the person using it, so client-side rules are feedback, not a security boundary.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Safety and larger codebases</h2>
@@ -58,7 +65,7 @@
 <details class="q">
 <summary><i>A private API succeeds from <code>curl</code> but fails in the browser with a CORS message. What do you check first?</i></summary>
 <p>Read the status and headers, not just the console message. A <code>401</code> or <code>403</code> is an authentication problem; a successful reply hidden by the browser is a CORS problem. Never loosen authentication to fix a CORS error. The Expert quiz on the security page walks through the evidence.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: Verification and delivery</h2>
@@ -69,7 +76,7 @@
 <details class="q">
 <summary><i>What did serving a page from a local folder prove, and what did it not prove?</i></summary>
 <p>It proved that the files could be returned with the right status and content type. It did not prove public reachability, encrypted transport, behaviour under load or a safe rollback. Those belong to a deployment plan.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Build and hand over a small notes application</h2>

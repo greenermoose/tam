@@ -3,9 +3,14 @@
 <!--
 Path template: level paths and goal paths. See the Paths section of
 docs/corpus-pedagogy.md. Goal paths live in knowledge/paths/ and are
-named by what the reader gains. Link each step with ?level=, which sets the
-reader's lens as they go. Use only pages that exist; mark a stage without
-one as planned. Replace every UPPER-CASE placeholder and delete each comment.
+named by what the reader gains. Open with the outcome, exact prerequisites
+(existing page links or "none beyond reading"), and a time from the stage
+count: 30 minutes for three stages, 40 for four, 50 for five, 60 for six.
+Include one stuck note that points to the manuals, built-in help and search.
+Link each step with ?level=, which sets the reader's lens as they go. Use
+only pages that exist; mark a stage without one as planned. Every checkpoint
+answer ends with the expected sandbox state; if the stage has no sandbox,
+say so. Replace every UPPER-CASE placeholder and delete each comment.
 -->
 <head>
 <title>PATH NAME</title>
@@ -27,7 +32,18 @@ one as planned. Replace every UPPER-CASE placeholder and delete each comment.
 WILL GAIN. DO NOT REPEAT THE BREADCRUMB TITLE; THE PAGER ALREADY SHOWS IT.
 WRITE FOR A READER WITH NO SPECIALIZED KNOWLEDGE.</p>
 
-<p>ANY NECESSARY PREREQUISITES OR SAFETY INFORMATION, IN PLAIN WORDS.</p>
+<p><strong>Outcome:</strong> WHAT THE READER CAN DO AT THE END, IN ONE SENTENCE.</p>
+
+<p><strong>Prerequisites:</strong> <a href="PART/PAGE.html">PAGE</a> AND
+<a href="PART/OTHER-PAGE.html">OTHER PAGE</a>, OR THE WORDS
+<em>none beyond reading</em> WHEN THERE ARE NO PREREQUISITES.</p>
+
+<p><strong>Time:</strong> About 40 minutes, including checkpoints and the capstone.</p>
+
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 
 <h2>Stage 1: STAGE NAME</h2>
 
@@ -41,6 +57,9 @@ WRITE FOR A READER WITH NO SPECIALIZED KNOWLEDGE.</p>
 <details class="q">
 <summary>QUESTION THAT SHOWS THE STAGE IS MASTERED</summary>
 <p>ANSWER, AND WHERE TO REREAD IF IT WAS HARD.</p>
+<p><strong>Expected sandbox state:</strong> NAME THE SIMULATED FILES AND OUTPUT
+THE READER SHOULD SEE, OR SAY "No sandbox in this stage; no simulated files
+or output are expected."</p>
 </details>
 </section>
 

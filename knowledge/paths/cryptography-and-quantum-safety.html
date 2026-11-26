@@ -16,6 +16,13 @@
 
 <p>This path connects hashes, encryption, keys and post-quantum <a href="glossary/a/algorithm.html">algorithms</a>, then shows how to read the primitives offered by installed tools.</p>
 
+<p><strong>Outcome:</strong> After this path, you can explain hashes, symmetric and public-key ciphers, and post-quantum algorithms, then read the primitives offered by installed tools.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 50 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <section data-level="novice">
 <p>If any page feels too advanced, step back one stop along the path until the terms feel familiar. Every exercise uses read-only <a href="glossary/c/command.html">commands</a> or temporary scratch directories.</p>
 <h2>What cryptographic tools promise</h2>
@@ -59,7 +66,7 @@
 <p>If your real terminal prints a different digest, confirm the exact input bytes, including any trailing newline.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>Does a hash hide the original message?</i></summary><p>No. A hash is a fingerprint; the message must be protected separately if confidentiality matters.</p></details>
+<details class="q"><summary><i>Does a hash hide the original message?</i></summary><p>No. A hash is a fingerprint; the message must be protected separately if confidentiality matters.</p><p><strong>Expected sandbox state:</strong> printf tamlinux through sha256sum prints 921e8ce7c650bc1046e7bbdf97bb9386daeb809e61a86bd38fd644829ef0a1cc; printf hello prints 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824. No host file is changed.</p></details>
 </section>
 <h2>Stage 1: Foundations and randomness</h2>
 <ol>
@@ -71,7 +78,7 @@
 <details class="q">
 <summary><i>Why does modern cryptography publish its algorithms instead of keeping them secret?</i></summary>
 <p>By Kerckhoffs's principle, security rests solely on keeping the key secret so public scrutiny can find flaws and keys can be rotated easily.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Symmetric encryption and <a href="glossary/a/aead.html">AEAD</a></h2>
@@ -84,7 +91,7 @@
 <details class="q">
 <summary><i>What happens if you reuse the same (Key, Nonce) pair in AES-<a href="glossary/g/gcm.html">GCM</a>?</i></summary>
 <p>Reusing a nonce leaks the <a href="glossary/x/xor.html">XOR</a> of plaintexts and allows an attacker to recover the <a href="glossary/g/ghash.html">GHASH</a> authentication key and forge future tags.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Cryptographic hashes, SHA, and KDFs</h2>
@@ -97,7 +104,7 @@
 <details class="q">
 <summary><i>Why can a fast hash like SHA-256 check a file download safely yet still be unsafe for storing user passwords?</i></summary>
 <p>Attackers can test billions of password guesses per second against fast hashes; password storage needs salted, memory-hard KDFs like Argon2id or yescrypt.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Public-key cryptography and PKI</h2>
@@ -110,7 +117,7 @@
 <details class="q">
 <summary><i>What binds a website's domain name to its public key in <a href="glossary/h/https.html">HTTPS</a>?</i></summary>
 <p>An X.509 certificate signed by a trusted Certificate Authority (and publicly logged in Certificate Transparency).</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: <a href="glossary/q/quantum.html">Quantum</a> computing and quantum-safe algorithms</h2>
@@ -123,7 +130,7 @@
 <details class="q">
 <summary><i>Why do quantum computers break RSA and <a href="glossary/e/ecc.html">ECC</a> in polynomial time while <a href="glossary/a/aes-256.html">AES-256</a> remains safe?</i></summary>
 <p>Shor's algorithm uses the Quantum Fourier Transform to solve factoring and discrete logarithms exponentially faster, whereas Grover's algorithm only halves the effective bit-strength of unstructured symmetric search (leaving AES-256 at ~128-bit quantum security).</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Audit your workstation's cryptographic primitives, read-only</h2>

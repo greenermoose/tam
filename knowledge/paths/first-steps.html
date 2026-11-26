@@ -16,6 +16,13 @@
 
 <p>This path starts with the pager keys, then moves to a terminal, safe scratch files, pipelines and the way back to the Guide.</p>
 
+<p><strong>Outcome:</strong> After this path, you can use the pager, open a terminal, practice on temporary files, connect commands and find the way back to the Guide.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 50 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <section data-level="novice">
 <table>
  <tr><td>To scroll down one screen</td><td>Press <code>PgDn</code> or <code>Spacebar</code></td></tr>
@@ -120,7 +127,7 @@ for this guide reader's full key list.</p>
 <p>If you see a continuation prompt, a quote is unfinished. Cancel that line and retype the complete command.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>Which part of an example do you type?</i></summary><p>Only the command after the prompt; the following line is output.</p></details>
+<details class="q"><summary><i>Which part of an example do you type?</i></summary><p>Only the command after the prompt; the following line is output.</p><p><strong>Expected sandbox state:</strong> printf hello prints hello, pwd prints /home/alex and ls shows Documents and Downloads.</p></details>
 </section>
 <h2>1. Open a terminal for entering commands</h2>
 <p>If you have not read <a href="welcome.html?level=1">Welcome</a> yet, start
@@ -180,7 +187,7 @@ For short examples, you can type everything yourself. But for longer examples, i
 <p>Type only the <code>printf</code> command plus the arguments <code>'%s\n'</code> and <code>hello</code>, then press Enter. The dollar sign is the shell prompt in this example;
 hello is the result. Shell prompts often end with a dollar sign, but not always.
 Sometimes they end with a slash (<code>/</code>) or a number sign (<code>#</code>) or a colon (<code>:</code>) or another character.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> The sample command prints hello in the simulated terminal.</p></details>
 </section>
 <h2>2. See where you are and make a safe place</h2>
 <p>Leave the Guide with Esc so you can type in the terminal. Keep that
@@ -211,7 +218,7 @@ saves a file and copies it, so nothing here changes your settings.</p>
 <details class="q">
 <summary><i>Which command prints your current directory, and which creates a new empty temporary directory?</i></summary>
 <p><code>pwd</code> prints the current directory. <code>mktemp -d</code> creates a new empty temporary directory and prints its path. <code>cd</code> changes into a directory; <code>ls</code> lists names.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> pwd starts at /home/alex, ls shows Documents and Downloads, then a scratch directory is entered and pwd prints /tmp/tmp.AbCdEfGh.</p></details>
 </section>
 <h2>3. Create something in a safe place</h2>
 <p>Still inside your temporary directory (or a fresh one from
@@ -227,7 +234,7 @@ with Esc.</p>
 <details class="q">
 <summary><i>chmod prints nothing. What do you do before assuming failure?</i></summary>
 <p>Inspect the mode with stat, as in the permissions page. Many successful commands print nothing. An error message needs attention; silence alone is not failure.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 <h2>4. Connect two instructions</h2>
 <ol><li>Read <a href="terminal/shell/pipelines.html?level=1">Pipelines</a>.</li>
@@ -238,7 +245,7 @@ with Esc.</p>
 <details class="q">
 <summary><i>What will the pipeline count if you change only the pattern from apple to pear?</i></summary>
 <p>It counts one line: the fixed input contains pear once. Return to the pipeline worked example if needed.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 <h2>5. Find your way back</h2>
 <ol><li>Read <a href="help/documentation.html?level=1">Using the Guide</a>.</li>
@@ -255,7 +262,7 @@ self-checks</a> to repeat the risky parts on temporary files.</li></ol>
 <details class="q">
 <summary><i>Which action leaves tam, and which returns to the Guide index while keeping tam open?</i></summary>
 <p>Esc leaves tam for the terminal. The backtick key opens the Guide index inside the pager. You can reopen the welcome page with tam hi.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 <h2>Capstone: <a href="glossary/m/make.html">Make</a> and inspect a tiny report</h2>
 <p>In a fresh temporary directory, create colours.txt with red, blue, red

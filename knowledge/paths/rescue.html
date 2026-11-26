@@ -14,6 +14,13 @@
 
 <p>This path teaches how to bound a recovery problem, preserve later writes and choose an access route before attempting a repair.</p>
 
+<p><strong>Outcome:</strong> After this path, you can choose and prepare a bounded recovery procedure that preserves data and evidence.</p>
+<p><strong>Prerequisites:</strong> <a href="systems/boot/boot-recovery.html">Recover when startup fails</a></p>
+<p><strong>Time:</strong> About 40 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <section data-level="novice">
 <p>If you are already facing a failure, start with the last visible stage and
 record what you do not know. Do not guess a repair <a href="glossary/c/command.html">command</a> from a menu label.
@@ -65,7 +72,7 @@ usb external-media rescue-root</out>
 <p>Do not treat a surviving label as a verified boot entry. Real recovery needs a separately approved procedure.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>What does the surviving route establish?</i></summary><p>Only that it does not use the named failed dependency in the model.</p></details>
+<details class="q"><summary><i>What does the surviving route establish?</i></summary><p>Only that it does not use the named failed dependency in the model.</p><p><strong>Expected sandbox state:</strong> routes lists three fictional routes with their boot dependency in column two; grep -v internal-esp leaves usb, external-media and rescue-root.</p></details>
 </section>
 <h2>Stage 1: Locate the failure boundary</h2>
 <ol><li>If the machine will not resume from sleep or rest, start with
@@ -78,7 +85,7 @@ a route that avoids the suspected failure and its remaining shared dependencies.
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide before revealing the explanation.</p>
-<details class="q"><summary><i>A menu offers two kernels but the partition holding both images is unreadable. What route should you investigate?</i></summary><p>An independently prepared route that avoids that partition, such as verified external rescue media. Another kernel name on the same unreadable partition does not cross the failure boundary.</p></details>
+<details class="q"><summary><i>A menu offers two kernels but the partition holding both images is unreadable. What route should you investigate?</i></summary><p>An independently prepared route that avoids that partition, such as verified external rescue media. Another kernel name on the same unreadable partition does not cross the failure boundary.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Identify what can actually be recovered</h2>
@@ -90,7 +97,7 @@ unknown unless you have actual evidence. Never substitute the teaching IDs.</li>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide before revealing the explanation.</p>
-<details class="q"><summary><i>A known-good root snapshot excludes home and <a href="glossary/e/efi.html">EFI</a> files. Which parts of recovery are still separate?</i></summary><p>Home data and later writes need their own preservation/recovery plan. EFI files and native boot dependencies need the provider procedure. Selecting a software generation or booting a snapshot does not restore all those parts.</p></details>
+<details class="q"><summary><i>A known-good root snapshot excludes home and <a href="glossary/e/efi.html">EFI</a> files. Which parts of recovery are still separate?</i></summary><p>Home data and later writes need their own preservation/recovery plan. EFI files and native boot dependencies need the provider procedure. Selecting a software generation or booting a snapshot does not restore all those parts.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Plan access before a repair</h2>
@@ -107,7 +114,7 @@ if storage, credentials or recovery source cannot be confirmed.</li></ol>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide before revealing the explanation.</p>
-<details class="q"><summary><i>A live environment starts successfully. Is mounting the first listed disk a valid next step?</i></summary><p>No. First establish device identity, encryption state, subvolume/mount layout and the chosen procedure. Live startup proves access to that environment, not identification or recoverability of installed storage.</p></details>
+<details class="q"><summary><i>A live environment starts successfully. Is mounting the first listed disk a valid next step?</i></summary><p>No. First establish device identity, encryption state, subvolume/mount layout and the chosen procedure. Live startup proves access to that environment, not identification or recoverability of installed storage.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Audit shared dependencies</h2>
@@ -124,7 +131,7 @@ preserved data, with an abort route if any check fails.</li></ol>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide before revealing a model answer.</p>
-<details class="q open"><summary>What does a successful snapshot boot establish, and what does it leave open?</summary><p>It establishes that one selected route reached the observed environment. Persistent normal-root restoration, excluded data, later writes and future boot behavior remain separate checks. Record exactly what was observed rather than calling the whole plan accepted.</p></details>
+<details class="q open"><summary>What does a successful snapshot boot establish, and what does it leave open?</summary><p>It establishes that one selected route reached the observed environment. Persistent normal-root restoration, excluded data, later writes and future boot behavior remain separate checks. Record exactly what was observed rather than calling the whole plan accepted.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Reject an unsafe recovery shortcut</h2>

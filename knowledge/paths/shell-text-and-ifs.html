@@ -17,6 +17,13 @@
 <p>This path takes a reader who has never used a shell from the idea of one word to the precise rules that split expansion results, and on to scripts that keep real data intact.</p>
 <p>Each stage gives a lens to read with. Start with the gentle explanation where offered, then use the practice or reference lens. Answer the checkpoint before moving on. All <a href="glossary/c/command.html">commands</a> in this path are safe in a fresh scratch directory.</p>
 
+<p><strong>Outcome:</strong> After this path, you can explain and apply quoting, expansion, IFS and field splitting in safe shell data handling.</p>
+<p><strong>Prerequisites:</strong> <a href="paths/command-line-fluency.html">Command-line fluency</a></p>
+<p><strong>Time:</strong> About 60 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: Words in a shell</h2>
 <p><a href="terminal/shell/index.html?level=1">Giving your computer written instructions</a> first: meet the shell, a prompt and the standard streams. Then read <a href="terminal/shell/index.html?level=2">the same page at the practice lens</a> to send a command and see its output.</p>
 
@@ -25,7 +32,7 @@
 <details class="q">
 <summary><i>What does a shell do with the line you type after the prompt?</i></summary>
 <p>It reads the text, identifies words and operators, starts the requested command, and connects the command's normal output and error messages to streams. Reread the first page if the prompt or the stream numbers are unclear.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Keeping text together</h2>
@@ -36,7 +43,7 @@
 <details class="q">
 <summary><i>Why does a value with spaces become two arguments when it is left unquoted?</i></summary>
 <p>The shell uses spaces as word boundaries. Quotes mark the value as one word; without them the spaces inside the value become separators. The worked capture on the quoting page shows the argument count with brackets.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: The expansion order</h2>
@@ -47,7 +54,7 @@
 <details class="q">
 <summary><i>Why can an unquoted variable containing an asterisk match filenames?</i></summary>
 <p>Parameter expansion puts the asterisk into the word, field splitting can leave it in its own field, and pathname expansion then treats that unquoted field as a pattern. Double quotes stop the field from being split or matched.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: IFS and splitting</h2>
@@ -58,7 +65,7 @@
 <details class="q">
 <summary><i>Why do adjacent commas give empty fields but adjacent spaces do not?</i></summary>
 <p>Comma is a non-whitespace IFS character, so each one terminates a field even when the candidate is empty. Space, tab and newline are IFS white space in the portable set; runs of them collapse into one boundary.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: The precise rules</h2>
@@ -69,7 +76,7 @@
 <details class="q">
 <summary><i>What is the difference between an unset IFS and an empty IFS?</i></summary>
 <p>An unset IFS behaves as if it held space, tab and newline, so splitting and <code>read</code> still use those separators. An empty IFS performs no splitting, although an entirely empty expansion field is still removed before quote removal.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 6: Data that survives</h2>
@@ -80,7 +87,7 @@
 <details class="q">
 <summary><i>Why is a NUL-delimited stream safer than a newline-delimited one for arbitrary filenames?</i></summary>
 <p>A pathname cannot contain a NUL byte, so NUL is an unambiguous separator. Newlines, spaces and shell metacharacters can all appear in a filename and need quoting or a read loop to stay intact.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Handle names that fight back</h2>

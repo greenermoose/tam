@@ -17,6 +17,13 @@
 <p>This path takes a reader who has never designed a <a href="glossary/d/database.html">database</a> from the idea of saved records to choosing between an embedded engine, a server database, a browser store and a distributed data system.</p>
 <p>Every stage names the lens to read with. The examples live in teaching sandboxes; this path installs no database software and asks you to change nothing on your own machine.</p>
 
+<p><strong>Outcome:</strong> After this path, you can choose, query and justify a storage system for a real workload.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 50 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: See why stored data needs a system</h2>
 <ol>
 <li><a href="programming/databases/why-databases.html?level=1">Why databases exist</a> &mdash; understand what a database keeps and what a plain file cannot do for you.</li>
@@ -28,7 +35,7 @@
 <details class="q">
 <summary>Why not keep every application record in one hand-written file?</summary>
 <p>A file has no schema enforcement, safe concurrent updates or indexed lookup. As records and readers grow, an application must rebuild all three by hand; a database supplies them as its job.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Ask questions and keep changes safe</h2>
@@ -42,7 +49,7 @@
 <details class="q">
 <summary>An index makes a read fast. What is the price?</summary>
 <p>Extra storage and extra work on every write, because the index must stay in step with the table. A query plan shows whether the gain is worth it for a particular query.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Compare an embedded engine with a server</h2>
@@ -56,7 +63,7 @@
 <details class="q">
 <summary>When is SQLite the better fit, and when do you need a server?</summary>
 <p>SQLite fits a local application, a test or a small site with one writer. A server fits concurrent writers, shared access, central backups and role-based administration.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Widen the choice beyond relational tables</h2>
@@ -70,7 +77,7 @@
 <details class="q">
 <summary>What question helps you choose a non-relational store?</summary>
 <p>Start with how the application will read and write data. Embedded documents suit whole-record access, key-value suits direct lookup, wide columns suit partition-local scale and graphs suit traversals.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: Put data at the edge and at scale</h2>
@@ -85,7 +92,7 @@
 <details class="q">
 <summary>Is IndexedDB a replacement for a shared server database?</summary>
 <p>No. It belongs to one browser profile on one device. A server database is shared, authorized and backed up centrally; IndexedDB supports an offline or local-first client.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone</h2>

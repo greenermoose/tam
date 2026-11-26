@@ -452,6 +452,16 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-26:** Corpus 0.138.0 (minor): every goal path opens with
+  an outcome, exact prerequisite links or the words `none beyond reading`,
+  and a time derived from its stage count (30, 40, 50 or 60 minutes).
+  One `If you're stuck` note per path points to `tam man`, the manuals
+  page, `tam help` and `tam search -- <term>`. Every checkpoint answer
+  states the expected sandbox state, using an explicit no-sandbox line
+  where the stage has no simulation. `validate_path_pages` checks all of
+  these, including prerequisite link targets and the time mapping; the
+  path template and corpus pedagogy document the contract. Command
+  version 0.71.0 is unchanged.
 - **2026-11-26:** Command 0.71.0 (minor): search reads a build-time term projection with CLI-aware tokenisation (flags, dotted IDs, versions, paths and hyphenated IDs), honours authored boost/exclude metadata, and accepts `--` so a query can name a flag such as `--pipe` or `-h`. `tam_index_load()` zeroes new entry slots so the projection fields are safe. Corpus version 0.137.0 changes with it.
 - **2026-11-26:** Corpus 0.137.0 (minor): derive `index.search.tsv` and `index.anchors.tsv` from page HTML sections, headings and anchors. The build validates `search-boost` and `search-exclude` against page terms and rejects same-page fragments whose anchor does not exist and cross-page fragments the reader cannot resolve. Command version 0.71.0 changes with it.
 - **2026-11-26:** Command 0.70.0 (minor): `tam show` resolves a page's `topic` stable ID before guide-path suffixes. Ambiguous exact matches keep the existing choices view; a genuine stable-ID miss exits 3 with a search suggestion, while an ordinary path miss still exits 1. Corpus version 0.136.0 changes with it.

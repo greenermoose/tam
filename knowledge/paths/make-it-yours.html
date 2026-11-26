@@ -14,26 +14,33 @@
 
 <p>This page explains how to change settings to make your computer work better for you.</p>
 
+<p><strong>Outcome:</strong> After this path, you can make a reversible customization and identify its owner and recovery.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 40 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: Review current settings</h2>
 <p><a href="desktop/navigation/index.html?level=1">Your desktop</a>: Read the desktop orientation and choose a setting, such as a keybinding, you want to change.</p>
 <p>Press Meta + K and note the current chord for the action you care about. Write the old binding, the <a href="glossary/f/file.html">file</a> or menu that owns it, how you will verify a change, and how you will restore the old binding. Prefer a reversible theme or empty practice binding before editing live workflow keys.</p>
 <p>Then read <a href="desktop/session/config.html?level=1">desktop configuration and defaults</a> and <a href="desktop/appearance/theming.html?level=1">desktop theming and appearance</a>: they name the packaged default, the user override and the file or menu that owns each setting, which is what makes an undo possible.</p>
 
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why inspect existing bindings before assigning a new key?</i></summary><p>An existing binding or local override may already own that key. Meta + K is the packaged inventory.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why inspect existing bindings before assigning a new key?</i></summary><p>An existing binding or local override may already own that key. Meta + K is the packaged inventory.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 2: Practice reversible everyday settings</h2>
 <p>Practice with <a href="desktop/tasks/displays.html?level=1">text size and screen brightness</a>,
 <a href="desktop/tasks/night-light.html?level=1">the night light</a>, and <a href="desktop/tasks/audio.html?level=1">sound output</a>. Each page names its undo step.</p>
 
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>What do you record before changing a display or sound setting?</i></summary><p>The current value and the control that produced it. Without both, you cannot tell whether a change took effect or restore the old value.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>What do you record before changing a display or sound setting?</i></summary><p>The current value and the control that produced it. Without both, you cannot tell whether a change took effect or restore the old value.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 3: Practice editing</h2>
 <p><a href="terminal/configuration.html?level=1">Practice editing</a>: Work through the editor lesson in its scratch file.</p>
 
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why practice in a temporary file before editing configuration?</i></summary><p>It lets you learn saving and undo without affecting your real settings.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why practice in a temporary file before editing configuration?</i></summary><p>It lets you learn saving and undo without affecting your real settings.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 4: Identify ownership</h2>
 <p><a href="terminal/configuration.html?level=2">Identify ownership</a>: Read the editor configuration lesson and identify the setting owner and how to undo a proposed change.</p>
 <p>Do the same for the bar: <a href="tamlinux/development/plugins.html?level=2">shell and bar plugins</a> names the packaged plugin, its manifest and what a local override would own.</p>
 
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a packaged default necessarily describe a local override?</i></summary><p>No. The active configuration and local overrides need separate inspection.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a packaged default necessarily describe a local override?</i></summary><p>No. The active configuration and local overrides need separate inspection.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Capstone</h2><p>Practice changing and saving a temporary note and validating a scratch configuration in the editor lesson. Choose one real workflow to customize, identify the configuration owner and current value, and record a verification and way to undo it. Apply a personal change only if you have identified those details and want that change; otherwise leave it as a plan.</p>
 <details class="solution"><p>For a proposed editor setting, first identify the active configuration file and its current value. Write the desired setting, how to verify it and how to restore that value. If the file or owner is unknown, stop at the note and investigate before editing. If you choose to change it, verify the resulting behavior and restore the previous value if it is not what you intended.</p></details>
 

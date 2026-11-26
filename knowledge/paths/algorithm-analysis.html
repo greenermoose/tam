@@ -17,6 +17,13 @@
 <p>This path teaches you how to measure and categorize <a href="glossary/a/algorithm.html">algorithms</a> by running time and memory required. You will learn asymptotic notation, common complexity classes, and how to check theory against real <a href="glossary/m/measurement.html">measurements</a>.</p>
 <p>Each stage gives a lens to read with. Start with the gentle explanation, then use the practice or reference lens. Answer the checkpoint before moving on.</p>
 
+<p><strong>Outcome:</strong> After this path, you can explain running time and memory use with Big-O notation and check a theory against a benchmark.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 40 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: Why analysis matters</h2>
 <p>Read <a href="algorithms/algorithm-analysis.html?level=1">Algorithm analysis</a> first: understand why growth rates matter. Then read <a href="algorithms/algorithm-analysis.html?level=2">the practice lens</a> for input size, cases, and worked examples, and <a href="algorithms/algorithm-analysis.html?level=3">the reference lens</a> for cost models and limits.</p>
 <section class="quiz">
@@ -24,7 +31,7 @@
 <details class="q">
 <summary><i>Why can a stopwatch measurement of one input be misleading?</i></summary>
 <p>It tells you what happened for that input, machine, and moment. It may not predict how the algorithm scales as input grows, and it can be affected by noise. Analysis gives growth trends; repeated measurement across sizes gives evidence.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Categorize running time</h2>
@@ -34,7 +41,7 @@
 <details class="q">
 <summary><i>What does O(n log n) tell you, and what does it not tell you?</i></summary>
 <p>It tells you the running time grows no faster than a constant times n log n for large enough n in the chosen model. It does not tell you exact seconds, constant factors, memory behavior, or which algorithm is faster for small n.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Categorize memory use</h2>
@@ -44,7 +51,7 @@
 <details class="q">
 <summary><i>Why can a recursive solution have O(n) space complexity even without allocating an array?</i></summary>
 <p>Each recursive call consumes stack space. If recursion depth grows linearly with n, the call stack uses O(n) space in the usual model, even when no explicit heap array is allocated.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Measure real performance</h2>
@@ -54,7 +61,7 @@
 <details class="q">
 <summary><i>What should you change when comparing two algorithms in a benchmark?</i></summary>
 <p>Change only the algorithm/implementation under test while keeping input, hardware, runtime settings, warmup, and measurement method as comparable as possible. If you change multiple variables, you cannot attribute the difference reliably.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Analyze and measure a choice</h2>

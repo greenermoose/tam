@@ -269,10 +269,26 @@ acceptable.
 Every path page uses [`templates/path.html`](templates/path.html):
 
 1. **Opening:** an ordinary orientation paragraph, as in Page openings above.
-   Explain who the path helps and any prerequisites or safety limits in
-   ordinary sentences when needed. Do not repeat the breadcrumb title.
+   Explain who the path helps and any safety limits in ordinary sentences.
+   Do not repeat the breadcrumb title. Then add three plain fields:
+   `<strong>Outcome:</strong>` says what the reader can do at the end;
+   `<strong>Prerequisites:</strong>` names exact links to pages read first,
+   or the words `none beyond reading`; `<strong>Time:</strong>` says
+   `About N minutes, including checkpoints and the capstone`, where N is
+   30 for three stages, 40 for four, 50 for five, and 60 for six.
+   Add one failure branch near the top:
+   ```html
+   <aside class="note"><p><strong>If you're stuck:</strong> read the
+   <a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+   list built-in help with <code>tam help</code>, or search this guide with
+   <code>tam search -- &lt;term&gt;</code>.</p></aside>
+   ```
 2. **Stages:** three to six. Each stage has one to four page links at stated
    levels (`?level=`, which sets the reader's lens) and a checkpoint quiz.
+   Every checkpoint answer ends with a paragraph beginning
+   `<strong>Expected sandbox state:</strong>`. Name the simulated files and
+   visible output at that point. When the stage has no sandbox, write
+   `No sandbox in this stage; no simulated files or output are expected.`
 3. **Capstone:** one realistic whole task in a scratch or reversible setting,
    with a folded worked solution.
 4. **Next paths.**
@@ -282,8 +298,10 @@ Use only pages that exist. Mark a stage without a page as planned.
 From corpus 0.82.0 the build enforces this contract: `validate_path_pages` in
 `tools/build-index.py` fails a path page that lacks three to six numbered
 stages, a levelled step link, a checkpoint, one capstone solution, or next
-paths. Write to the template first; the check names the page and the missing
-part.
+paths. From corpus 0.138.0 it also checks the opening fields, prerequisite
+links, time, the single failure branch, and an expected sandbox state in
+every checkpoint answer. Write to the template first; the check names the
+page and the missing part.
 
 **Goal-path catalog.** Add each path when its pages exist.
 

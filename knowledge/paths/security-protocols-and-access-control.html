@@ -16,6 +16,13 @@
 
 <p>This path joins threat modelling, <a href="glossary/a/authentication.html">authentication</a>, filesystem access control and transport protocols into one read-only security audit.</p>
 
+<p><strong>Outcome:</strong> After this path, you can threat model, authenticate, read Linux access control, TLS and SSH, and explain formal protocol verification in one read-only audit.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 60 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <section data-level="novice">
 <p>If any page feels too advanced, step back one stop along the path until the terms feel familiar. Every exercise uses read-only commands.</p>
 <h2>Layers of a security boundary</h2>
@@ -62,7 +69,7 @@ CapEff:	0000000000000000</out>
 <p>If a real command is unavailable, leave that boundary unknown rather than assuming the safest value.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>Do process isolation flags prove the host firewall is active?</i></summary><p>No. They describe the process; firewall state needs its own evidence.</p></details>
+<details class="q"><summary><i>Do process isolation flags prove the host firewall is active?</i></summary><p>No. They describe the process; firewall state needs its own evidence.</p><p><strong>Expected sandbox state:</strong> grep prints Uid 1000, NoNewPrivs 1, Seccomp 2 and CapEff 0000000000000000; nftables is inactive.</p></details>
 </section>
 <h2>Stage 1: Security principles and threat modeling</h2>
 <ol>
@@ -74,7 +81,7 @@ CapEff:	0000000000000000</out>
 <details class="q">
 <summary><i>What are the three core properties of the CIA triad, and why does a threat model come before choosing tools?</i></summary>
 <p>Confidentiality (keeping secrets), Integrity (preventing tampering), and Availability (keeping systems usable). A threat model identifies what you are protecting and who might attack it so defenses match real risks.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Passwords, authentication, and authorization</h2>
@@ -88,7 +95,7 @@ CapEff:	0000000000000000</out>
 <details class="q">
 <summary><i>How do Discretionary Access Control (DAC) and Mandatory Access Control (MAC) differ?</i></summary>
 <p>In DAC, resource owners choose who gets access; in MAC, system-wide kernel policies restrict subjects and objects in ways even resource owners cannot override.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: <a href="glossary/f/filesystem.html">Filesystem</a> permissions and <a href="glossary/p/posix.html">POSIX</a> ACLs</h2>
@@ -101,7 +108,7 @@ CapEff:	0000000000000000</out>
 <details class="q">
 <summary><i>Why does Linux require execute (<code>x</code>) permission on a directory to read a file inside it?</i></summary>
 <p>On directories, <code>x</code> grants traversal/search permission to resolve names to inodes; <code>r</code> alone only lists filenames without letting you open them.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Hardware authentication and privilege helpers</h2>
@@ -114,7 +121,7 @@ CapEff:	0000000000000000</out>
 <details class="q">
 <summary><i>Why does hardware FIDO2 authentication resist phishing better than a typed password?</i></summary>
 <p>A FIDO2 authenticator signs a challenge bound cryptographically to the exact origin/Relying Party ID, so a lookalike site cannot replay the signature elsewhere.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: Transport security: TLS, <a href="glossary/h/https.html">HTTPS</a>, and SSH</h2>
@@ -128,7 +135,7 @@ CapEff:	0000000000000000</out>
 <details class="q">
 <summary><i>Why is <code>ssh -J</code> (<code>ProxyJump</code>) safer than <code>ForwardAgent yes</code> when crossing an intermediate host?</i></summary>
 <p><code>ProxyJump</code> tunnels end-to-end encrypted SSH traffic through the jump host without exposing your local <code>ssh-agent</code> signing socket to root on that intermediate machine.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 6: Network, messaging, and identity protocols</h2>
@@ -141,7 +148,7 @@ CapEff:	0000000000000000</out>
 <details class="q">
 <summary><i>What two properties does Signal's Double Ratchet combine to protect long-lived messaging conversations?</i></summary>
 <p>A Diffie–Hellman ratchet and a symmetric <a href="glossary/k/kdf.html">KDF</a> chain ratchet, providing both forward secrecy for past messages and post-compromise (future) secrecy after a temporary state leak.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Inspect your session's security boundaries read-only</h2>

@@ -823,7 +823,8 @@ class BuildIndex(unittest.TestCase):
                                        "<summary></summary>"),
              "quiz needs a question summary"),
             ("quiz without an answer",
-             lambda body: body.replace("<p>The first page.</p>", "<p></p>"),
+             lambda body: body.replace(STAGE_ONE_QUIZ,
+                                       '<details class="q"><summary>Which page?</summary></details>'),
              "quiz needs an answer"),
             ("capstone without a solution",
              lambda body: body.replace(CAPSTONE_SOLUTION, ""),
@@ -853,6 +854,77 @@ class BuildIndex(unittest.TestCase):
                 self.assertIn(message, result.stderr)
                 self.assertNotIn("Traceback", result.stderr)
 
+    def test_path_rejects_each_broken_opening_field(self):
+        cases = (
+            ("missing outcome",
+             lambda opening: opening.replace(
+                 "<p><strong>Outcome:</strong> Read three pages in order.</p>", ""),
+             "path opening needs a outcome line"),
+            ("empty outcome",
+             lambda opening: opening.replace(
+                 "Read three pages in order.", ""),
+             "path opening needs a outcome line"),
+            ("missing prerequisites",
+             lambda opening: opening.replace(
+                 "<p><strong>Prerequisites:</strong> none beyond reading.</p>", ""),
+             "path opening needs a prerequisites line"),
+            ("bad prerequisite link",
+             lambda opening: opening.replace(
+                 "none beyond reading.", '<a href="use/absent.html">Absent</a>'),
+             "prerequisite link"),
+            ("missing time",
+             lambda opening: opening.replace(
+                 "<p><strong>Time:</strong> About 30 minutes, including checkpoints "
+                 "and the capstone.</p>", ""),
+             "path opening needs a time line"),
+            ("wrong time",
+             lambda opening: opening.replace("About 30 minutes", "About 45 minutes"),
+             "time should be about 30 minutes for 3 stages"),
+            ("missing stuck note",
+             lambda opening: opening.split("<aside", 1)[0],
+             "path opening needs an If you're stuck note"),
+            ("stuck note without note class",
+             lambda opening: opening.replace('class="note"', 'class="tip"'),
+             "path opening needs an If you're stuck note"),
+            ("stuck note without its label",
+             lambda opening: opening.replace("<strong>If you're stuck:</strong>",
+                                              "<strong>Help:</strong>"),
+             "path opening needs an If you're stuck note"),
+            ("stuck note without manuals command",
+             lambda opening: opening.replace(
+                 " with <code>tam man &lt;command&gt;</code>,", ""),
+             "failure branch needs manuals"),
+            ("stuck note without manuals page",
+             lambda opening: opening.replace(
+                 '<a href="help/manuals.html">program manuals</a>', "the manuals"),
+             "failure branch needs manuals page"),
+            ("stuck note without built-in help",
+             lambda opening: opening.replace("<code>tam help</code>, or", "or"),
+             "failure branch needs built-in help"),
+            ("stuck note without search",
+             lambda opening: opening.replace(
+                 "\n<code>tam search -- &lt;term&gt;</code>", ""),
+             "failure branch needs search"),
+        )
+        for label, mutate, message in cases:
+            with self.subTest(case=label):
+                root = self.fixture("0.82.0", self.path_documents(
+                    opening=mutate(PATH_OPENING)))
+                result = self.build(root)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(message, result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+
+    def test_path_rejects_a_checkpoint_without_expected_state(self):
+        body = PATH_BODY.replace(
+            "<p><strong>Expected sandbox state:</strong> No sandbox in this stage; "
+            "no simulated files or output are expected.</p>", "")
+        root = self.fixture("0.82.0", self.path_documents(body))
+        result = self.build(root)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("checkpoint 1 needs an expected sandbox state", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
     def test_path_steps_must_be_contiguous_from_one(self):
         documents = self.path_documents()
         for rel, step in (("use/second.html", 2), ("use/third.html", 4)):
@@ -863,32 +935,44 @@ class BuildIndex(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("steps [2, 4] are not contiguous from 1", result.stderr)
 
-    def path_documents(self, body=None):
+    def path_documents(self, body=None, opening=None):
         body = PATH_BODY if body is None else body
+        opening = PATH_OPENING if opening is None else opening
         return {
             "index.html": page("Guide"),
+            "help/manuals.html": page("Manuals", "help", "index.html"),
             "use/first.html": page("First", "use", "index.html"),
             "use/second.html": page("Second", "use", "index.html"),
             "use/third.html": page("Third", "use", "index.html"),
             "learn/paths/goal.html": page("Goal", "learn", "index.html").replace(
                 "</head>", '<meta name="kind" content="path"></head>'
-            ).replace("</body>", body + "</body>"),
+            ).replace("</body>", opening + body + "</body>"),
         }
 
+
+PATH_OPENING = """
+<p><strong>Outcome:</strong> Read three pages in order.</p>
+<p><strong>Prerequisites:</strong> none beyond reading.</p>
+<p><strong>Time:</strong> About 30 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
+"""
 
 PATH_BODY = """
 <h2>Stage 1: First</h2>
 <ol><li><a href="use/first.html?level=1">First</a></li></ol>
 <section class="quiz"><h3>Checkpoint</h3>
-<details class="q"><summary>Which page?</summary><p>The first page.</p></details></section>
+<details class="q"><summary>Which page?</summary><p>The first page.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 2: Second</h2>
 <ol><li><a href="use/second.html?level=1">Second</a></li></ol>
 <section class="quiz"><h3>Checkpoint</h3>
-<details class="q"><summary>Which page now?</summary><p>The second page.</p></details></section>
+<details class="q"><summary>Which page now?</summary><p>The second page.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 3: Third</h2>
 <ol><li><a href="use/third.html?level=1">Third</a></li></ol>
 <section class="quiz"><h3>Checkpoint</h3>
-<details class="q"><summary>Last page?</summary><p>The third page.</p></details></section>
+<details class="q"><summary>Last page?</summary><p>The third page.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Capstone: Put it together</h2>
 <p>Do the whole task in a scratch folder.</p>
 <details class="solution"><p>Worked answer.</p></details>
@@ -896,9 +980,14 @@ PATH_BODY = """
 <ul><li><a href="use/first.html?level=1">First again</a></li></ul>
 """
 
+STAGE_ONE_QUIZ = ('<details class="q"><summary>Which page?</summary>'
+                  '<p>The first page.</p><p><strong>Expected sandbox state:</strong> '
+                  'No sandbox in this stage; no simulated files or output are '
+                  'expected.</p></details>')
+
 STAGE_TWO_QUIZ = """
 <section class="quiz"><h3>Checkpoint</h3>
-<details class="q"><summary>Which page now?</summary><p>The second page.</p></details></section>"""
+<details class="q"><summary>Which page now?</summary><p>The second page.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>"""
 
 CAPSTONE_SOLUTION = '<details class="solution"><p>Worked answer.</p></details>'
 

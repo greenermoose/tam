@@ -17,6 +17,13 @@
 <p>This path takes a reader with no networking knowledge from the first idea of a network to configuring a connection, reading the routing and name decisions, and finding devices that announce themselves locally.</p>
 <p>Each stage has a checkpoint. Answer it before moving on; if a checkpoint is unclear, reread the stage at the suggested lens. The capstone is a whole task in a reversible setting, so no mistake changes a working connection.</p>
 
+<p><strong>Outcome:</strong> After this path, you can configure and inspect a working network connection and find local services.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 50 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: The four questions</h2>
 <p><a href="networking/setup/how-networks-fit-together.html?level=1">How networks fit together</a>: learn that every connection answers a link, address, route and name question, and that these layers fail independently. Read the four answers from a real machine with <code>ip -br addr</code>, <code>ip route</code> and <code>getent ahosts</code>.</p>
 
@@ -25,7 +32,7 @@
 <details class="q">
 <summary><i>A machine has an address but no default route. Which destinations still work?</i></summary>
 <p>Destinations inside the directly connected prefix still work, because the kernel creates a route from the interface address. Anything outside that prefix has no next hop and fails.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Numbers on the wire</h2>
@@ -36,7 +43,7 @@
 <details class="q">
 <summary><i>Why can two machines on one cable fail to talk if their prefix lengths differ?</i></summary>
 <p>Each machine decides independently whether the other is local. If one treats the destination as remote it sends the frame to a gateway instead of directly, and with no gateway on that link the packet has no usable path.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Save a connection</h2>
@@ -47,7 +54,7 @@
 <details class="q">
 <summary><i>What is the undo for a connection profile you just created?</i></summary>
 <p><code>nmcli connection delete '&lt;name&gt;'</code> removes the saved profile. The live configuration then comes from whichever profile remains active on that interface.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Routes and names</h2>
@@ -58,7 +65,7 @@
 <details class="q">
 <summary><i>A numeric address replies but the name fails. Which layer is at fault, and which command isolates it?</i></summary>
 <p>Name resolution. The successful numeric reply proves link, address and route are working. <code>resolvectl query &lt;name&gt;</code> reports the resolver's error, such as NXDOMAIN, SERVFAIL or a timeout.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: Find devices without an address</h2>
@@ -69,7 +76,7 @@
 <details class="q">
 <summary><i>Why does a <code>.local</code> name fail through a global DNS server, and what answers it instead?</i></summary>
 <p><code>.local</code> is reserved for link-local names and is not delegated in the global DNS hierarchy. Multicast DNS on the local link answers it, using a Name Service Switch module such as <code>nss-mdns</code> on Linux.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Bring a new device online and find its service</h2>

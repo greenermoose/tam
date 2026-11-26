@@ -16,6 +16,13 @@
 
 <p>This path covers accounts, secrets, keys, network boundaries, privileges and trusted updates through small read-only audits and change notes.</p>
 
+<p><strong>Outcome:</strong> After this path, you can audit accounts, secrets, keys, privileges, network and disk boundaries, and trusted updates read-only.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 50 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <section data-level="novice">
 <p>Every exercise here is read-only: no account, <a href="glossary/p/password.html">password</a>, key, firewall rule or disk is changed. Changing <a href="glossary/a/authentication.html">authentication</a> or disk settings is privileged work that needs its own recovery point and explicit approval.</p>
 <h2>People, secrets and boundaries</h2>
@@ -59,7 +66,7 @@
 <p>If your own output differs, record the values you actually saw; do not copy teaching identities into a real change note.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>Does wheel membership prove passwordless privilege?</i></summary><p>No. Configuration and policy decide how a group is used.</p></details>
+<details class="q"><summary><i>Does wheel membership prove passwordless privilege?</i></summary><p>No. Configuration and policy decide how a group is used.</p><p><strong>Expected sandbox state:</strong> id prints uid=1000(alex) gid=1000(alex) groups=1000(alex),998(wheel) and id -Gn prints alex wheel; no account is changed.</p></details>
 </section>
 <h2>Stage 1: Identity and secrets</h2>
 <ol>
@@ -72,11 +79,11 @@
 <details class="q">
 <summary><i>Why do daily work as an ordinary user rather than <code>root</code>?</i></summary>
 <p>Mistakes and buggy programs then cannot silently rewrite system binaries or boot files. <a href="glossary/p/privilege.html">Privilege</a> is requested only for the action that needs it.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Which command lists the groups your account belongs to?</i></summary>
 <p><code>id -Gn</code> prints group names; <code>id</code> also shows the numeric user and group IDs.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Keys and hardware tokens</h2>
@@ -90,11 +97,11 @@
 <details class="q">
 <summary><i>What crosses the network when you sign in with an SSH key?</i></summary>
 <p>A proof signed with your private key. The private key itself stays on your machine; only the public key is installed on the server.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Which files show whether a fingerprint or FIDO2 module is enrolled for privilege prompts?</i></summary>
 <p>The PAM stacks under <code>/etc/pam.d/</code>, for example <code>sudo</code> and <code>polkit-1</code>. Reading them needs no change.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Network and disk boundaries</h2>
@@ -108,11 +115,11 @@
 <details class="q">
 <summary><i>What does LUKS protect, and when?</i></summary>
 <p>Data at rest while the machine is powered off or the drive is locked. Once unlocked, the running system can read the files normally.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Which command reports whether the host firewall service is active?</i></summary>
 <p><code>systemctl is-active nftables.service</code>. It prints the state and exits non-zero when the service is not active.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Privilege and file permissions</h2>
@@ -126,11 +133,11 @@
 <details class="q">
 <summary><i>Why does a privilege prompt appear for some actions but not others?</i></summary>
 <p>The action needs to change system-wide state. Ordinary work inside your home folder does not, so it runs as your user.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Does a file's mode alone decide who can open it?</i></summary>
 <p>No. <a href="glossary/o/owner.html">Owner</a>, group and other bits combine with directory traversal permission, and a privileged process can bypass ordinary checks.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: Trusted change</h2>
@@ -143,11 +150,11 @@
 <details class="q">
 <summary><i>What must exist before a real update changes installed software?</i></summary>
 <p>A verified recovery point for the affected boundary, plus a way to check the new version afterwards. Without it, the change stays pending.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Does restoring a software generation also restore an edited document?</i></summary>
 <p>No. Package recovery and your own data are separate. Documents need their own backup or documented recovery method.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Audit your account and write a change note, read-only</h2>

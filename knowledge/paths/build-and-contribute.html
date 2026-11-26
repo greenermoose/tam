@@ -12,15 +12,22 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Build and contribute</p></nav>
 
 <p>These readings help you practice building a small program and prepare a change to share.</p>
+<p><strong>Outcome:</strong> After this path, you can build and test a small scratch program and prepare a focused source contribution.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 30 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: Understand ownership</h2>
 <p>Start with <a href="help/tam.html?level=3">using the tam guide command</a>: read a page, follow a link and use a path. Then <a href="tamlinux/development/tam.html?level=3">understand ownership</a>: the command architecture and source-stage boundaries.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a successful local build install or release it?</i></summary><p>No. Build, installation and release are separate actions.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a successful local build install or release it?</i></summary><p>No. Build, installation and release are separate actions.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 2: Prepare a change</h2>
 <p>Read <a href="programming/scripting.html?level=3">writing instructions your computer can repeat</a> for the shell scripting the build and test commands assume. Then <a href="programming/c/toolchains.html?level=3">prepare a change</a>: read the build and coordination contract and identify the relevant project instructions before editing.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why limit a claim and commit to the paths you change?</i></summary><p>Other work can share the checkout; narrow claims and commits preserve its boundaries.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why limit a claim and commit to the paths you change?</i></summary><p>Other work can share the checkout; narrow claims and commits preserve its boundaries.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 3: Share responsibly</h2>
 <p>Read <a href="tamlinux/development/authoring.html?level=3">authoring knowledge pages</a> for the page contract and its checks, and <a href="tamlinux/development/contributing.html?level=3">contributing to Tamlinux</a> for the route a change takes. Then <a href="tamlinux/development/patches.html?level=3">share responsibly</a>: read the patch and upstream-policy discussion before proposing an upstream change.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a carried patch mean every upstream will accept an AI-assisted submission?</i></summary><p>No. Check each project policy and the authorized route before posting.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a carried patch mean every upstream will accept an AI-assisted submission?</i></summary><p>No. Check each project policy and the authorized route before posting.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Capstone</h2><p>Build and run a small program in a fresh temporary <a href="glossary/d/directory.html">directory</a>, make a small change to its source, and build and run it again. Then propose a source correction: name the repository and <a href="glossary/f/file.html">files</a>, a test that detects the problem, and a verification and handoff. Do not modify the live system.</p>
 <details class="solution"><p>This example requires an installed C compiler. Paste the whole block in a shell; it removes only the two files it creates and then the empty directory.</p><pre data-risk="scratch">if task_dir=$(mktemp -d); then
     printf '%s\n' '#include &lt;stdio.h&gt;' 'int main(void) { return puts("hello") &lt; 0; }' &gt; "$task_dir/hello.c"

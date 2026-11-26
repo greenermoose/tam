@@ -14,15 +14,22 @@
 
 <p>These readings follow bits from logic gates up to the instructions a <a href="glossary/c/cpu.html">CPU</a> runs.</p>
 <p>Finish <a href="paths/from-atoms-to-bits.html?level=1">From atoms to bits</a> first if digital logic is new.</p>
+<p><strong>Outcome:</strong> After this path, you can follow digital logic through architecture, the instruction cycle and assembly.</p>
+<p><strong>Prerequisites:</strong> <a href="paths/from-atoms-to-bits.html">From atoms to bits</a></p>
+<p><strong>Time:</strong> About 30 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: Architecture</h2>
 <p><a href="hardware/architecture/computer-architecture.html?level=2">Computer architecture</a>: name CPU, memory and buses.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why separate memory from the CPU in the basic model?</i></summary><p>Programs and data live in memory; the CPU fetches and operates on them over interconnects. Mixing the roles hides latency and failure boundaries.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why separate memory from the CPU in the basic model?</i></summary><p>Programs and data live in memory; the CPU fetches and operates on them over interconnects. Mixing the roles hides latency and failure boundaries.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 2: Instruction cycle</h2>
 <p><a href="hardware/architecture/instruction-cycle.html?level=2">Instruction cycle</a>: fetch, decode and execute.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>What does fetch retrieve?</i></summary><p>The next instruction (and related fetch traffic) from memory into the processor pipeline.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>What does fetch retrieve?</i></summary><p>The next instruction (and related fetch traffic) from memory into the processor pipeline.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 3: <a href="glossary/a/assembly-tamlinux.html">Assembly</a></h2>
 <p><a href="programming/assembly.html?level=2">Assembly</a>: read a human-facing view of machine instructions.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Is assembly the same as the high-level language you write daily?</i></summary><p>No. Assembly is close to the machine encoding; compilers translate higher languages into it or into machine code.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Is assembly the same as the high-level language you write daily?</i></summary><p>No. Assembly is close to the machine encoding; compilers translate higher languages into it or into machine code.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Capstone</h2>
 <p>Take one simple <a href="glossary/c/command.html">command</a> such as printing a line in a terminal and name the layers from logic gates to a running <a href="glossary/p/process.html">process</a> without claiming you traced every gate on your CPU.</p>
 <details class="solution"><p>Gates form functional units; the architecture organizes those units and memory; the instruction cycle runs encoded operations; assembly or <a href="glossary/m/machine-code.html">machine code</a> is what the CPU executes; the kernel loads and schedules the process that issues the write. Your evidence at the workstation is the process and syscall boundary, not a gate-level probe.</p></details>

@@ -16,6 +16,13 @@
 
 <p>This path prepares you to keep a workstation healthy by identifying owners, reading evidence at the right time and writing a bounded change record.</p>
 
+<p><strong>Outcome:</strong> After this path, you can identify update owners, read focused logs and plan a bounded recovery.</p>
+<p><strong>Prerequisites:</strong> <a href="paths/command-line-fluency.html">Command-line fluency</a></p>
+<p><strong>Time:</strong> About 40 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <section data-level="novice">
 
 <h2>Ownership before action</h2>
@@ -60,7 +67,7 @@
 <p>If recovery evidence is missing, leave the real change pending and record the unknown instead of inventing a checkpoint.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>What does ownership of a path prove?</i></summary><p>Which installed package supplied that file; it does not prove which binary a process is executing.</p></details>
+<details class="q"><summary><i>What does ownership of a path prove?</i></summary><p>Which installed package supplied that file; it does not prove which binary a process is executing.</p><p><strong>Expected sandbox state:</strong> pacman -Qo /usr/bin/bash reports ownership by bash 5.3.20-1 and type -a bash shows /usr/bin/bash and /bin/bash; nothing is changed.</p></details>
 </section>
 <h2>Stage 1: Identify the owner</h2>
 <ol><li>Start with <a href="systems/maintenance/index.html?level=1">System maintenance and reliability</a> for the map of what this path covers.</li>
@@ -78,7 +85,7 @@ failed update on the package itself.</li></ol>
 <details class="q">
 <summary><i>pacman does not own a selected executable. Should you immediately install a native copy?</i></summary>
 <p>No. Resolve the path and identify its supplying manager or assembly first. Adding another copy can hide the one you intended to update. Reread the independent ownership task.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 <h2>Stage 2: Read evidence at the affected time</h2>
 <ol><li>Read <a href="systems/maintenance/logs.html?level=2">System logs</a> for journal
@@ -96,7 +103,7 @@ Empty output may mean the wrong unit, journal or time range.</li></ol>
 <details class="q">
 <summary><i>A user journal query is empty. Does that prove a system service had no errors?</i></summary>
 <p>No. User and system journals and unit scopes differ; filters, access and retention can exclude the evidence. Check the unit and time before drawing a conclusion.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 <h2>Stage 3: Match the recovery boundary</h2>
 <ol><li>Return to <a href="systems/maintenance/updates.html?level=2">the ownership and
@@ -116,7 +123,7 @@ If any are unknown, leave the actual change pending.</li></ol>
 <details class="q">
 <summary><i>Will restoring a software generation necessarily restore an edited document?</i></summary>
 <p>No. <a href="glossary/i/immutable.html">Immutable</a> package recovery and mutable document recovery are separate. Identify a backup or other documented recovery method for data before a change that could affect it.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 <h2>Stage 4: Ask for help with evidence</h2>
 <p>When the evidence points somewhere you cannot safely change, read
@@ -131,7 +138,7 @@ to reach the page that owns the failing part. Carry your four-line note.</p>
 <p>The symptom, time, selected journal, what you already checked and what
 remains unknown. A guessed fix is not evidence, and it can destroy the state
 that would have identified the fault.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 <h2>Capstone: Prepare a change record without deploying</h2>
 <p>Use the native Bash package as a read-only practice target. Prepare a
@@ -169,9 +176,9 @@ real change needs its own verified recovery evidence.</p>
 <section class="quiz">
 <h3>Check yourself: readiness and scope</h3>
 <details class="q"><summary><i>What if the recovery evidence is missing?</i></summary>
-<p>Record the unknown and leave the real change pending rather than inventing a rollback point.</p></details>
+<p>Record the unknown and leave the real change pending rather than inventing a rollback point.</p><p><strong>Expected sandbox state:</strong> The fixed query reports /usr/bin/bash is owned by bash 5.3.20-1; no host package data is changed.</p></details>
 <details class="q"><summary><i>After querying package ownership, a process still shows old output. Why check PATH and running processes separately?</i></summary>
-<p>A wrong <code>PATH</code> entry can select an un-updated binary, and an already-running process can continue mapping old code after disk files change. Querying package ownership alone proves neither.</p></details>
+<p>A wrong <code>PATH</code> entry can select an un-updated binary, and an already-running process can continue mapping old code after disk files change. Querying package ownership alone proves neither.</p><p><strong>Expected sandbox state:</strong> The fixed query reports /usr/bin/bash is owned by bash 5.3.20-1; no host package data is changed.</p></details>
 </section>
 </section>
 

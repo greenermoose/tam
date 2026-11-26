@@ -13,17 +13,24 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Display and GPU</p></nav>
 
 <p>These readings explain how images reach your eyes and how to separate a cable fault from a software fault.</p>
+<p><strong>Outcome:</strong> After this path, you can explain pixels, GPUs and display cables, then separate a cable fault from a software fault.</p>
+<p><strong>Prerequisites:</strong> <a href="paths/from-gates-to-machine.html">From gates to machine code</a></p>
+<p><strong>Time:</strong> About 30 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Before you start: light and sight</h2>
 <p>Follow <a href="hardware/displays/light-and-eye.html?level=2">light and the living eye</a>, <a href="hardware/displays/focus-and-visual-limits.html?level=2">focus and visual limits</a>, <a href="hardware/displays/flicker-and-eye-comfort.html?level=2">flicker and eye comfort</a>, and <a href="hardware/displays/display-technologies.html?level=2">display technologies</a>.</p>
 <h2>Stage 1: Graphics ideas</h2>
 <p><a href="hardware/displays/computer-graphics.html?level=2">Computer graphics</a> and <a href="hardware/architecture/gpu-architecture.html?level=2">GPU architecture</a>: frames, pixels and accelerators.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>What is a framebuffer for?</i></summary><p>It holds pixel values that a display path reads to light the panel.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>What is a framebuffer for?</i></summary><p>It holds pixel values that a display path reads to light the panel.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 2: Cables and history</h2>
 <p><a href="hardware/displays/display-cables.html?level=2">Display cables</a> and <a href="hardware/displays/display-history.html?level=2">Display history</a>: <a href="glossary/h/hdmi.html">HDMI</a>, <a href="glossary/d/displayport.html">DisplayPort</a> and why standards matter.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a lit panel prove the compositor is healthy?</i></summary><p>No. <a href="glossary/f/firmware.html">Firmware</a> or a static image can light a panel. Check session and compositor evidence separately.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a lit panel prove the compositor is healthy?</i></summary><p>No. <a href="glossary/f/firmware.html">Firmware</a> or a static image can light a panel. Check session and compositor evidence separately.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 3: Desktop boundary</h2>
 <p><a href="desktop/session/compositors.html?level=2">Compositors</a> and <a href="desktop/navigation/index.html?level=1">the Tamlinux desktop</a>: <a href="glossary/w/wayland.html">Wayland</a> roles and recovery to a VT. Then check the panel and connector with <a href="desktop/displays.html?level=2">displays and monitors</a> before you suspect software.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Which key chord moves to a text virtual console for recovery?</i></summary><p>Ctrl + Alt + Fn (for example Ctrl + Alt + F2), then work from the text login or shell. Exact VT numbers depend on the installation.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Which key chord moves to a text virtual console for recovery?</i></summary><p>Ctrl + Alt + Fn (for example Ctrl + Alt + F2), then work from the text login or shell. Exact VT numbers depend on the installation.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Capstone</h2>
 <p>Write a blank-screen checklist with four layers: power/panel, cable/<a href="glossary/p/protocol.html">protocol</a>, GPU/<a href="glossary/d/drm.html">DRM</a>, compositor/session. Mark each check as read-only.</p>
 <details class="solution"><p>Power/panel: is the monitor powered and input selected? Cable/protocol: reseat or try a known-good cable/port; note HDMI vs DisplayPort. GPU/DRM: from a VT, inspect connector state with documented read-only tools. <a href="glossary/c/compositor.html">Compositor</a>/session: is the session alive; does <code>tam-desktop</code> apply; can you reach a VT? Do not restart display services as a first guess.</p></details>

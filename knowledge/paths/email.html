@@ -15,13 +15,20 @@
 <p>This path follows one message from the person who writes it to the mailbox that receives it. Each stage names the lens to read with: Novice for the idea, Learner for a worked sample, and Expert for the standards and failure modes.</p>
 <p>Examples live in teaching sandboxes. Nothing here installs a mail server, configures an account or sends mail from your machine.</p>
 
+<p><strong>Outcome:</strong> After this path, you can explain a message's journey, its DNS and identity checks, and why mail is filtered or delayed.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 50 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: See the whole journey</h2>
 <p>Begin with the boundary between the client a person uses and the servers that carry mail. Keep the store-and-forward model in mind: each server may accept, hold and later forward the message.</p>
 <ol>
 <li><a href="networking/email/what-is-email.html?level=1">What is email?</a> &mdash; messages, addresses and the client/server boundary.</li>
 <li><a href="networking/email/how-a-mail-server-works.html?level=1">How a mail server works</a> &mdash; submission, queues, relays and mailbox delivery.</li>
 </ol>
-<details class="q"><summary><i>Why can a sender finish before the receiver is online?</i></summary><p>Servers store the message and forward it later. Email does not need both people connected at the same moment.</p></details>
+<details class="q"><summary><i>Why can a sender finish before the receiver is online?</i></summary><p>Servers store the message and forward it later. Email does not need both people connected at the same moment.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 
 <h2>Stage 2: Build and send a message</h2>
 <p>Read the message as layers and then watch the SMTP conversation that carries it. The envelope used by servers is not the same as the visible header a person reads.</p>
@@ -29,7 +36,7 @@
 <li><a href="networking/email/addresses-and-message-format.html?level=2">Addresses and message format</a> &mdash; header, body, MIME parts and internationalised addresses.</li>
 <li><a href="networking/email/smtp-and-submission.html?level=2">SMTP and submission</a> &mdash; envelope commands, ports and encrypted submission.</li>
 </ol>
-<details class="q"><summary><i>If SPF passes, must the visible From domain be authorised?</i></summary><p>No. SPF checks an envelope domain. DMARC is the mechanism that requires alignment with the visible From domain.</p></details>
+<details class="q"><summary><i>If SPF passes, must the visible From domain be authorised?</i></summary><p>No. SPF checks an envelope domain. DMARC is the mechanism that requires alignment with the visible From domain.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 
 <h2>Stage 3: Read mail from the client side</h2>
 <p>Now change viewpoint. The retrieval <a href="glossary/p/protocol.html">protocol</a> decides where folders and flags live, and the client may keep a local copy that is not the authoritative mailbox.</p>
@@ -37,7 +44,7 @@
 <li><a href="networking/email/retrieval-pop-imap-and-jmap.html?level=2">POP, IMAP and JMAP</a> &mdash; local download, shared server state and modern structured access.</li>
 <li><a href="networking/email/mail-clients-and-mailboxes.html?level=1">Mail clients and mailboxes</a> &mdash; account setup, flags, aliases, offline work and encryption.</li>
 </ol>
-<details class="q"><summary><i>Which protocol best supports the same folders on a phone and a laptop?</i></summary><p>IMAP, because folders and flags are kept on the server. POP normally centres on a download to one device.</p></details>
+<details class="q"><summary><i>Which protocol best supports the same folders on a phone and a laptop?</i></summary><p>IMAP, because folders and flags are kept on the server. POP normally centres on a download to one device.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 
 <h2>Stage 4: Follow DNS and trust signals</h2>
 <p>Connect the network lookup to the records that publish policy. Notice that <a href="glossary/d/dns.html">DNS</a> can route mail, help authenticate a domain and describe how servers should encrypt a hop.</p>
@@ -45,7 +52,7 @@
 <li><a href="networking/email/dns-and-email.html?level=2">DNS and email</a> &mdash; MX, addresses, reverse names, DNSSEC and record prefixes.</li>
 <li><a href="networking/email/identity-and-transport-security.html?level=2">Identity and transport security</a> &mdash; SPF, DKIM, DMARC, ARC, DANE, MTA-STS and reports.</li>
 </ol>
-<details class="q"><summary><i>Why does DANE for SMTP need DNSSEC?</i></summary><p>A TLSA record states which certificate to expect. DNSSEC validation stops an attacker from replacing that record along with the address records.</p></details>
+<details class="q"><summary><i>Why does DANE for SMTP need DNSSEC?</i></summary><p>A TLSA record states which certificate to expect. DNSSEC validation stops an attacker from replacing that record along with the address records.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 
 <h2>Stage 5: Filter abuse and repair delivery</h2>
 <p>Finish with the receiving side's hardest choices. No single signal proves that mail is wanted, and no single log line proves where a message went.</p>
@@ -53,7 +60,7 @@
 <li><a href="networking/email/spam-and-abuse.html?level=2">Spam and abuse</a> &mdash; reputation, lists, filters, limits, allowlists and user reports.</li>
 <li><a href="networking/email/deliverability-and-troubleshooting.html?level=2">Deliverability and troubleshooting</a> &mdash; bounces, queues, deferrals, blocks and header evidence.</li>
 </ol>
-<details class="q"><summary><i>Why might a legitimate message land in quarantine while a phishing message passes DMARC?</i></summary><p>Authentication and content safety are different questions. Filtering also uses reputation, list, content and feedback signals, each of which can be wrong.</p></details>
+<details class="q"><summary><i>Why might a legitimate message land in quarantine while a phishing message passes DMARC?</i></summary><p>Authentication and content safety are different questions. Filtering also uses reputation, list, content and feedback signals, each of which can be wrong.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 
 <h2>Capstone: explain a failed delivery</h2>
 <p>Imagine this report: a message to <code>bo@example.org</code> was accepted by your submission server, queued, deferred once with a 451 reply, then accepted by a remote MX host. A DMARC report later shows a failure for the visible domain, and the recipient says the message is in quarantine.</p>

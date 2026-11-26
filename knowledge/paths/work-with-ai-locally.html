@@ -13,6 +13,13 @@
 
 <p>This path checks local-model headroom, observes resources and verifies answers against a named Guide source before trusting them.</p>
 
+<p><strong>Outcome:</strong> After this path, you can assess a local model task, run a supported query and check its answer against a named Guide source.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 30 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <section data-level="novice">
 
 <h2>A local assistant is still a tool</h2>
@@ -59,17 +66,17 @@ Sources:
 <p>If no local server or model is available, leave the query pending; do not download a model or start a service as part of this exercise.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>Is a source citation proof the answer is correct?</i></summary><p>No. It tells you where to check the claim.</p></details>
+<details class="q"><summary><i>Is a source citation proof the answer is correct?</i></summary><p>No. It tells you where to check the claim.</p><p><strong>Expected sandbox state:</strong> tam ask --pipe prints a fixed pipeline answer citing terminal/shell/pipelines.html; a MODEL placeholder is left pending because no real model name was supplied.</p></details>
 </section>
 <h2>Stage 1: Check headroom</h2>
 <p><a href="tamlinux/development/ai.html?level=2">Artificial intelligence and human choice</a>: what a local model can and cannot decide for you. Then <a href="programming/ai/local-inference.html?level=2">check headroom</a>: read the memory-bandwidth and inference lesson, and note the model size and available resources before running anything.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why is model file size not the whole memory budget?</i></summary><p>Runtime state, context and the operating system also need memory.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Why is model file size not the whole memory budget?</i></summary><p>Runtime state, context and the operating system also need memory.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 2: Observe resources</h2>
 <p><a href="systems/maintenance/resources.html?level=2">Observe resources</a>: Read how to inspect memory and load. Identify a baseline and a comparable workload.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a high memory number alone establish thrashing?</i></summary><p>No. Compare available memory, pressure and workload behavior; a single value is insufficient.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a high memory number alone establish thrashing?</i></summary><p>No. Compare available memory, pressure and workload behavior; a single value is insufficient.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 3: Understand limits</h2>
 <p><a href="programming/ai/local-inference.html?level=3">Understand limits</a>: Read the quantization and context discussion. If two suitable local models are already available, compare the same question with <code>tam ask --model MODEL --pipe "what is a pipeline"</code>, replacing MODEL with each actual name. Record the model, timing and answer quality; leave the comparison pending if prerequisites are missing.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Is theoretical bandwidth a promise of tokens per second?</i></summary><p>No. Model architecture, computation, memory access and overhead also matter.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Is theoretical bandwidth a promise of tokens per second?</i></summary><p>No. Model architecture, computation, memory access and overhead also matter.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Capstone</h2><p>Record available memory and identify a locally available model and running local server. If they are available and you choose to run inference, ask <code>tam ask --pipe "what is a pipeline"</code> and compare the answer with its named Guide source. Record the model, workload and limits. Do not download a model or start a service as part of this exercise; if either is unavailable, leave the query pending.</p>
 <details class="solution"><p>With an already running local server and its required model available, this source-checking example returned:</p><tam-sandbox title="Try the sample command sequence" prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain" goal="Explore this fixed sample command sequence">
 <tam-cmd match="tam ask --pipe &quot;what is a pipeline&quot;" goal="true"><out>A pipeline passes a stream of bytes from one program to another, allowing the output of one program to be used as input for another.

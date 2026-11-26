@@ -17,6 +17,13 @@
 <p>This path takes a reader who has never thought about how a window reaches the screen to a clear explanation of X11, Wayland, desktop environments and toolkits.</p>
 <p>Each stage uses the lens shown on its links. Novice gives the idea, Learner adds worked practice, and Expert gives the reference detail. The checks are read-only; nothing here changes your desktop.</p>
 
+<p><strong>Outcome:</strong> After this path, you can explain X11, Wayland, desktops, toolkits and your own graphical session from the idea of a window.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 40 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: Meet the window and X11</h2>
 <ol>
 <li><a href="desktop/windowing/history.html?level=1">A short history of windowing systems</a> &mdash; see where overlapping windows came from.</li>
@@ -28,7 +35,7 @@
 <details class="q">
 <summary>In X11, is the window manager the same program as the X server?</summary>
 <p>No. The X server owns the screen and input; the window manager is a client that places and decorates windows. Reread the novice section of How X11 draws windows if that distinction is new.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Follow Wayland and the change from X11</h2>
@@ -42,7 +49,7 @@
 <details class="q">
 <summary>Why does a keylogger have less access in a Wayland session than in an X11 session?</summary>
 <p>The compositor routes input only to the focused client. X11 lets a client with display access request global key events. Reread the Learner section of Why Linux moved from X11 to Wayland.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Compare systems and desktops</h2>
@@ -56,7 +63,7 @@
 <details class="q">
 <summary>A desktop notification never appears, but input and windows work. Which layer would you check first?</summary>
 <p>The shell or notification service, not the compositor. The compositor is still presenting surfaces and routing input. Reread the Learner section of GNOME, KDE Plasma and other desktops.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Understand toolkits and check your session</h2>
@@ -70,7 +77,7 @@
 <details class="q">
 <summary>You see both WAYLAND_DISPLAY and DISPLAY in a terminal. What is the safest conclusion?</summary>
 <p>Native Wayland clients have a socket, and X11 clients have an address that may be XWayland. Use XDG_SESSION_TYPE and a login-manager query to identify the session. Reread the Learner section of Check your graphical session.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone</h2>

@@ -16,6 +16,13 @@
 
 <p>This path follows a key press from terminal capability data to the desktop and shows how to diagnose a terminal that refuses to start.</p>
 
+<p><strong>Outcome:</strong> After this path, you can follow text from program to pixels through terminfo, ncurses, fonts, themes and Lua configuration.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 30 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <section data-level="novice">
 <p>The examples read state and change only a variable inside one <a href="glossary/c/command.html">command</a>. Editing your desktop configuration is a separate, reversible task for the last stage.</p>
 <h2>What a terminal name does</h2>
@@ -62,7 +69,7 @@
 <p>Do not export a random terminal name in a startup file to hide the error; fix the name or the installed entry.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>What does a failing lookup with a deliberately wrong name show?</i></summary><p>That the error tracks the supplied name, not necessarily a broken program.</p></details>
+<details class="q"><summary><i>What does a failing lookup with a deliberately wrong name show?</i></summary><p>That the error tracks the supplied name, not necessarily a broken program.</p><p><strong>Expected sandbox state:</strong> printenv TERM prints xterm-256color, infocmp exits 0, and a deliberately bad TERM makes tput report unknown terminal.</p></details>
 </section>
 <h2>Stage 1: How a terminal draws text</h2>
 <ol>
@@ -75,11 +82,11 @@
 <details class="q">
 <summary><i>What does a full-screen program look up from terminfo?</i></summary>
 <p>The cursor, colour and screen-control escape sequences for the terminal named by <code>TERM</code>. If the name and the real terminal disagree, the program emits the wrong control bytes.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Why does <code>tam</code> link <code>libncursesw</code> rather than the narrow ncurses library?</i></summary>
 <p>The wide-character library handles <a href="glossary/u/unicode.html">Unicode</a> text and cell widths correctly. The narrow library is not enough for the guide's content.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Text and colour on screen</h2>
@@ -93,11 +100,11 @@
 <details class="q">
 <summary><i>Which command reports the font Fontconfig picks for <code>monospace</code>?</i></summary>
 <p><code>fc-match monospace</code>. Add <code>-f "%{file}: %{family}\n"</code> when you need the file path and family together.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Where does the current theme link point?</i></summary>
 <p><code>~/.local/state/tamlinux/current/theme</code>, which points at an isolated, timestamped generation. Switching themes swaps that link atomically rather than editing files one by one.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Configure the desktop in Lua</h2>
@@ -110,11 +117,11 @@
 <details class="q">
 <summary><i>Which file is the desktop's Lua entry point?</i></summary>
 <p><code>~/.config/hypr/hyprland.lua</code>. It prepares module paths and loads the packaged baseline plus your bindings and monitor files.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Does <code>hyprctl repl</code> change the configuration on disk?</i></summary>
 <p>No. It evaluates Lua in the running compositor. A durable change belongs in a configuration file with a written undo step.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Diagnose a terminal that refuses to start</h2>

@@ -1,0 +1,49 @@
+W154 PATH OUTCOMES AND STATE
+
+Date: 2026-11-26
+AI harness: opencode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Give each path an outcome, exact pre-requisites, and a rough
+    time expected to complete. Attach expected sandbox state to every
+    checkpoint. Add a failure branch that points to manuals, built-in
+    help, and search."
+  Fred: "Make it so."
+
+DONE
+
+  - tools/build-index.py validates the new path opening: Outcome,
+    Prerequisites with existing link targets, Time mapped from 3-6
+    stages to 30/40/50/60 minutes, and one If you're stuck note naming
+    tam man, the manuals page, tam help and tam search. It also checks
+    an expected sandbox state in every checkpoint answer.
+  - tests/test_build_index.py carries the new opening in its fixture,
+    gives each sample checkpoint an expected state, and rejects each
+    broken field, pointer, time and missing checkpoint state.
+  - docs/templates/path.html and docs/corpus-pedagogy.md document the
+    contract, including the no-sandbox sentence.
+  - All 37 goal path pages now open with an outcome, exact prerequisite
+    links or `none beyond reading`, and a rough time. Each of the 209
+    checkpoint answers states the expected sandbox state, written from
+    the simulated files and output where a sandbox is in that stage.
+  - Corpus 0.138.0 records the change in knowledge/version, ROADMAP.md
+    and the development decision record.
+  - make corpus-and-test passed: 1790 pages parsed and rendered, 106
+    corpus tooling tests and the repository consistency check.
+
+FAILED
+
+  - The first test run failed because the fixture's stuck note linked to
+    a page but did not name help/manuals.html. Added the manuals page to
+    the fixture and linked it.
+  - The first corpus check found a checkpoint in rescue.html with class
+    `q open`. The state pass had matched only class `q`; it was rerun
+    against every details block whose class list contains q.
+
+HANDOFF
+
+  - Commit the source and work record, rerun make corpus and commit any
+    index follow-up. Check git log @{u}.. before pushing dev.
+  - Test, Run and Release still need Fred's exact word for a candidate.

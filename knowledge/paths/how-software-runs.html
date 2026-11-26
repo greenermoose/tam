@@ -13,18 +13,25 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / How software runs</p></nav>
 
 <p>These readings follow a program from the <a href="glossary/k/kernel.html">kernel</a> up through <a href="glossary/f/filesystem.html">filesystems</a> and services.</p>
+<p><strong>Outcome:</strong> After this path, you can trace the kernel, processes, filesystems and init into a running program.</p>
+<p><strong>Prerequisites:</strong> <a href="paths/from-gates-to-machine.html">From gates to machine code</a></p>
+<p><strong>Time:</strong> About 40 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: Kernel and process</h2>
 <p><a href="systems/kernel-and-processes.html?level=2">Kernel and processes</a>: syscalls, drivers and PIDs.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>What sits between a normal program and a hardware device?</i></summary><p>Usually a syscall into the kernel and then a driver path.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>What sits between a normal program and a hardware device?</i></summary><p>Usually a syscall into the kernel and then a driver path.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 2: Filesystems</h2>
 <p><a href="systems/storage/filesystems.html?level=2">Filesystems that keep state</a>: disks, <a href="glossary/b/btrfs.html">Btrfs</a> and recovery domains.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Name two recovery domains that are not the same.</i></summary><p><a href="glossary/f/filesystem.html">Filesystem</a> snapshots and Tamlinux source-install stages are different; mutable documents may be a third.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Name two recovery domains that are not the same.</i></summary><p><a href="glossary/f/filesystem.html">Filesystem</a> snapshots and Tamlinux source-install stages are different; mutable documents may be a third.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 3: <a href="glossary/i/init.html">Init</a> and boot context</h2>
 <p><a href="systems/init.html?level=2">Init and services</a> and <a href="systems/boot/boot-phases.html?level=2">Boot phases</a>: who starts services after the kernel.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Which init runs on current Arch-based Tamlinux?</i></summary><p>systemd. Runit is planned for a future rootstock.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Which init runs on current Arch-based Tamlinux?</i></summary><p>systemd. Runit is planned for a future rootstock.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Stage 4: Delivery and ownership</h2>
 <p><a href="tamlinux/development/package-versions.html?level=2">Package versions</a>: follow a source revision through the delivered package to the process that is actually running.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a source commit prove what the running command contains?</i></summary><p>No. Resolve the executable's owner and version, then inspect a running process separately.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does a source commit prove what the running command contains?</i></summary><p>No. Resolve the executable's owner and version, then inspect a running process separately.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details></section>
 <h2>Capstone</h2>
 <p>Pick <code>tam --version</code>. Name the process, the package/delivery story you would check next, and one service you would not blame without evidence.</p>
 <details class="solution"><p>The command runs as your user process. Next evidence is path resolution and assembly or package ownership (<a href="tamlinux/development/package-versions.html">package versions</a>). Do not restart unrelated system units because a version string looks odd.</p></details>

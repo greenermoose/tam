@@ -16,6 +16,13 @@
 
 <p>This path covers small desktop tasks—capturing the screen, sound, wireless devices, displays and night light—with a clean return to the starting state.</p>
 
+<p><strong>Outcome:</strong> After this path, you can capture the screen, manage sound and wireless devices, adjust displays and input, and restore the starting state.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 40 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <section data-level="novice">
 <p>Each step uses the packaged desktop controls, so you can undo it from the same menu or chord. The read-only status <a href="glossary/c/command.html">commands</a> are safe; connecting a device or changing a display affects only your current session.</p>
 <h2>A calm evening setup</h2>
@@ -61,7 +68,7 @@ terminal font: 9 pt</out>
 <p>If a tool says it must run in a graphical session, keep the state-reading step pending rather than forcing a setting.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary><i>Why read all four values before a desktop experiment?</i></summary><p>So you can compare the final state with a real starting point instead of relying on memory.</p></details>
+<details class="q"><summary><i>Why read all four values before a desktop experiment?</i></summary><p>So you can compare the final state with a real starting point instead of relying on memory.</p><p><strong>Expected sandbox state:</strong> tam-display-text-size reports text size 12 px, GTK scaling 1.0 and terminal font 9 pt; tam-toggle-nightlight --status reports enabled false and temperature null.</p></details>
 </section>
 <h2>Stage 1: Capture and share</h2>
 <ol>
@@ -75,11 +82,11 @@ terminal font: 9 pt</out>
 <details class="q">
 <summary><i>Does copying text to the clipboard save it permanently?</i></summary>
 <p>No. The clipboard holds a temporary selection until it is replaced or cleared. Save important text in a real file.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>If notifications are silenced, can you still read an earlier message?</i></summary>
 <p>Yes. Silencing stops new pop-ups; the message is still recorded in history, which <code>Meta + Shift + H</code> opens.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Sound and wireless devices</h2>
@@ -93,11 +100,11 @@ terminal font: 9 pt</out>
 <details class="q">
 <summary><i>Which command prints the current audio output sink?</i></summary>
 <p><code>tam-audio-output-sink</code>. The audio panel is <code>Meta + Ctrl + A</code>.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Why does a paired device not need pairing mode every time?</i></summary>
 <p><a href="glossary/p/pairing.html">Pairing</a> exchanges and stores a key, which the computer and device reuse when they connect later.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Screens and their hardware</h2>
@@ -111,11 +118,11 @@ terminal font: 9 pt</out>
 <details class="q">
 <summary><i>Why adjust scaling or brightness from the desktop controls before editing configuration files?</i></summary>
 <p>The controls are reversible and take effect immediately, so you can confirm legibility and undo without risking session startup files.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>Which command reports the current text size?</i></summary>
 <p><code>tam-display-text-size</code>. It prints the text size, scaling factor and terminal font.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: Input, locking and night light</h2>
@@ -131,11 +138,11 @@ terminal font: 9 pt</out>
 <details class="q">
 <summary><i>Which chord locks the screen, and which pauses idle locking?</i></summary>
 <p><code>Meta + Ctrl + L</code> locks; <code>Meta + Ctrl + I</code> toggles Stay Awake. The Stay Awake toggle is silent, so confirm it with <code>tam-toggle-idle status</code>.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 <details class="q">
 <summary><i>In <code>tam-toggle-idle status</code>, what does <code>"enabled":false</code> mean?</i></summary>
 <p>Stay Awake is off, so normal idle behaviour applies. It does not mean the status command failed.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Set up an evening of work, then put it back</h2>

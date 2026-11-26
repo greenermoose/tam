@@ -17,6 +17,13 @@
 <p>This path takes a reader who has never studied networking from the idea of a layered message to explaining every step of one web request.</p>
 <p>Each stage gives a lens to read with. Start with the gentle explanation where offered, then use the practice or reference lens. Answer the checkpoint before moving on; if it is unclear, reread the stage at the earlier lens. All <a href="glossary/c/command.html">commands</a> in this path only read state.</p>
 
+<p><strong>Outcome:</strong> After this path, you can explain one web request through layers, packets, ports, TCP, UDP and applications.</p>
+<p><strong>Prerequisites:</strong> none beyond reading</p>
+<p><strong>Time:</strong> About 60 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
 <h2>Stage 1: Why layers exist</h2>
 <p><a href="networking/stack/the-internet-protocol-stack.html?level=1">The internet protocol stack</a> first: learn why a message is wrapped in labels, and name the application, transport, internet and link layers. Then read <a href="networking/stack/the-internet-protocol-stack.html?level=2">the same page at the practice lens</a> to find the addresses and ports on your own machine.</p>
 
@@ -25,7 +32,7 @@
 <details class="q">
 <summary><i>Which layer adds an address, which adds a port, and why does the receiver need both?</i></summary>
 <p>The internet layer adds the address so routers can forward the packet to the right machine. The transport layer adds the port so that machine can hand the data to the right program. Reread the Learner section of the first page if either job is unclear.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 2: Packets and next hops</h2>
@@ -36,7 +43,7 @@
 <details class="q">
 <summary><i>A packet's hop limit reaches zero. What happens, and what command deliberately uses that behaviour?</i></summary>
 <p>The router drops the packet and sends an internet control message back to the source. Traceroute sends packets with increasing hop limits to collect those messages and learn the routers along the path. Reread the Learner quiz on the forwarding page if needed.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 3: Many conversations on one machine</h2>
@@ -47,7 +54,7 @@
 <details class="q">
 <summary><i>Two browser tabs reach the same website on port 443. Why do their connections stay separate?</i></summary>
 <p>Each tab gets a different local port. The pair of local and remote addresses and ports identifies a conversation, so the four values differ even though both tabs use the same remote port. The Expert section of this page gives the exact range of local ports.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 4: A reliable stream</h2>
@@ -58,7 +65,7 @@
 <details class="q">
 <summary><i>Why can a connection with a quick round trip still send too slowly to fill a link?</i></summary>
 <p>The sender may have only a small congestion window of unacknowledged data in flight, or the application may not be feeding it enough bytes. Check both the window and the counters that show how much data the application wrote. The Expert section explains the bandwidth-delay limit.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 5: Messages without a conversation</h2>
@@ -69,7 +76,7 @@
 <details class="q">
 <summary><i>A name lookup gets no reply. Why can't <a href="glossary/u/udp.html">UDP</a> say whether the request or the reply was lost?</i></summary>
 <p>UDP keeps no connection state and sends no acknowledgements, so the sender sees only silence. The application must retry or try another server. Contrast this with the acknowledgement numbers you read in Stage 4.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Stage 6: One request, end to end</h2>
@@ -80,7 +87,7 @@
 <details class="q">
 <summary><i>A numeric address replies to a ping but the page will not open. Which layers are proved, and what do you check next?</i></summary>
 <p>Link, addressing, routing and basic control messages work. Check the <a href="glossary/t/tcp.html">TCP</a> connection to the web port, then TLS and the HTTP response. The reference table on the final page lists one read-only check for each stage.</p>
-</details>
+<p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
 </section>
 
 <h2>Capstone: Trace a slow page from name to bytes</h2>
