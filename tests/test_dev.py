@@ -179,6 +179,7 @@ class DevLoopTest(unittest.TestCase):
         )
         (root / ".gitignore").write_text("build/\nknowledge/.build_id\n__pycache__/\n", encoding="utf-8")
         shutil.copyfile(BUILDER, root / "tools" / "build-index.py")
+        shutil.copyfile(BUILDER.parent / "search_tokens.py", root / "tools" / "search_tokens.py")
         shutil.copyfile(DEV_SCRIPT, root / "tools" / "dev.py")
 
         self.git(root, "init", "-q", "-b", "dev")

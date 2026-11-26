@@ -76,6 +76,80 @@ static void stem_word(const char *in, char *out, size_t out_cap)
     }
 }
 
+/* CLI-aware token kinds mirror tools/search_tokens.py. Flags, dotted IDs,
+ * version strings and paths keep their punctuation; only ordinary words are
+ * stemmed. */
+typedef enum {
+    TOKEN_WORD, TOKEN_FLAG, TOKEN_VERSION, TOKEN_ID, TOKEN_PATH
+} token_kind_t;
+
+static bool token_start_char(char c)
+{
+    unsigned char u = (unsigned char)c;
+    return isalnum(u) || c == '-' || c == '_' || c == '/';
+}
+
+static bool token_continue_char(char c)
+{
+    unsigned char u = (unsigned char)c;
+    return isalnum(u) || c == '-' || c == '_' || c == '.' || c == '/' || c == '+';
+}
+
+static bool version_token(const char *s, size_t len)
+{
+    size_t i = 0;
+    if (len == 0 || !isdigit((unsigned char)s[0])) return false;
+    while (i < len && isdigit((unsigned char)s[i])) i++;
+    size_t groups = 0;
+    while (i < len && s[i] == '.') {
+        i++;
+        if (i >= len || !isdigit((unsigned char)s[i])) return false;
+        groups++;
+        while (i < len && isdigit((unsigned char)s[i])) i++;
+    }
+    if (groups == 0) return false;
+    if (i == len) return true;
+    if (s[i] != '-' && s[i] != '+') return false;
+    i++;
+    if (i >= len) return false;
+    for (; i < len; i++) {
+        unsigned char u = (unsigned char)s[i];
+        if (!isalnum(u) && s[i] != '.' && s[i] != '_' && s[i] != '-') return false;
+    }
+    return true;
+}
+
+static token_kind_t token_kind(const char *s, size_t len)
+{
+    if (len >= 2 && s[0] == '-') {
+        if (len >= 3 && s[1] == '-' && isalnum((unsigned char)s[2]))
+            return TOKEN_FLAG;
+        if (s[1] != '-' && isalnum((unsigned char)s[1])) return TOKEN_FLAG;
+    }
+    if (version_token(s, len)) return TOKEN_VERSION;
+    for (size_t i = 0; i < len; i++) {
+        if (s[i] == '/') return TOKEN_PATH;
+    }
+    for (size_t i = 0; i < len; i++) {
+        if (s[i] == '.' || s[i] == '_') return TOKEN_ID;
+    }
+    return TOKEN_WORD;
+}
+
+static void token_stem(const char *raw, token_kind_t kind, char *out, size_t out_cap)
+{
+    if (kind == TOKEN_WORD) {
+        stem_word(raw, out, out_cap);
+        return;
+    }
+    size_t len = strlen(raw);
+    if (len >= out_cap) len = out_cap - 1;
+    for (size_t i = 0; i < len; i++) {
+        out[i] = (char)tolower((unsigned char)raw[i]);
+    }
+    out[len] = '\0';
+}
+
 static int levenshtein(const char *s1, const char *s2)
 {
     size_t l1 = strlen(s1);
@@ -297,6 +371,70 @@ static void load_paths_projection(tam_index_t *idx, const char *root)
     free(content);
 }
 
+static void load_search_projection(tam_index_t *idx, const char *root)
+{
+    char *path = tam_path_join(root, "index.search.tsv");
+    if (path == NULL) return;
+    char *content = tam_fs_read(path, 0, NULL);
+    free(path);
+    if (content == NULL) return; /* Older corpora have no search projection. */
+
+    char *line = content;
+    bool header = true;
+    while (line != NULL && *line != '\0') {
+        char *next = strchr(line, '\n');
+        if (next != NULL) {
+            *next = '\0';
+            next++;
+        }
+        if (header) {
+            header = false;
+            line = next;
+            continue;
+        }
+        char *cols[5] = {0};
+        char *cur = line;
+        for (int c = 0; c < 5 && cur != NULL; c++) {
+            cols[c] = cur;
+            char *tab = strchr(cur, '\t');
+            if (tab != NULL) {
+                *tab = '\0';
+                cur = tab + 1;
+            } else {
+                cur = NULL;
+            }
+        }
+        if (cols[0] != NULL && cols[1] != NULL && cols[2] != NULL) {
+            const tam_index_entry_t *found = tam_index_lookup_path(idx, cols[0]);
+            if (found != NULL) {
+                tam_index_entry_t *e = (tam_index_entry_t *)found;
+                if (cols[4] != NULL && strcasecmp(cols[4], "exclude") == 0) {
+                    char **re = realloc(e->search_excludes,
+                                        (e->num_search_excludes + 1) * sizeof(*e->search_excludes));
+                    if (re != NULL) {
+                        e->search_excludes = re;
+                        e->search_excludes[e->num_search_excludes++] = strdup(cols[2]);
+                    }
+                } else {
+                    tam_search_term_t *re = realloc(e->search_terms,
+                                        (e->num_search_terms + 1) * sizeof(*e->search_terms));
+                    if (re != NULL) {
+                        e->search_terms = re;
+                        tam_search_term_t *term = &e->search_terms[e->num_search_terms++];
+                        term->term = strdup(cols[1]);
+                        term->stem = strdup(cols[2]);
+                        term->weight = cols[3] != NULL ? atoi(cols[3]) : 0;
+                        term->source = cols[4] != NULL && cols[4][0] != '\0'
+                                       ? strdup(cols[4]) : strdup("text");
+                    }
+                }
+            }
+        }
+        line = next;
+    }
+    free(content);
+}
+
 static int path_lookup_cmp(const void *a, const void *b)
 {
     const tam_index_entry_t *ea = *(const tam_index_entry_t *const *)a;
@@ -395,10 +533,14 @@ tam_index_t *tam_index_load(const char *root)
 
         if (cols[0] != NULL && cols[1] != NULL && cols[2] != NULL) {
             if (idx->count >= cap) {
+                size_t old_cap = cap;
                 cap *= 2;
                 tam_index_entry_t *re = realloc(idx->entries, cap * sizeof(tam_index_entry_t));
                 if (re == NULL) break;
                 idx->entries = re;
+                /* Projections read the new fields below, so zero new slots. */
+                memset(idx->entries + old_cap, 0,
+                       (cap - old_cap) * sizeof(*idx->entries));
             }
 
             tam_index_entry_t *entry = &idx->entries[idx->count];
@@ -431,11 +573,13 @@ tam_index_t *tam_index_load(const char *root)
         line = next_line;
     }
 
+    /* Projections resolve entries by path; build the lookup before them. */
+    build_path_lookup(idx);
     load_parent_projection(idx, root);
     load_kind_projection(idx, root);
     load_paths_projection(idx, root);
+    load_search_projection(idx, root);
     free(content);
-    build_path_lookup(idx);
     return idx;
 }
 
@@ -462,6 +606,16 @@ void tam_index_free(tam_index_t *idx)
             free(e->prereqs[k]);
         }
         free(e->prereqs);
+        for (size_t k = 0; k < e->num_search_terms; k++) {
+            free(e->search_terms[k].term);
+            free(e->search_terms[k].stem);
+            free(e->search_terms[k].source);
+        }
+        free(e->search_terms);
+        for (size_t k = 0; k < e->num_search_excludes; k++) {
+            free(e->search_excludes[k]);
+        }
+        free(e->search_excludes);
     }
     free(idx->entries);
     for (size_t i = 0; i < idx->num_paths; i++) {
@@ -595,6 +749,7 @@ int tam_index_suggest_fuzzy(const tam_index_t *idx, const char *query,
 typedef struct {
     char raw[64];
     char stem[64];
+    token_kind_t kind;
 } query_token_t;
 
 static bool contains_word_ci(const char *haystack, const char *needle)
@@ -905,35 +1060,55 @@ const tam_index_entry_t *tam_index_closest_glossary_match(const tam_index_t *idx
     return *ambiguous ? NULL : best_entry;
 }
 
-static bool query_separator(char c)
-{
-    return isspace((unsigned char)c) || c == ',' || c == ';';
-}
-
 static size_t query_tokens(const char *query, query_token_t tokens[16])
 {
     size_t count = 0;
     bool has_meaningful = false;
-    while (*query && count < 16) {
-        while (*query && query_separator(*query)) query++;
+    while (*query != '\0' && count < 16) {
+        while (*query != '\0' && !token_start_char(*query)) query++;
         const char *start = query;
-        while (*query && !query_separator(*query)) query++;
+        while (*query != '\0' && token_continue_char(*query)) query++;
         size_t len = (size_t)(query - start);
-        if (len == 0 || len >= sizeof(tokens[0].raw)) continue;
 
+        /* Mirror tools/search_tokens.py: keep --flags, drop bullet dashes and
+         * trailing punctuation so `pipes.` searches for `pipes`. */
+        bool flag_prefix = len >= 3 && start[0] == '-' && start[1] == '-' &&
+                           isalnum((unsigned char)start[2]);
+        while (!flag_prefix && len > 1 && start[0] == '-' &&
+               !isalnum((unsigned char)start[1])) {
+            start++;
+            len--;
+        }
+        while (len > 0 && (start[len - 1] == '.' || start[len - 1] == '-' ||
+                           start[len - 1] == '/')) {
+            len--;
+        }
+        bool only_punct = true;
+        for (size_t i = 0; i < len; i++) {
+            if (isalnum((unsigned char)start[i])) {
+                only_punct = false;
+                break;
+            }
+        }
+        if (len == 0 || only_punct || len >= sizeof(tokens[0].raw)) continue;
+
+        char raw[64];
+        memcpy(raw, start, len);
+        raw[len] = '\0';
         bool duplicate = false;
         for (size_t i = 0; i < count; i++) {
-            if (exact_span(tokens[i].raw, start, len)) {
+            if (strcasecmp(tokens[i].raw, raw) == 0) {
                 duplicate = true;
                 break;
             }
         }
         if (duplicate) continue;
 
-        memcpy(tokens[count].raw, start, len);
-        tokens[count].raw[len] = '\0';
-        stem_word(tokens[count].raw, tokens[count].stem, sizeof(tokens[count].stem));
-        has_meaningful |= !is_stop_word(tokens[count].raw);
+        memcpy(tokens[count].raw, raw, len + 1);
+        tokens[count].kind = token_kind(raw, len);
+        token_stem(raw, tokens[count].kind, tokens[count].stem,
+                   sizeof(tokens[count].stem));
+        has_meaningful |= !is_stop_word(raw);
         count++;
     }
     if (!has_meaningful) return count;
@@ -945,10 +1120,23 @@ static size_t query_tokens(const char *query, query_token_t tokens[16])
     return kept;
 }
 
+/* Build-time exclusions also suppress the ordinary field matches, so an
+ * opted-out word cannot re-enter through a title, keyword or summary. */
+static bool entry_excludes(const tam_index_entry_t *e, const char *stem)
+{
+    if (e == NULL || stem == NULL) return false;
+    for (size_t i = 0; i < e->num_search_excludes; i++) {
+        if (e->search_excludes[i] != NULL &&
+            strcasecmp(e->search_excludes[i], stem) == 0) return true;
+    }
+    return false;
+}
+
 static int score_term(const tam_index_entry_t *e, const query_token_t *token)
 {
     const char *raw = token->raw;
     const char *stem = token->stem;
+    if (entry_excludes(e, stem)) return 0;
     char field_stem[64];
     stem_word(e->topic, field_stem, sizeof(field_stem));
     int score = strcasecmp(raw, e->topic) == 0 ? 30 :
@@ -973,11 +1161,31 @@ static int score_term(const tam_index_entry_t *e, const query_token_t *token)
     else if (contains_word_ci(e->title, stem)) score += 10;
     if (contains_word_ci(e->summary, raw)) score += 8;
     else if (contains_word_ci(e->summary, stem)) score += 6;
+
+    /* Terms derived from the page body, plus authored boosts. */
+    for (size_t i = 0; i < e->num_search_terms; i++) {
+        const tam_search_term_t *derived = &e->search_terms[i];
+        if (derived->stem != NULL && strcasecmp(derived->stem, stem) == 0) {
+            score += derived->weight * 2;
+        }
+    }
     return score;
+}
+
+static bool entry_excludes_query(const tam_index_entry_t *e,
+                                 const query_token_t *tokens, size_t count)
+{
+    for (size_t i = 0; i < count; i++) {
+        if (entry_excludes(e, tokens[i].stem)) return true;
+    }
+    return false;
 }
 
 static bool matches_prefix(const tam_index_entry_t *e, const char *raw, size_t len)
 {
+    char prefix_stem[64];
+    stem_word(raw, prefix_stem, sizeof(prefix_stem));
+    if (entry_excludes(e, raw) || entry_excludes(e, prefix_stem)) return false;
     if (strncasecmp(e->topic, raw, len) == 0 ||
         strncasecmp(e->title, raw, len) == 0) return true;
     for (size_t k = 0; k < e->num_keywords; k++) {
@@ -1013,7 +1221,7 @@ size_t tam_index_search(const tam_index_t *idx, const char *query,
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
         enum match_strength strength = exact_match(e, q);
-        if (strength != MATCH_NONE) {
+        if (strength != MATCH_NONE && !entry_excludes_query(e, tokens, n)) {
             scored[found++] = (tam_search_result_t){e, 1000 * strength};
             continue;
         }

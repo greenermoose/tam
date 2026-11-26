@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.70.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.71.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3092,6 +3092,34 @@ printf '%s\n' "$s_json" | grep -q '"track": "security"' || fail "search --json m
 if "$TAM" search --pipe "change file owner" | grep -q "$esc"; then
     fail "search piped output contains escape sequences"
 fi
+
+# Derived search projection: body terms, boost order, exclusions and CLI tokens.
+TAM_KNOWLEDGE_DIR="$here/fixtures/search" python3 - "$TAM" <<'PYTHON'
+import json
+import subprocess
+import sys
+
+def search(*args):
+    result = subprocess.run(
+        [sys.argv[1], "search", "--json", "--pipe", *args],
+        text=True, capture_output=True, check=True)
+    return json.loads(result.stdout)
+
+def pages(*args):
+    return [hit["page"] for hit in search(*args)]
+
+assert pages("quarkbody") == ["plain.html"], search("quarkbody")
+ranked = pages("quarkboost")
+assert ranked[:2] == ["boosted.html", "plain.html"], ranked
+hidden = pages("quarkhide")
+assert hidden == ["plain.html"], hidden
+assert pages("--", "--pipe") == ["flags.html"], search("--", "--pipe")
+assert pages("--", "-h") == ["flags.html"], search("--", "-h")
+assert pages("shell.novice") == ["ids.html"], search("shell.novice")
+assert pages("0.71.0") == ["version.html"], search("0.71.0")
+assert pages("limine-snapper-sync") == ["hyphen.html"], search("limine-snapper-sync")
+PYTHON
+pass "search uses derived terms, boost, exclusions and CLI-aware tokens"
 
 # Canonical queries from research/prototype
 "$TAM" search "pipe output to grep" | grep -q 'pipelines' || fail "search 'pipe output to grep' failed"

@@ -1,0 +1,57 @@
+W153 DERIVED SEARCH AND NAVIGATION
+
+Date: 2026-11-26
+AI harness: opencode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Derive the search index and navigation from pages in the corpus,
+    the CLI-aware tokenisation, boost/exclude metadata, and offline
+    link-and-anchor checks."
+  Fred: "Make it so."
+
+DONE
+
+  - tools/search_tokens.py defines one token contract for ordinary words,
+    flags, dotted IDs, version strings, paths and hyphenated IDs;
+    src/index.c mirrors it in the reader.
+  - tools/build-index.py derives index.search.tsv, index.anchors.tsv and
+    a per-entry search block in index.json from HTML sections, headings
+    and explicit anchors. It validates search-boost and search-exclude
+    as single page terms before applying weights.
+  - tools/corpus_pipeline.py moves to cache schema 3, caches derived page
+    data, rejects cross-page fragments and checks same-page fragments
+    against index.anchors.tsv; tests/guide.sh passes the anchor graph
+    to broken_internal_links().
+  - src/index.c loads the projections, applies exclusions to exact
+    aliases, and zeroes newly realloc'd entries so the added fields are
+    always safe. cmd_search() accepts -- so a query can be --pipe or -h.
+  - tests/fixtures/search and new tests/run.sh checks cover derived
+    terms, boost order, exclusions, flag queries, dotted IDs, versions
+    and hyphen IDs. Corpus tooling unit tests cover metadata errors,
+    projection weights and fragment checks.
+  - docs/corpus-authoring.md and man/tam.1 document the authoring
+    contract and the literal-query separator. Command 0.71.0 and
+    corpus 0.137.0 bumped everywhere required.
+  - make test passed (43.79 s automated); tools/check-repo.py passed.
+    The live corpus has 1790 pages, 35357 search rows and 6044 anchor
+    rows, with 97 same-page fragments and no cross-page fragments.
+
+FAILED
+
+  - The first unit run exposed four fixture/test gaps: no make rule for
+    the new projections, a stop-word expectation, a missing heading
+    anchor, and invalid-metadata cases that read outputs before a first
+    successful build. Boost validation also ran after boosts were
+    applied, so an absent page term escaped rejection. All fixed.
+  - An early reader crash came from uninitialised fields after realloc;
+    the new slots are now zeroed.
+
+HANDOFF
+
+  - Commit the source, then rerun make corpus and commit any index
+    follow-up. Push dev only after checking for other agents' commits.
+  - Search text is build-time HTML, not terminal-rendered output. Keep
+    the Python and C token rules in step. Navigation stays the generated
+    parent/path graph plus validated same-page anchors.

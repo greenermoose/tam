@@ -971,24 +971,31 @@ static int cmd_search(int n, char **args)
 {
     int json_mode = 0;
     int pipe = 0;
+    int literal = 0;
     char query_buf[512] = {0};
     size_t qlen = 0;
 
     for (int i = 0; i < n; i++) {
-        if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
+        if (!literal && strcmp(args[i], "--") == 0) {
+            /* Let a query name a CLI token such as --pipe or -h. */
+            literal = 1;
+        } else if (!literal && (strcmp(args[i], "--pipe") == 0 ||
+                                strcmp(args[i], "-p") == 0)) {
             pipe = 1;
-        } else if (strcmp(args[i], "--json") == 0) {
+        } else if (!literal && strcmp(args[i], "--json") == 0) {
             json_mode = 1;
-        } else if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0) {
+        } else if (!literal && (strcmp(args[i], "--help") == 0 ||
+                                strcmp(args[i], "-h") == 0)) {
             fputs(
                 "tam search - search the Tamlinux offline guide\n\n"
                 "Usage:\n"
                 "  tam search TERM...         open matching guide pages in the pager\n"
                 "  tam search --json TERM...  output search results as JSON\n"
-                "  tam search --pipe TERM...  print search results as plain text\n",
+                "  tam search --pipe TERM...  print search results as plain text\n"
+                "  tam search -- --pipe       search for a flag-like term\n",
                 stdout);
             return 0;
-        } else if (args[i][0] == '-') {
+        } else if (!literal && args[i][0] == '-') {
             return usage_error(args[i]);
         } else {
             if (qlen > 0 && qlen + 1 < sizeof(query_buf)) {
@@ -1009,7 +1016,8 @@ static int cmd_search(int n, char **args)
             "Usage:\n"
             "  tam search TERM...         open matching guide pages in the pager\n"
             "  tam search --json TERM...  output search results as JSON\n"
-            "  tam search --pipe TERM...  print search results as plain text\n",
+            "  tam search --pipe TERM...  print search results as plain text\n"
+            "  tam search -- --pipe       search for a flag-like term\n",
             stdout);
         return 0;
     }

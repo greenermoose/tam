@@ -155,7 +155,8 @@ broken = []
 for rel in sorted(available):
     if rel.endswith(".html"):
         document = builder.LearningHTML((knowledge / rel).read_text(encoding="utf-8", errors="replace"))
-        broken.extend(f"{rel}->{href}" for href in broken_internal_links(document.hrefs, available))
+        anchors = builder.anchor_rows(document)
+        broken.extend(f"{rel}->{href}" for href in broken_internal_links(document.hrefs, available, anchors))
 if broken:
     sys.exit("broken internal links: " + " ".join(broken))
 ' "$knowledge" || fail "broken internal links"

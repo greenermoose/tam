@@ -119,9 +119,20 @@ class CorpusPipeline(unittest.TestCase):
         self.ok("check")
         self.assertNotIn("use/moved.html", (self.root / "knowledge/index.json").read_text())
 
-    def test_link_check_preserves_guide_rules_and_checks_optional_generated_targets(self):
-        self.edit("index.html", "</body>", '<a href="use/index.html#section">Anchor</a></body>')
+    def test_link_check_rejects_cross_page_and_dead_fragments(self):
+        self.edit("index.html", "</body>", '<h2 id="section">Section</h2></body>')
+        self.edit("index.html", "</body>", '<a href="#section">Anchor</a></body>')
         self.ok("check")
+        self.edit("index.html", '#section">Anchor', '#missing">Anchor')
+        rc, _, err = self.run_pipeline("check")
+        self.assertEqual(rc, 1)
+        self.assertIn("broken internal link: #missing", err)
+        self.edit("index.html", '#missing">Anchor', 'use/index.html#section">Anchor')
+        rc, _, err = self.run_pipeline("check")
+        self.assertEqual(rc, 1)
+        self.assertIn("broken internal link: use/index.html#section", err)
+
+    def test_link_check_checks_optional_generated_targets(self):
         self.edit("index.html", "</body>", '<a href="tldr/index.tsv">Examples</a></body>')
         self.assertEqual(self.run_pipeline("check")[0], 1)
         (self.root / "knowledge/tldr/pages").mkdir(parents=True)

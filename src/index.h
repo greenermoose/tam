@@ -5,6 +5,15 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+/* A derived search term from index.search.tsv. `stem` is the CLI-aware token
+ * used for matching; `term` keeps the authored spelling for diagnostics. */
+typedef struct {
+    char *term;
+    char *stem;
+    int weight;
+    char *source;
+} tam_search_term_t;
+
 typedef struct {
     char *topic;       /* primary topic name, e.g. "pipelines" */
     char *path;        /* relative path in corpus, e.g. "terminal/shell/pipelines.html" */
@@ -19,6 +28,10 @@ typedef struct {
     size_t num_keywords;
     char **prereqs;    /* topics to read first, e.g. "shell" */
     size_t num_prereqs;
+    tam_search_term_t *search_terms; /* terms derived from the page body */
+    size_t num_search_terms;
+    char **search_excludes;          /* stems the page opts out of */
+    size_t num_search_excludes;
     int rev;           /* page revision count from git history (>= 1, or 0 if unknown) */
     char *updated;     /* last updated timestamp "YYYY-MM-DD HH:MM" */
 } tam_index_entry_t;

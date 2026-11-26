@@ -18,11 +18,17 @@ COVERAGE_TOOL = (
 )
 MAKEFILE = BUILDER.parent.parent / "Makefile"
 INDEXES = ("index.tsv", "index.json", "index.parents.tsv", "index.kinds.tsv",
-           "index.skills.tsv", "index.paths.tsv", "coverage.json")
+           "index.skills.tsv", "index.paths.tsv", "index.search.tsv",
+           "index.anchors.tsv", "coverage.json")
 
 spec = importlib.util.spec_from_file_location("build_index_tool", str(BUILDER))
 build_index_mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(build_index_mod)
+
+SEARCH_TOKENS = BUILDER.parent / "search_tokens.py"
+token_spec = importlib.util.spec_from_file_location("search_tokens", str(SEARCH_TOKENS))
+search_tokens_mod = importlib.util.module_from_spec(token_spec)
+token_spec.loader.exec_module(search_tokens_mod)
 
 
 class BuildResult:
@@ -289,6 +295,107 @@ class BuildIndex(unittest.TestCase):
             self.assertIn('enforce_tracks', result.stderr)
             self.assertNotIn('Traceback', result.stderr)
 
+    def test_cli_aware_tokenisation_mirrors_the_reader(self):
+        tokens = search_tokens_mod.tokenize
+        def shape(text):
+            return [(t["raw"], t["stem"], t["kind"]) for t in tokens(text)]
+
+        self.assertEqual(shape("pipelines and redirection"),
+                         [("pipelines", "pipelin", "word"),
+                          ("redirection", "redirection", "word")])
+        self.assertEqual(shape("--pipe -h"),
+                         [("--pipe", "--pipe", "flag"), ("-h", "-h", "flag")])
+        self.assertEqual(shape("shell.novice 0.71.0"),
+                         [("shell.novice", "shell.novice", "id"),
+                          ("0.71.0", "0.71.0", "version")])
+        self.assertEqual(shape("terminal/shell/pipelines.html"),
+                         [("terminal/shell/pipelines.html",
+                           "terminal/shell/pipelines.html", "path")])
+        self.assertEqual(shape("limine-snapper-sync"),
+                         [("limine-snapper-sync", "limine-snapper-sync", "word")])
+        self.assertEqual(shape("C++"), [("C++", "c++", "word")])
+        self.assertEqual(shape("how do I pipe"), [("pipe", "pipe", "word")])
+        self.assertEqual(shape("bullets - pipe."), [("bullets", "bullet", "word"),
+                                                     ("pipe", "pipe", "word")])
+        self.assertIsNone(search_tokens_mod.single_token("two words"))
+        self.assertIsNone(search_tokens_mod.single_token("the"))
+        self.assertEqual(search_tokens_mod.single_token("--pipe")["kind"], "flag")
+
+    def test_search_projection_comes_from_sections_and_metadata(self):
+        text = page("Tokens", "use", "index.html").replace(
+            "</head>",
+            '<meta name="keywords" content="kumquat">'
+            '<meta name="search-boost" content="quarkboost">'
+            '<meta name="search-exclude" content="quarkhide"></head>'
+        ).replace(
+            "</body>",
+            '<h2 id="details">Details</h2>'
+            '<p>kumquat quarkboost quarkhide</p></body>'
+        )
+        root = self.fixture("0.90.0", {"index.html": page("Guide"),
+                                       "tokens.html": text})
+        self.assertEqual(self.build(root).returncode, 0)
+
+        entry = self.index(root)["tokens.html"]
+        self.assertEqual(entry["search"]["boost"], ["quarkboost"])
+        self.assertEqual(entry["search"]["exclude"], ["quarkhide"])
+        stems = [term["stem"] for term in entry["search"]["terms"]]
+        self.assertIn("kumquat", stems)
+        self.assertIn("quarkboost", stems)
+        self.assertNotIn("quarkhide", stems)
+        self.assertEqual({(a["name"], a["source"]) for a in entry["search"]["anchors"]},
+                         {("details", "id"), ("Details", "heading"),
+                          ("Tokens", "heading")})
+
+        rows = [line.split("\t") for line in
+                (root / "knowledge/index.search.tsv").read_text().splitlines()[1:]]
+        boost = next(row for row in rows if row[2] == "quarkboost")
+        self.assertEqual(boost[4], "boost")
+        self.assertGreater(int(boost[3]), search_tokens_mod.MAX_QUERY_TOKENS)
+        excluded = next(row for row in rows if row[2] == "quarkhide")
+        self.assertEqual(excluded[3:], ["0", "exclude"])
+        anchors = (root / "knowledge/index.anchors.tsv").read_text()
+        self.assertIn("tokens.html\tdetails\tid\n", anchors)
+        self.assertIn("tokens.html\tTokens\theading\n", anchors)
+
+    def test_text_terms_do_not_demote_authored_fields(self):
+        text = page("Kumquat", "use", "index.html").replace(
+            "</body>", "<p>kumquat kumquat kumquat</p></body>")
+        root = self.fixture("0.90.0", {"index.html": page("Guide"),
+                                       "kumquat.html": text})
+        self.assertEqual(self.build(root).returncode, 0)
+        entry = self.index(root)["kumquat.html"]
+        term = next(t for t in entry["search"]["terms"] if t["stem"] == "kumquat")
+        self.assertEqual((term["source"], term["weight"]), ("topic", 7))
+
+    def test_invalid_search_metadata_is_rejected(self):
+        base = page("Tokens", "use", "index.html").replace(
+            "</body>", "<p>quarkboost quarkhide quarkboth</p></body>")
+        cases = [
+            ('<meta name="search-boost" content="two words">',
+             "not a single search term"),
+            ('<meta name="search-boost" content="absentterm">',
+             "does not appear on the page"),
+            ('<meta name="search-boost" content="the">',
+             "not a single search term"),
+            ('<meta name="search-boost" content="quarkboth">'
+             '<meta name="search-exclude" content="quarkboth">',
+             "both boosted and excluded"),
+        ]
+        for meta, message in cases:
+            with self.subTest(message=message):
+                valid = base.replace("</head>", "</head>")
+                root = self.fixture("0.90.0", {"index.html": page("Guide"),
+                                               "tokens.html": valid})
+                self.assertEqual(self.build(root).returncode, 0)
+                before = self.outputs(root)
+                (root / "knowledge/tokens.html").write_text(
+                    base.replace("</head>", meta + "</head>"))
+                result = self.build(root)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn(message, result.stderr)
+                self.assertEqual(before, self.outputs(root))
+
     def fixture(self, version, documents):
         temp = tempfile.TemporaryDirectory()
         root = Path(temp.name)
@@ -324,6 +431,7 @@ class BuildIndex(unittest.TestCase):
         shutil.copyfile(MAKEFILE, root / "Makefile")
         (root / "tools").mkdir()
         shutil.copyfile(BUILDER, root / "tools/build-index.py")
+        shutil.copyfile(BUILDER.parent / "search_tokens.py", root / "tools/search_tokens.py")
         for name in ("corpus_pipeline.py", "build-tldr-index.py", "glossary_index.py"):
             shutil.copyfile(BUILDER.parent / name, root / "tools" / name)
         # `make corpus` also regenerates component-coverage.json (plan 26 W1).

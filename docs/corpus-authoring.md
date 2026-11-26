@@ -181,8 +181,28 @@ corpus addresses retain the existing guide-link convention. Give each entry
 its own page: current readers support same-page anchors but do not resolve
 cross-page fragments. Glossary links likewise name a complete term page.
 
-`index.json` adds `kind`, `skills`, and `paths`. `index.kinds.tsv`, `index.skills.tsv`,
-and `index.paths.tsv` project them without altering the established ten-column `index.tsv`.
+Search and navigation are derived from the pages at build time. The builder
+reads body text, headings and explicit `id` / `name` anchors from each page's
+HTML sections. `index.search.tsv` holds weighted single terms for the reader;
+`index.anchors.tsv` holds the validated anchor graph. Term tokenisation is
+CLI-aware: ordinary words are stemmed, while flags (`--pipe`, `-h`), dotted
+IDs (`shell.novice`), versions (`0.71.0`), paths and hyphenated IDs keep their
+punctuation. `tools/search_tokens.py` defines the rules that `src/index.c`
+mirrors; change both together.
+
+Use `<meta name="search-boost" content="...">` and
+`<meta name="search-exclude" content="...">` with comma-separated single
+terms when the derived weights need correction. Each value must be exactly one
+CLI term already present on the page; a boost raises its weight, an exclude
+removes it entirely, and a page may not exclude all of its terms. A boost is
+not a way to add a word the page never says: edit the prose instead. Reader
+navigation follows the generated parent/path graph and same-page anchors; a
+cross-page `#fragment` is rejected because the reader does not resolve it.
+
+`index.json` adds `kind`, `skills`, `paths` and a per-entry `search` block.
+`index.kinds.tsv`, `index.skills.tsv`, `index.paths.tsv`, `index.search.tsv`
+and `index.anchors.tsv` project them without altering the established
+ten-column `index.tsv`.
 These optional sidecars omit pages with no supplied kind/skills/paths; absence means
 unclassified/unmapped, as the JSON and coverage report also show.
 `coverage.json` reports every skill cell's page/path coverage, explicit gaps,
@@ -242,6 +262,7 @@ Readers see the text that `tam show` renders, not the HTML.
 1. Claim the page, its section `index.html`, `knowledge/index.html`,
    `knowledge/index.json`, `knowledge/index.tsv`, `knowledge/index.parents.tsv`,
    `knowledge/index.kinds.tsv`, `knowledge/index.skills.tsv`, `knowledge/index.paths.tsv`,
+   `knowledge/index.search.tsv`, `knowledge/index.anchors.tsv`,
    `knowledge/coverage.json`, `knowledge/version`,
    your `work/history/` record, and `AI_PROVENANCE.md` while
    you edit it.
@@ -272,7 +293,9 @@ timestamps did not advance. Unchanged outputs keep their contents and mtimes.
 After committing page changes, run `make corpus` again and review and commit
 any changes to `knowledge/index.tsv`, `knowledge/index.json`,
 `knowledge/index.parents.tsv`, `knowledge/index.kinds.tsv`,
-`knowledge/index.skills.tsv`, `knowledge/index.paths.tsv` and `knowledge/coverage.json`.
+`knowledge/index.skills.tsv`, `knowledge/index.paths.tsv`,
+`knowledge/index.search.tsv`, `knowledge/index.anchors.tsv` and
+`knowledge/coverage.json`.
 Rerun `make corpus` after that index commit to
 refresh the build marker; a clean corpus/tooling tree reports no `-dirty`.
 No separate Python invocation is needed. Version bumps remain manual.

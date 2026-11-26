@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """build-index.py: Extract metadata from knowledge HTML files and generate
-knowledge/index.tsv, knowledge/index.json and knowledge/index.parents.tsv.
+knowledge/index.tsv, its companion projections and knowledge/index.json.
 
 Each page declares its metadata in <meta> tags: topic, summary, keywords,
 level, track, optional parent and prereqs. `topic` is the page's permanent
 stable ID and `summary` its canonical one-line description; both are required,
-topics are unique, and summaries are at most 160 characters. Level lists the
+topics are unique, and summaries are at most 160 characters. Optional
+`search-boost` and `search-exclude` lists tune the generated search terms.
+Level lists the
 lenses a page offers (novice, learner, expert); a page offering more than one
 wraps each level in <section data-level="..."> (the content-level ladder). The
 build fails on missing or duplicate topics, missing, multi-line or overlong
 summaries, unknown levels or tracks, on topics that are not slugs, on
-prerequisites that name no topic, and on laddered pages whose sections do not
-match their declared levels.
+prerequisites that name no topic, on invalid search boost/exclude terms, and
+on laddered pages whose sections do not match their declared levels.
 
 Every page except the guide index carries a breadcrumb nav before its opening
 paragraph, which introduces the page without repeating the breadcrumb title.
@@ -30,6 +32,13 @@ import subprocess
 import sys
 import argparse
 from pathlib import Path
+from urllib.parse import unquote
+
+# Imported by path as well as run as a script (corpus_pipeline and tests).
+_TOOL_DIR = str(Path(__file__).resolve().parent)
+if _TOOL_DIR not in sys.path:
+    sys.path.insert(0, _TOOL_DIR)
+import search_tokens
 
 LEVELS = ("novice", "learner", "expert")
 CANONICAL_LEVELS = ("novice", "learner", "expert")
@@ -208,6 +217,11 @@ D221_PILOT_PAGES = D221_PILOT_PAGES | LEGACY_PILOT_PAGES
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 # The canonical summary is authored text for one pager line, not a page excerpt.
 SUMMARY_MAX = 160
+# Generated search terms supplement, never replace, the TSV's field metadata.
+SEARCH_TERMS_MAX = 32
+SEARCH_WEIGHTS = {"topic": 7, "title": 6, "summary": 4, "keyword": 5,
+                  "text": 1, "boost": 20}
+SEARCH_TEXT_WEIGHT_CAP = 3
 
 
 def level_matches(skill_level, page_levels):
@@ -357,6 +371,8 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
     page_kind = ""
     skills = []
     paths = []
+    search_boost = []
+    search_exclude = []
 
     for tag in re.findall(r'<meta\b(?:[^>"\'/]|"[^"]*"|\'[^\']*\')*>', text, re.I):
         name = extract_attr(tag, "name")
@@ -399,6 +415,10 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
             page_kind = content.strip()
         elif name_lower == "skills":
             skills.extend(split_list(content))
+        elif name_lower == "search-boost":
+            search_boost.extend(split_list(content))
+        elif name_lower == "search-exclude":
+            search_exclude.extend(split_list(content))
         elif name_lower == "paths":
             seen_page_paths = {p["id"] for p in paths}
             for item in split_list(content):
@@ -469,6 +489,8 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
         "kind": page_kind,
         "skills": skills,
         "paths": paths,
+        "search_boost": search_boost,
+        "search_exclude": search_exclude,
         "rev": rev,
         "updated": updated,
     }
@@ -604,7 +626,7 @@ KINDS = {"tutorial", "how-to", "reference", "explanation", "path", "hub",
 
 
 class LearningHTML(HTMLParser):
-    """Read links, teaching references and level sections structurally."""
+    """Read links, teaching references, anchors and search text structurally."""
     def __init__(self, text):
         super().__init__(convert_charrefs=True)
         self.stack = []
@@ -613,7 +635,22 @@ class LearningHTML(HTMLParser):
         self.sections = []
         self.ids = []
         self.hrefs = []
+        self.text = []
+        self.headings = []
+        self.anchors = []
         self.feed(text)
+
+    @property
+    def heading_texts(self):
+        return [heading["text"] for heading in self.headings]
+
+    @property
+    def search_text(self):
+        return " ".join(self.text)
+
+    def skipped_text(self):
+        return any(node["tag"] in {"head", "script", "style", "nav"}
+                   for node in self.stack)
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -621,6 +658,9 @@ class LearningHTML(HTMLParser):
             self.hrefs.append(attrs["href"])
         if attrs.get("id"):
             self.ids.append(attrs["id"])
+            self.anchors.append({"name": unquote(attrs["id"]), "source": "id"})
+        if attrs.get("name") and tag == "a":
+            self.anchors.append({"name": unquote(attrs["name"]), "source": "name"})
         if "reference" in attrs.get("class", "").split():
             self.reference_ids.append(attrs.get("id", ""))
         if tag in {"meta", "br", "hr", "img", "link", "input", "wbr"}:
@@ -642,6 +682,8 @@ class LearningHTML(HTMLParser):
         self.handle_endtag(tag)
 
     def handle_data(self, text):
+        if not self.skipped_text() and text.strip():
+            self.text.append(text)
         for node in self.stack:
             node["text"].append(text)
 
@@ -650,6 +692,12 @@ class LearningHTML(HTMLParser):
             if self.stack[i]["tag"] != tag:
                 continue
             nodes, self.stack = self.stack[i:], self.stack[:i]
+            if re.fullmatch(r"h[1-6]", tag) and not any(
+                    node["tag"] in {"head", "script", "style", "nav"}
+                    for node in self.stack):
+                label = unescape(" ".join(nodes[0]["text"])).strip()
+                if label:
+                    self.headings.append({"text": label, "tag": tag})
             if (tag == "out" and len(self.stack) >= 2
                     and self.stack[-2]["tag"] == "tam-sandbox"
                     and self.stack[-1]["tag"] == "tam-cmd"
@@ -786,6 +834,127 @@ def learning_metadata(knowledge, entries, errors, parsed=None):
             "cells": coverage, "warnings": warnings,
             "unclassified_pages": sorted(e["path"] for e in entries if not e["kind"]),
             "unmapped_pages": sorted(e["path"] for e in entries if not e["skills"])}
+
+
+def document_fields(document):
+    """The fields consumed by learning_metadata, plus anchor/search inputs."""
+    return {"refs": document.refs, "reference_ids": document.reference_ids,
+            "sections": document.sections, "anchors": document.anchors,
+            "heading_texts": document.heading_texts,
+            "search_text": " ".join(document.text)}
+
+
+def load_documents(knowledge, entries):
+    return {entry["path"]: LearningHTML(
+        (knowledge / entry["path"]).read_text(encoding="utf-8", errors="replace"))
+        for entry in entries}
+
+
+def normalize_search_meta(entries, errors):
+    """Validate authored boost/exclude tokens and normalize their spelling."""
+    for entry in entries:
+        for field in ("search_boost", "search_exclude"):
+            normalized = []
+            seen = set()
+            for authored in entry.get(field, []):
+                token = search_tokens.single_token(authored)
+                if token is None or token["raw"].lower() in search_tokens.STOP_WORDS:
+                    errors.append(f"{entry['path']}: {field} entry {authored!r} "
+                                  "is not a single search term")
+                    continue
+                key = token["stem"]
+                if key in seen:
+                    errors.append(f"{entry['path']}: duplicate {field} term {authored!r}")
+                    continue
+                seen.add(key)
+                normalized.append(token)
+            entry[field] = normalized
+        overlap = {token["stem"] for token in entry["search_boost"]} & {
+            token["stem"] for token in entry["search_exclude"]}
+        for stem in sorted(overlap):
+            errors.append(f"{entry['path']}: search term {stem!r} is both boosted and excluded")
+
+
+def anchor_rows(document):
+    """Explicit anchors plus the heading text the reader can fall back to."""
+    rows = []
+    seen = set()
+    candidates = list(document.anchors)
+    candidates.extend({"name": text, "source": "heading"}
+                      for text in document.heading_texts)
+    for candidate in candidates:
+        name = candidate["name"].strip()
+        if not name:
+            continue
+        key = (name.lower(), candidate["source"])
+        if key in seen:
+            continue
+        seen.add(key)
+        rows.append({"name": name, "source": candidate["source"]})
+    return sorted(rows, key=lambda row: (row["name"].lower(), row["source"]))
+
+
+def derive_search_terms(entry, document, include_boost=True):
+    """Build a compact, weighted term projection from authored page material."""
+    terms = {}
+
+    def add_text(text, source):
+        for token in search_tokens.tokenize(text):
+            stem = token["stem"]
+            current = terms.get(stem)
+            if source == "text":
+                if current is None:
+                    terms[stem] = {"term": token["raw"], "stem": stem,
+                                   "weight": SEARCH_WEIGHTS["text"], "source": "text"}
+                elif current["source"] == "text":
+                    current["weight"] = min(current["weight"] + SEARCH_WEIGHTS["text"],
+                                            SEARCH_TEXT_WEIGHT_CAP)
+                continue
+            if current is None or SEARCH_WEIGHTS[source] > current["weight"]:
+                terms[stem] = {"term": token["raw"], "stem": stem,
+                               "weight": SEARCH_WEIGHTS[source], "source": source}
+
+    add_text(entry["topic"], "topic")
+    add_text(entry["title"], "title")
+    add_text(entry["summary"], "summary")
+    for keyword in entry["keywords"]:
+        add_text(keyword, "keyword")
+    add_text(document.search_text, "text")
+    if include_boost:
+        for token in entry["search_boost"]:
+            current = terms.get(token["stem"])
+            weight = SEARCH_WEIGHTS["boost"]
+            if current is not None:
+                weight += current["weight"]
+            terms[token["stem"]] = {"term": token["raw"], "stem": token["stem"],
+                                    "weight": weight, "source": "boost"}
+    return terms
+
+
+def prepare_search(entries, documents, errors):
+    """Attach the generated search/anchor projection to each entry."""
+    normalize_search_meta(entries, errors)
+    for entry in entries:
+        document = documents[entry["path"]]
+        available = set(derive_search_terms(entry, document, include_boost=False))
+        for field in ("search_boost", "search_exclude"):
+            for token in entry[field]:
+                if token["stem"] not in available:
+                    errors.append(f"{entry['path']}: {field} term {token['raw']!r} "
+                                  "does not appear on the page")
+        terms = derive_search_terms(entry, document)
+        for token in entry["search_exclude"]:
+            terms.pop(token["stem"], None)
+        if entry["search_exclude"] and not terms:
+            errors.append(f"{entry['path']}: search-exclude removes every search term")
+        rows = [terms[stem] for stem in sorted(
+            terms, key=lambda stem: (-terms[stem]["weight"], terms[stem]["term"], stem))]
+        entry["search"] = {
+            "boost": [token["raw"] for token in entry["search_boost"]],
+            "exclude": [token["raw"] for token in entry["search_exclude"]],
+            "terms": rows[:SEARCH_TERMS_MAX],
+            "anchors": anchor_rows(document),
+        }
 
 
 def _clean_tsv(value):
@@ -992,6 +1161,22 @@ def index_outputs(entries, coverage):
         for ref in e.get("paths", []):
             path_steps.setdefault(ref["id"], []).append((ref["step"], e["path"], e["title"]))
 
+    # Generated search terms and the validated same-page anchor graph live in
+    # their own projections so older readers can ignore them. Exclusions are
+    # emitted as weight-0 rows: the reader applies them to every field, so a
+    # excluded word cannot re-enter through a title or keyword.
+    search = ["path\tterm\tstem\tweight\tsource\n"]
+    anchors = ["path\tname\tsource\n"]
+    for e in entries:
+        for term in e["search"]["terms"]:
+            search.append(f"{e['path']}\t{_clean_tsv(term['term'])}\t"
+                          f"{_clean_tsv(term['stem'])}\t{term['weight']}\t{term['source']}\n")
+        for token in e["search_exclude"]:
+            search.append(f"{e['path']}\t{_clean_tsv(token['raw'])}\t"
+                          f"{_clean_tsv(token['stem'])}\t0\texclude\n")
+        for anchor in e["search"]["anchors"]:
+            anchors.append(f"{e['path']}\t{_clean_tsv(anchor['name'])}\t{anchor['source']}\n")
+
     paths_tsv = ["record\tpath_id\targ1\targ2\targ3\targ4\n"]
     for pid in sorted(path_defs):
         pdef = path_defs[pid]
@@ -1012,6 +1197,8 @@ def index_outputs(entries, coverage):
         "index.kinds.tsv": "".join(kinds),
         "index.skills.tsv": "".join(skills),
         "index.paths.tsv": "".join(paths_tsv),
+        "index.search.tsv": "".join(search),
+        "index.anchors.tsv": "".join(anchors),
         "coverage.json": json.dumps(coverage, indent=2) + "\n",
         "index.json": json.dumps(entries, indent=2) + "\n",
     }
@@ -1047,7 +1234,9 @@ def reference_main(root=None):
     version = (version_file.read_text(encoding="utf-8").strip()
                if version_file.is_file() else "0.0.0")
     check_hierarchy(knowledge_dir, entries, version, errors)
-    coverage = learning_metadata(knowledge_dir, entries, errors)
+    documents = load_documents(knowledge_dir, entries)
+    coverage = learning_metadata(knowledge_dir, entries, errors, parsed=documents)
+    prepare_search(entries, documents, errors)
     validate_path_pages(knowledge_dir, entries, errors, version)
 
     if errors:
@@ -1090,7 +1279,7 @@ def reference_main(root=None):
         except Exception:
             pass
 
-    print(f"Generated index.tsv and five companion outputs with {len(entries)} entries.")
+    print(f"Generated index.tsv and its companion outputs with {len(entries)} entries.")
     if coverage["warnings"]:
         print(f"Learning warnings: {len(coverage['warnings'])} level sections need migration; see coverage.json.")
     return 0

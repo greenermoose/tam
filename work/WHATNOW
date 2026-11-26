@@ -3,30 +3,32 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-26, with W152
+Updated: 2026-11-26, with W153
 
 STATE
 
-  Command 0.70.0 and corpus 0.136.0 are on dev after W152. Each page
-  now declares topic and summary as its stable ID and authored one-line
-  description. Build and lint reject missing, empty, duplicate,
-  multi-line or overlong summaries, and the 13 outliers were shortened.
-  `tam show <stable-id>` resolves topic before a path suffix; ambiguous
-  matches keep the choices view and a genuine miss exits 3. W151's
-  29 project notes and synthesis.md remain research only.
+  Command 0.71.0 and corpus 0.137.0 are ready on dev after W153. Search
+  terms and the anchor graph are derived from page HTML at build time;
+  tokenisation is CLI-aware, authored boost/exclude terms are validated,
+  and offline checks reject broken same-page fragments and cross-page
+  fragments. `tam search -- --pipe` searches the flag as text. W152's
+  canonical topic/summary IDs and stable-ID `tam show` lookup remain in
+  place. W151's 29 project notes and synthesis.md remain research only.
 
 NEXT
 
-  1. Let Fred choose which documentation ideas in ideas/synthesis.md
+  1. Commit the W153 source and work record, rerun make corpus, and
+     commit any index follow-up. Check git log @{u}.. before pushing dev.
+  2. Let Fred choose which documentation ideas in ideas/synthesis.md
      become plans. Do not start implementation from an idea file alone.
-  2. Re-check the snippet-heavy Fedora, Debian wiki, elementary, LXQt
+  3. Re-check the snippet-heavy Fedora, Debian wiki, elementary, LXQt
      and Docsy details before treating any of them as settled.
-  3. Await Fred's word before any Test, Run or Release move.
+  4. Await Fred's word before any Test, Run or Release move.
 
 WAITING FOR FRED
 
   - His choice of which documentation ideas to turn into plans.
-  - His development cycle for command 0.70.0 / corpus 0.136.0. Test,
+  - His development cycle for command 0.71.0 / corpus 0.137.0. Test,
     Run and Release need his exact word; Tamlinux 0.6.38 remains in
     Test.
 
@@ -136,3 +138,11 @@ WATCH OUT
     build as a side effect of content changes.
   - Ideas verdicts are research judgments, not approvals. No code was
     taken, so UPSTREAM.md and COPYRIGHT stay unchanged.
+  - Search text comes from build-time HTML sections, not pipe output.
+    Change tools/search_tokens.py and src/index.c together; the reader
+    mirrors the Python token rules.
+  - A page may only boost or exclude a single term that already appears
+    on that page. A cross-page #fragment is invalid: the reader only
+    resolves same-page anchors.
+  - Query a flag with `tam search -- --pipe`; without `--`, --pipe is
+    the reader's plain-text output option.

@@ -14,6 +14,7 @@ tam \- terminal entry point, offline guide, and system inspector for Tamlinux
 .br
 .B tam search
 .RI [ --json | --pipe ]
+.RI [ -- ]
 .IR TERM ...
 .br
 .B tam explain
@@ -166,8 +167,12 @@ children, then its siblings, then its parent in the Guide, such as
 .BR "See also \-> Shells | Pipelines" .
 With none, the level line's path link is the way on.
 .TP
-.B tam search \fR[\fB\-\-json\fR | \fB\-\-pipe\fR] \fITERM...\fR
-Search the bundled offline corpus index using field-weighted ranking (topic slugs, titles, keywords, and summaries). Supports multi-term prefix queries and bounded fuzzy suggestions ("Did you mean?"). On a terminal, the results open in the pager at the
+.B tam search \fR[\fB\-\-json\fR | \fB\-\-pipe\fR] [\fB\-\-\fR] \fITERM...\fR
+Search the bundled offline corpus index using field-weighted ranking (topic slugs, titles, keywords, and summaries) and weighted terms derived from each page's text at build time. Authored boost and exclude metadata can tune those terms. Tokenisation is CLI-aware: flags, dotted IDs, version strings, paths and hyphenated IDs stay whole. Put
+.B \-\-
+before the terms when searching for a flag such as
+.BR \-\-pipe " or " \-h ,
+so it is read as query text rather than as an option. Supports multi-term prefix queries and bounded fuzzy suggestions ("Did you mean?"). On a terminal, the results open in the pager at the
 .B tam:search
 route, where each result links directly to its guide page and
 .B Search again

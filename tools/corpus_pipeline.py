@@ -22,13 +22,15 @@ import subprocess
 import sys
 import tempfile
 from types import SimpleNamespace
+from urllib.parse import unquote
 
 sys.dont_write_bytecode = True
 
-SCHEMA = 2
+SCHEMA = 3
 OUTPUTS = {"index.tsv", "index.json", "index.parents.tsv", "index.kinds.tsv",
-           "index.skills.tsv", "index.paths.tsv", "coverage.json",
-           "component-coverage.json", "tldr/index.tsv", ".build_id"}
+           "index.skills.tsv", "index.paths.tsv", "index.search.tsv",
+           "index.anchors.tsv", "coverage.json", "component-coverage.json",
+           "tldr/index.tsv", ".build_id"}
 REVISION = re.compile(r"^Rev [1-9][0-9]* Last updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}$", re.M)
 
 
@@ -203,20 +205,55 @@ def page_summary(builder, root, rel, text, history):
     entry = builder.parse_page(root, root / "knowledge" / rel, rel, errors,
                                git_cache=history, text=text)
     document = builder.LearningHTML(text)
+    fields = builder.document_fields(document)
     # Only these fields are consumed by learning_metadata; omit HTMLParser internals.
-    learning = {key: getattr(document, key) for key in ("refs", "reference_ids", "sections")}
+    learning = {key: fields[key] for key in ("refs", "reference_ids", "sections")}
     for section in learning["sections"]:
         section["text"] = [" ".join(section["text"])]
+    # Search and anchor checks need only this small, cacheable projection.
+    derived = {key: fields[key] for key in ("anchors", "heading_texts", "search_text")}
     return {"entry": entry, "errors": errors, "crumbs": builder.breadcrumb_parts(text),
-            "learning": learning, "links": document.hrefs}
+            "learning": learning, "derived": derived, "links": document.hrefs}
 
 
-def broken_internal_links(hrefs, available):
-    for href in hrefs:
-        if any(href.startswith(prefix) or prefix in href
-               for prefix in ("://", "mailto:", "#", "man:", "tam:", "info:", "tldr:")):
+def _anchor_matches(fragment, anchors):
+    """Mirror the reader: explicit ids/names match exactly, headings by text."""
+    target = unquote(fragment).lower()
+    if not target:
+        return False
+    for row in anchors:
+        name = row["name"] if isinstance(row, dict) else row
+        if not isinstance(name, str):
             continue
-        if href.startswith("/") or ".." in href or href.split("?")[0] not in available:
+        lowered = name.lower()
+        if isinstance(row, dict) and row.get("source") == "heading":
+            if target in lowered:
+                return True
+        elif target == lowered:
+            return True
+    return False
+
+
+def broken_internal_links(hrefs, available, anchors=()):
+    """Yield hrefs with a missing file, a cross-page fragment or a dead anchor.
+
+    The reader resolves ``#name`` only inside the current page, so a fragment
+    on another page is a broken link even when that page exists.
+    """
+    for href in hrefs:
+        if any(prefix in href for prefix in
+               ("://", "mailto:", "man:", "tam:", "info:", "tldr:")):
+            continue
+        target, sep, fragment = href.partition("#")
+        page = target.split("?", 1)[0]
+        if "://" in page:
+            continue
+        if page:
+            if page.startswith("/") or ".." in page or page not in available:
+                yield href
+            elif sep and fragment:
+                yield href
+        elif sep and fragment and not _anchor_matches(fragment, anchors):
             yield href
 
 
@@ -280,7 +317,8 @@ def process(root, mode, state, snap, reader=None, full=False):
         # The cached raw entry must keep its authored parent (legacy fallback is derived).
         entry = {key: row["entry"][key] for key in (
             "topic", "path", "title", "summary", "keywords", "levels", "track",
-            "parent", "prereqs", "kind", "skills", "paths", "rev", "updated")}
+            "parent", "prereqs", "kind", "skills", "paths", "search_boost",
+            "search_exclude", "rev", "updated")}
         entry["rev"], entry["updated"] = builder.git_page_revision(
             root, root / "knowledge" / rel, rel, git_cache=history)
         entries.append(entry)
@@ -294,6 +332,8 @@ def process(root, mode, state, snap, reader=None, full=False):
     builder.validate_global_entries(entries, errors)
     parsed = {rel: SimpleNamespace(**row["learning"]) for rel, row in pages.items()}
     learning = builder.learning_metadata(root / "knowledge", entries, errors, parsed=parsed)
+    documents = {rel: SimpleNamespace(**row["derived"]) for rel, row in pages.items()}
+    builder.prepare_search(entries, documents, errors)
     builder.validate_path_pages(root / "knowledge", entries, errors, version,
                                 texts=snap.texts)
     if errors:
@@ -350,7 +390,8 @@ def process(root, mode, state, snap, reader=None, full=False):
             if "lint" not in row:
                 row["lint"] = linter.Page("knowledge/" + rel, snap.texts[rel], rules).check()
             findings.extend(row["lint"])
-            for href in broken_internal_links(row["links"], available):
+            anchors = row.get("derived", {}).get("anchors", [])
+            for href in broken_internal_links(row["links"], available, anchors):
                 findings.append(("knowledge/" + rel, 0, "LINK", "broken internal link: " + href))
         if findings:
             raise CorpusError("\n".join(f"{p}:{line}: {rule}: {msg}" for p, line, rule, msg in sorted(set(map(tuple, findings)))))
