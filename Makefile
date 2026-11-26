@@ -35,7 +35,7 @@ PKG_CONFIG ?= pkg-config
 ifdef LIBTAM_PREFIX
 LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
 LIBTAM_LIBS   ?= -L$(LIBTAM_PREFIX)/lib -ltam
-LIBTAM_ERROR  = $(if $(shell grep -s -l tam_run_foreground_opts $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.14.0 or later include/tam.h)
+LIBTAM_ERROR  = $(if $(shell grep -s -l tam_run_foreground_opts $(LIBTAM_PREFIX)/include/tam_proc.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.14.0 or later include/tam_proc.h)
 else ifeq ($(origin LIBTAM_LIBS),undefined)
 LIBTAM_FOUND  = $(shell $(PKG_CONFIG) --atleast-version=0.14.0 libtam 2>/dev/null && echo yes)
 LIBTAM_CFLAGS = $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --cflags libtam))
