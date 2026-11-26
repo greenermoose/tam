@@ -16,6 +16,9 @@
 
 CC       ?= cc
 CFLAGS   ?= -O2 -Wall -Wextra -Wpedantic -std=c11
+# libtam 0.15.0 and later set no feature macros; tam uses GNU and
+# POSIX.1-2008 interfaces.
+override CPPFLAGS += -D_GNU_SOURCE
 
 # Development installs go to the user prefix $(HOME)/.local: ~/.local/bin
 # precedes /usr/bin and needs no root. /usr/local is retired on Tamlinux, and

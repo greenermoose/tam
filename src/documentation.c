@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include "documentation.h"
 #include "html_scan.h"
 #include "tldr.h"
