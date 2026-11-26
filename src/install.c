@@ -750,6 +750,14 @@ static void print_json_string_or_null(const char *value)
     tam_str_free(s);
 }
 
+/* A JSON string with its quotes, escaped (NULL prints ""). */
+static void print_json_str(const char *value)
+{
+    tam_str_t s = tam_str_cat_json_str(tam_str_new(""), value != NULL ? value : "");
+    fputs(s != NULL ? s : "\"\"", stdout);
+    tam_str_free(s);
+}
+
 static void print_json_string_array(const char *csv)
 {
     printf("[");
@@ -768,12 +776,13 @@ static void print_json_string_array(const char *csv)
                 if (comma != NULL) {
                     *comma = '\0';
                 }
-                char *end = token + strlen(token) - 1;
-                while (end >= token && (*end == ' ' || *end == '\t')) {
-                    *end-- = '\0';
+                size_t tlen = strlen(token);
+                while (tlen > 0 && (token[tlen - 1] == ' ' || token[tlen - 1] == '\t')) {
+                    token[--tlen] = '\0';
                 }
                 if (token[0] != '\0') {
-                    printf("%s\"%s\"", first ? "" : ", ", token);
+                    fputs(first ? "" : ", ", stdout);
+                    print_json_str(token);
                     first = false;
                 }
                 if (comma == NULL) {
@@ -966,13 +975,27 @@ static int do_inspect(bool json_mode)
         printf("  \"schema_version\": \"1.0.0\",\n");
         printf("  \"source\": \"tam inspect\",\n");
         printf("  \"host\": {\n");
-        printf("    \"operating_system\": \"%s\",\n", os_display);
-        printf("    \"os_name\": \"%s\",\n", os.name);
-        printf("    \"os_id\": \"%s\",\n", os.id);
-        printf("    \"os_id_like\": \"%s\",\n", os.id_like);
-        printf("    \"os_version\": \"%s\",\n", os_ver);
-        printf("    \"kernel_release\": \"%s\",\n", uts.release);
-        printf("    \"architecture\": \"%s\",\n", uts.machine);
+        printf("    \"operating_system\": ");
+        print_json_str(os_display);
+        printf(",\n");
+        printf("    \"os_name\": ");
+        print_json_str(os.name);
+        printf(",\n");
+        printf("    \"os_id\": ");
+        print_json_str(os.id);
+        printf(",\n");
+        printf("    \"os_id_like\": ");
+        print_json_str(os.id_like);
+        printf(",\n");
+        printf("    \"os_version\": ");
+        print_json_str(os_ver);
+        printf(",\n");
+        printf("    \"kernel_release\": ");
+        print_json_str(uts.release);
+        printf(",\n");
+        printf("    \"architecture\": ");
+        print_json_str(uts.machine);
+        printf(",\n");
         printf("    \"cultivar_version\": ");
         print_json_string_or_null(cultivar_ver != NULL ? cultivar_ver : "unavailable");
         printf(",\n    \"tamlinux_cultivar\": ");
@@ -984,32 +1007,48 @@ static int do_inspect(bool json_mode)
         printf("\n  },\n");
 
         printf("  \"capabilities\": {\n");
-        printf("    \"init_system\": \"%s\",\n", get_init_system());
+        printf("    \"init_system\": ");
+        print_json_str(get_init_system());
+        printf(",\n");
         printf("    \"package_tools\": ");
         print_json_string_array(pkg_tools);
         printf(",\n");
         printf("    \"privilege_tools\": ");
         print_json_string_array(priv_tools);
         printf(",\n");
-        printf("    \"root_filesystem\": \"%s\",\n", root_fs);
-        printf("    \"graphics_device\": \"%s\"\n", gpu);
+        printf("    \"root_filesystem\": ");
+        print_json_str(root_fs);
+        printf(",\n");
+        printf("    \"graphics_device\": ");
+        print_json_str(gpu);
+        printf("\n");
         printf("  },\n");
 
         printf("  \"profiles\": {\n");
         printf("    \"supported\": ");
         print_json_string_array(supported);
         printf(",\n");
-        printf("    \"target_base\": \"%s\"\n", target_base);
+        printf("    \"target_base\": ");
+        print_json_str(target_base);
+        printf("\n");
         printf("  },\n");
 
         printf("  \"findings\": [\n");
         for (size_t i = 0; i < NUM_CHECKS; i++) {
             printf("    {\n");
-            printf("      \"id\": \"%s\",\n", checks[i].task_id);
-            printf("      \"severity\": \"%s\",\n", severity_str(checks[i].severity));
-            printf("      \"summary\": \"%s\",\n", checks[i].summary);
+            printf("      \"id\": ");
+            print_json_str(checks[i].task_id);
+            printf(",\n");
+            printf("      \"severity\": ");
+            print_json_str(severity_str(checks[i].severity));
+            printf(",\n");
+            printf("      \"summary\": ");
+            print_json_str(checks[i].summary);
+            printf(",\n");
             printf("      \"evidence\": {\n        %s\n      },\n", checks[i].evidence_json);
-            printf("      \"help_link\": \"%s\"\n", checks[i].help_ref);
+            printf("      \"help_link\": ");
+            print_json_str(checks[i].help_ref);
+            printf("\n");
             printf("    }%s\n", (i + 1 < NUM_CHECKS) ? "," : "");
         }
         printf("  ],\n");
@@ -1017,14 +1056,24 @@ static int do_inspect(bool json_mode)
         printf("  \"checks\": [\n");
         for (size_t i = 0; i < NUM_CHECKS; i++) {
             printf("    {\n");
-            printf("      \"task_id\": \"%s\",\n", checks[i].task_id);
-            printf("      \"name\": \"%s\",\n", checks[i].name);
-            printf("      \"status\": \"%s\",\n", checks[i].status);
+            printf("      \"task_id\": ");
+            print_json_str(checks[i].task_id);
+            printf(",\n");
+            printf("      \"name\": ");
+            print_json_str(checks[i].name);
+            printf(",\n");
+            printf("      \"status\": ");
+            print_json_str(checks[i].status);
+            printf(",\n");
             printf("      \"pass\": %s,\n", checks[i].pass ? "true" : "false");
             printf("      \"fail\": %s,\n", checks[i].fail ? "true" : "false");
             printf("      \"evidence\": {\n        %s\n      },\n", checks[i].evidence_json);
-            printf("      \"severity\": \"%s\",\n", severity_str(checks[i].severity));
-            printf("      \"help_ref\": \"%s\",\n", checks[i].help_ref);
+            printf("      \"severity\": ");
+            print_json_str(severity_str(checks[i].severity));
+            printf(",\n");
+            printf("      \"help_ref\": ");
+            print_json_str(checks[i].help_ref);
+            printf(",\n");
             printf("      \"source\": \"tam inspect\",\n");
             printf("      \"schema_version\": \"1.0.0\"\n");
             printf("    }%s\n", (i + 1 < NUM_CHECKS) ? "," : "");

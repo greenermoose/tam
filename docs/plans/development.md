@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-26:** Command 0.71.1 (patch): move onto libtam 0.14.0 and pin it in source-build.json (d8089e9). `tam inspect --json` escapes host strings and the package/privilege arrays (and no longer steps before an empty token). The browser opener is `tam_spawn_detached` (no descriptors leak to the browser), the foreground runner is `tam_run_foreground_opts` with the terminal as stdin when stdin is a pipe (Ctrl+C reaches only the program; a death by signal now reads as exit status 128+N), PATH lookup is `tam_which`, stdin is read with `tam_fd_read_all`, and startup uses `tam_install_guard` and `tam_locale_init`. tam's `tam_render_html`/`tam_render_man_html` (a real clash with libtam-render), `tam_pager_run`/`tam_pager_screen_*`, `tam_display_*` and `tam_buf_*` become `tam_doc_render_*`, `tam_reader_*`, `tam_cells_*` and `tam_tbuf_*`, and the display, pager and render headers use TAM_CMD_ guards. Corpus version unchanged.
 - **2026-11-26:** Corpus 0.138.0 (minor): every goal path opens with
   an outcome, exact prerequisite links or the words `none beyond reading`,
   and a time derived from its stage count (30, 40, 50 or 60 minutes).

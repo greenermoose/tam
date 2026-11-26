@@ -1767,7 +1767,7 @@ static void start_line(spanlist_t *line, const char *prefix, size_t lead,
 
 static size_t dwidth(const char *s, size_t n)
 {
-    return tam_display_width(s, n);
+    return tam_cells_width(s, n);
 }
 
 /* A token made only of sentence punctuation stays with what precedes it, so
@@ -1923,7 +1923,7 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
                     size_t bytes = 0;
                     wchar_t wc;
                     int cells = 0;
-                    (void)tam_display_next(t, i, &off, &bytes, &wc, &cells);
+                    (void)tam_cells_next(t, i, &off, &bytes, &wc, &cells);
                     if (cells > 0 && col > (int)lead && col + cells > width) {
                         out->logical_offset = run_base + char_start;
                         linelist_push(out, &line);
@@ -1977,7 +1977,7 @@ static void layout_pre(linelist_t *out, const tam_span_t *runs, size_t nruns,
             size_t bytes = 0;
             wchar_t wc;
             int cells = 0;
-            (void)tam_display_next(t, len, &off, &bytes, &wc, &cells);
+            (void)tam_cells_next(t, len, &off, &bytes, &wc, &cells);
             if (t[char_start] == '\n') {
                 out->logical_offset = line_offset;
                 linelist_push(out, &line);
@@ -2150,7 +2150,7 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
                     size_t bytes = 0;
                     wchar_t wc;
                     int cells = 0;
-                    (void)tam_display_next(t, i, &off, &bytes, &wc, &cells);
+                    (void)tam_cells_next(t, i, &off, &bytes, &wc, &cells);
                     if (cells > 0 && col > 0 && col + cells > max_w) {
                         if (nlines == cap) {
                             cap = cap ? cap * 2 : 4;
@@ -2831,7 +2831,7 @@ static void sb_push_bordered_spans(linelist_t *out, size_t logical_block,
     size_t remaining = box_inner_w;
     for (size_t i = 0; i < ninner; i++) {
         size_t cells;
-        size_t len = tam_display_prefix(inner[i].text, strlen(inner[i].text),
+        size_t len = tam_cells_prefix(inner[i].text, strlen(inner[i].text),
                                         remaining, &cells);
         spanlist_append(&line, inner[i].text, len, inner[i].style | TAM_STYLE_SB_BG, NULL, 0);
         remaining -= cells;
@@ -2853,7 +2853,7 @@ static void sb_push_border_line(linelist_t *out, size_t logical_block,
     size_t width = box_inner_w + 5;
     if (title != NULL) {
         size_t cells;
-        size_t len = tam_display_prefix(title, strlen(title), width - used - 2, &cells);
+        size_t len = tam_cells_prefix(title, strlen(title), width - used - 2, &cells);
         spanlist_append(&sl, title, len, style | TAM_STYLE_BOLD, NULL, 0);
         spanlist_append(&sl, " ", 1, style, NULL, 0);
         used += cells + 1;
@@ -2889,7 +2889,7 @@ static void layout_sandbox_toggle(const tam_sandbox_spec_t *spec, int sb_id,
     size_t prefix_width = sizeof(prefix) - 1;
     size_t available = (size_t)width > prefix_width ? (size_t)width - prefix_width : 0;
     size_t cells;
-    size_t len = tam_display_prefix(title, strlen(title), available, &cells);
+    size_t len = tam_cells_prefix(title, strlen(title), available, &cells);
     spanlist_append(&sl, title, len, TAM_STYLE_LINK, href, 0);
     if (available - cells >= sizeof(hint) - 1) {
         spanlist_append(&sl, hint, sizeof(hint) - 1, TAM_STYLE_LINK, href, 0);
@@ -2917,7 +2917,7 @@ static void sb_push_wrapped_text(linelist_t *out, size_t logical_block,
         } else {
             size_t off = 0;
             while (off < seg_len) {
-                size_t take = tam_display_prefix(p + off, seg_len - off,
+                size_t take = tam_cells_prefix(p + off, seg_len - off,
                                                  box_inner_w, NULL);
                 if (take == 0) break;
                 char *chunk = malloc(take + 1);
@@ -2942,7 +2942,7 @@ static void sb_push_notice(linelist_t *out, size_t logical_block, int sb_id,
                            size_t box_inner_w, const char *text)
 {
     size_t len = strlen(text);
-    size_t cells = tam_display_width(text, len);
+    size_t cells = tam_cells_width(text, len);
     size_t padding = box_inner_w > cells ? box_inner_w - cells : 0;
     char spaces[SANDBOX_MAX_INNER_WIDTH + 1];
     memset(spaces, ' ', padding);
@@ -2964,28 +2964,28 @@ static void layout_sandbox_input(const tam_sandbox_state_t *state, const char *p
                                   linelist_t *out)
 {
     size_t prompt_cells;
-    size_t prompt_len = tam_display_prefix(prompt, strlen(prompt), width - 1, &prompt_cells);
+    size_t prompt_len = tam_cells_prefix(prompt, strlen(prompt), width - 1, &prompt_cells);
     if (prompt[prompt_len] != '\0') {
-        prompt_len = tam_display_prefix(prompt, strlen(prompt), width / 2, &prompt_cells);
+        prompt_len = tam_cells_prefix(prompt, strlen(prompt), width / 2, &prompt_cells);
     }
     size_t available = width - prompt_cells;
     const char *input = state->input;
     size_t cursor = state->cursor;
-    size_t cursor_cells = tam_display_width(input, cursor);
+    size_t cursor_cells = tam_cells_width(input, cursor);
     size_t next = cursor;
     int char_cells = 1;
-    tam_display_next(input, state->input_len, &next, NULL, NULL, &char_cells);
+    tam_cells_next(input, state->input_len, &next, NULL, NULL, &char_cells);
     size_t cursor_width = char_cells > 1 && (size_t)char_cells <= available
         ? (size_t)char_cells : 1;
     size_t start = 0;
     /* Scroll input horizontally to keep the cursor and its character visible. */
     while (cursor_cells + cursor_width > available && start < cursor) {
         int cells;
-        tam_display_next(input, cursor, &start, NULL, NULL, &cells);
+        tam_cells_next(input, cursor, &start, NULL, NULL, &cells);
         cursor_cells -= (size_t)cells;
     }
     size_t input_cells;
-    size_t end = start + tam_display_prefix(input + start, state->input_len - start,
+    size_t end = start + tam_cells_prefix(input + start, state->input_len - start,
                                              available, &input_cells);
 
     spanlist_t line;
@@ -3246,12 +3246,12 @@ static tam_document_t *render_html(const char *src, size_t len, int width, int m
     return doc;
 }
 
-tam_document_t *tam_render_html(const char *src, size_t len, int width)
+tam_document_t *tam_doc_render_html(const char *src, size_t len, int width)
 {
     return render_html(src, len, width, 0);
 }
 
-tam_document_t *tam_render_man_html(const char *src, size_t len, int width)
+tam_document_t *tam_doc_render_man_html(const char *src, size_t len, int width)
 {
     return render_html(src, len, width, 1);
 }

@@ -576,7 +576,7 @@ tam_document_t *tam_man_load(const char *spec, int width)
         return NULL;
     }
 
-    tam_document_t *doc = tam_render_man_html(linkified, strlen(linkified), width);
+    tam_document_t *doc = tam_doc_render_man_html(linkified, strlen(linkified), width);
     free(linkified);
     return doc;
 }
@@ -993,7 +993,7 @@ int tam_cmd_man(int n, char **args)
         if (interactive) {
             char *root = tam_find_knowledge_root();
             tam_loader_ctx_t ctx = {.root = root};
-            rc = tam_pager_run(doc, "tam:man", tam_address_load, &ctx);
+            rc = tam_reader_run(doc, "tam:man", tam_address_load, &ctx);
             free(root);
         } else {
             char *text = tam_document_text(doc);
@@ -1032,7 +1032,7 @@ int tam_cmd_man(int n, char **args)
     if (interactive) {
         char *root = tam_find_knowledge_root();
         tam_loader_ctx_t ctx = {.root = root};
-        rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
+        rc = tam_reader_run(doc, initial_href, tam_address_load, &ctx);
         free(root);
     } else {
         char *text = tam_document_text(doc);

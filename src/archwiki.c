@@ -1252,7 +1252,7 @@ int tam_cmd_archwiki(int n, char **args)
         if (interactive) {
             char *kroot = tam_find_knowledge_root();
             tam_loader_ctx_t ctx = {.root = kroot};
-            rc = tam_pager_run(doc, uri, tam_address_load, &ctx);
+            rc = tam_reader_run(doc, uri, tam_address_load, &ctx);
             free(kroot);
         } else {
             char *text = tam_document_text(doc);
@@ -1275,7 +1275,7 @@ int tam_cmd_archwiki(int n, char **args)
     if (interactive) {
         char *kroot = tam_find_knowledge_root();
         tam_loader_ctx_t ctx = {.root = kroot};
-        rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
+        rc = tam_reader_run(doc, initial_href, tam_address_load, &ctx);
         free(kroot);
     } else {
         char *text = tam_document_text(doc);

@@ -84,24 +84,24 @@ void out(const char *s)
 {
     if (s == NULL) return;
     size_t n = strlen(s);
-    if (g_capture != NULL) (void)tam_buf_append(g_capture, s, n);
+    if (g_capture != NULL) (void)tam_tbuf_append(g_capture, s, n);
     else if (g_term != NULL) {
-        tam_buf_t b = {0};
-        (void)tam_buf_append(&b, s, n);
+        tam_tbuf_t b = {0};
+        (void)tam_tbuf_append(&b, s, n);
         (void)tam_terminal_write(g_term, &b);
-        tam_buf_free(&b);
+        tam_tbuf_free(&b);
     }
 }
 
 static void outn(const char *s, size_t n)
 {
     if (n == 0) return;
-    if (g_capture != NULL) (void)tam_buf_append(g_capture, s, n);
+    if (g_capture != NULL) (void)tam_tbuf_append(g_capture, s, n);
     else if (g_term != NULL) {
-        tam_buf_t b = {0};
-        (void)tam_buf_append(&b, s, n);
+        tam_tbuf_t b = {0};
+        (void)tam_tbuf_append(&b, s, n);
         (void)tam_terminal_write(g_term, &b);
-        tam_buf_free(&b);
+        tam_tbuf_free(&b);
     }
 }
 
@@ -152,7 +152,7 @@ static void emit_location_line(pager_t *st, int width, const linkref_t *sel)
         int styled = emit_style(sp, selected);
         outn(text, bytes);
         if (styled || sp->href != NULL) emit_reset(attention);
-        col += (int)tam_display_width(text, bytes);
+        col += (int)tam_cells_width(text, bytes);
     }
     if (attention) {
         emit_attention(1);
@@ -172,14 +172,14 @@ static void format_revision_tail(const char *text, int max_cols,
 {
     const char *shown = text;
     const char *prefix = "";
-    if ((int)tam_display_width(text, strlen(text)) > max_cols) {
+    if ((int)tam_cells_width(text, strlen(text)) > max_cols) {
         int found = 0;
         for (const char *tail = text; *tail != '\0'; ) {
             const char *space = strchr(tail, ' ');
             if (space == NULL) break;
             tail = space + 1;
             /* One column for the ellipsis, one for its space. */
-            if ((int)tam_display_width(tail, strlen(tail)) + 2 <= max_cols) {
+            if ((int)tam_cells_width(tail, strlen(tail)) + 2 <= max_cols) {
                 shown = tail;
                 prefix = "\xe2\x80\xa6 ";
                 found = 1;
@@ -188,7 +188,7 @@ static void format_revision_tail(const char *text, int max_cols,
         }
         if (!found) {
             while (shown[0] != '\0' &&
-                   (int)tam_display_width(shown, strlen(shown)) > max_cols) {
+                   (int)tam_cells_width(shown, strlen(shown)) > max_cols) {
                 uint32_t cp;
                 size_t n = tam_utf8_decode(shown, strlen(shown), &cp);
                 shown += n > 0 ? n : 1;
@@ -221,10 +221,10 @@ static void build_status_line(const pager_t *st, const linkref_t *sel,
          * shortened with "..." to the columns the destination leaves. */
         const char *lt = (sel->span != NULL && sel->span->text != NULL)
                              ? sel->span->text : "";
-        int room = width - 4 - (int)tam_display_width(sel->href, strlen(sel->href));
+        int room = width - 4 - (int)tam_cells_width(sel->href, strlen(sel->href));
         size_t lt_len = strlen(lt);
         const char *more = "";
-        if ((int)tam_display_width(lt, lt_len) > room) {
+        if ((int)tam_cells_width(lt, lt_len) > room) {
             lt_len = room > 3 ? status_byte_limit(lt, room - 3) : 0;
             more = lt_len > 0 ? "..." : "";
         }
@@ -248,9 +248,9 @@ static void emit_footer2(const char *left, const char *rev_prefix,
     size_t slen = status_byte_limit(left, width);
     outn(left, slen);
     if (rev_shown != NULL && rev_shown[0] != '\0') {
-        int left_w = (int)tam_display_width(left, slen);
-        int rev_w = (int)tam_display_width(rev_prefix, strlen(rev_prefix)) +
-                    (int)tam_display_width(rev_shown, strlen(rev_shown));
+        int left_w = (int)tam_cells_width(left, slen);
+        int rev_w = (int)tam_cells_width(rev_prefix, strlen(rev_prefix)) +
+                    (int)tam_cells_width(rev_shown, strlen(rev_shown));
         int pad = width - left_w - rev_w;
         for (int i = 0; i < pad; i++) outn(" ", 1);
         if (g_term != NULL && g_term->dim != NULL &&
@@ -536,7 +536,7 @@ static void emit_line(const tam_line_t *line, int width,
             size_t bytes = 0;
             wchar_t wc;
             int cells = 0;
-            (void)tam_display_next(t, len, &off, &bytes, &wc, &cells);
+            (void)tam_cells_next(t, len, &off, &bytes, &wc, &cells);
             if (cells > 0 && col + cells > width) break;
             size_t absolute = byte_pos + char_start;
             int hit = 0;
@@ -591,7 +591,7 @@ static void emit_line(const tam_line_t *line, int width,
 static size_t status_byte_limit(const char *s, int max_cols)
 {
     if (max_cols <= 0) return 0;
-    return tam_display_prefix(s, strlen(s), (size_t)max_cols, NULL);
+    return tam_cells_prefix(s, strlen(s), (size_t)max_cols, NULL);
 }
 
 static void pager_address(const pager_t *st, char *out, size_t cap)
@@ -666,7 +666,7 @@ int draw(pager_t *st)
     int paint_width = st->width > 1 ? st->width - 1 : 1;
     if (g_term != NULL && g_term->gutter && paint_width > 1) paint_width--;
     int nframe = st->height;
-    tam_buf_t *frame = calloc((size_t)nframe, sizeof(*frame));
+    tam_tbuf_t *frame = calloc((size_t)nframe, sizeof(*frame));
     if (frame == NULL) return -1;
     g_capture = NULL;
     int content_row = 0;
@@ -755,9 +755,9 @@ int draw(pager_t *st)
              line_label, first, last, total < 0 ? 0 : total);
     const char *rev = (st->doc->revision != NULL && st->doc->revision[0] != '\0')
                           ? st->doc->revision : NULL;
-    int rev_full_w = rev != NULL ? (int)tam_display_width(rev, strlen(rev)) : 0;
-    int title_w = (int)tam_display_width(title, strlen(title));
-    int range_w = (int)tam_display_width(range_part, strlen(range_part));
+    int rev_full_w = rev != NULL ? (int)tam_cells_width(rev, strlen(rev)) : 0;
+    int title_w = (int)tam_cells_width(title, strlen(title));
+    int range_w = (int)tam_cells_width(range_part, strlen(range_part));
     int rev_reserve = rev != NULL ? rev_full_w + 2 : 0;
     /* The line and range always show; a narrow row drops the title. */
     if (title_w + 3 + range_w + rev_reserve <= max_cols)
@@ -767,7 +767,7 @@ int draw(pager_t *st)
     const char *rev_prefix = "";
     const char *rev_shown = "";
     if (rev != NULL) {
-        int used = (int)tam_display_width(footer2, strlen(footer2));
+        int used = (int)tam_cells_width(footer2, strlen(footer2));
         int avail = max_cols - used - 2;
         if (avail >= 4)
             format_revision_tail(rev, avail, &rev_prefix, &rev_shown);
@@ -796,12 +796,12 @@ int draw(pager_t *st)
     static const char *const keys[] = {
         "asdf jkl; Navigate  [] Select links  g Guidance  q Quit", "g Guidance  q Quit"
     };
-    int ver_w = (int)tam_display_width(st->version, strlen(st->version));
-    int lens_w = (int)tam_display_width(lens_part, strlen(lens_part));
+    int ver_w = (int)tam_cells_width(st->version, strlen(st->version));
+    int lens_w = (int)tam_cells_width(lens_part, strlen(lens_part));
     int room = max_cols - lens_w - (ver_w > 0 ? ver_w + 2 : 0);
     const char *key_text = NULL;
     for (size_t k = 0; k < sizeof(keys) / sizeof(keys[0]) && key_text == NULL; k++)
-        if ((int)tam_display_width(keys[k], strlen(keys[k])) + 3 <= room)
+        if ((int)tam_cells_width(keys[k], strlen(keys[k])) + 3 <= room)
             key_text = keys[k];
 
     if (key_text != NULL) {
@@ -813,7 +813,7 @@ int draw(pager_t *st)
         lens_digit = digit_at;
     }
     if (ver_w > 0) {
-        int used = (int)tam_display_width(footer1, strlen(footer1));
+        int used = (int)tam_cells_width(footer1, strlen(footer1));
         int pad = max_cols - used - ver_w;
         if (pad < 2) pad = 2;
         for (int i = 0; i < pad && strlen(footer1) + 1 < sizeof(footer1); i++)
@@ -858,9 +858,9 @@ int draw(pager_t *st)
             if (g_term->gutter) cursor_col++;
         }
     }
-    int rc = tam_pager_screen_update(&g_screen, frame, nframe, paint_width,
+    int rc = tam_reader_screen_update(&g_screen, frame, nframe, paint_width,
                                      cursor_row, cursor_col);
-    for (int i = 0; i < nframe; i++) tam_buf_free(&frame[i]);
+    for (int i = 0; i < nframe; i++) tam_tbuf_free(&frame[i]);
     free(frame);
     if (rc < 0) {
         g_stop = 1;

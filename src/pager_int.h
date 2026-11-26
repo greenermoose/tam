@@ -18,8 +18,8 @@
 extern volatile sig_atomic_t g_stop;
 extern volatile sig_atomic_t g_resized;
 extern tam_terminal_t *g_term;
-extern tam_buf_t *g_capture;
-extern tam_pager_screen_t g_screen;
+extern tam_tbuf_t *g_capture;
+extern tam_reader_screen_t g_screen;
 extern int g_attention;
 extern unsigned char g_pending[128];
 extern size_t g_pending_len;

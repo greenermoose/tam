@@ -80,7 +80,7 @@ tam_document_t *tam_page_render(tam_str_t html, int width)
 {
     html = tam_page_end(html);
     if (html == NULL) return NULL;
-    tam_document_t *doc = tam_render_html(html, tam_str_len(html), width);
+    tam_document_t *doc = tam_doc_render_html(html, tam_str_len(html), width);
     tam_str_free(html);
     return doc;
 }

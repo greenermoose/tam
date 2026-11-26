@@ -7,7 +7,7 @@ typedef struct {
     char *data;
     size_t len;
     size_t cap;
-} tam_buf_t;
+} tam_tbuf_t;
 
 typedef struct {
     int fd;
@@ -51,20 +51,20 @@ typedef struct {
     int ncv;
 } tam_terminal_t;
 
-int tam_buf_append(tam_buf_t *b, const void *data, size_t len);
-int tam_buf_puts(tam_buf_t *b, const char *s);
-void tam_buf_clear(tam_buf_t *b);
-void tam_buf_free(tam_buf_t *b);
+int tam_tbuf_append(tam_tbuf_t *b, const void *data, size_t len);
+int tam_tbuf_puts(tam_tbuf_t *b, const char *s);
+void tam_tbuf_clear(tam_tbuf_t *b);
+void tam_tbuf_free(tam_tbuf_t *b);
 
 /* Returns 1 for a cursor-addressable terminal, 0 for plain-output fallback. */
 int tam_terminal_init(tam_terminal_t *t, int fd, int rows, int cols);
-int tam_terminal_cap(tam_terminal_t *t, tam_buf_t *b, const char *cap,
+int tam_terminal_cap(tam_terminal_t *t, tam_tbuf_t *b, const char *cap,
                      long p1, long p2);
-int tam_terminal_write(tam_terminal_t *t, const tam_buf_t *b);
-int tam_terminal_enter(tam_terminal_t *t, tam_buf_t *b);
-int tam_terminal_leave(tam_terminal_t *t, tam_buf_t *b);
-int tam_terminal_move(tam_terminal_t *t, tam_buf_t *b, int row, int col);
-int tam_terminal_input_cursor(tam_terminal_t *t, tam_buf_t *b, int visible);
-int tam_terminal_erase_eol(tam_terminal_t *t, tam_buf_t *b);
+int tam_terminal_write(tam_terminal_t *t, const tam_tbuf_t *b);
+int tam_terminal_enter(tam_terminal_t *t, tam_tbuf_t *b);
+int tam_terminal_leave(tam_terminal_t *t, tam_tbuf_t *b);
+int tam_terminal_move(tam_terminal_t *t, tam_tbuf_t *b, int row, int col);
+int tam_terminal_input_cursor(tam_terminal_t *t, tam_tbuf_t *b, int visible);
+int tam_terminal_erase_eol(tam_terminal_t *t, tam_tbuf_t *b);
 
 #endif

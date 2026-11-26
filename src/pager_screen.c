@@ -3,21 +3,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-void tam_pager_screen_init(tam_pager_screen_t *s, tam_terminal_t *term)
+void tam_reader_screen_init(tam_reader_screen_t *s, tam_terminal_t *term)
 {
     memset(s, 0, sizeof(*s));
     s->term = term;
     s->cursor_row = -1;
 }
 
-void tam_pager_screen_invalidate(tam_pager_screen_t *s)
+void tam_reader_screen_invalidate(tam_reader_screen_t *s)
 {
     s->valid = 0;
     s->cursor_row = -1;
     s->cursor_col = 0;
 }
 
-static int reserve_rows(tam_pager_screen_t *s, int nrows)
+static int reserve_rows(tam_reader_screen_t *s, int nrows)
 {
     if (nrows == s->nrows) return 0;
     char **rows = calloc((size_t)nrows, sizeof(*rows));
@@ -37,25 +37,25 @@ static int reserve_rows(tam_pager_screen_t *s, int nrows)
     return 0;
 }
 
-int tam_pager_screen_update(tam_pager_screen_t *s,
-                            const tam_buf_t *rows, int nrows, int width,
+int tam_reader_screen_update(tam_reader_screen_t *s,
+                            const tam_tbuf_t *rows, int nrows, int width,
                             int cursor_row, int cursor_col)
 {
     if (nrows <= 0 || width <= 0 || reserve_rows(s, nrows) < 0) return -1;
-    tam_buf_t out = {0};
+    tam_tbuf_t out = {0};
     int full = !s->valid || s->width != width;
     int changed = 0;
-    if (s->term->sync_output) (void)tam_buf_puts(&out, "\033[?2026h");
+    if (s->term->sync_output) (void)tam_tbuf_puts(&out, "\033[?2026h");
     for (int i = 0; i < nrows; i++) {
         if (!full && s->lengths[i] == rows[i].len &&
             (rows[i].len == 0 ||
              memcmp(s->rows[i], rows[i].data, rows[i].len) == 0)) continue;
         changed++;
         if (tam_terminal_move(s->term, &out, i, 0) < 0 ||
-            tam_buf_append(&out, rows[i].data, rows[i].len) < 0 ||
+            tam_tbuf_append(&out, rows[i].data, rows[i].len) < 0 ||
             tam_terminal_erase_eol(s->term, &out) < 0 ||
             tam_terminal_cap(s->term, &out, s->term->sgr0, 0, 0) < 0) {
-            tam_buf_free(&out);
+            tam_tbuf_free(&out);
             return -1;
         }
     }
@@ -64,18 +64,18 @@ int tam_pager_screen_update(tam_pager_screen_t *s,
     if ((visible && (changed || cursor_changed) &&
          tam_terminal_move(s->term, &out, cursor_row, cursor_col) < 0) ||
         (cursor_changed && tam_terminal_input_cursor(s->term, &out, visible) < 0)) {
-        tam_buf_free(&out);
+        tam_tbuf_free(&out);
         s->valid = 0;
         return -1;
     }
     int updated = changed || cursor_changed;
-    if (updated && s->term->sync_output) (void)tam_buf_puts(&out, "\033[?2026l");
+    if (updated && s->term->sync_output) (void)tam_tbuf_puts(&out, "\033[?2026l");
     if (updated && tam_terminal_write(s->term, &out) < 0) {
-        tam_buf_free(&out);
+        tam_tbuf_free(&out);
         s->valid = 0;
         return -1;
     }
-    tam_buf_free(&out);
+    tam_tbuf_free(&out);
     for (int i = 0; i < nrows; i++) {
         char *copy = malloc(rows[i].len + 1);
         if (copy == NULL) { s->valid = 0; return -1; }
@@ -92,7 +92,7 @@ int tam_pager_screen_update(tam_pager_screen_t *s,
     return changed;
 }
 
-void tam_pager_screen_free(tam_pager_screen_t *s)
+void tam_reader_screen_free(tam_reader_screen_t *s)
 {
     for (int i = 0; i < s->nrows; i++) free(s->rows[i]);
     free(s->rows);

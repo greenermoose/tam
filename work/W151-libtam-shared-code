@@ -1,0 +1,41 @@
+W151 COMMAND 0.71.1: ONTO LIBTAM'S SHARED CODE
+
+Date: 2026-11-26
+AI harness: Claude Code 2.1.332
+AI model: claude-opus-5-5
+Continues: W150
+
+
+GUIDANCE
+
+  Fred: "Move each program onto the shared code."
+
+
+DONE
+
+  - tam inspect --json escapes every string value (print_json_str over
+    tam_str_cat_json_str); the array printer no longer computes a pointer
+    before an empty token. Output parses as JSON.
+  - external.c: tam_which, tam_spawn_detached for the browser,
+    tam_run_foreground_opts (stdin_fd = the tty when stdin is a pipe) for
+    w3m, lynx and tam-start; the local fork, signal and errno-pipe code is
+    gone.
+  - tam.c: tam_install_guard, tam_locale_init, tam_fd_read_all for stdin.
+  - Renamed out of libtam's namespaces: tam_render_html and
+    tam_render_man_html (they clashed with libtam-render), tam_pager_run
+    and tam_pager_screen_*, tam_display_*, tam_buf_*; the display, pager
+    and render headers' guards were libtam's own names (TAM_CMD_ now).
+  - Floor and source-build pin: libtam 0.14.0 (d8089e9).
+  - make test-command, tests/guide.sh and check-repo pass.
+
+
+FAILED
+
+  - Nothing.
+
+
+HANDOFF
+
+  - Left: the XDG search in corpus.c (libtam's would add /usr/share to the
+    search), the four percent-decode copies (they turn '+' into a space,
+    libtam does not), the evidence_json fixed buffer in install.c.

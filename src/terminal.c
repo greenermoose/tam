@@ -11,9 +11,9 @@
 #include <string.h>
 #include <unistd.h>
 
-static tam_buf_t *cap_buffer;
+static tam_tbuf_t *cap_buffer;
 
-int tam_buf_append(tam_buf_t *b, const void *data, size_t len)
+int tam_tbuf_append(tam_tbuf_t *b, const void *data, size_t len)
 {
     if (len > (size_t)-1 - b->len - 1) return -1;
     size_t need = b->len + len + 1;
@@ -34,18 +34,18 @@ int tam_buf_append(tam_buf_t *b, const void *data, size_t len)
     return 0;
 }
 
-int tam_buf_puts(tam_buf_t *b, const char *s)
+int tam_tbuf_puts(tam_tbuf_t *b, const char *s)
 {
-    return s == NULL ? 0 : tam_buf_append(b, s, strlen(s));
+    return s == NULL ? 0 : tam_tbuf_append(b, s, strlen(s));
 }
 
-void tam_buf_clear(tam_buf_t *b)
+void tam_tbuf_clear(tam_tbuf_t *b)
 {
     b->len = 0;
     if (b->data != NULL) b->data[0] = '\0';
 }
 
-void tam_buf_free(tam_buf_t *b)
+void tam_tbuf_free(tam_tbuf_t *b)
 {
     free(b->data);
     memset(b, 0, sizeof(*b));
@@ -120,10 +120,10 @@ int tam_terminal_init(tam_terminal_t *t, int fd, int rows, int cols)
 static int cap_putc(int c)
 {
     char ch = (char)c;
-    return cap_buffer == NULL ? ERR : tam_buf_append(cap_buffer, &ch, 1);
+    return cap_buffer == NULL ? ERR : tam_tbuf_append(cap_buffer, &ch, 1);
 }
 
-int tam_terminal_cap(tam_terminal_t *t, tam_buf_t *b, const char *cap,
+int tam_terminal_cap(tam_terminal_t *t, tam_tbuf_t *b, const char *cap,
                      long p1, long p2)
 {
     (void)t;
@@ -136,7 +136,7 @@ int tam_terminal_cap(tam_terminal_t *t, tam_buf_t *b, const char *cap,
     return rc == ERR ? -1 : 0;
 }
 
-int tam_terminal_write(tam_terminal_t *t, const tam_buf_t *b)
+int tam_terminal_write(tam_terminal_t *t, const tam_tbuf_t *b)
 {
     size_t off = 0;
     while (off < b->len) {
@@ -148,7 +148,7 @@ int tam_terminal_write(tam_terminal_t *t, const tam_buf_t *b)
     return 0;
 }
 
-int tam_terminal_enter(tam_terminal_t *t, tam_buf_t *b)
+int tam_terminal_enter(tam_terminal_t *t, tam_tbuf_t *b)
 {
     const char *enter_screen = t->smcup != NULL && t->rmcup != NULL ? t->smcup : NULL;
     const char *hide_cursor = t->civis != NULL && t->cnorm != NULL ? t->civis : NULL;
@@ -159,9 +159,9 @@ int tam_terminal_enter(tam_terminal_t *t, tam_buf_t *b)
     return 0;
 }
 
-int tam_terminal_leave(tam_terminal_t *t, tam_buf_t *b)
+int tam_terminal_leave(tam_terminal_t *t, tam_tbuf_t *b)
 {
-    if (t->sync_output) (void)tam_buf_puts(b, "\033[?2026l");
+    if (t->sync_output) (void)tam_tbuf_puts(b, "\033[?2026l");
     if (tam_terminal_cap(t, b, t->sgr0, 0, 0) < 0) return -1;
     if (t->cursor_underlined &&
         tam_terminal_cap(t, b, t->reset_cursor_style, 0, 0) < 0) return -1;
@@ -175,19 +175,19 @@ int tam_terminal_leave(tam_terminal_t *t, tam_buf_t *b)
          * last page visible: go to the bottom row and scroll up one line, so
          * the shell prompt starts on a fresh, empty bottom line. */
         if (tam_terminal_move(t, b, t->rows - 1, 0) < 0 ||
-            tam_buf_puts(b, "\r\n") < 0) return -1;
+            tam_tbuf_puts(b, "\r\n") < 0) return -1;
     }
     return 0;
 }
 
-int tam_terminal_move(tam_terminal_t *t, tam_buf_t *b, int row, int col)
+int tam_terminal_move(tam_terminal_t *t, tam_tbuf_t *b, int row, int col)
 {
     if (row < 0) row = 0;
     if (col < 0) col = 0;
     return tam_terminal_cap(t, b, t->cup, row, col);
 }
 
-int tam_terminal_input_cursor(tam_terminal_t *t, tam_buf_t *b, int visible)
+int tam_terminal_input_cursor(tam_terminal_t *t, tam_tbuf_t *b, int visible)
 {
     int underline = t->set_cursor_style != NULL && t->reset_cursor_style != NULL;
     if (t->civis != NULL && t->cnorm != NULL && t->cursor_hidden == visible) {
@@ -205,7 +205,7 @@ int tam_terminal_input_cursor(tam_terminal_t *t, tam_buf_t *b, int visible)
     return 0;
 }
 
-int tam_terminal_erase_eol(tam_terminal_t *t, tam_buf_t *b)
+int tam_terminal_erase_eol(tam_terminal_t *t, tam_tbuf_t *b)
 {
     return tam_terminal_cap(t, b, t->el, 0, 0);
 }

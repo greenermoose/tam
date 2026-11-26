@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <string.h>
 
-int tam_display_next(const char *s, size_t len, size_t *offset,
+int tam_cells_next(const char *s, size_t len, size_t *offset,
                      size_t *byte_len, wchar_t *wc, int *cells)
 {
     if (s == NULL || offset == NULL || *offset >= len) return 0;
@@ -30,19 +30,19 @@ int tam_display_next(const char *s, size_t len, size_t *offset,
     return 1;
 }
 
-size_t tam_display_width(const char *s, size_t len)
+size_t tam_cells_width(const char *s, size_t len)
 {
     size_t offset = 0;
     size_t cells = 0;
     while (offset < len) {
         int width = 0;
-        (void)tam_display_next(s, len, &offset, NULL, NULL, &width);
+        (void)tam_cells_next(s, len, &offset, NULL, NULL, &width);
         if (width > 0) cells += (size_t)width;
     }
     return cells;
 }
 
-size_t tam_display_prefix(const char *s, size_t len, size_t max_cells,
+size_t tam_cells_prefix(const char *s, size_t len, size_t max_cells,
                           size_t *used_cells)
 {
     size_t offset = 0;
@@ -51,7 +51,7 @@ size_t tam_display_prefix(const char *s, size_t len, size_t max_cells,
         size_t old = offset;
         size_t bytes = 0;
         int width = 0;
-        (void)tam_display_next(s, len, &offset, &bytes, NULL, &width);
+        (void)tam_cells_next(s, len, &offset, &bytes, NULL, &width);
         if (width > 0 && cells + (size_t)width > max_cells) {
             offset = old;
             break;

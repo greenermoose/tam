@@ -1,4 +1,5 @@
 #include <tam.h>
+#include <tam_uni.h>
 
 #include "ask.h"
 #include "depth.h"
@@ -413,38 +414,7 @@ static int record_welcome_seen(void)
 
 static char *read_all_stdin(size_t *out_len)
 {
-    size_t cap = 8192;
-    size_t len = 0;
-    char *buf = malloc(cap);
-    if (buf == NULL) {
-        return NULL;
-    }
-    while (1) {
-        if (len + 4096 >= cap) {
-            cap *= 2;
-            char *next = realloc(buf, cap);
-            if (next == NULL) {
-                free(buf);
-                return NULL;
-            }
-            buf = next;
-        }
-        ssize_t n = read(STDIN_FILENO, buf + len, cap - len - 1);
-        if (n < 0) {
-            if (errno == EINTR) {
-                continue;
-            }
-            free(buf);
-            return NULL;
-        }
-        if (n == 0) {
-            break;
-        }
-        len += (size_t)n;
-    }
-    buf[len] = '\0';
-    *out_len = len;
-    return buf;
+    return tam_fd_read_all(STDIN_FILENO, 0, out_len);
 }
 
 static int view_document(const char *root, const char *href, const char *src,
@@ -481,7 +451,7 @@ static int view_document(const char *root, const char *href, const char *src,
     if (interactive) {
         tam_loader_ctx_t ctx = { .root = (char *)root,
             .stdin_html = info == NULL ? src : NULL, .stdin_len = len };
-        rc = tam_pager_run(doc, href, tam_address_load, &ctx);
+        rc = tam_reader_run(doc, href, tam_address_load, &ctx);
     } else {
         char *text = tam_document_text(doc);
         if (text != NULL) {
@@ -665,7 +635,7 @@ static int cmd_show(int n, char **args)
         tam_document_ensure_location(doc, addr);
         int rc = 0;
         if (interactive) {
-            rc = tam_pager_run(doc, addr, tam_address_load, &ctx);
+            rc = tam_reader_run(doc, addr, tam_address_load, &ctx);
         } else {
             char *text = tam_document_text(doc);
             if (text != NULL) { fputs(text, stdout); free(text); }
@@ -882,7 +852,7 @@ static int cmd_explain(int n, char **args)
         char initial_href[64];
         if (!tam_href_put_level("tam:topics", level, initial_href, sizeof(initial_href)))
             snprintf(initial_href, sizeof(initial_href), "tam:topics");
-        int rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
+        int rc = tam_reader_run(doc, initial_href, tam_address_load, &ctx);
         tam_index_free(idx);
         free(root);
         return rc;
@@ -912,7 +882,7 @@ static int cmd_explain(int n, char **args)
             char initial_href[64];
             if (!tam_href_put_level("tam:keywords", level, initial_href, sizeof(initial_href)))
                 snprintf(initial_href, sizeof(initial_href), "tam:keywords");
-            rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
+            rc = tam_reader_run(doc, initial_href, tam_address_load, &ctx);
         } else {
             char *text = tam_document_text(doc);
             if (text != NULL) {
@@ -946,7 +916,7 @@ static int cmd_explain(int n, char **args)
         free(enc_q);
         if (!tam_href_put_level(base_href, level, initial_href, sizeof(initial_href)))
             snprintf(initial_href, sizeof(initial_href), "%s", base_href);
-        rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
+        rc = tam_reader_run(doc, initial_href, tam_address_load, &ctx);
     } else {
         char *text = tam_document_text(doc);
         if (text != NULL) {
@@ -1071,7 +1041,7 @@ static int cmd_search(int n, char **args)
         tam_document_ensure_location(doc, initial_href);
         tam_loader_ctx_t ctx = {0};
         ctx.root = root;
-        int rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
+        int rc = tam_reader_run(doc, initial_href, tam_address_load, &ctx);
         free(root);
         return rc;
     }
@@ -1130,11 +1100,10 @@ static int cmd_search(int n, char **args)
 
 int main(int argc, char **argv)
 {
-    if (tam_install_pending(NULL)) {
-        fputs("Tamlinux has an interrupted update pending; finish recovery from the console.\n", stderr);
+    /* A failed check is reported as such, not as a pending update. */
+    if (tam_install_guard("tam") != 0)
         return 1;
-    }
-    (void)setlocale(LC_CTYPE, "");
+    (void)tam_locale_init();
     if (argc <= 1) {
         print_tam_help(HELP_STANDARD);
         return 0;

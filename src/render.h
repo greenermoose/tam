@@ -1,5 +1,5 @@
-#ifndef TAM_RENDER_H
-#define TAM_RENDER_H
+#ifndef TAM_CMD_RENDER_H
+#define TAM_CMD_RENDER_H
 
 #include <stddef.h>
 #include "sandbox.h"
@@ -74,9 +74,9 @@ typedef struct {
 } tam_document_t;
 
 /* Parse an HTML subset (len bytes) and lay it out to `width` columns. */
-tam_document_t *tam_render_html(const char *src, size_t len, int width);
+tam_document_t *tam_doc_render_html(const char *src, size_t len, int width);
 /* Render groff HTML, discovering bare web URLs in manual text. */
-tam_document_t *tam_render_man_html(const char *src, size_t len, int width);
+tam_document_t *tam_doc_render_man_html(const char *src, size_t len, int width);
 void tam_document_free(tam_document_t *doc);
 /* Atomically relayout a retained parsed document at the requested width. */
 int tam_document_reflow(tam_document_t *doc, int content_width);
@@ -100,4 +100,4 @@ typedef tam_document_t *(*tam_page_loader_t)(void *ctx, const char *href,
 char *tam_find_knowledge_root(void);
 
 
-#endif /* TAM_RENDER_H */
+#endif /* TAM_CMD_RENDER_H */

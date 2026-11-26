@@ -35,12 +35,12 @@ PKG_CONFIG ?= pkg-config
 ifdef LIBTAM_PREFIX
 LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
 LIBTAM_LIBS   ?= -L$(LIBTAM_PREFIX)/lib -ltam
-LIBTAM_ERROR  = $(if $(shell grep -s -l tam_runtime_dir $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.11.0 or later include/tam.h)
+LIBTAM_ERROR  = $(if $(shell grep -s -l tam_run_foreground_opts $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.14.0 or later include/tam.h)
 else ifeq ($(origin LIBTAM_LIBS),undefined)
-LIBTAM_FOUND  = $(shell $(PKG_CONFIG) --atleast-version=0.11.0 libtam 2>/dev/null && echo yes)
+LIBTAM_FOUND  = $(shell $(PKG_CONFIG) --atleast-version=0.14.0 libtam 2>/dev/null && echo yes)
 LIBTAM_CFLAGS = $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --cflags libtam))
 LIBTAM_LIBS   = $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --libs libtam))
-LIBTAM_ERROR  = $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam 0.11.0 or later)
+LIBTAM_ERROR  = $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam 0.14.0 or later)
 endif
 
 LDFLAGS  ?=
@@ -132,7 +132,7 @@ $(BUILD):
 libtam-check:
 	@if [ -n '$(LIBTAM_ERROR)' ]; then \
 		printf '%s\n' 'tam: cannot build the command: $(LIBTAM_ERROR).' \
-		'  Install libtam 0.11.0 or later first, or set LIBTAM_PREFIX=<prefix>.' >&2; \
+		'  Install libtam 0.14.0 or later first, or set LIBTAM_PREFIX=<prefix>.' >&2; \
 		exit 1; fi
 
 # --- corpus lane: no compiler, libtam or command prerequisite --------------

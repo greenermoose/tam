@@ -1,6 +1,8 @@
 #define _POSIX_C_SOURCE 200809L
 #include "external.h"
 
+#include <tam.h>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -124,28 +126,11 @@ static int command_parse(command_t *c, const char *entry, size_t len, const char
     return 1;
 }
 
-static int is_program(const char *path)
-{
-    struct stat sb;
-    return stat(path, &sb) == 0 && S_ISREG(sb.st_mode) && access(path, X_OK) == 0;
-}
-
 static int program_found(const char *name)
 {
-    if (name[0] == '\0') return 0;
-    if (strchr(name, '/') != NULL) return is_program(name);
-    const char *path = getenv("PATH");
-    if (path == NULL || path[0] == '\0') path = "/usr/bin:/bin";
-    char buf[4096];
-    for (const char *p = path; ; ) {
-        const char *end = strchr(p, ':');
-        size_t dlen = end != NULL ? (size_t)(end - p) : strlen(p);
-        int n = snprintf(buf, sizeof(buf), "%.*s/%s", (int)dlen,
-                         dlen > 0 ? p : ".", name);
-        if (n > 0 && (size_t)n < sizeof(buf) && is_program(buf)) return 1;
-        if (end == NULL) return 0;
-        p = end + 1;
-    }
+    char *path = tam_which(name);
+    free(path);
+    return path != NULL;
 }
 
 /* The first installed entry of a colon-separated list such as $BROWSER. */
@@ -199,49 +184,6 @@ const char *tam_external_missing(int graphical)
                      : "no text browser found; install w3m or lynx, or set TAM_TEXT_BROWSER";
 }
 
-/* A browser starts with the signal handling a shell would give it, not the
- * pager's: ignored signals stay ignored across exec. */
-static void default_signals(void)
-{
-    static const int sigs[] = { SIGINT, SIGQUIT, SIGTERM, SIGWINCH, SIGPIPE, SIGTSTP };
-    for (size_t i = 0; i < sizeof(sigs) / sizeof(sigs[0]); i++)
-        (void)signal(sigs[i], SIG_DFL);
-    sigset_t none;
-    sigemptyset(&none);
-    (void)sigprocmask(SIG_SETMASK, &none, NULL);
-}
-
-/* A close-on-exec pipe carries errno back when exec fails; it reads empty
- * once the program has started. */
-static int exec_pipe(int fds[2])
-{
-    if (pipe(fds) != 0) return -1;
-    (void)fcntl(fds[0], F_SETFD, FD_CLOEXEC);
-    (void)fcntl(fds[1], F_SETFD, FD_CLOEXEC);
-    return 0;
-}
-
-static void report_errno(int fd, int err)
-{
-    ssize_t n;
-    do n = write(fd, &err, sizeof(err)); while (n < 0 && errno == EINTR);
-}
-
-static int read_errno(int fd)
-{
-    int err = 0;
-    ssize_t n;
-    do n = read(fd, &err, sizeof(err)); while (n < 0 && errno == EINTR);
-    return n == (ssize_t)sizeof(err) ? err : 0;
-}
-
-static int wait_child(pid_t pid, int *status)
-{
-    pid_t r;
-    do r = waitpid(pid, status, 0); while (r < 0 && errno == EINTR);
-    return r == pid ? 0 : -1;
-}
-
 int tam_external_open_detached(const char *url, char *msg, size_t cap)
 {
     command_t c = {0};
@@ -252,91 +194,35 @@ int tam_external_open_detached(const char *url, char *msg, size_t cap)
         return -1;
     }
     const char *name = base_name(c.argv[0]);
-    int fds[2];
-    if (exec_pipe(fds) != 0) {
-        snprintf(msg, cap, "cannot start %s: %s", name, strerror(errno));
-        command_free(&c);
-        return -1;
-    }
-    pid_t pid = fork();
-    int fork_err = errno;
-    if (pid == 0) {
-        /* A second fork leaves the browser to init, so it never becomes a
-         * zombie of the pager and outlives it. */
-        close(fds[0]);
-        (void)setsid();
-        pid_t grandchild = fork();
-        if (grandchild < 0) report_errno(fds[1], errno);
-        if (grandchild != 0) _exit(grandchild < 0 ? 1 : 0);
-        int null = open("/dev/null", O_RDWR);
-        if (null >= 0) {
-            (void)dup2(null, STDIN_FILENO);
-            (void)dup2(null, STDOUT_FILENO);
-            (void)dup2(null, STDERR_FILENO);
-            if (null > STDERR_FILENO) close(null);
-        }
-        default_signals();
-        execvp(c.argv[0], c.argv);
-        report_errno(fds[1], errno);
-        _exit(127);
-    }
-    close(fds[1]);
-    int err = pid < 0 ? fork_err : read_errno(fds[0]);
-    close(fds[0]);
-    if (pid > 0) (void)wait_child(pid, NULL);
-    if (err != 0) snprintf(msg, cap, "cannot start %s: %s", name, strerror(err));
+    /* Detached in its own session, with the defaults a shell would give it
+     * and none of the pager's descriptors (the /dev/tty one included);
+     * reaped by init. */
+    int rc = tam_spawn_detached((const char *const *)c.argv);
+    if (rc != 0) snprintf(msg, cap, "cannot start %s: %s", name, strerror(errno));
     else snprintf(msg, cap, "opened in %s", name);
     command_free(&c);
-    return err != 0 ? -1 : 0;
+    return rc != 0 ? -1 : 0;
 }
 
 int tam_run_foreground_command(char *const argv[], int tty_fd,
                                char *msg, size_t cap)
 {
     const char *name = base_name(argv[0]);
-    int fds[2];
-    if (exec_pipe(fds) != 0) {
+    /* When our stdin is a pipe (`... | tam show -`), the program reads the
+     * terminal instead. Ctrl+C and Ctrl+\ reach only the program. */
+    tam_proc_opts_t opts = {0};
+    if (tty_fd > 0 && !isatty(STDIN_FILENO)) opts.stdin_fd = tty_fd;
+    int code = 0;
+    if (tam_run_foreground_opts((const char *const *)argv, &opts, &code) != 0) {
         snprintf(msg, cap, "cannot start %s: %s", name, strerror(errno));
         return -1;
     }
-    /* Interrupt and quit keys belong to the child while it runs. */
-    struct sigaction ign, old_int, old_quit;
-    memset(&ign, 0, sizeof(ign));
-    ign.sa_handler = SIG_IGN;
-    sigemptyset(&ign.sa_mask);
-    int have_int = sigaction(SIGINT, &ign, &old_int) == 0;
-    int have_quit = sigaction(SIGQUIT, &ign, &old_quit) == 0;
-    pid_t pid = fork();
-    int fork_err = errno;
-    if (pid == 0) {
-        close(fds[0]);
-        if (tty_fd >= 0 && !isatty(STDIN_FILENO)) (void)dup2(tty_fd, STDIN_FILENO);
-        default_signals();
-        execvp(argv[0], argv);
-        report_errno(fds[1], errno);
-        _exit(127);
+    if (code != 0) {
+        snprintf(msg, cap, "%s exited with status %d", name, code);
+        return -1;
     }
-    close(fds[1]);
-    int err = pid < 0 ? fork_err : read_errno(fds[0]);
-    close(fds[0]);
-    int status = 0;
-    int waited = pid > 0 && wait_child(pid, &status) == 0;
-    if (have_int) (void)sigaction(SIGINT, &old_int, NULL);
-    if (have_quit) (void)sigaction(SIGQUIT, &old_quit, NULL);
-    int rc = -1;
-    if (err != 0)
-        snprintf(msg, cap, "cannot start %s: %s", name, strerror(err));
-    else if (!waited)
-        snprintf(msg, cap, "lost track of %s", name);
-    else if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-        snprintf(msg, cap, "%s exited with status %d", name, WEXITSTATUS(status));
-    else if (WIFSIGNALED(status))
-        snprintf(msg, cap, "%s ended by signal %d", name, WTERMSIG(status));
-    else {
-        snprintf(msg, cap, "back from %s", name);
-        rc = 0;
-    }
-    return rc;
+    snprintf(msg, cap, "back from %s", name);
+    return 0;
 }
 
 int tam_external_run_foreground(const char *url, int tty_fd,

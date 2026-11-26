@@ -27,8 +27,8 @@
 volatile sig_atomic_t g_stop = 0;
 volatile sig_atomic_t g_resized = 0;
 tam_terminal_t *g_term;
-tam_buf_t *g_capture;
-tam_pager_screen_t g_screen;
+tam_tbuf_t *g_capture;
+tam_reader_screen_t g_screen;
 int g_attention;
 unsigned char g_pending[128];
 size_t g_pending_len;
@@ -55,10 +55,10 @@ static void on_resize(int sig)
 void pager_suspend(pager_t *st)
 {
     if (g_term == NULL) return;
-    tam_buf_t b = {0};
+    tam_tbuf_t b = {0};
     if (tam_terminal_leave(g_term, &b) == 0)
         (void)tam_terminal_write(g_term, &b);
-    tam_buf_free(&b);
+    tam_tbuf_free(&b);
     if (st->tty_orig != NULL)
         (void)tcsetattr(st->input_fd, TCSANOW, st->tty_orig);
     g_term->raw_mode = 0;
@@ -71,14 +71,14 @@ void pager_resume(pager_t *st)
     if (st->tty_raw != NULL &&
         tcsetattr(st->input_fd, TCSANOW, st->tty_raw) == 0)
         g_term->raw_mode = 1;
-    tam_buf_t b = {0};
+    tam_tbuf_t b = {0};
     if (tam_terminal_enter(g_term, &b) == 0)
         (void)tam_terminal_write(g_term, &b);
-    tam_buf_free(&b);
-    tam_pager_screen_invalidate(&g_screen);
+    tam_tbuf_free(&b);
+    tam_reader_screen_invalidate(&g_screen);
 }
 
-int tam_pager_run(tam_document_t *initial, const char *initial_href,
+int tam_reader_run(tam_document_t *initial, const char *initial_href,
                   tam_page_loader_t load, void *ctx)
 {
     g_stop = 0;
@@ -148,7 +148,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         return rc;
     }
     g_term = &term;
-    tam_pager_screen_init(&g_screen, &term);
+    tam_reader_screen_init(&g_screen, &term);
     if (!named_level && st.lens != 0 && st.load != NULL && tam_addr_takes_lens(st.cur_href)) {
         tam_document_t *nd = load_at_lens(&st, st.cur_href);
         if (nd != NULL) {
@@ -167,7 +167,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         if (tty_fd >= 0) {
             input_fd = tty_fd;
         } else {
-            tam_pager_screen_free(&g_screen);
+            tam_reader_screen_free(&g_screen);
             g_term = NULL;
             tam_document_free(st.doc);
             free(st.fold_open);
@@ -184,7 +184,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         if (tty_fd >= 0) {
             close(tty_fd);
         }
-        tam_pager_screen_free(&g_screen);
+        tam_reader_screen_free(&g_screen);
         g_term = NULL;
         tam_document_free(st.doc);
         free(st.fold_open);
@@ -202,7 +202,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         if (tty_fd >= 0) {
             close(tty_fd);
         }
-        tam_pager_screen_free(&g_screen);
+        tam_reader_screen_free(&g_screen);
         g_term = NULL;
         tam_document_free(st.doc);
         free(st.fold_open);
@@ -226,17 +226,17 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     sigemptyset(&sa.sa_mask);
     int have_winch = sigaction(SIGWINCH, &sa, &old_winch) == 0;
 
-    tam_buf_t entry = {0};
+    tam_tbuf_t entry = {0};
     if (tam_terminal_enter(&term, &entry) == 0)
         (void)tam_terminal_write(&term, &entry);
-    tam_buf_free(&entry);
+    tam_tbuf_free(&entry);
     draw(&st);
     const char *term_name = getenv("TERM");
     if (term_name != NULL && strcmp(term_name, "linux") != 0) {
-        tam_buf_t probe = {0};
-        (void)tam_buf_puts(&probe, "\033[?2026$p");
+        tam_tbuf_t probe = {0};
+        (void)tam_tbuf_puts(&probe, "\033[?2026$p");
         if (tam_terminal_write(&term, &probe) == 0) st.sync_probe_sent = 1;
-        tam_buf_free(&probe);
+        tam_tbuf_free(&probe);
     }
 
     while (!g_stop) {
@@ -276,10 +276,10 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         draw(&st);
     }
 
-    tam_buf_t leave = {0};
+    tam_tbuf_t leave = {0};
     if (tam_terminal_leave(&term, &leave) == 0)
         (void)tam_terminal_write(&term, &leave);
-    tam_buf_free(&leave);
+    tam_tbuf_free(&leave);
 
     tcsetattr(input_fd, TCSANOW, &orig);
     term.raw_mode = 0;
@@ -297,7 +297,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     pager_clear_search(&st);
     pager_free_sandboxes(&st);
     tam_document_free(st.doc);
-    tam_pager_screen_free(&g_screen);
+    tam_reader_screen_free(&g_screen);
     g_term = NULL;
 
     if (have_int) (void)sigaction(SIGINT, &old_int, NULL);

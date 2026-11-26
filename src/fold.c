@@ -208,7 +208,7 @@ tam_document_t *tam_fold_render(const char *src, size_t len, int width,
     transform(&x, 0, len, &out, &answers, 0);
     answers_end(&out, &answers);
     tam_document_t *doc = NULL;
-    if (!out.failed && !x.failed) doc = tam_render_html(out.s ? out.s : "", out.n, width);
+    if (!out.failed && !x.failed) doc = tam_doc_render_html(out.s ? out.s : "", out.n, width);
     free(out.s);
     if (doc && pipe) {
         for (size_t i = 0; i < doc->nsandboxes; i++)

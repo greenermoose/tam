@@ -1300,7 +1300,7 @@ int tam_cmd_tldr(int n, char **args)
         if (interactive) {
             char *root = tam_find_knowledge_root();
             tam_loader_ctx_t ctx = {.root = root};
-            rc = tam_pager_run(doc, uri, tam_address_load, &ctx);
+            rc = tam_reader_run(doc, uri, tam_address_load, &ctx);
             free(root);
         } else {
             char *text = tam_document_text(doc);
@@ -1336,7 +1336,7 @@ int tam_cmd_tldr(int n, char **args)
     if (interactive) {
         char *root = tam_find_knowledge_root();
         tam_loader_ctx_t ctx = {.root = root};
-        rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
+        rc = tam_reader_run(doc, initial_href, tam_address_load, &ctx);
         free(root);
     } else {
         char *text = tam_document_text(doc);

@@ -184,24 +184,24 @@ static void pager_draw_prompt(pager_t *st, const char *label,
 {
     int row = st->height >= 2 ? st->height - 1 : 0;
     int max = st->width > 1 ? st->width - 1 : 0;
-    tam_buf_t b = {0};
+    tam_tbuf_t b = {0};
     (void)tam_terminal_move(g_term, &b, row, 0);
     (void)tam_terminal_cap(g_term, &b, g_term->sgr0, 0, 0);
     (void)tam_terminal_erase_eol(g_term, &b);
-    (void)tam_buf_puts(&b, label);
+    (void)tam_tbuf_puts(&b, label);
     size_t off = 0;
-    size_t n = tam_display_prefix(query, qlen, (size_t)max, NULL);
+    size_t n = tam_cells_prefix(query, qlen, (size_t)max, NULL);
     while (off < n) {
         size_t start = off, bytes = 0;
         wchar_t wc;
         int cells = 0;
-        (void)tam_display_next(query, n, &off, &bytes, &wc, &cells);
-        if (wc == 0xfffd) (void)tam_buf_puts(&b, "?");
-        else (void)tam_buf_append(&b, query + start, bytes);
+        (void)tam_cells_next(query, n, &off, &bytes, &wc, &cells);
+        if (wc == 0xfffd) (void)tam_tbuf_puts(&b, "?");
+        else (void)tam_tbuf_append(&b, query + start, bytes);
     }
     (void)tam_terminal_cap(g_term, &b, g_term->cnorm, 0, 0);
     (void)tam_terminal_write(g_term, &b);
-    tam_buf_free(&b);
+    tam_tbuf_free(&b);
 }
 
 static int pager_read_prompt(pager_t *st, const char *label,
@@ -241,11 +241,11 @@ static int pager_read_prompt(pager_t *st, const char *label,
         }
     }
 
-    tam_buf_t b = {0};
+    tam_tbuf_t b = {0};
     (void)tam_terminal_cap(g_term, &b, g_term->civis, 0, 0);
     (void)tam_terminal_write(g_term, &b);
-    tam_buf_free(&b);
-    tam_pager_screen_invalidate(&g_screen);
+    tam_tbuf_free(&b);
+    tam_reader_screen_invalidate(&g_screen);
 
     return !cancelled;
 }

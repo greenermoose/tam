@@ -44,7 +44,7 @@ void pager_build_links(pager_t *st)
             const tam_span_t *sp = &st->doc->lines[i].spans[j];
             size_t text_len = sp->text != NULL ? strlen(sp->text) : 0;
             int span_col_start = col;
-            int span_col_end = col + (int)tam_display_width(sp->text, text_len);
+            int span_col_end = col + (int)tam_cells_width(sp->text, text_len);
             col = span_col_end;
 
             if (sp->href == NULL) {
@@ -58,7 +58,7 @@ void pager_build_links(pager_t *st)
                 }
             }
             int link_col_start = span_col_start +
-                                 (int)tam_display_width(sp->text, lead);
+                                 (int)tam_cells_width(sp->text, lead);
             int link_col_end = span_col_end;
             if (link_col_start >= link_col_end) {
                 link_col_start = span_col_start;
@@ -107,7 +107,7 @@ void pager_build_links(pager_t *st)
     for (size_t j = 0; j < st->doc->location.nspans; j++) {
         const tam_span_t *sp = &st->doc->location.spans[j];
         int start = header_col;
-        header_col += (int)tam_display_width(sp->text, strlen(sp->text));
+        header_col += (int)tam_cells_width(sp->text, strlen(sp->text));
         if (sp->href == NULL) continue;
         linkref_t *next = realloc(st->links, (st->nlinks + 1) * sizeof(*st->links));
         if (next == NULL) {
