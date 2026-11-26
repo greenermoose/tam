@@ -1,0 +1,43 @@
+W138 DATABASE GLOSSARY WHATIS DISCOVERABILITY
+
+Date: 2026-11-25
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Continues: W137
+
+GUIDANCE
+
+  Fred: "Move the SQLite page to the glossary or add it to the glossary.
+  Same with PostgreSQL and MySQL. Those all need to be discoverabl via
+  whatis in the tam pager."
+
+DONE
+
+  - Kept the three teaching pages in their canonical Programming /
+    Databases home and added separate glossary entries for SQLite,
+    PostgreSQL and MySQL, each with novice, learner and expert text.
+  - Linked the new entries from the first use and New words sections of
+    the matching teaching pages. Corpus is 0.130.0; command stays 0.69.7.
+  - TCK33.4 was minted under the existing TCK33 plan. The owning plan,
+    plan index, ROADMAP, checklist and decision record were updated.
+  - A live-corpus PTY check sent `w` and each name to the pager. All three
+    resolved to their own glossary entries with no miss or ambiguity.
+  - make corpus, make corpus-and-test, make check-repo, coverage report
+    and reader spot checks pass. No install, stage, tag or push action.
+
+FAILED
+
+  - The first PTY assertion looked for a path in the status line; the
+    pager shows the page title there. The check now asserts each glossary
+    page's own Learn more marker.
+  - The first reader spot check used the wrong capitalisation for a
+    glossary sentence; corrected grep text passes.
+  - Tooling unit tests report fixture glossary misplacements; the live
+    corpus report has zero anatomy warnings.
+
+HANDOFF
+
+  - Corpus 0.130.0 is ready for Fred's review. Commit pages and
+    bookkeeping, then rerun make corpus and commit only the regenerated
+    indexes. Await Fred's development cycle; Test, Run and Release each
+    need his exact word.

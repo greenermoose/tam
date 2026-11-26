@@ -2,15 +2,18 @@
 
 **Plan status:** Completed
 **Reviewed:** 2026-11-25
-**Scope:** Corpus-only content for corpus 0.129.0: a Programming > Databases and
-data storage hub, ten three-level teaching pages, a five-stage `databases` goal
-path, thirty glossary pages, twelve bibliography entries and the `data.*` skill
-cells. No command, install or stage change.
+**Scope:** Corpus-only content, ending at corpus 0.130.0: a Programming >
+Databases and data storage hub, ten three-level teaching pages, a five-stage
+`databases` goal path, thirty-three glossary pages, twelve bibliography entries
+and the `data.*` skill cells. The final slice adds SQLite, PostgreSQL and MySQL
+glossary entries for pager `whatis` lookup. No command, install or stage change.
 **Authority:** The developer asked for pages on SQLite and IndexedDB, then for a
 series covering influential open source database programs such as SQLite,
 PostgreSQL and MySQL, non-SQL databases, GraphQL and storage for very large data
-sets. He approved the full-series shape with the instruction “Make it so.”
-**Next action:** None. Closed 2026-11-25 at corpus 0.129.0; learner review,
+sets. He approved the full-series shape with the instruction “Make it so.” He
+then asked for SQLite, PostgreSQL and MySQL to be added to the glossary so those
+names are discoverable through `whatis` in the tam pager.
+**Next action:** None. Closed 2026-11-25 at corpus 0.130.0; learner review,
 installation and packaged acceptance remain developer-directed.
 
 ## Problem and agreed outcome
@@ -54,6 +57,11 @@ force. No command change was needed; corpus content versions independently.
    write the session work record. Run `make corpus`, `make corpus-and-test`,
    `make check-repo` and reader spot checks; commit pages first and regenerated
    indexes after them.
+4. **Whatis discoverability (TCK33.4):** Add `glossary/s/sqlite.html`,
+   `glossary/p/postgresql.html` and `glossary/m/mysql.html` with exact titles,
+   topics and keywords. Link them from the first use and New words sections of
+   the matching teaching pages. Carry `knowledge/version` to 0.130.0 and verify
+   that the pager's `whatis` prompt resolves each name to its glossary entry.
 
 Examples are simulated teaching sandboxes. Scripted outputs are described in
 page prose as samples, not readings from the developer's machine. No database
@@ -66,5 +74,7 @@ software is installed or started.
   a quiz in Learner and Expert, valid citations and working glossary links.
 - `paths/databases.html` has five stages, ten levelled steps, five checkpoint
   quizzes, one capstone solution and one Next paths heading.
+- The pager's `w` / `whatis:` prompt resolves `sqlite`, `postgresql` and `mysql`
+  to their own glossary entries without ambiguity.
 - Command version remains 0.69.7. No Test, Run, Release, tag or install action
   is part of this plan.

@@ -3,26 +3,31 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-25, with W137
+Updated: 2026-11-25, with W138
 
 STATE
 
-  Command 0.69.7 and corpus 0.129.0 are on dev. W137 added the
+  Command 0.69.7 and corpus 0.130.0 are on dev. W137 added the
   Programming / Databases and data storage curriculum: hub, ten
   three-level pages, five-stage path, 30 glossary entries, 12 sources
-  and data.* skills. make corpus, corpus-and-test and check-repo pass;
-  reader spot checks pass with TAM_KNOWLEDGE_DIR=knowledge.
+  and data.* skills; it is committed. W138 added SQLite, PostgreSQL and
+  MySQL glossary entries so the pager's `whatis` prompt resolves each
+  name. W138 is uncommitted. make corpus, corpus-and-test, check-repo,
+  coverage report and reader spot checks pass; a live-corpus PTY check
+  confirms all three names.
 
 NEXT
 
-  1. Commit W137 pages and bookkeeping, then rerun make corpus and
-     commit only the regenerated indexes. Do not push.
-  2. Await Fred's development cycle for corpus 0.129.0. Test, Run and
+  1. Commit W138 pages and bookkeeping, including the new work record
+     and this file, with provenance trailers. Do not push.
+  2. Rerun make corpus, then commit only the regenerated indexes. Check
+     the diff for private identifiers before any push.
+  3. Await Fred's development cycle for corpus 0.130.0. Test, Run and
      Release still need his exact word.
 
 WAITING FOR FRED
 
-  - Fred's development cycle for corpus 0.129.0. Tamlinux 0.6.38
+  - Fred's development cycle for corpus 0.130.0. Tamlinux 0.6.38
     remains in Test.
 
 WATCH OUT
@@ -30,26 +35,13 @@ WATCH OUT
   - Claim the paths you edit in the shared clone. See AGENTS.md for
     lane scopes, version bumps and tests. CHECKLISTS.md is a separate
     shared claim when minting TCK IDs.
-  - Lb is a lead line: it takes one content row at the top of the pager
-    and reduces the numbered-line range shown there by one. Pager row
-    and scroll assertions must account for it. Generated views built
-    with tam_page_render() do not carry Lb unless they inject it
-    themselves; depth-prepared corpus pages get it from
-    tam_depth_prepare().
-  - The status row repeats a selected link label with the link's own
-    reverse styling. Raw-PTY assertions that search for `\x1b[7m`
-    must scope themselves to page rows, not the whole buffer.
-  - Interactive checks of generated views need `tam show <view>`, not
-    a bare `tam <view>` alias; only some views have bare aliases.
-  - PTY assertions on coloured rows must strip ANSI escapes first: a
-    right-aligned Lb can be split by colour codes. Wait for a content
-    marker instead of a fixed delay when the view loads an index.
-  - Inline python3 -c blocks in tests/run.sh are single-quoted: avoid
-    apostrophes in comments or strings inside them.
-  - The reveal and hide keys r and a are reliable for first-time
-    asides; Right Arrow depends on where the attention line sits.
   - Generated corpus indexes trail page commits by one; commit them
     after the pages, then rerun make corpus.
+  - Interactive pager whatis tests in tests/run.sh use the small
+    fixture guide, not the live corpus. Verify new glossary names with
+    a separate TAM_KNOWLEDGE_DIR=knowledge PTY check.
+  - The pager status line shows a page title, not its path. Assert a
+    page's own body marker when checking a whatis resolution.
   - Cross-page links in corpus pages are root-relative from knowledge/,
     not relative to the current page. Breadcrumb `index.html` is the
     Guide root link.
@@ -82,6 +74,24 @@ WATCH OUT
   - For an interactive PTY check of a sandbox deep in a page, search
     with `/Sandbox: <title>` then press Right; repeated Down keys can
     run the attention line past the sandbox.
+  - Lb is a lead line: it takes one content row at the top of the pager
+    and reduces the numbered-line range shown there by one. Pager row
+    and scroll assertions must account for it. Generated views built
+    with tam_page_render() do not carry Lb unless they inject it
+    themselves; depth-prepared corpus pages get it from
+    tam_depth_prepare().
+  - The status row repeats a selected link label with the link's own
+    reverse styling. Raw-PTY assertions that search for `\x1b[7m`
+    must scope themselves to page rows, not the whole buffer.
+  - Interactive checks of generated views need `tam show <view>`, not
+    a bare `tam <view>` alias; only some views have bare aliases.
+  - PTY assertions on coloured rows must strip ANSI escapes first: a
+    right-aligned Lb can be split by colour codes. Wait for a content
+    marker instead of a fixed delay when the view loads an index.
+  - Inline python3 -c blocks in tests/run.sh are single-quoted: avoid
+    apostrophes in comments or strings inside them.
+  - The reveal and hide keys r and a are reliable for first-time
+    asides; Right Arrow depends on where the attention line sits.
   - Tamlinux's desktop plan is its own compositor, tam-pane. Sway and
     wlroots are peer projects or technical examples, not targets.
   - Tamlinux's host/rootstock/bud/scion/cultivar/fruit naming is a

@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-25:** Corpus 0.130.0 (minor): add glossary entries for SQLite, PostgreSQL and MySQL, link them from their teaching pages, and verify that the pager's `w` / `whatis:` prompt resolves each name to its own glossary entry. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.129.0 (minor): add the Programming / Databases and data storage curriculum: hub, ten three-level pages, five-stage goal path, thirty glossary entries, twelve bibliography sources and `data.*` skills. All teaching examples are sandboxes with sample output labelled as simulated; no database software is installed. Command version 0.69.7 is unchanged.
 - **2026-11-24:** Command 0.69.7 (patch): clear transient status notices such as `Quiz 1/2 revealed` when the attention line, selection or page changes, so expanding an answer or showing an aside does not leave a stale notice after the reader moves. A notice written by the same key is kept. Add a fold regression test.
 - **2026-11-24:** Command 0.69.6 (patch): clear `Path = ...` as soon as the attention line, selection or page changes, so the status row reports the new location or the newly selected link destination instead of a stale address. Draw a selected link's destination with the same selected-link styling used on the page, including its reverse background, so the status row visibly belongs to the highlighted link. Update the manual wording and PTY tests.
@@ -1591,6 +1592,17 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
+
+### 2026-11-25 — Database glossary discoverability (corpus 0.130.0)
+
+The developer asked for the SQLite page to be moved or added to the glossary,
+and the same for PostgreSQL and MySQL, so all three names are discoverable
+through `whatis` in the tam pager. The teaching pages stay in their canonical
+Programming / Databases home. Separate glossary entries now carry each name,
+with first-use and New words links from the matching teaching page. The pager's
+`w` / `whatis:` prompt resolves each name to its own glossary entry. This is a
+corpus-only change; no database software is installed, and command version,
+stage promotion and installation remain developer-directed.
 
 ### 2026-11-25 — Databases and data storage curriculum (corpus 0.129.0)
 
