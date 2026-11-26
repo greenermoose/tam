@@ -10,6 +10,9 @@ GUIDANCE
   to the C17 standard, from C11. Update every instance of describing
   the C language spec Tamlinux code compiles against."
 
+  Fred: "Note that we are running Tamlinux 0.6.42. Any docs in the
+  tam repo that say otherwise need to be updated (check WHATNOW)."
+
   The scope was active code and current docs: build flags, READMEs,
   roadmaps, plans and corpus pages that state what Tamlinux compiles
   against. Historical and work records, branch names such as `c11`,
@@ -44,6 +47,13 @@ DONE
     eight renderer goldens and both repository consistency checks.
     Regenerated indexes changed only C11-to-C17 terms, keywords,
     summaries and headings.
+  - Claude committed and pushed the final C17 flags: libtam 0.15.1
+    sets `-std=c17`, and tam-monitor's Makefile says `-std=c17`.
+    Every bespoke C Makefile now has an explicit C17 standard.
+  - Checked tam's current-state version claims. work/WHATNOW was the
+    only current doc still saying 0.6.38; it now says the running
+    Tamlinux is 0.6.42 without claiming any stage move. Work history,
+    old plan targets and test fixtures keep their old values.
 
 FAILED
 
@@ -61,9 +71,8 @@ HANDOFF
 
   - Commit and push the claimed paths to dev, except the private
     planning repository, which stays local on main.
-  - Claude is adding -std=c17 to libtam/Makefile and
-    tam-monitor/Makefile; both had no explicit standard and inherited
-    GCC 16's gnu23 default. Check its reply and those two flags before
-    calling the C17 change complete. Its other C17 Makefiles and
-    check-headers.sh are committed.
+  - The C17 change is complete on dev: Claude's libtam 0.15.1 and
+    tam-monitor commits are pushed, with tests passing.
+  - Fred reports the running Tamlinux is 0.6.42. That is a current
+    state fact, not a Test, Run or Release instruction.
   - Test, Run and Release still need Fred's exact word for a candidate.

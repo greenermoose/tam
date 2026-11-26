@@ -8,6 +8,9 @@ Updated: 2026-11-26, with W156
 STATE
 
   Command 0.72.0 and corpus 0.139.1 are ready on dev after W156.
+  Claude's final C17 flags are in libtam 0.15.1 and tam-monitor on dev.
+  Fred reports that the running Tamlinux is 0.6.42; that states the
+  system in use, not a Test, Run or Release move.
   Tamlinux's own C code now targets C17: Makefiles use `-std=c17`, with
   `-std=gnu17` in libtam's header check, and current docs and corpus
   pages say C17, as do the component architecture and ideas docs.
@@ -22,24 +25,18 @@ STATE
 
 NEXT
 
-  1. Claude has added -std=c17 to libtam/Makefile and
-     tam-monitor/Makefile, which had inherited GCC 16's gnu23 default.
-     They were uncommitted when checked; confirm Claude tests, commits
-     and pushes them before calling the C17 change complete.
-  2. Check git log @{u}.. and push dev for the changed repositories;
-     the private planning repository stays local on main.
-  3. Let Fred choose which documentation ideas in ideas/synthesis.md
+  1. Let Fred choose which documentation ideas in ideas/synthesis.md
      become plans. Do not start implementation from an idea file alone.
-  4. Re-check the snippet-heavy Fedora, Debian wiki, elementary, LXQt
+  2. Re-check the snippet-heavy Fedora, Debian wiki, elementary, LXQt
      and Docsy details before treating any of them as settled.
-  5. Await Fred's word before any Test, Run or Release move.
+  3. Await Fred's word before any Test, Run or Release move.
 
 WAITING FOR FRED
 
   - His choice of which documentation ideas to turn into plans.
   - His development cycle for command 0.72.0 / corpus 0.139.1. Test,
-    Run and Release need his exact word; Tamlinux 0.6.38 remains in
-    Test.
+    Run and Release need his exact word. The running Tamlinux is
+    0.6.42.
 
 WATCH OUT
 
