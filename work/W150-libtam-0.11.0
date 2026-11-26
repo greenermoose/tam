@@ -1,0 +1,33 @@
+W150 COMMAND 0.69.9: LIBTAM 0.11.0
+
+Date: 2026-11-26
+AI harness: Claude Code 2.1.332
+AI model: claude-opus-5-5
+Continues: W149
+
+
+GUIDANCE
+
+  Fred: "Do 0.11.0" (libtam's shared primitives).
+
+
+DONE
+
+  - libtam 0.11.0 exports tam_utf8_prev, which clashed with the static
+    inline copy in src/utf8.h (pager_input.c included both). Removed
+    src/utf8.h; pager input, pager search and the sandbox use libtam's.
+  - The Makefile requires libtam 0.11.0; source-build.json pins it.
+  - make command, make test-command and tools/check-repo.py pass.
+
+
+FAILED
+
+  - Nothing.
+
+
+HANDOFF
+
+  - libtam 0.11.0 also brings tam_which, tam_spawn_detached,
+    tam_run_foreground and tam_xdg_base/tam_xdg_search, which can
+    replace external.c's runners and the XDG code in corpus.c,
+    identity.c, documentation.c and info.c (libtam R2, P1 migrations).

@@ -8,7 +8,6 @@
 #include "pager_screen.h"
 #include "render.h"
 #include "terminal.h"
-#include "utf8.h"
 #include "version.h"
 
 #include <ctype.h>
