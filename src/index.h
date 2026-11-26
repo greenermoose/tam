@@ -47,6 +47,11 @@ typedef struct {
     char            *title;
     char            *intro_path;
     char            *summary;
+    char            *category;      /* authored presentation category */
+    int              order;         /* authored order within the category */
+    char            *outcome;       /* plain opening field */
+    char            *prerequisites; /* escaped HTML fragment with path links */
+    char            *time;          /* plain opening field */
     char           **skills;
     size_t           num_skills;
     tam_path_step_t *steps;

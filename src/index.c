@@ -323,9 +323,9 @@ static void load_paths_projection(tam_index_t *idx, const char *root)
             line = next;
             continue;
         }
-        char *cols[6] = {0};
+        char *cols[11] = {0};
         char *cur = trimmed;
-        for (int c = 0; c < 6 && cur != NULL; c++) {
+        for (int c = 0; c < 11 && cur != NULL; c++) {
             cols[c] = cur;
             char *tab = strchr(cur, '\t');
             if (tab != NULL) {
@@ -351,6 +351,11 @@ static void load_paths_projection(tam_index_t *idx, const char *root)
             p->intro_path = cols[3] && cols[3][0] ? strdup(cols[3]) : strdup("");
             p->summary = cols[4] ? strdup(cols[4]) : strdup("");
             p->skills = cols[5] ? split_list(cols[5], &p->num_skills) : NULL;
+            p->category = cols[6] && cols[6][0] ? strdup(cols[6]) : strdup("");
+            p->order = (cols[7] && cols[7][0]) ? atoi(cols[7]) : 0;
+            p->outcome = cols[8] ? strdup(cols[8]) : strdup("");
+            p->prerequisites = cols[9] ? strdup(cols[9]) : strdup("");
+            p->time = cols[10] ? strdup(cols[10]) : strdup("");
         } else if (cols[0] != NULL && strcmp(cols[0], "S") == 0 &&
                    cols[1] != NULL && cols[2] != NULL && cols[3] != NULL) {
             tam_path_def_t *p = find_path_mut(idx, cols[1]);
@@ -624,6 +629,10 @@ void tam_index_free(tam_index_t *idx)
         free(p->title);
         free(p->intro_path);
         free(p->summary);
+        free(p->category);
+        free(p->outcome);
+        free(p->prerequisites);
+        free(p->time);
         for (size_t k = 0; k < p->num_skills; k++) {
             free(p->skills[k]);
         }

@@ -1,0 +1,63 @@
+W155 LEARNING PATH PRESENTATION
+
+Date: 2026-11-26
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Continues: W154
+
+GUIDANCE
+
+  Fred: "Approved. Make it so."
+
+  The approved design was a friendlier `tam:paths` introduction, an
+  in-page menu linking to every path, and a clear outcome, prerequisites
+  and time on each path. Paths were to be grouped into fixed categories
+  and ordered within them. The five new fields go after `skills` in the
+  path projection so an older reader can ignore them and a new reader
+  can load an older corpus.
+
+DONE
+
+  - All 37 path pages declare one `path-category` from the seven fixed
+    categories and one positive `path-order`, unique within a category.
+    `knowledge/paths/index.html` uses the approved introduction.
+  - tools/build-index.py parses those two meta tags and projects each
+    page's opening Outcome, Prerequisites and Time into five columns
+    appended after `skills` in index.paths.tsv. Prerequisite links to
+    path pages become `tam:path?id=…` links. Category and order are
+    validated and path rows are sorted by them.
+  - src/index.h and src/index.c carry the new path fields and read the
+    appended columns; missing columns load as empty, so older six-column
+    projections still work.
+  - src/views.c renders the approved intro, a "Jump to a path" menu of
+    every indexed path, fixed category sections and the outcome,
+    prerequisites and time on both the summary and the path detail.
+  - tests/test_build_index.py and tests/run.sh cover the projection,
+    validation, intro and command version 0.72.0. tests/guide.sh checks
+    the live projection and view; its wrap-sensitive multi-path checks
+    now flatten whitespace so they do not depend on path order.
+  - docs/corpus-authoring.md, ROADMAP.md and the development decision
+    record document the metadata and versions. Corpus 0.139.0 and
+    command 0.72.0 are recorded in all required places.
+  - make corpus-and-test and make test-command passed: the guide checks,
+    108 corpus tooling tests, the 23-command test script, upgrade and
+    renderer goldens, and both repository consistency checks.
+
+FAILED
+
+  - The first corpus check failed "unattached page missing Settle in from
+    macOS or Windows choice": the new path order changed where that
+    phrase wrapped in pipe output. Flattening whitespace in the affected
+    guide.sh checks removed the dependence on wrap position.
+  - The new projection test failed because the prerequisite rewriter
+    labelled an anchor with its own tag. It now matches a whole
+    `<a…>…</a>` and uses the inner text as the label.
+  - A bulk tagging script printed "tagged 37 paths" then raised a
+    NameError on its final summary line. Verification found all 37 tags
+    correctly written; no re-run was needed.
+
+HANDOFF
+
+  - Commit the claimed source and work record, rerun make corpus and
+    commit the index follow-up. Check git log @{u}.. before pushing dev.
+  - Test, Run and Release still need Fred's exact word for a candidate.

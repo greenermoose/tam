@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.71.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.72.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -368,7 +368,8 @@ PYHUBS
 pass "tam:hubs intro is a toggleable first-time aside"
 sh_paths=$("$TAM" show paths --pipe)
 printf '%s\n' "$sh_paths" | grep -q 'Learning Paths' || fail "tam show paths failed"
-printf '%s\n' "$sh_paths" | grep -q '^Choose your own learning adventure$' || fail "tam show paths intro failed"
+sh_paths_intro=$(printf '%s\n' "$sh_paths" | tr '\n' ' ' | tr -s ' ')
+printf '%s' "$sh_paths_intro" | grep -Fq 'Learning paths are short courses you can follow at your own pace. Each one tells you what you will be able to do, what you need first, and about how long it takes, then walks you through a few pages with checkpoints and a final task. Choose the outcome you want; the Guide keeps your place when a page belongs to more than one path.' || fail "tam show paths intro failed"
 if printf '%s\n' "$sh_paths" | grep -q 'Learn step by step'; then fail "tam show paths repeated the breadcrumb in a heading"; fi
 printf '%s\n' "$sh_paths" | grep -q 'Showing all text' || fail "tam show paths missing line Lb"
 [ "$(printf '%s\n' "$sh_paths" | sed -n '2p')" = "" ] || fail "tam show paths needs a blank line after the breadcrumb"
@@ -396,14 +397,14 @@ with subprocess.Popen([tam, "show", "paths"], stdin=slave, stdout=slave, stderr=
             out.extend(os.read(master, 65536))
         return out
     try:
-        screen = until(b"Choose your own learning adventure")
+        screen = until(b"Learning paths are short courses")
         plain = re.sub(rb"\x1b(?:\[[0-9;?]*[ -/]*[@-~]|\([A-Z0-9])", b"", screen)
         assert b"Guide > Learning Paths" in plain, plain
         assert b"Showing all text" in plain, plain
         assert b"Learn step by step" not in plain, plain
         assert (plain.index(b"Guide > Learning Paths") <
                 plain.index(b"Showing all text") <
-                plain.index(b"Choose your own learning adventure")), plain
+                plain.index(b"Learning paths are short courses")), plain
     finally:
         os.write(master, b"q")
         try:

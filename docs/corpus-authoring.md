@@ -147,6 +147,17 @@ blocks; the pager synthesizes path navigation dynamically and preserves the
 reader's active path across multi-path pages. The skills map publishes the same
 can-do statements for readers.
 
+A path page also declares `<meta name="path-category">` and
+`<meta name="path-order">`. The category is one of `start-here`,
+`understand-computer`, `keep-running`, `connect`, `stay-safe`, `write-software`
+or `improve-work`; the order is a positive integer unique within that category.
+Keep the page's opening **Outcome**, **Prerequisites** and **Time** paragraphs
+in that order: the builder projects all three into `index.paths.tsv` after the
+`skills` column, turning links to other path pages into `tam:path` links. The
+reader uses these fields for the path menu, summary and detail view. When
+adding a path, choose the category by the outcome a reader wants, not by the
+track of its first step.
+
 Every page declares `<meta name="topic">` and `<meta name="summary">`. The
 topic is the page's permanent stable ID: it does not change when the page
 moves or its title changes, and retiring an ID needs an explicit alias

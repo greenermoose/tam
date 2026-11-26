@@ -324,6 +324,13 @@ static tam_str_t append_step_href(tam_str_t html, const char *path,
     return html;
 }
 
+static const char *PATHS_INTRO =
+    "Learning paths are short courses you can follow at your own pace. "
+    "Each one tells you what you will be able to do, what you need first, "
+    "and about how long it takes, then walks you through a few pages with "
+    "checkpoints and a final task. Choose the outcome you want; the Guide "
+    "keeps your place when a page belongs to more than one path.";
+
 tam_document_t *tam_paths_document(const char *root, const char *path_id,
                                    unsigned level, int width)
 {
@@ -350,6 +357,21 @@ tam_document_t *tam_paths_document(const char *root, const char *path_id,
         html = tam_str_cat(html, "</h1>\n<p>");
         html = tam_html_cat(html, p->summary);
         html = tam_str_cat(html, "</p>\n");
+        if (p->outcome != NULL && p->outcome[0] != '\0') {
+            html = tam_str_cat(html, "<p><strong>Outcome:</strong> ");
+            html = tam_html_cat(html, p->outcome);
+            html = tam_str_cat(html, "</p>\n");
+        }
+        if (p->prerequisites != NULL && p->prerequisites[0] != '\0') {
+            html = tam_str_cat(html, "<p><strong>Prerequisites:</strong> ");
+            html = tam_str_cat(html, p->prerequisites);
+            html = tam_str_cat(html, "</p>\n");
+        }
+        if (p->time != NULL && p->time[0] != '\0') {
+            html = tam_str_cat(html, "<p><strong>Time:</strong> ");
+            html = tam_html_cat(html, p->time);
+            html = tam_str_cat(html, "</p>\n");
+        }
 
         if (p->num_steps == 0) {
             html = tam_str_cat(html, "<p>No steps are assigned to this path yet.</p>\n");
@@ -389,39 +411,87 @@ tam_document_t *tam_paths_document(const char *root, const char *path_id,
      * a separator even though this generated page has no lens sections. */
     char *lb = tam_level_lines(0, level, 0, NULL);
     if (lb != NULL) { html = tam_str_cat(html, lb); free(lb); }
-    html = tam_str_cat(html, "<p>Choose your own learning adventure</p>\n");
+    html = tam_str_cat_printf(html, "<p>%s</p>\n", PATHS_INTRO);
 
     if (idx->num_paths == 0) {
         html = tam_str_cat(html, "<p>No learning paths are indexed.</p>\n");
     } else {
-        const char *groups[] = {"hardware", "systems", "terminal", "networking", "security", "programming", "desktop", "tamlinux", "help", "other"};
-        for (size_t g = 0; g < sizeof(groups)/sizeof(groups[0]); g++) {
-        int opened = 0;
+        static const char *categories[] = {
+            "start-here", "understand-computer", "keep-running", "connect",
+            "stay-safe", "write-software", "improve-work"
+        };
+        static const char *titles[] = {
+            "Start here", "Understand your computer", "Keep it running",
+            "Connect", "Stay safe", "Write software", "Improve work",
+            "Other paths"
+        };
+        size_t known = sizeof(categories) / sizeof(categories[0]);
+
+        html = tam_str_cat(html, "<p><strong>Jump to a path:</strong> ");
         for (size_t i = 0; i < idx->num_paths; i++) {
             const tam_path_def_t *p = &idx->paths[i];
-            const tam_index_entry_t *first = p->num_steps ? tam_index_lookup_path(idx, p->steps[0].path) : NULL;
-            const char *group = first && first->track ? first->track : "other";
-            size_t match = 0;
-            for (; match + 1 < sizeof(groups)/sizeof(groups[0]); match++)
-                if (strcmp(group, groups[match]) == 0) break;
-            if (match != g) continue;
-            if (!opened) {
-                html = tam_str_cat(html, "<h2>");
-                html = tam_html_cat(html, strcmp(groups[g], "help") == 0 ? "Getting started" : groups[g]);
-                html = tam_str_cat(html, "</h2><dl>"); opened = 1;
-            }
             char *enc_id = url_encode(p->id);
-            html = tam_str_cat_printf(html, "<dt><a href=\"tam:path?id=%s\">",
+            if (i > 0) html = tam_str_cat(html, " &middot; ");
+            html = tam_str_cat_printf(html, "<a href=\"#path-%s\">",
                                       enc_id ? enc_id : p->id);
             html = tam_html_cat(html, p->title);
-            html = tam_str_cat_printf(html, "</a> (%zu step%s)",
-                                      p->num_steps, p->num_steps == 1 ? "" : "s");
-            html = tam_str_cat(html, "</dt>\n<dd>");
-            html = tam_html_cat(html, p->summary);
-            html = tam_str_cat(html, "</dd>\n");
+            html = tam_str_cat(html, "</a>");
             free(enc_id);
         }
-        if (opened) html = tam_str_cat(html, "</dl>\n");
+        html = tam_str_cat(html, "</p>\n");
+
+        for (size_t g = 0; g <= known; g++) {
+            int opened = 0;
+            for (size_t i = 0; i < idx->num_paths; i++) {
+                const tam_path_def_t *p = &idx->paths[i];
+                int is_known = 0;
+                if (p->category != NULL && p->category[0] != '\0') {
+                    for (size_t k = 0; k < known; k++) {
+                        if (strcmp(p->category, categories[k]) == 0) {
+                            is_known = 1;
+                            break;
+                        }
+                    }
+                }
+                int match = g < known
+                    ? (p->category != NULL && strcmp(p->category, categories[g]) == 0)
+                    : !is_known;
+                if (!match) continue;
+                if (!opened) {
+                    html = tam_str_cat_printf(html, "<h2 id=\"category-%s\">",
+                                              g < known ? categories[g] : "other");
+                    html = tam_html_cat(html, titles[g]);
+                    html = tam_str_cat(html, "</h2>\n");
+                    opened = 1;
+                }
+                char *enc_id = url_encode(p->id);
+                html = tam_str_cat_printf(html, "<h3 id=\"path-%s\">", p->id);
+                html = tam_html_cat(html, p->title);
+                html = tam_str_cat(html, "</h3>\n<p>");
+                html = tam_html_cat(html, p->summary);
+                html = tam_str_cat(html, "</p>\n");
+                if (p->outcome != NULL && p->outcome[0] != '\0') {
+                    html = tam_str_cat(html, "<p><strong>Outcome:</strong> ");
+                    html = tam_html_cat(html, p->outcome);
+                    html = tam_str_cat(html, "</p>\n");
+                }
+                if (p->prerequisites != NULL && p->prerequisites[0] != '\0') {
+                    html = tam_str_cat(html, "<p><strong>Prerequisites:</strong> ");
+                    html = tam_str_cat(html, p->prerequisites);
+                    html = tam_str_cat(html, "</p>\n");
+                }
+                if (p->time != NULL && p->time[0] != '\0') {
+                    html = tam_str_cat(html, "<p><strong>Time:</strong> ");
+                    html = tam_html_cat(html, p->time);
+                    html = tam_str_cat(html, "</p>\n");
+                }
+                html = tam_str_cat_printf(
+                    html, "<p><a href=\"tam:path?id=%s\">Open this path</a> "
+                          "(%zu step%s)</p>\n",
+                    enc_id ? enc_id : p->id, p->num_steps,
+                    p->num_steps == 1 ? "" : "s");
+                free(enc_id);
+            }
         }
     }
     tam_index_free(idx);

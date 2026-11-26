@@ -759,7 +759,13 @@ class BuildIndex(unittest.TestCase):
         result = self.build(root)
         self.assertEqual(result.returncode, 0, result.stderr)
         tsv = (root / "knowledge/index.paths.tsv").read_text()
+        lines = tsv.splitlines()
+        self.assertEqual(len(lines[0].split("\t")), 11)
+        self.assertEqual(lines[0], "record\tpath_id\targ1\targ2\targ3\targ4\t"
+                                   "category\torder\toutcome\tprerequisites\ttime")
         self.assertIn("P\tshell-basics\tShell Basics\tlearn/paths/shell-basics.html", tsv)
+        old_row = next(line for line in lines if line.startswith("P\tshell-basics\t"))
+        self.assertEqual(old_row.split("\t")[6:], ["", "", "", "", ""])
         self.assertIn("S\tshell-basics\t1\tuse/prompt.html\tPrompt", tsv)
         self.assertIn("S\tshell-basics\t2\tuse/pipelines.html\tPipelines", tsv)
         self.assertIn("S\trescue-flow\t1\tuse/pipelines.html\tPipelines", tsv)
@@ -779,6 +785,67 @@ class BuildIndex(unittest.TestCase):
                 self.assertEqual(bad.returncode, 1)
                 self.assertIn(err, bad.stderr)
 
+    def test_path_presentation_projects_fields_and_sorts_paths(self):
+        def path_page(title, category, order, opening):
+            return page(title, "learn", "index.html").replace(
+                "</head>",
+                '<meta name="kind" content="path">'
+                f'<meta name="path-category" content="{category}">'
+                f'<meta name="path-order" content="{order}"></head>'
+            ).replace("</body>", opening + PATH_BODY + "</body>")
+
+        goal_opening = PATH_OPENING.replace(
+            "none beyond reading.",
+            '<a href="learn/paths/other.html">Other</a>.')
+        documents = {
+            "index.html": page("Guide"),
+            "help/manuals.html": page("Manuals", "help", "index.html"),
+            "use/first.html": page("First", "use", "index.html"),
+            "use/second.html": page("Second", "use", "index.html"),
+            "use/third.html": page("Third", "use", "index.html"),
+            "learn/paths/goal.html": path_page("Goal", "connect", 2, goal_opening),
+            "learn/paths/other.html": path_page("Other", "start-here", 1, PATH_OPENING),
+        }
+        root = self.fixture("0.139.0", documents)
+        result = self.build(root)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+        lines = (root / "knowledge/index.paths.tsv").read_text().splitlines()
+        rows = [line.split("\t") for line in lines if line.startswith("P\t")]
+        self.assertEqual([row[1] for row in rows], ["other", "goal"])
+        goal = next(row for row in rows if row[1] == "goal")
+        self.assertEqual(goal[6], "connect")
+        self.assertEqual(goal[7], "2")
+        self.assertEqual(goal[8], "Read three pages in order.")
+        self.assertEqual(goal[9], '<a href="tam:path?id=other">Other</a>.')
+        self.assertEqual(goal[10],
+                         "About 30 minutes, including checkpoints and the capstone.")
+        entry = self.index(root)["learn/paths/goal.html"]
+        self.assertEqual(entry["path_category"], "connect")
+        self.assertEqual(entry["path_order"], "2")
+
+    def test_path_presentation_rejects_bad_category_or_order(self):
+        base = self.path_documents()["learn/paths/goal.html"]
+        cases = (
+            ('<meta name="path-category" content="bad">'
+             '<meta name="path-order" content="1">',
+             "unknown path category 'bad'"),
+            ('<meta name="path-category" content="start-here">'
+             '<meta name="path-order" content="0">',
+             "path order must be a positive integer"),
+            ('<meta name="path-category" content="start-here">'
+             '<meta name="path-order" content="two">',
+             "path order must be a positive integer"),
+        )
+        for meta, message in cases:
+            with self.subTest(message=message):
+                documents = self.path_documents()
+                documents["learn/paths/goal.html"] = base.replace(
+                    "</head>", meta + "</head>")
+                root = self.fixture("0.139.0", documents)
+                result = self.build(root)
+                self.assertEqual(result.returncode, 1)
+                self.assertIn(message, result.stderr)
 
     def test_path_contract_accepts_a_conforming_page(self):
         root = self.fixture("0.82.0", self.path_documents())

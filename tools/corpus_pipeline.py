@@ -317,7 +317,9 @@ def process(root, mode, state, snap, reader=None, full=False):
         # The cached raw entry must keep its authored parent (legacy fallback is derived).
         entry = {key: row["entry"][key] for key in (
             "topic", "path", "title", "summary", "keywords", "levels", "track",
-            "parent", "prereqs", "kind", "skills", "paths", "search_boost",
+            "parent", "prereqs", "kind", "skills", "paths",
+            "path_category", "path_order", "path_outcome",
+            "path_prerequisites", "path_time", "search_boost",
             "search_exclude", "rev", "updated")}
         entry["rev"], entry["updated"] = builder.git_page_revision(
             root, root / "knowledge" / rel, rel, git_cache=history)
@@ -336,6 +338,7 @@ def process(root, mode, state, snap, reader=None, full=False):
     builder.prepare_search(entries, documents, errors)
     builder.validate_path_pages(root / "knowledge", entries, errors, version,
                                 texts=snap.texts)
+    builder.validate_path_presentation(entries, errors, version)
     if errors:
         raise CorpusError("\n".join("Error: " + error for error in errors))
     outputs = builder.index_outputs(entries, learning)

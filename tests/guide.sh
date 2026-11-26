@@ -212,17 +212,48 @@ p_page_hub=$(guide paths/first-steps --pipe)
 printf '%s\n' "$p_page_hub" | grep -q 'Steps on this path' || fail "paths/first-steps missing Steps on this path"
 
 p_unattached=$(guide desktop/tasks/screenshots --pipe)
-printf '%s\n' "$p_unattached" | grep -q 'Follow a path from here:' || fail "unattached page missing Follow a path from here"
-printf '%s\n' "$p_unattached" | grep -q 'First steps' || fail "unattached page missing First steps choice"
-printf '%s\n' "$p_unattached" | grep -q 'Settle in from macOS or Windows' || fail "unattached page missing Settle in from macOS or Windows choice"
-printf '%s\n' "$p_unattached" | grep -q 'Everyday desktop tasks' || fail "unattached page missing Everyday desktop tasks choice"
+p_unattached_flat=$(printf '%s\n' "$p_unattached" | tr '\n' ' ' | tr -s ' ')
+printf '%s' "$p_unattached_flat" | grep -q 'Follow a path from here:' || fail "unattached page missing Follow a path from here"
+printf '%s' "$p_unattached_flat" | grep -q 'First steps' || fail "unattached page missing First steps choice"
+printf '%s' "$p_unattached_flat" | grep -q 'Settle in from macOS or Windows' || fail "unattached page missing Settle in from macOS or Windows choice"
+printf '%s' "$p_unattached_flat" | grep -q 'Everyday desktop tasks' || fail "unattached page missing Everyday desktop tasks choice"
 
 p_order_a=$(guide 'desktop/tasks/screenshots?level=2&path=settle-in' --pipe)
 p_order_b=$(guide 'desktop/tasks/screenshots?path=settle-in&level=2' --pipe)
 [ "$p_order_a" = "$p_order_b" ] || fail "level/path query order changed rendered output"
-printf '%s\n' "$p_order_a" | grep -q 'Learning path: Settle in from macOS or Windows' || fail "active path footer missing Settle in from macOS or Windows"
-printf '%s\n' "$p_order_a" | grep -q 'Switch course:' || fail "multi-path page missing Switch course links"
+p_order_a_flat=$(printf '%s\n' "$p_order_a" | tr '\n' ' ' | tr -s ' ')
+printf '%s' "$p_order_a_flat" | grep -q 'Learning path: Settle in from macOS or Windows' || fail "active path footer missing Settle in from macOS or Windows"
+printf '%s' "$p_order_a_flat" | grep -q 'Switch course:' || fail "multi-path page missing Switch course links"
 pass "multi-path index, path hub, course picker, and query order independence work"
+
+# Learning-path presentation: the projection carries the authored fields and
+# the generated view shows the intro, menu, categories and opening details.
+python3 -B -c '
+from pathlib import Path
+import sys
+
+knowledge = Path(sys.argv[1])
+lines = (knowledge / "index.paths.tsv").read_text().splitlines()
+header = lines[0].split("\t")
+assert header == ["record", "path_id", "arg1", "arg2", "arg3", "arg4",
+                  "category", "order", "outcome", "prerequisites", "time"], header
+paths = [line.split("\t") for line in lines if line.startswith("P\t")]
+assert paths, "no path rows in projection"
+for row in paths:
+    assert len(row) == 11, row
+    assert row[6] and row[7].isdigit() and row[8] and row[9] and row[10], row
+assert any("<a href=\"tam:path?id=" in row[9] for row in paths), \
+    "no prerequisite path links in the projection"
+' "$knowledge" || fail "index.paths.tsv presentation projection incomplete"
+printf '%s\n' "$p_list" | grep -q 'Learning paths are short courses' || fail "tam:paths missing friendly intro"
+printf '%s\n' "$p_list" | grep -q 'Jump to a path:' || fail "tam:paths missing in-page path menu"
+for heading in 'Start here' 'Understand your computer' 'Keep it running' 'Connect' 'Stay safe' 'Write software' 'Improve work'; do
+    printf '%s\n' "$p_list" | grep -qx "$heading" || fail "tam:paths missing category: $heading"
+done
+printf '%s\n' "$p_hub" | grep -q 'Outcome:' || fail "path detail missing Outcome"
+printf '%s\n' "$p_hub" | grep -q 'Prerequisites:' || fail "path detail missing Prerequisites"
+printf '%s\n' "$p_hub" | grep -q 'Time:' || fail "path detail missing Time"
+pass "path presentation: intro, menu, categories and opening fields work"
 
 # A staged install relocated away from the source tree finds its corpus via
 # XDG_DATA_DIRS and still shows pages.

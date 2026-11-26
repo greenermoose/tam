@@ -7,6 +7,9 @@ level, track, optional parent and prereqs. `topic` is the page's permanent
 stable ID and `summary` its canonical one-line description; both are required,
 topics are unique, and summaries are at most 160 characters. Optional
 `search-boost` and `search-exclude` lists tune the generated search terms.
+Path pages may also declare `path-category` and `path-order`; their opening
+Outcome, Prerequisites and Time lines are projected into `index.paths.tsv`
+after the established skills column, so older readers can ignore them.
 Level lists the
 lenses a page offers (novice, learner, expert); a page offering more than one
 wraps each level in <section data-level="..."> (the content-level ladder). The
@@ -26,7 +29,7 @@ requires explicit parents and track ownership.
 from datetime import datetime, timezone
 import json
 from html.parser import HTMLParser
-from html import unescape
+from html import escape, unescape
 import re
 import subprocess
 import sys
@@ -373,6 +376,11 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
     paths = []
     search_boost = []
     search_exclude = []
+    path_category = ""
+    path_order = ""
+    path_outcome = ""
+    path_prerequisites = ""
+    path_time = ""
 
     for tag in re.findall(r'<meta\b(?:[^>"\'/]|"[^"]*"|\'[^\']*\')*>', text, re.I):
         name = extract_attr(tag, "name")
@@ -415,6 +423,10 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
             page_kind = content.strip()
         elif name_lower == "skills":
             skills.extend(split_list(content))
+        elif name_lower == "path-category":
+            path_category = content.strip().lower()
+        elif name_lower == "path-order":
+            path_order = content.strip()
         elif name_lower == "search-boost":
             search_boost.extend(split_list(content))
         elif name_lower == "search-exclude":
@@ -474,6 +486,12 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
         # Placeholder only: the missing-meta error above already fails the build.
         summary = title
 
+    if page_kind == "path":
+        presentation = extract_path_presentation(text, root / "knowledge")
+        path_outcome = presentation["outcome"]
+        path_prerequisites = presentation["prerequisites_html"]
+        path_time = presentation["time"]
+
     rev, updated = git_page_revision(root, path, rel_path, git_cache=git_cache)
 
     return {
@@ -489,6 +507,11 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
         "kind": page_kind,
         "skills": skills,
         "paths": paths,
+        "path_category": path_category,
+        "path_order": path_order,
+        "path_outcome": path_outcome,
+        "path_prerequisites": path_prerequisites,
+        "path_time": path_time,
         "search_boost": search_boost,
         "search_exclude": search_exclude,
         "rev": rev,
@@ -961,6 +984,93 @@ def _clean_tsv(value):
     return re.sub(r"[\t\r\n]+", " ", value or "").strip()
 
 
+PATH_CATEGORIES = ("start-here", "understand-computer", "keep-running",
+                   "connect", "stay-safe", "write-software", "improve-work")
+PATH_PRESENTATION_MIN = (0, 139)
+
+
+def _path_plain(fragment):
+    """Plain text for a path opening field, with entities resolved once."""
+    return unescape(re.sub(r"<[^>]+>", "", fragment or "")).strip()
+
+
+def _path_prerequisite_html(fragment, knowledge):
+    """Render an authored prerequisite line with path links retargeted.
+
+    Only a link to an existing paths/ or learn/paths/ page becomes a
+    tam:path link; everything else is emitted as escaped text. The reader
+    can append this fragment without further escaping.
+    """
+    fragment = fragment or ""
+    pieces = []
+    cursor = 0
+    for match in PATH_ANCHOR_RE.finditer(fragment):
+        pieces.append(escape(unescape(fragment[cursor:match.start()])))
+        href = re.search(r'href\s*=\s*["\']([^"\']+)["\']',
+                         match.group(1), re.I)
+        target = href.group(1).split("#", 1)[0].split("?", 1)[0] if href else ""
+        label = _path_plain(match.group(2))
+        pid = ""
+        if target.startswith(("paths/", "learn/paths/")) and (
+                knowledge / target).is_file():
+            candidate = Path(target).stem
+            if TOPIC_RE.match(candidate):
+                pid = candidate
+        if pid:
+            pieces.append(f'<a href="tam:path?id={pid}">{escape(label)}</a>')
+        else:
+            pieces.append(escape(label))
+        cursor = match.end()
+    pieces.append(escape(unescape(fragment[cursor:])))
+    return "".join(pieces).strip()
+
+
+def extract_path_presentation(text, knowledge):
+    """Project a path page's authored opening into generated-view fields."""
+    first = PATH_H2_RE.search(text)
+    opening = text[:first.start()] if first else text
+    raw = {}
+    fields = {}
+    for label, key in (("Outcome", "outcome"),
+                       ("Prerequisites", "prerequisites"),
+                       ("Time", "time")):
+        match = re.search(PATH_FIELD_RE.format(label), opening, re.I | re.S)
+        raw[key] = match.group(1) if match else ""
+        fields[key] = _path_plain(raw[key])
+    fields["prerequisites_html"] = _path_prerequisite_html(
+        raw["prerequisites"], knowledge)
+    return fields
+
+
+def validate_path_presentation(entries, errors, version="0.0.0"):
+    """Check the authored presentation metadata added in corpus 0.139.0."""
+    try:
+        current = tuple(int(part) for part in version.split(".")[:2])
+    except ValueError:
+        current = (0, 0)
+    if current < PATH_PRESENTATION_MIN:
+        return
+    seen = {}
+    for entry in entries:
+        if entry.get("kind") != "path":
+            continue
+        rel = entry["path"]
+        category = entry.get("path_category", "")
+        order_raw = entry.get("path_order", "")
+        if category not in PATH_CATEGORIES:
+            errors.append(f"{rel}: unknown path category {category!r}"
+                          f" (expected {', '.join(PATH_CATEGORIES)})")
+        if not str(order_raw).isdigit() or int(order_raw) < 1:
+            errors.append(f"{rel}: path order must be a positive integer")
+            continue
+        key = (category, int(order_raw))
+        if key in seen:
+            errors.append(f"{rel}: duplicate path presentation order "
+                          f"{category}/{order_raw} (already used by {seen[key]})")
+        else:
+            seen[key] = rel
+
+
 def validate_global_entries(entries, errors):
     seen_topics = {}
     topics = set()
@@ -1020,6 +1130,7 @@ PATH_STAGE_RE = re.compile(r'^(?:Stage\s+(\d+)\s*:|\s*(\d+)\.)\s*(.*)$', re.I | 
 PATH_LEVEL_RE = re.compile(r'level=[0-3]')
 PATH_DETAILS_RE = re.compile(r'<details\b([^>]*)>(.*?)</details>', re.I | re.S)
 PATH_HREF_RE = re.compile(r'<a\b[^>]*href\s*=\s*["\']([^"\']+)["\']', re.I)
+PATH_ANCHOR_RE = re.compile(r'<a\b([^>]*)>(.*?)</a>', re.I | re.S)
 PATH_NON_PAGES = ("glossary/", "bibliography/", "paths/", "learn/glossary/", "learn/bibliography/", "learn/paths/")
 PATH_TIME_BY_STAGES = {3: 30, 4: 40, 5: 50, 6: 60}
 PATH_FIELD_RE = r'<strong>\s*{0}\s*:</strong>\s*(.*?)</p>'
@@ -1224,13 +1335,28 @@ def index_outputs(entries, coverage):
         for anchor in e["search"]["anchors"]:
             anchors.append(f"{e['path']}\t{_clean_tsv(anchor['name'])}\t{anchor['source']}\n")
 
-    paths_tsv = ["record\tpath_id\targ1\targ2\targ3\targ4\n"]
-    for pid in sorted(path_defs):
+    def path_sort_key(pid):
+        pdef = path_defs[pid]
+        category = pdef.get("path_category", "")
+        rank = (PATH_CATEGORIES.index(category) if category in PATH_CATEGORIES
+                else len(PATH_CATEGORIES))
+        order_raw = str(pdef.get("path_order", ""))
+        order = int(order_raw) if order_raw.isdigit() else 0
+        return (rank, order, pid)
+
+    paths_tsv = ["record\tpath_id\targ1\targ2\targ3\targ4\tcategory\torder\t"
+                 "outcome\tprerequisites\ttime\n"]
+    for pid in sorted(path_defs, key=path_sort_key):
         pdef = path_defs[pid]
         paths_tsv.append(
             f"P\t{_clean_tsv(pid)}\t{_clean_tsv(pdef['title'])}\t"
             f"{_clean_tsv(pdef['path'])}\t{_clean_tsv(pdef['summary'])}\t"
-            f"{','.join(pdef['skills'])}\n"
+            f"{','.join(pdef['skills'])}\t"
+            f"{_clean_tsv(pdef.get('path_category', ''))}\t"
+            f"{_clean_tsv(pdef.get('path_order', ''))}\t"
+            f"{_clean_tsv(pdef.get('path_outcome', ''))}\t"
+            f"{_clean_tsv(pdef.get('path_prerequisites', ''))}\t"
+            f"{_clean_tsv(pdef.get('path_time', ''))}\n"
         )
         for step, page_path, page_title in sorted(path_steps.get(pid, []), key=lambda x: (x[0], x[1])):
             paths_tsv.append(
@@ -1285,6 +1411,7 @@ def reference_main(root=None):
     coverage = learning_metadata(knowledge_dir, entries, errors, parsed=documents)
     prepare_search(entries, documents, errors)
     validate_path_pages(knowledge_dir, entries, errors, version)
+    validate_path_presentation(entries, errors, version)
 
     if errors:
         for message in errors:
