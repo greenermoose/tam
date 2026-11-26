@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html><head>
+<title>POP, IMAP and JMAP</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="mail.novice, mail.learner, mail.expert">
+<meta name="topic" content="retrieval-pop-imap-and-jmap">
+<meta name="summary" content="POP, IMAP and JMAP are client-side access protocols that differ mainly in where they keep messages, folders and state.">
+<meta name="keywords" content="POP3, IMAP4, IMAP4rev2, JMAP, webmail, mail retrieval, mail client, mailbox">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/email/index.html">
+<meta name="prereqs" content="smtp-and-submission">
+<meta name="paths" content="email:5">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/email/index.html">Email</a> / POP, IMAP and JMAP</p></nav>
+
+<p>SMTP carries mail to a mailbox; retrieval protocols let a client read it. <dfn><a href="glossary/p/pop.html">POP</a></dfn>, <dfn><a href="glossary/i/imap.html">IMAP</a></dfn> and <dfn><a href="glossary/j/jmap.html">JMAP</a></dfn> make different choices about which side keeps the mail and its state.</p>
+
+<section data-level="novice">
+<h2>Three ways to read a mailbox</h2>
+<p>POP usually downloads messages to one device and may remove them from the server. IMAP keeps messages on the server, so folders and read flags can follow you across devices. JMAP is a newer way for a client to ask the server for mail and changes using web-style requests.</p>
+<h3>Why it matters</h3>
+<p>The choice changes what happens when you read a message on a phone and later open a laptop. With server-side state, both devices see the same folders and read markers.</p>
+<h3>How to think about it</h3>
+<p>POP is like taking letters home. IMAP is like reading them in a shared filing cabinet. JMAP is like asking the cabinet for a structured list through a modern application interface.</p>
+<h3>New words</h3>
+<dl>
+<dt>POP</dt><dd>Post Office Protocol, designed to fetch mail to a client.</dd>
+<dt>IMAP</dt><dd>Internet Message Access Protocol, designed to work with mail kept on a server.</dd>
+<dt>JMAP</dt><dd>JSON Meta Application Protocol, a newer mail access and submission protocol.</dd>
+<dt>Webmail</dt><dd>A mail client that runs in a browser; it is not itself a retrieval protocol.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Compare what each protocol leaves behind</h2>
+<p><strong>Goal:</strong> you will be able to predict which protocol matches a device that must share folders and read flags.</p>
+<tam-sandbox
+  title="Try it: match a client need to a protocol"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the IMAP line about shared folders">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="pop.txt" size="110">POP: download messages to this device
+POP: server copy may be removed after download</file>
+  <file name="imap.txt" size="140">IMAP: messages stay on the server
+IMAP: folders and flags are shared between devices
+IMAP: a client can search without downloading everything</file>
+  <file name="jmap.txt" size="120">JMAP: structured requests over HTTP
+JMAP: mail, mailboxes and changes in one API
+JMAP: can submit outgoing messages too</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat pop.txt" hint="POP's centre of gravity is the local device."><out>POP: download messages to this device</out><out>POP: server copy may be removed after download</out></tam-cmd>
+  <tam-cmd match="cat imap.txt" hint="Look for where folders and flags live."><out>IMAP: messages stay on the server</out><out>IMAP: folders and flags are shared between devices</out><out>IMAP: a client can search without downloading everything</out></tam-cmd>
+  <tam-cmd match="grep folders imap.txt" goal="true" hint="Shared folders are the deciding feature for this task."><out>IMAP: folders and flags are shared between devices</out></tam-cmd>
+  <tam-cmd match="cat jmap.txt" hint="JMAP uses web technology and covers more than reading."><out>JMAP: structured requests over HTTP</out><out>JMAP: mail, mailboxes and changes in one API</out><out>JMAP: can submit outgoing messages too</out></tam-cmd>
+  <tam-init>Try: cat imap.txt, then grep folders imap.txt</tam-init>
+  <tam-hint after="1">The server copy is the difference between POP and IMAP.</tam-hint>
+  <tam-hint after="2">Shared state matters when more than one device reads the same account.</tam-hint>
+  <tam-fallback>Try cat pop.txt, cat imap.txt, grep folders imap.txt, or cat jmap.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li>POP moved the centre of gravity to one device.</li>
+<li>IMAP kept the message store on the server and shared folders and flags.</li>
+<li>JMAP used structured requests and included submission as well as reading.</li>
+<li>Webmail was not a fourth protocol: a browser page is a client that uses one of these protocols or a provider-specific interface.</li>
+</ol>
+<p>The files and output above are teaching samples. This sandbox does not connect to a mail account, download messages or change any mailbox.</p>
+<h3>Try it</h3>
+<p>Run <code>grep download pop.txt</code>. Predict whether a POP client that deletes server copies can show the same mail on a second device.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You assumed IMAP always downloads every message.</dt><dd>IMAP clients can fetch headers, search on the server and download only selected content.</dd>
+<dt>You treated JMAP as a relay protocol.</dt><dd>JMAP is for client access and submission. Server-to-server relay still uses SMTP.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The offline guide explains these standards without tying the reader to one mail app. Settings and account policies come from the chosen mail provider.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Which protocol best fits a person reading the same account on a phone and a laptop?</i></summary><p>IMAP, because folders and flags stay on the server. POP can be configured to leave copies, but its normal model is a local download.</p></details>
+<details class="q"><summary><i>Is webmail a replacement for IMAP or JMAP?</i></summary><p>No. Webmail is a client presented in a browser. It still needs a way to reach the message store, whether a standard protocol or a service-specific interface.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>State models and protocol boundaries</h2>
+<h3>Reference</h3>
+<table><tr><th>Protocol</th><th>State centre</th><th>Defining specification</th><th>Common use</th></tr>
+<tr><td>POP3</td><td>Local client</td><td>RFC 1939</td><td>Simple download to one device</td></tr>
+<tr><td>IMAP4rev2</td><td>Server message store</td><td>RFC 9051</td><td>Shared folders, flags and server search</td></tr>
+<tr><td>JMAP</td><td>Server with a structured data model</td><td>RFC 8620 and RFC 8621</td><td>Efficient clients, batching and push</td></tr>
+</table>
+<h3>How it works</h3>
+<p><cite data-ref="rfc-1939"><a href="bibliography/rfc-1939.html">RFC 1939</a></cite> defines POP3 with a small command set for listing and retrieving messages. It has limited folder and flag support. <cite data-ref="rfc-9051"><a href="bibliography/rfc-9051.html">RFC 9051</a></cite> defines IMAP4rev2 and obsoletes RFC 3501; it models mailboxes on the server, supports permanence flags, and allows a client to fetch selected message parts. JMAP core is defined by <cite data-ref="rfc-8620"><a href="bibliography/rfc-8620.html">RFC 8620</a></cite> and its mail extension by <cite data-ref="rfc-8621"><a href="bibliography/rfc-8621.html">RFC 8621</a></cite>. JMAP batches methods into one HTTP request and uses push events to tell clients what changed.</p>
+<h3>Advanced usage</h3>
+<p>IMAP extensions such as IDLE provide push-style notifications, while CONDSTORE and QRESYNC let clients resynchronise flags without a full mailbox scan. JMAP has an analogous event model through its push protocol. Clients commonly authenticate with a password-based mechanism or OAuth, depending on the provider.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>POP's <code>RETR</code> does not by itself delete a message; deletion policy is a separate client choice.</li>
+<li>An IMAP flag change made offline must be reconciled later, and conflicts may need a deterministic rule.</li>
+<li>JMAP submission sends a message for transfer; it does not replace SMTP between servers.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why does IMAP support server-side search while POP generally does not?</i></summary><p>IMAP's model keeps messages and metadata on the server, so the server can examine them and return matching identifiers. POP's model is centred on downloading messages to a client.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc-1939"><a href="bibliography/rfc-1939.html">RFC 1939</a></cite>; <cite data-ref="rfc-9051"><a href="bibliography/rfc-9051.html">RFC 9051</a></cite>; <cite data-ref="rfc-8620"><a href="bibliography/rfc-8620.html">RFC 8620</a></cite>; <cite data-ref="rfc-8621"><a href="bibliography/rfc-8621.html">RFC 8621</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/email/mail-clients-and-mailboxes.html">Mail clients and mailboxes</a> &mdash; see how flags, aliases and offline work affect the client.</li>
+<li><a href="glossary/p/pop.html">POP (Post Office Protocol)</a> and <a href="glossary/j/jmap.html">JMAP (JSON Meta Application Protocol)</a> &mdash; check the short definitions.</li>
+<li><a href="networking/email/dns-and-email.html">DNS and email</a> &mdash; return to the network side of delivery.</li>
+</ul>
+</body></html>

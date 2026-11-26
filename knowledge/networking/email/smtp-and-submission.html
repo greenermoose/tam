@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html><head>
+<title>SMTP and submission</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="mail.novice, mail.learner, mail.expert">
+<meta name="topic" content="smtp-and-submission">
+<meta name="summary" content="SMTP is the protocol used to submit a message and relay it onward, with extensions negotiated during an EHLO conversation.">
+<meta name="keywords" content="SMTP, ESMTP, submission, relay, port 25, port 587, STARTTLS, implicit TLS, DSN">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/email/index.html">
+<meta name="prereqs" content="addresses-and-message-format">
+<meta name="paths" content="email:4">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/email/index.html">Email</a> / SMTP and submission</p></nav>
+
+<p><dfn><a href="glossary/s/smtp.html">SMTP</a></dfn> is the conversation a mail client uses to hand a message to a server, and that mail servers use to pass it on. The message itself is carried after the routing information has been agreed.</p>
+
+<section data-level="novice">
+<h2>A polite handover</h2>
+<p>Your client connects to a mail server and says hello. It says which address the message comes from and who should receive it. Only then does it send the message text. The server can say yes, try later, or no at each step.</p>
+<h3>Why it matters</h3>
+<p>Because the server checks each step, it can reject an unknown recipient before receiving a large message. It can also ask the client to try again later if the system is busy.</p>
+<h3>How to think about it</h3>
+<p>Imagine handing a parcel to a counter clerk. The clerk first asks where it came from and where it goes, then accepts the parcel. If the destination office is closed, the clerk keeps it and tries later.</p>
+<h3>New words</h3>
+<dl>
+<dt>SMTP</dt><dd>Simple Mail Transfer Protocol, the language used to transfer mail.</dd>
+<dt>Submission</dt><dd>Handing a newly written message to a server.</dd>
+<dt>Relay</dt><dd>Passing a message from one mail server to another.</dd>
+<dt>Extension</dt><dd>An optional capability a server announces and a client may use.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read the conversation in order</h2>
+<p><strong>Goal:</strong> you will be able to point to the envelope commands before the message data in a sample SMTP session.</p>
+<tam-sandbox
+  title="Try it: order an SMTP conversation"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the command that names the recipient">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="smtp-session.txt" size="210">EHLO client.example.net
+MAIL FROM:&lt;ada@example.net&gt;
+RCPT TO:&lt;bo@example.org&gt;
+DATA
+Subject: Meeting notes
+Message body
+.</file>
+  <file name="ports.txt" size="120">25: server-to-server relay
+587: submission with STARTTLS
+465: submission over implicit TLS</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat smtp-session.txt" hint="The first command announces the client; DATA comes after the envelope."><out>EHLO client.example.net</out><out>MAIL FROM:&lt;ada@example.net&gt;</out><out>RCPT TO:&lt;bo@example.org&gt;</out><out>DATA</out><out>Subject: Meeting notes</out><out>Message body</out><out>.</out></tam-cmd>
+  <tam-cmd match="grep RCPT smtp-session.txt" goal="true" hint="This command names the envelope recipient."><out>RCPT TO:&lt;bo@example.org&gt;</out></tam-cmd>
+  <tam-cmd match="cat ports.txt" hint="Submission and relay commonly use different ports."><out>25: server-to-server relay</out><out>587: submission with STARTTLS</out><out>465: submission over implicit TLS</out></tam-cmd>
+  <tam-init>Try: cat smtp-session.txt, then grep RCPT smtp-session.txt</tam-init>
+  <tam-hint after="1">The envelope lines come before DATA.</tam-hint>
+  <tam-hint after="2">RCPT TO names one recipient; MAIL FROM names the return path.</tam-hint>
+  <tam-fallback>Try cat smtp-session.txt, grep RCPT smtp-session.txt, or cat ports.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>EHLO</code> opened the session and invited the server to list extensions.</li>
+<li><code>MAIL FROM</code> and <code>RCPT TO</code> built the envelope that servers use for routing and bounces.</li>
+<li><code>DATA</code> began the message transfer, ended by a line containing only a period.</li>
+<li>The port list showed the common separation between relay and submission.</li>
+</ol>
+<p>The session and output are teaching samples. The sandbox does not open a network connection, send mail or install an SMTP server.</p>
+<h3>Try it</h3>
+<p>Run <code>grep MAIL smtp-session.txt</code>. Explain why the return path can differ from the visible <code>From:</code> header.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The message text appears before the envelope in your notes.</dt><dd>SMTP negotiates the envelope first. The header is part of the DATA payload, not the envelope commands.</dd>
+<dt>You assumed port 25 is always used by clients.</dt><dd>Client submission normally uses 587 or 465. Port 25 is the conventional server-to-server relay port and is often blocked for end users.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The guide describes standard SMTP behaviour rather than the settings of one mail service. A reader's provider chooses the submission host, port and authentication method.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why does the server need RCPT TO before DATA?</i></summary><p>It can accept or reject each recipient before spending bandwidth on the message, and it can record separate outcomes for multiple recipients.</p></details>
+<details class="q"><summary><i>What does EHLO add over the older HELO greeting?</i></summary><p>EHLO lets the server advertise <a href="glossary/e/esmtp.html">ESMTP</a> extensions such as STARTTLS and SMTPUTF8, which the client may then use.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>SMTP semantics and security boundaries</h2>
+<h3>Reference</h3>
+<table><tr><th>Element</th><th>Role</th><th>Important detail</th></tr>
+<tr><td>MAIL FROM</td><td>Return path</td><td>Where delivery status is reported; distinct from the visible author</td></tr>
+<tr><td>RCPT TO</td><td>Envelope recipient</td><td>One command per recipient; each may get a different reply</td></tr>
+<tr><td>DATA</td><td>Message payload</td><td>Header and body, terminated by a dot-only line</td></tr>
+<tr><td>Reply codes</td><td>Outcome</td><td>2xx success, 4xx temporary failure, 5xx permanent failure</td></tr>
+</table>
+<h3>How it works</h3>
+<p><cite data-ref="rfc-5321"><a href="bibliography/rfc-5321.html">RFC 5321</a></cite> defines the session, envelope and queue model. <cite data-ref="rfc-6409"><a href="bibliography/rfc-6409.html">RFC 6409</a></cite> adds the message submission role, including authentication and policy differences from general relay. <a href="glossary/s/starttls.html">STARTTLS</a> is defined by <cite data-ref="rfc-3207"><a href="bibliography/rfc-3207.html">RFC 3207</a></cite>: a plaintext session is upgraded after the client sees the advertisement and succeeds with the handshake. Implicit TLS on port 465 starts TLS before any SMTP command, as described by <cite data-ref="rfc-8314"><a href="bibliography/rfc-8314.html">RFC 8314</a></cite>.</p>
+<h3>Advanced usage</h3>
+<p>Delivery status notifications request positive or negative reports for a queued message; they do not prove delivery to a human. Relay servers use the envelope return path and recipient set when constructing those reports. A submission server may require authentication and may rewrite headers or enforce size and rate limits before accepting a message.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>STARTTLS can be opportunistic: if neither side insists on encryption, an active attacker may strip the advertisement and leave the session plaintext.</li>
+<li>Acceptance with a 2xx reply means the receiving server took responsibility for the message, not that the user read it.</li>
+<li>Each recipient has its own outcome; a partial 4xx or 5xx reply leaves other recipients unaffected.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is implicit TLS a different security starting point from STARTTLS?</i></summary><p>Implicit TLS protects the connection from the first byte, so there is no plaintext greeting to strip. STARTTLS begins in cleartext and depends on correct advertisement, negotiation and policy.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc-5321"><a href="bibliography/rfc-5321.html">RFC 5321</a></cite>; <cite data-ref="rfc-6409"><a href="bibliography/rfc-6409.html">RFC 6409</a></cite>; <cite data-ref="rfc-3207"><a href="bibliography/rfc-3207.html">RFC 3207</a></cite>; <cite data-ref="rfc-8314"><a href="bibliography/rfc-8314.html">RFC 8314</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/email/retrieval-pop-imap-and-jmap.html">POP, IMAP and JMAP</a> &mdash; compare the protocols that read the resulting mailbox.</li>
+<li><a href="networking/email/dns-and-email.html">DNS and email</a> &mdash; see how a relay finds its next hop.</li>
+<li><a href="glossary/e/envelope-smtp.html">Envelope (SMTP)</a> &mdash; look up the routing identity used above.</li>
+</ul>
+</body></html>

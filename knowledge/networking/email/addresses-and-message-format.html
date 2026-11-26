@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html><head>
+<title>Addresses and message format</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="mail.novice, mail.learner, mail.expert">
+<meta name="topic" content="addresses-and-message-format">
+<meta name="summary" content="Email separates envelope routing information from RFC 5322 headers, a text body and MIME parts.">
+<meta name="keywords" content="email address, message header, envelope, MIME, RFC 5322, SMTPUTF8, internationalised address">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/email/index.html">
+<meta name="prereqs" content="how-a-mail-server-works">
+<meta name="paths" content="email:3">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/email/index.html">Email</a> / Addresses and message format</p></nav>
+
+<p>An email message is structured text. Some lines tell people who wrote it; other information tells servers where to carry it. Attachments are added as separate parts without changing the basic message.</p>
+
+<section data-level="novice">
+<h2>What is inside a message?</h2>
+<p>A message has a <dfn><a href="glossary/m/message-header.html">message header</a></dfn>, a blank line and a body. The header contains lines such as <code>From:</code>, <code>To:</code> and <code>Subject:</code>. The body is what the reader sees. An <dfn><a href="glossary/e/email-address.html">email address</a></dfn> names a mailbox, usually written as a name, an <code>@</code> sign and a domain.</p>
+<h3>Why it matters</h3>
+<p>Servers and people need different information. A mailing list can show the list as the visible sender while still returning bounces to the list manager. Both pieces can be correct.</p>
+<h3>How to think about it</h3>
+<p>Think of a letter in an envelope. The address on the envelope tells the delivery service where it goes. The letter inside may say who wrote it and may include separate photographs.</p>
+<h3>New words</h3>
+<dl>
+<dt>Header</dt><dd>Labelled lines at the top of a message that describe it.</dd>
+<dt>Body</dt><dd>The main content after the blank line.</dd>
+<dt>Envelope</dt><dd>The routing information exchanged by mail servers, separate from visible headers.</dd>
+<dt>MIME</dt><dd>The rules that let a message carry several typed parts, including attachments.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read a message as layers</h2>
+<p><strong>Goal:</strong> you will be able to identify the header, the body and a MIME part in a sample message.</p>
+<tam-sandbox
+  title="Try it: inspect a sample message"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line that declares the message content type">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="message.eml" size="230">From: Ada &lt;ada@example.net&gt;
+To: Bo &lt;bo@example.org&gt;
+Subject: Meeting notes
+Content-Type: text/plain; charset=UTF-8
+
+The notes are attached.
+--- part 2: application/pdf, sample-report.pdf ---</file>
+  <file name="envelope.txt" size="120">MAIL FROM:&lt;bounces@example.net&gt;
+RCPT TO:&lt;bo@example.org&gt;
+visible From: Ada &lt;ada@example.net&gt;</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat message.eml" hint="A blank line separates the header from the body."><out>From: Ada &lt;ada@example.net&gt;</out><out>To: Bo &lt;bo@example.org&gt;</out><out>Subject: Meeting notes</out><out>Content-Type: text/plain; charset=UTF-8</out><out></out><out>The notes are attached.</out><out>--- part 2: application/pdf, sample-report.pdf ---</out></tam-cmd>
+  <tam-cmd match="grep Content-Type message.eml" goal="true" hint="This header names the media type and character set."><out>Content-Type: text/plain; charset=UTF-8</out></tam-cmd>
+  <tam-cmd match="cat envelope.txt" hint="The first two lines are routing information; the third is visible to people."><out>MAIL FROM:&lt;bounces@example.net&gt;</out><out>RCPT TO:&lt;bo@example.org&gt;</out><out>visible From: Ada &lt;ada@example.net&gt;</out></tam-cmd>
+  <tam-init>Try: cat message.eml, then grep Content-Type message.eml</tam-init>
+  <tam-hint after="1">Look for the first blank line; everything above it is header text.</tam-hint>
+  <tam-hint after="2">Content-Type is a header field, not part of the body.</tam-hint>
+  <tam-fallback>Try cat message.eml, grep Content-Type message.eml, or cat envelope.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li>The first four lines were header fields with a label and a value.</li>
+<li>The blank line ended the header; the next line began the body.</li>
+<li><code>Content-Type</code> described how a mail program should interpret the content. The sample part line stands in for a MIME attachment.</li>
+<li>The envelope sample showed that bounce routing can differ from the visible <code>From:</code> header.</li>
+</ol>
+<p>These files and their output are labelled teaching samples. The sandbox does not parse real mail, create attachments or contact a server.</p>
+<h3>Try it</h3>
+<p>Run <code>grep From envelope.txt</code>. Explain why the matching line is not the same as the visible <code>From:</code> header.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The header and body look joined together.</dt><dd>The blank line is the boundary. Without it, a reader would treat the following text as more header fields.</dd>
+<dt>You expected the attachment bytes in the file.</dt><dd>This sandbox shows a labelled placeholder for the second part. Real MIME encoding is described in the Expert section.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux treats message files as ordinary text that readers can inspect with familiar tools. This series does not configure a particular mail client or change the reader's mailbox.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why is the SMTP envelope not identical to the visible header?</i></summary><p>The envelope carries routing and bounce information between servers; the header carries information for people and mail programs. Mailing lists and aliases legitimately make them differ.</p></details>
+<details class="q"><summary><i>What does a blank line do in a message?</i></summary><p>It ends the header block. Everything after it is body content until a MIME boundary introduces another part.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Format rules and boundaries</h2>
+<h3>Reference</h3>
+<table><tr><th>Layer</th><th>Defined by</th><th>Carries</th></tr>
+<tr><td>Envelope</td><td>RFC 5321 SMTP commands</td><td>Originator and recipient routing identities</td></tr>
+<tr><td>Header and body</td><td>RFC 5322</td><td>Visible fields, dates, message identifier and text</td></tr>
+<tr><td>Multipart structure</td><td>RFC 2045 and companions</td><td>Parts, media types, transfer encodings and filenames</td></tr>
+<tr><td>Internationalised addresses</td><td>RFC 6531 with <a href="glossary/s/smtputf8.html">SMTPUTF8</a></td><td>Non-ASCII local parts and mailbox names</td></tr>
+</table>
+<h3>How it works</h3>
+<p><cite data-ref="rfc-5322"><a href="bibliography/rfc-5322.html">RFC 5322</a></cite> defines the field syntax and the line-oriented shape of a message. <cite data-ref="rfc-2045"><a href="bibliography/rfc-2045.html">RFC 2045</a></cite> and its companion documents define MIME: a <code>Content-Type</code> describes each part, a transfer encoding makes binary data safe for a text channel, and boundaries separate parts in a multipart body. Header fields such as <code>Received:</code> are added by servers along the path and form a partial trace.</p>
+<h3>Advanced usage</h3>
+<p><a href="glossary/s/smtputf8.html">SMTPUTF8</a> extends SMTP so that both the local part and the domain may use internationalised characters, provided each hop advertises support. Without that extension, servers may accept only ASCII addresses. A message identifier is intended to be globally unique, but a forwarded copy keeps its original identifier.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A header can be folded across lines; parsing must unfold it before interpreting the value.</li>
+<li>MIME filenames and display names are untrusted input. Readers should not execute or open unexpected content because a name looks familiar.</li>
+<li>Visible <code>From:</code> can be forged. Authentication systems decide which domains can be trusted, not the appearance of the header alone.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why does SMTP need a separate envelope identity for bounces?</i></summary><p>The return path identifies where delivery status should go. It may differ from the author's visible address, particularly for lists, relays and automated mail.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc-5322"><a href="bibliography/rfc-5322.html">RFC 5322</a></cite>; <cite data-ref="rfc-2045"><a href="bibliography/rfc-2045.html">RFC 2045</a></cite>; <cite data-ref="rfc-6531"><a href="bibliography/rfc-6531.html">RFC 6531</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/email/smtp-and-submission.html">SMTP and submission</a> &mdash; see how the envelope is negotiated.</li>
+<li><a href="glossary/m/mime.html">MIME (Multipurpose Internet Mail Extensions)</a> &mdash; look up the part format.</li>
+<li><a href="networking/email/identity-and-transport-security.html">Identity and transport security</a> &mdash; learn why a visible address is not proof of identity.</li>
+</ul>
+</body></html>

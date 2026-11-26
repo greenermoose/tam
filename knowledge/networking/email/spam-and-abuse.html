@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html><head>
+<title>Spam and abuse</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="mail.novice, mail.learner, mail.expert">
+<meta name="topic" content="spam-and-abuse">
+<meta name="summary" content="Anti-spam systems combine authentication, reputation, list policy, filtering, rate limits and user reports while managing false positives.">
+<meta name="keywords" content="spam, phishing, allowlist, whitelist, denylist, blacklist, DNSBL, RBL, greylisting, reputation, quarantine, content filter, Bayesian filter, rate limit">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/email/index.html">
+<meta name="prereqs" content="identity-and-transport-security">
+<meta name="paths" content="email:8">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/email/index.html">Email</a> / Spam and abuse</p></nav>
+
+<p><dfn><a href="glossary/s/spam.html">Spam</a></dfn> is unwanted bulk mail. <dfn><a href="glossary/p/phishing.html">Phishing</a></dfn> tries to trick a reader into revealing information. Receivers combine many imperfect signals to reduce both threats.</p>
+
+<section data-level="novice">
+<h2>Why filtering is a balancing act</h2>
+<p>Most people want unwanted mail kept out of the inbox, but no filter is perfect. A filter that is too strict can hide a wanted message; one that is too loose lets abuse through. Systems therefore weigh several clues instead of relying on a single word or list.</p>
+<h3>Why it matters</h3>
+<p>A false positive can cost a person an invoice or a message from a new contact. A false negative can expose them to fraud. Good filtering needs review and a way to recover mistakes.</p>
+<h3>How to think about it</h3>
+<p>Think of a door keeper who checks a visitor list, asks where the visitor came from, reads the message and watches how often they arrive. One clue can be wrong; several together are more useful.</p>
+<h3>New words</h3>
+<dl>
+<dt>Spam</dt><dd>Unsolicited bulk mail sent to many recipients.</dd>
+<dt>Allowlist</dt><dd>A set of senders accepted in advance; also called a whitelist.</dd>
+<dt>Denylist</dt><dd>A set of senders rejected or treated as suspicious; also called a blacklist.</dd>
+<dt>Quarantine</dt><dd>A holding area for mail that was not accepted into the inbox.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Weigh several signals</h2>
+<p><strong>Goal:</strong> you will be able to name a defence for sender identity, sender history, message content and user feedback.</p>
+<tam-sandbox
+  title="Try it: classify signals by defence"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the signal that comes from user reports">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="signals.txt" size="290">SPF, DKIM and DMARC results: domain identity
+DNSBL lookup: sender history from a public list
+Greylisting: a temporary refusal that asks for a retry
+Content filter: words, links and structure in the message
+Reputation score: accumulated behaviour over time
+Rate limit: too many messages in a short interval
+Allowlist: an address the reader approved
+User report: a reader marked a message as spam
+Quarantine: a held message the reader can review</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat signals.txt" hint="Each line pairs a defence with the question it answers."><out>SPF, DKIM and DMARC results: domain identity</out><out>DNSBL lookup: sender history from a public list</out><out>Greylisting: a temporary refusal that asks for a retry</out><out>Content filter: words, links and structure in the message</out><out>Reputation score: accumulated behaviour over time</out><out>Rate limit: too many messages in a short interval</out><out>Allowlist: an address the reader approved</out><out>User report: a reader marked a message as spam</out><out>Quarantine: a held message the reader can review</out></tam-cmd>
+  <tam-cmd match="grep DNSBL signals.txt" hint="This defence asks an external list about a sending address."><out>DNSBL lookup: sender history from a public list</out></tam-cmd>
+  <tam-cmd match="grep 'User report' signals.txt" goal="true" hint="User feedback is the signal supplied by the reader."><out>User report: a reader marked a message as spam</out></tam-cmd>
+  <tam-init>Try: cat signals.txt, then grep DNSBL signals.txt</tam-init>
+  <tam-hint after="1">A public reputation list is queried through DNS; the name is DNSBL.</tam-hint>
+  <tam-hint after="2">Quotes let the sample match a label with a space in it.</tam-hint>
+  <tam-fallback>Try cat signals.txt, grep DNSBL signals.txt, or grep 'User report' signals.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li>Authentication answers whether a domain is allowed to claim the message.</li>
+<li>Reputation lists, greylisting and rate limits look at sender behaviour over time.</li>
+<li>Content filters examine words, links and structure after the message arrives.</li>
+<li>User reports and quarantine give people a way to correct the system.</li>
+</ol>
+<p>The signals and output are teaching samples. The sandbox does not query a live list, filter real mail or change a reader's account.</p>
+<h3>Try it</h3>
+<p>Run <code>grep Allowlist signals.txt</code>. Compare an allowlist with a denylist: which one is safer for a person who expects mail from only a few approved senders?</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You expected one check to catch all spam.</dt><dd>Each signal has false positives and false negatives. Systems combine them and tune weightings.</dd>
+<dt>You treated greylisting as permanent rejection.</dt><dd>It asks for a retry later. Many legitimate servers retry automatically, while some bulk senders do not.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux does not impose a single anti-spam policy. These pages describe portable mechanisms; the reader's provider or chosen mail software decides which signals are used.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why can DMARC pass for a phishing message?</i></summary><p>DMARC checks domain alignment, not intent. A compromised or abusive account on an authorised domain can send a deceptive message that still passes.</p></details>
+<details class="q"><summary><i>What is the trade-off in a strict allowlist?</i></summary><p>It blocks almost all unexpected mail, including wanted mail from new contacts. It needs a review path so legitimate senders can be approved.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Defence layers and their limits</h2>
+<h3>Reference</h3>
+<table><tr><th>Layer</th><th>Signal</th><th>Limitation</th></tr>
+<tr><td>Authentication</td><td>SPF, DKIM, DMARC alignment</td><td>Identity only; says nothing about content safety</td></tr>
+<tr><td><a href="glossary/d/dnsbl.html">DNSBL</a> or RBL</td><td>Address or domain listed by a maintained service</td><td>Listing policy and delisting speed differ; false listings happen</td></tr>
+<tr><td><a href="glossary/g/greylisting.html">Greylisting</a></td><td>Whether the sender retries after a temporary failure</td><td>Delays mail; some legitimate systems retry slowly or poorly</td></tr>
+<tr><td><a href="glossary/e/email-reputation.html">Reputation</a></td><td>History of a domain, network or sender</td><td>Shared infrastructure makes reputation noisy</td></tr>
+<tr><td>Content and Bayesian filters</td><td>Words, links, structure and learned feedback</td><td>Adaptable but prone to false positives and poisoning attempts</td></tr>
+<tr><td>Rate limits and challenge-response</td><td>Volume and willingness to answer a challenge</td><td>Can penalise mailing lists or automated systems</td></tr>
+<tr><td><a href="glossary/a/allowlist.html">Allowlist</a> and <a href="glossary/d/denylist.html">denylist</a></td><td>Explicit approval or rejection</td><td>Static lists need maintenance and review</td></tr>
+</table>
+<h3>How it works</h3>
+<p><cite data-ref="rfc-2505"><a href="bibliography/rfc-2505.html">RFC 2505</a></cite> records early anti-spam recommendations and the distinction between unwanted bulk mail and security policy. A DNSBL is consulted by reversing the sending address and looking it up under a list's DNS zone; RFC 5782 describes DNS blacklists and their operational concerns. Reputation systems may combine authentication history, complaint rates and sending volume. Filters assign scores to signals, and an operator chooses thresholds for rejection, <a href="glossary/q/quarantine.html">quarantine</a> or delivery with a warning.</p>
+<h3>Advanced usage</h3>
+<p>Feedback loops let mailbox providers tell senders about complaints so they can remove recipients. DMARC aggregate reports give domain owners visibility into who is sending on their behalf. Bayesian filters learn from labelled examples, so attackers try to add innocent words to legitimate messages; robust systems weight tokens carefully and retrain from trusted feedback. Challenge-response systems ask an unknown sender to prove they are human, but they can create backscatter if automated mail is challenged.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>An allowlist entry can be spoofed if it trusts a display name rather than an authenticated identity.</li>
+<li>Shared cloud and mailing infrastructure can cause one sender's behaviour to affect many others.</li>
+<li>Quarantine without a clear release path turns a false positive into lost mail.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is a DNSBL lookup a weak signal on its own?</i></summary><p>Lists differ in criteria and freshness, and addresses can be shared or reassigned. Responsible systems combine listing data with authentication, reputation and content signals.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc-2505"><a href="bibliography/rfc-2505.html">RFC 2505</a></cite>; <cite data-ref="rfc-5782"><a href="bibliography/rfc-5782.html">RFC 5782</a></cite>; <cite data-ref="rfc-9989"><a href="bibliography/rfc-9989.html">RFC 9989</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/email/mail-clients-and-mailboxes.html">Mail clients and mailboxes</a> &mdash; see how users review quarantined mail and report abuse.</li>
+<li><a href="glossary/s/spam.html">Spam</a> and <a href="glossary/a/allowlist.html">Allowlist (whitelist)</a> &mdash; check the short definitions.</li>
+<li><a href="networking/email/deliverability-and-troubleshooting.html">Deliverability and troubleshooting</a> &mdash; diagnose a legitimate message that was blocked.</li>
+</ul>
+</body></html>

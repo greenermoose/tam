@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>MSA (Mail Submission Agent)</title>
+<meta name="topic" content="glossary-mail-submission-agent">
+<meta name="summary" content="MSA (Mail Submission Agent): the server that accepts a message from an author's mail client and prepares it for transfer.">
+<meta name="keywords" content="glossary-mail-submission-agent, msa, mail submission agent, submission, port 587, authenticated smtp">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/m/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/m/index.html">Terms beginning with M</a> / MSA (Mail Submission Agent)</p></nav>
+
+<p>An MSA is the server that accepts a newly written message from a mail client and hands it into the mail system.</p>
+<section data-level="novice"><p>The letters stand for Mail Submission Agent. It is the receiving desk for mail you are sending, where the system checks that you are allowed to send and gets the message ready for its journey.</p></section>
+<section data-level="learner"><p>Submission is separate from relay. A client normally authenticates to the MSA on port 587 with STARTTLS, or on port 465 with implicit TLS. The MSA applies the hosting domain's policy before passing the message to an <a href="glossary/m/mail-transfer-agent.html">MTA</a>.</p></section>
+<section data-level="expert"><p>RFC 6409 defines message submission as a distinct service with its own authorization and policy requirements. RFC 8314 prefers implicit TLS where available. Separating submission from relay lets operators require authentication from their own users while still accepting unauthenticated mail from other servers on port 25.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/smtp-and-submission.html">SMTP and submission</a></li><li><a href="bibliography/rfc-6409.html">RFC 6409</a></li></ul>
+</body></html>

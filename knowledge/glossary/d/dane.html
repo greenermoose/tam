@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>DANE (DNS-based Authentication of Named Entities)</title>
+<meta name="topic" content="glossary-dane">
+<meta name="summary" content="DANE (DNS-based Authentication of Named Entities): uses DNSSEC-validated DNS records to pin TLS keys.">
+<meta name="keywords" content="glossary-dane, dane, dns-based authentication of named entities, dnssec, tlsa, tls">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DANE (DNS-based Authentication of Named Entities)</p></nav>
+
+<p>DANE lets a domain owner publish the TLS key that a service should use, protected by DNSSEC.</p>
+<section data-level="novice"><p>The letters stand for DNS-based Authentication of Named Entities. Instead of trusting only a certificate authority, a client can also check a signed note in DNS that says which key belongs to the mail server.</p></section>
+<section data-level="learner"><p>For SMTP, the note is a TLSA record at a name such as <code>_25._tcp.mail.example.com</code>. A sender's mail server checks the record after validating <a href="glossary/d/dnssec.html">DNSSEC</a>. If the record is bogus or the key does not match, delivery must stop rather than fall back quietly.</p></section>
+<section data-level="expert"><p>RFC 6698 defines DANE TLSA records and RFC 7672 applies them to SMTP. DANE depends on a validated DNSSEC chain of trust, unlike <a href="glossary/m/mta-sts.html">MTA-STS</a>, which uses an HTTPS policy and a DNS signal. DANE and MTA-STS are alternative or complementary ways to enforce TLS, not mere encryption hints.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/identity-and-transport-security.html">Identity and transport security</a></li><li><a href="bibliography/rfc-7672.html">RFC 7672</a></li></ul>
+</body></html>

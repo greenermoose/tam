@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html><head>
-<title>DSN (Device Serial Number)</title>
+<title>DSN (Delivery Status Notification)</title>
 <meta name="topic" content="glossary-dsn">
-<meta name="summary" content="DSN: Optional PCIe extended capability providing a unique 64-bit hardware identifier.">
-<meta name="keywords" content="glossary-dsn, dsn, device serial number, pcie">
+<meta name="summary" content="DSN (Delivery Status Notification): a report that tells the sender whether a message was delivered or deferred.">
+<meta name="keywords" content="glossary-dsn, dsn, delivery status notification, bounce, deferral, return path">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="glossary">
 <meta name="parent" content="glossary/d/index.html">
 <meta name="kind" content="glossary">
 <meta name="skills" content="">
 </head><body>
-<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DSN (Device Serial Number)</p></nav>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DSN (Delivery Status Notification)</p></nav>
 
-<p>An optional <a href="glossary/p/pcie.html">PCIe</a> extended capability that gives a hardware device a unique, factory-programmed 64-bit identifier.</p>
-<section data-level="novice"><p>Like a car’s VIN stamped onto the frame at the factory, a DSN is a permanent serial number built into a PCIe expansion card or motherboard chip. Even if you move the card to a different slot or computer, that ID stays the same so software can tell identical cards apart.</p></section>
-<section data-level="learner"><p>Unlike a <a href="glossary/p/pci.html">PCI</a> bus/device/function address (such as <code>0000:03:00.0</code>), which can shift when you move a card or add another <a href="glossary/n/nvme.html">NVMe</a> drive, a DSN stays tied to the physical hardware. On Linux, <code>lspci -vv</code> prints the <code>Device Serial Number</code> when the device implements it, which is handy for hardware inventory, udev matching, and RMA tracking.</p>
-<details class="q"><summary><i>Why shouldn’t you rely on a PCIe Device Serial Number to identify every PCIe card in a fleet?</i></summary><p>DSN is an optional PCIe capability: many budget or embedded devices omit it completely, and some multi-function cards share one DSN across functions or report all-zero placeholder values unless the vendor programmed unique EUI-64s.</p></details></section>
-<section data-level="expert"><p>Defined in the PCI Express Base Specification as Extended <a href="glossary/c/capability.html">Capability</a> ID <code>0x0003</code> in extended configuration space (<code>0x100</code>–<code>0xFFF</code>), DSN consists of a 4-byte capability header followed by Lower and Upper 32-bit registers encoding an IEEE EUI-64 (24-bit OUI/MA-L plus 40-bit extension). The Linux kernel reads it via <code>pci_get_dsn()</code>; inspecting extended config space via <code>lspci -vv</code> requires root privileges when MMCONFIG access is restricted. In virtualization and SR-IOV setups, VFs and <a href="glossary/v/vfio.html">VFIO</a> passthrough devices frequently omit or mask capability <code>0x0003</code> to avoid leaking host hardware identity across tenants.</p></section>
+<p>A DSN is a machine-readable report about what happened to a message during delivery.</p>
+<section data-level="novice"><p>The letters stand for Delivery Status Notification. If a letter cannot be put in the recipient's box, the post office sends a note back to the sender explaining what happened.</p></section>
+<section data-level="learner"><p>A DSN can report success, temporary failure or permanent failure. It travels to the envelope sender recorded in <code>Return-Path</code>, which is not always the visible <code>From:</code> address.</p></section>
+<section data-level="expert"><p>RFC 3464 defines the DSN format and RFC 3798 defines message disposition notifications. SMTP extensions let a client request DSNs, but ordinary bounces also exist without negotiation. Because the envelope sender can be forged, unsolicited bounces to innocent addresses are a known abuse pattern called backscatter.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/deliverability-and-troubleshooting.html">Deliverability and troubleshooting</a></li><li><a href="bibliography/rfc-5321.html">RFC 5321</a></li></ul>
 </body></html>

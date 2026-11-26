@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html><head>
+<title>What is email?</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="mail.novice, mail.learner, mail.expert">
+<meta name="topic" content="what-is-email">
+<meta name="summary" content="Email is a store-and-forward message service in which clients write and read messages while servers accept, carry and deliver them.">
+<meta name="keywords" content="email, mail client, mail server, store and forward, message, mailbox, MUA, MTA">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/email/index.html">
+<meta name="prereqs" content="application-layer">
+<meta name="paths" content="email:1">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/email/index.html">Email</a> / What is email?</p></nav>
+
+<p>Email lets one person write a message and let another read it later. The two people do not have to be online at the same time, because mail servers keep the message until it can be delivered.</p>
+
+<section data-level="novice">
+<h2>Messages that wait</h2>
+<p>Email is a way of sending written messages across a network. You write a message in a <dfn><a href="glossary/m/mail-user-agent.html">mail client</a></dfn>, give it an <dfn><a href="glossary/e/email-address.html">email address</a></dfn>, and send it. A <dfn><a href="glossary/m/mail-server.html">mail server</a></dfn> accepts the message and passes it onward. The receiver's server puts it in a <dfn><a href="glossary/m/mailbox.html">mailbox</a></dfn>, where a client can read it later.</p>
+<h3>Why it matters</h3>
+<p>People use different devices and work at different times. Email does not need a live call between both people. The message is stored at one or more points along the way, then forwarded when the next step is ready.</p>
+<h3>How to think about it</h3>
+<p>Think of a parcel service. You hand a parcel to a local counter. Counters sort it and pass it between depots. It waits at the recipient's local office until the recipient collects it. You do not follow the parcel yourself.</p>
+<h3>New words</h3>
+<dl>
+<dt>Mail client</dt><dd>The program in which a person writes, sends and reads mail. It is also called a mail user agent.</dd>
+<dt>Mail server</dt><dd>A program that accepts, relays or stores mail for other programs.</dd>
+<dt>Mailbox</dt><dd>The stored collection of messages belonging to an account.</dd>
+<dt>Store and forward</dt><dd>Accepting a message, keeping it safely, and sending it onward when possible.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Separating the client from the server</h2>
+<p><strong>Goal:</strong> you will be able to name which part of an email system a person uses and which parts work in the background.</p>
+<tam-sandbox
+  title="Try it: identify the two sides"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the lines that describe server programs">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="roles.txt" size="160">client: a person writes and reads mail in a mail user agent
+server: a submission agent accepts a new message
+server: a transfer agent relays it toward the receiver
+server: a delivery agent places it in a mailbox</file>
+  <file name="message.eml" size="132">From: Ada &lt;ada@example.net&gt;
+To: Bo &lt;bo@example.org&gt;
+Subject: Meeting notes
+Date: Tue, 24 Nov 2026 09:00:00 +0000
+
+The notes are attached.</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat roles.txt" hint="Each line names a role and says what it does."><out>client: a person writes and reads mail in a mail user agent</out><out>server: a submission agent accepts a new message</out><out>server: a transfer agent relays it toward the receiver</out><out>server: a delivery agent places it in a mailbox</out></tam-cmd>
+  <tam-cmd match="grep server roles.txt" goal="true" hint="Match the label server, not the whole file."><out>server: a submission agent accepts a new message</out><out>server: a transfer agent relays it toward the receiver</out><out>server: a delivery agent places it in a mailbox</out></tam-cmd>
+  <tam-cmd match="cat message.eml" hint="The visible addresses are part of the message itself."><out>From: Ada &lt;ada@example.net&gt;</out><out>To: Bo &lt;bo@example.org&gt;</out><out>Subject: Meeting notes</out><out>Date: Tue, 24 Nov 2026 09:00:00 +0000</out><out></out><out>The notes are attached.</out></tam-cmd>
+  <tam-init>Try: cat roles.txt, then grep server roles.txt</tam-init>
+  <tam-hint after="1">The client is the program a person sees; the other three lines are server roles.</tam-hint>
+  <tam-hint after="2">Filter on the word server to leave only background programs.</tam-hint>
+  <tam-fallback>Try cat roles.txt, grep server roles.txt, or cat message.eml (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat roles.txt</code> showed one client role and three server roles. The client acts for a person; servers act for the system.</li>
+<li><code>grep server roles.txt</code> kept the background roles: submission, transfer and delivery.</li>
+<li><code>cat message.eml</code> showed a message as text. The visible <code>From:</code> and <code>To:</code> lines are not the same thing as the routing information used by servers.</li>
+</ol>
+<p>The files and output in this sandbox are teaching samples. This series does not install or configure a mail server or client.</p>
+<h3>Try it</h3>
+<p>Run <code>grep client roles.txt</code>. Predict which single line will remain before you type it.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>grep</code> printed every line.</dt><dd>Check that you searched for <code>server</code> or <code>client</code> exactly as written in the sample file.</dd>
+<dt>You expected the sender address to be the routing address.</dt><dd>The visible header says who wrote the message. Servers use separate envelope information during transfer, which a later page explains.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux's offline guide presents email as a portable service: the protocols and file formats are the same across distributions, while the choice of mail software stays with the reader.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why can the receiver read a message while the sender is offline?</i></summary><p>Because servers store the message along the path. Email is store and forward, so both people do not need a simultaneous connection.</p></details>
+<details class="q"><summary><i>Is a webmail page a mail server?</i></summary><p>No. It is a mail client running in a browser. It talks to servers that submit, relay and store the mail; the page itself does not deliver it.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>The architectural boundary</h2>
+<h3>Reference</h3>
+<table><tr><th>Role</th><th>Acts for</th><th>Typical protocol or store</th></tr>
+<tr><td>Mail user agent (MUA)</td><td>A person</td><td>Submission, POP, IMAP or JMAP</td></tr>
+<tr><td>Mail submission agent (MSA)</td><td>A sending domain</td><td>SMTP submission</td></tr>
+<tr><td>Mail transfer agent (MTA)</td><td>A sending or relaying domain</td><td>SMTP relay</td></tr>
+<tr><td>Mail delivery agent (MDA)</td><td>A receiving domain</td><td>Local mailbox or message store</td></tr>
+</table>
+<h3>How it works</h3>
+<p>The <cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">Internet Mail Architecture</a></cite> separates these roles because each has a different trust boundary. A client may authenticate to submit a message; relays use DNS to find the next hop; a receiving agent applies policy and writes to a store. The role names describe functions, not necessarily separate machines: one product may combine several roles.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Store and forward gives resilience, not a guarantee. A message can be delayed, rejected or filtered after it leaves the client.</li>
+<li>A mailbox is a store, not a transport. Retrieval protocols read it; SMTP does not normally read it.</li>
+<li>The visible header and the envelope can differ legitimately, for example with aliases and mailing lists.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>When a single mail package handles submission, relay and local delivery, has it stopped being a client/server system?</i></summary><p>No. The functions and boundaries still exist even if one process implements several of them. The distinction matters for authentication, policy and troubleshooting.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">RFC 5598</a></cite>; <cite data-ref="rfc-5321"><a href="bibliography/rfc-5321.html">RFC 5321</a></cite>; <cite data-ref="rfc-5322"><a href="bibliography/rfc-5322.html">RFC 5322</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/email/how-a-mail-server-works.html">How a mail server works</a> &mdash; follow the message through submission, queues and delivery.</li>
+<li><a href="networking/email/mail-clients-and-mailboxes.html">Mail clients and mailboxes</a> &mdash; see what the reader's side holds.</li>
+<li><a href="paths/email.html">From first message to reliable delivery</a> &mdash; learn the subject in order.</li>
+</ul>
+</body></html>

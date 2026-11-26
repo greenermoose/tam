@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html><head>
+<title>DNS and email</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="mail.novice, mail.learner, mail.expert">
+<meta name="topic" content="dns-and-email">
+<meta name="summary" content="Email uses DNS to find receiving servers, publish authentication policy, name TLS certificates and report failures.">
+<meta name="keywords" content="email DNS, MX records, A record, AAAA, PTR, DNSSEC, SPF, DKIM, DMARC, DANE, TLSA, MTA-STS, TLS-RPT">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/email/index.html">
+<meta name="prereqs" content="retrieval-pop-imap-and-jmap">
+<meta name="paths" content="email:6">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/email/index.html">Email</a> / DNS and email</p></nav>
+
+<p>DNS does more for email than translate names to numbers. It says which servers accept mail, carries authentication policy, helps protect connections and provides places to send reports.</p>
+
+<section data-level="novice">
+<h2>Finding the right server</h2>
+<p>When a sender has an address such as <code>bo@example.org</code>, it looks up the part after the <code>@</code> sign. A special DNS entry called an <dfn><a href="glossary/m/mail-exchange.html">MX record</a></dfn> names the servers that accept mail for that domain. DNS also supplies the network addresses needed to connect to them.</p>
+<h3>Why it matters</h3>
+<p>Web service and mail service can live on different machines. Looking specifically for mail records lets a domain keep its website and its inbox in different places.</p>
+<h3>How to think about it</h3>
+<p>DNS is like a directory at a building entrance. One entry says which desk handles parcels; another says where that desk is. The sender follows the directory instead of guessing.</p>
+<h3>New words</h3>
+<dl>
+<dt>MX record</dt><dd>A DNS record naming a server that accepts mail for a domain.</dd>
+<dt>A and AAAA records</dt><dd>DNS records that give a name an IPv4 or IPv6 address.</dd>
+<dt>PTR record</dt><dd>A reverse DNS record that maps an address back to a name.</dd>
+<dt>DNSSEC</dt><dd>A set of records and signatures that lets a resolver verify DNS answers.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read a sample DNS picture</h2>
+<p><strong>Goal:</strong> you will be able to pick out the mail records and the address records from a teaching snapshot.</p>
+<tam-sandbox
+  title="Try it: sort DNS records by purpose"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the reverse-name record">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="dns-sample.txt" size="260">MX 10 mx1.example.org.
+MX 20 mx2.example.org.
+A mx1.example.org. = 192.0.2.10
+AAAA mx1.example.org. = 2001:db8::10
+PTR 10.2.0.192.in-addr.arpa. = mx1.example.org.
+TXT example.org. = v=SPF1 include:_spf.provider.example -all
+TXT _dmarc.example.org. = v=DMARC1; p=quarantine
+TXT _25._tcp.mx1.example.org. = TLSA record for certificate checks</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat dns-sample.txt" hint="Each line names a record type and what it supplies."><out>MX 10 mx1.example.org.</out><out>MX 20 mx2.example.org.</out><out>A mx1.example.org. = 192.0.2.10</out><out>AAAA mx1.example.org. = 2001:db8::10</out><out>PTR 10.2.0.192.in-addr.arpa. = mx1.example.org.</out><out>TXT example.org. = v=SPF1 include:_spf.provider.example -all</out><out>TXT _dmarc.example.org. = v=DMARC1; p=quarantine</out><out>TXT _25._tcp.mx1.example.org. = TLSA record for certificate checks</out></tam-cmd>
+  <tam-cmd match="grep MX dns-sample.txt" hint="Lower preference numbers are tried first."><out>MX 10 mx1.example.org.</out><out>MX 20 mx2.example.org.</out></tam-cmd>
+  <tam-cmd match="grep PTR dns-sample.txt" goal="true" hint="PTR records live under a reverse DNS name."><out>PTR 10.2.0.192.in-addr.arpa. = mx1.example.org.</out></tam-cmd>
+  <tam-init>Try: cat dns-sample.txt, then grep PTR dns-sample.txt</tam-init>
+  <tam-hint after="1">MX records name hosts; A and AAAA records supply their addresses.</tam-hint>
+  <tam-hint after="2">A reverse record is not an authentication result.</tam-hint>
+  <tam-fallback>Try cat dns-sample.txt, grep MX dns-sample.txt, or grep PTR dns-sample.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li>The MX lines named two receiving hosts with preference numbers 10 and 20.</li>
+<li>A and AAAA records supplied addresses for a named host.</li>
+<li>A PTR record mapped an address back to a name in the reverse DNS zone.</li>
+<li>TXT records carried policy for SPF, DMARC and TLSA-style certificate checks.</li>
+</ol>
+<p>Every address and record in this sandbox is a labelled teaching sample using documentation ranges. No DNS lookup was performed and no record was changed.</p>
+<h3>Try it</h3>
+<p>Run <code>grep TXT dns-sample.txt</code>. Note that several different standards share the TXT record type but use different names and syntax.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You thought the higher MX number was preferred.</dt><dd>Lower preference values are tried first. Equal preferences allow selection among equivalent hosts.</dd>
+<dt>You treated a matching PTR name as proof the sender is genuine.</dt><dd>Reverse DNS is a weak signal. Authentication systems publish and check specific records instead.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The guide teaches DNS records as portable standards. Tamlinux does not add a special DNS system for mail; readers use the resolver and tools already present on their system.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why does a sender look up MX rather than only the domain's web address?</i></summary><p>Mail service may be hosted separately from the website. MX records name the hosts designated to accept mail, with preference ordering.</p></details>
+<details class="q"><summary><i>Can a PTR record replace SPF or DKIM?</i></summary><p>No. A PTR name is only reverse mapping. SPF and DKIM use defined TXT records and validation rules tied to the envelope or message signature.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>The full DNS surface used by mail</h2>
+<h3>Reference</h3>
+<table><tr><th>Purpose</th><th>Name or record</th><th>Standard</th></tr>
+<tr><td>Find a receiver</td><td>MX at the recipient domain</td><td>RFC 5321</td></tr>
+<tr><td>Connect to a receiver</td><td>A or AAAA at the MX target</td><td>RFC 5321</td></tr>
+<tr><td>Reverse name</td><td>PTR under <code>in-addr.arpa</code> or <code>ip6.arpa</code></td><td>DNS reverse mapping</td></tr>
+<tr><td>Authorise senders</td><td>TXT at the sending domain</td><td>RFC 7208</td></tr>
+<tr><td>Publish a signing key</td><td>TXT at <code>selector._domainkey.domain</code></td><td>RFC 6376</td></tr>
+<tr><td>Publish a policy</td><td>TXT at <code>_dmarc.domain</code></td><td>RFC 9989</td></tr>
+<tr><td>Pin TLS certificates</td><td>TLSA at <code>_25._tcp.host</code></td><td>RFC 6698 and RFC 7672</td></tr>
+<tr><td>Publish a TLS policy</td><td>TXT at <code>_mta-sts.domain</code> plus HTTPS policy file</td><td>RFC 8461</td></tr>
+<tr><td>Receive TLS reports</td><td>TXT at <code>_smtp-tlsreporting.domain</code></td><td>RFC 8460</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A sending server resolves MX for the recipient domain, sorts by preference and resolves A or AAAA for a target. RFC 5321 defines an implicit MX at the domain itself when no MX record exists and an address record is present. An MX target is a host name; it should not be an alias record, so the address records belong at that name. <a href="glossary/d/dnssec.html">DNSSEC</a> lets a validating resolver detect forged or modified DNS data; DANE's TLSA checks are meaningful only when the chain to that TLSA record validates.</p>
+<h3>Advanced usage</h3>
+<p>CNAME rules deserve care: a domain with other records, such as SPF or DMARC, should not be a CNAME to another name because the related records would be hidden. SPF uses TXT records and an ordered set of mechanisms; DKIM places the public key under a selector chosen by the signer; DMARC uses a TXT record at a fixed prefix and requests aggregate or forensic reports. MTA-STS adds an HTTPS-hosted policy with a TXT marker, while TLS-RPT names an address for failure reports.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Caching and TTLs mean a DNS change may not be visible everywhere at once.</li>
+<li>A PTR record is controlled by the address owner, not necessarily by the domain in the message header.</li>
+<li>Multiple MX hosts share traffic by preference and availability; DNS alone does not prove a host is reachable.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why does DANE for SMTP depend on DNSSEC?</i></summary><p>A TLSA record states which certificate should be trusted. Without DNSSEC validation, an attacker who can alter DNS could replace that record along with the address records.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc-5321"><a href="bibliography/rfc-5321.html">RFC 5321</a></cite>; <cite data-ref="rfc-7208"><a href="bibliography/rfc-7208.html">RFC 7208</a></cite>; <cite data-ref="rfc-6376"><a href="bibliography/rfc-6376.html">RFC 6376</a></cite>; <cite data-ref="rfc-6698"><a href="bibliography/rfc-6698.html">RFC 6698</a></cite>; <cite data-ref="rfc-7672"><a href="bibliography/rfc-7672.html">RFC 7672</a></cite>; <cite data-ref="rfc-8461"><a href="bibliography/rfc-8461.html">RFC 8461</a></cite>; <cite data-ref="rfc-8460"><a href="bibliography/rfc-8460.html">RFC 8460</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/email/identity-and-transport-security.html">Identity and transport security</a> &mdash; turn these DNS records into authentication and encryption decisions.</li>
+<li><a href="networking/setup/name-resolution.html">Name resolution</a> &mdash; revisit how resolvers answer questions.</li>
+<li><a href="glossary/m/mail-exchange.html">MX (Mail Exchange)</a> &mdash; check the short routing definition.</li>
+</ul>
+</body></html>

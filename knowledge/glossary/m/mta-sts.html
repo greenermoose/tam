@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>MTA-STS (SMTP MTA Strict Transport Security)</title>
+<meta name="topic" content="glossary-mta-sts">
+<meta name="summary" content="MTA-STS (SMTP MTA Strict Transport Security): a policy that requires validated TLS for mail relay.">
+<meta name="keywords" content="glossary-mta-sts, mta-sts, sts, strict transport security, smtp tls, dns txt">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/m/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/m/index.html">Terms beginning with M</a> / MTA-STS (SMTP MTA Strict Transport Security)</p></nav>
+
+<p>MTA-STS tells sending mail servers that a domain requires a valid TLS connection for relay.</p>
+<section data-level="novice"><p>The letters stand for SMTP MTA Strict Transport Security. A domain publishes a rule that says encrypted delivery is required, not merely preferred, so an attacker cannot force a downgrade to an unencrypted connection.</p></section>
+<section data-level="learner"><p>A DNS TXT record at <code>_mta-sts.domain</code> begins <code>v=STSv1</code> and carries an <code>id</code>. The full policy is fetched from <code>https://mta-sts.domain/.well-known/mta-sts.txt</code> and lists modes, expected MX hosts and a maximum age.</p></section>
+<section data-level="expert"><p>RFC 8461 defines MTA-STS. Modes are <code>enforce</code>, <code>testing</code> and <code>none</code>; an enforced policy makes a sender defer delivery when TLS cannot be validated. Unlike <a href="glossary/d/dane.html">DANE</a>, MTA-STS does not depend on DNSSEC; it depends on HTTPS for the policy and DNS only to signal that a policy exists.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/identity-and-transport-security.html">Identity and transport security</a></li><li><a href="bibliography/rfc-8461.html">RFC 8461</a></li></ul>
+</body></html>

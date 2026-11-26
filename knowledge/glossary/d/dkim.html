@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>DKIM (DomainKeys Identified Mail)</title>
+<meta name="topic" content="glossary-dkim">
+<meta name="summary" content="DKIM (DomainKeys Identified Mail): a cryptographic signature that shows a domain took responsibility for a message.">
+<meta name="keywords" content="glossary-dkim, dkim, domainkeys identified mail, digital signature, txt record">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DKIM (DomainKeys Identified Mail)</p></nav>
+
+<p>DKIM lets a sending domain sign a message so a receiver can verify that it was not changed in transit.</p>
+<section data-level="novice"><p>The letters stand for DomainKeys Identified Mail. The sender adds a signed seal to the message. The receiver looks up the sender's public key in DNS and checks that the seal still fits.</p></section>
+<section data-level="learner"><p>The signature lives in a <code>DKIM-Signature</code> header. The <code>d=</code> field names the signing domain and <code>s=</code> names the selector. The public key is a TXT record at <code>selector._domainkey.domain</code>.</p></section>
+<section data-level="expert"><p>RFC 6376 defines DKIM. Signatures cover selected header fields and a hash of the body, so an intermediary may add trace headers without breaking the signature if those fields are not signed. A valid signature shows responsibility by a domain; it does not say that the visible <code>From:</code> domain signed, which is why DMARC alignment matters.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/identity-and-transport-security.html">Identity and transport security</a></li><li><a href="bibliography/rfc-6376.html">RFC 6376</a></li></ul>
+</body></html>

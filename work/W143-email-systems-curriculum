@@ -1,0 +1,69 @@
+W143 EMAIL SYSTEMS CURRICULUM
+
+Date: 2026-11-25
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Continues: W142
+
+GUIDANCE
+
+  Fred: "Write a series about email. Explain what a mail server is
+  and how it works. Add glossary pages for POP, SMTP, IMAP, JMAP,
+  and all other relevant email protocols and standards. Be sure to
+  use the correct title format for glossary pages, e.g. Acronym
+  (Written Out). Discuss the difference between a mail client and a
+  mail server. Thoroughly cover all the ways DNS and other systems
+  interact with email, and what steps are being taken to combat
+  spam. Add a glossary page for spam, white list, etc."
+  When asked about the two design choices, Fred chose Networking >
+  Email as the subject home and the practical full set of related
+  standards as the scope.
+
+DONE
+
+  - Added the Networking > Email hub, ten three-level teaching pages
+    and the five-stage `email` goal path with checkpoints and a
+    folded capstone. Steps 1–10 are declared on the teaching pages.
+  - Added 37 glossary pages and revised the DSN entry, covering the
+    requested protocols, message format, DNS and trust records,
+    anti-spam systems, spam, allowlist and denylist. Acronym titles
+    spell out the expansion and breadcrumbs repeat the full title.
+    The DNS MX entry is distinct from MX Linux.
+  - Added 24 bibliography pages and updated every bibliography view;
+    registered `mail.*` skills and linked the new series from the
+    Networking hub, application-layer page, IETF page, protocol path
+    and relevant glossary pages.
+  - Bumped the corpus to 0.132.0 and updated the roadmap, decision
+    record, plan index, checklist and acceptance criteria. Command
+    version stays 0.69.7.
+  - `make corpus`, `make corpus-and-test`, `make check-repo`, the
+    coverage report and reader spot checks pass. Live `whatis`
+    resolves SMTP, POP, IMAP, JMAP, MX record, spam, allowlist,
+    whitelist, SPF, DKIM, DMARC and greylisting; MX Linux remains
+    reachable. Nothing was installed, promoted, tagged or pushed.
+
+FAILED
+
+  - The first corpus build rejected path step metadata because the
+    path page's topic was `email-path` while the steps named
+    `email:N`. Set the path topic to `email`.
+  - `whatis "MX record"` first ranked the DNS teaching page above
+    the glossary entry because both carried that exact keyword.
+    Changed the teaching page keyword to the plural "MX records" so
+    the glossary entry wins exact lookup while the page stays
+    searchable.
+
+CHECKED AGAINST
+
+  - RFC 5598, 5321, 5322, 6409, 1939, 9051, 8620, 8621, 2045,
+    6531, 3207, 8314, 7208, 6376, 9989, 8617, 8461, 8460, 6698,
+    7672, 5782, 6647, 2505 and the BIMI group specification.
+  - `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`,
+    `docs/templates/ladder.html` and the databases curriculum as
+    the house pattern.
+
+HANDOFF
+
+  - Commit pages and bookkeeping, then rerun `make corpus` and commit
+    only the regenerated indexes. Await Fred's development cycle;
+    Test, Run and Release each need his exact word.

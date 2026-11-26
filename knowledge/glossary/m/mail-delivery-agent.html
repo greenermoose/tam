@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>MDA (Mail Delivery Agent)</title>
+<meta name="topic" content="glossary-mail-delivery-agent">
+<meta name="summary" content="MDA (Mail Delivery Agent): the final server-side agent that deposits a message into a mailbox.">
+<meta name="keywords" content="glossary-mail-delivery-agent, mda, mail delivery agent, lmtp, mailbox, final delivery">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/m/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/m/index.html">Terms beginning with M</a> / MDA (Mail Delivery Agent)</p></nav>
+
+<p>An MDA is the final agent that takes a delivered message and puts it into the recipient's mailbox.</p>
+<section data-level="novice"><p>The letters stand for Mail Delivery Agent. If the MTA is the sorting office, the MDA is the person who puts the letter into the correct pigeonhole.</p></section>
+<section data-level="learner"><p>The MDA receives mail over SMTP or <a href="glossary/l/lmtp.html">LMTP</a> from the final MTA, applies local rules such as aliases or filtering, and writes to the message store. It records the envelope sender in a <code>Return-Path</code> header used for bounces.</p></section>
+<section data-level="expert"><p>RFC 5598 says the MDA takes final responsibility from the message handling system and knows the destination environment. It may redirect or filter before deposit. The distinction between MTA and MDA is a role, not a mandatory separate program; one mail server package may perform both.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/how-a-mail-server-works.html">How a mail server works</a></li><li><a href="bibliography/rfc-5598.html">RFC 5598</a></li></ul>
+</body></html>

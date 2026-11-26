@@ -3,30 +3,32 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-25, with W142
+Updated: 2026-11-25, with W143
 
 STATE
 
-  Command 0.69.7 and corpus 0.131.1 are on dev. W137 added the
-  Programming / Databases and data storage curriculum; W138 added
-  SQLite, PostgreSQL and MySQL glossary entries for pager `whatis`.
-  W139 expanded the ACID title; W140 expanded the OLTP title; W141
-  added the OAuth glossary page and links. Those are committed. W142
-  expanded the OLAP title to Online Analytical Processing. W142 and
-  its generated index follow-ups are committed on dev and not pushed.
-  make corpus, corpus-and-test, check-repo and the coverage report
-  pass; reader spot check renders the full title.
+  Command 0.69.7 and corpus 0.132.0 are on dev. W143 added the
+  Networking / Email curriculum: hub, ten three-level teaching pages,
+  the five-stage `email` goal path, 37 new and one revised glossary
+  entry, 24 sources and the `mail.*` skills. Examples are labelled
+  sandboxes; no mail software was installed. make corpus,
+  corpus-and-test, check-repo, the coverage report and reader spot
+  checks pass; live whatis resolves the requested names. W137–W142
+  are committed; W143 and its generated index follow-ups still need
+  commits on dev and are not pushed.
 
 NEXT
 
-  1. Await Fred's development cycle for corpus 0.131.1. Test, Run and
+  1. Commit W143's pages and bookkeeping, rerun `make corpus`, then
+     commit only the regenerated indexes.
+  2. Await Fred's development cycle for corpus 0.132.0. Test, Run and
      Release still need his exact word.
-  2. If he asks for a push, check `git log @{u}..` for other agents'
+  3. If he asks for a push, check `git log @{u}..` for other agents'
      commits first, then push only dev.
 
 WAITING FOR FRED
 
-  - Fred's development cycle for corpus 0.131.1. Tamlinux 0.6.38
+  - Fred's development cycle for corpus 0.132.0. Tamlinux 0.6.38
     remains in Test.
 
 WATCH OUT
@@ -63,6 +65,11 @@ WATCH OUT
     and regenerates the hubs.
   - Every meta skills ID must exist in knowledge/skills/skills.json;
     register a new domain at all three levels before building.
+  - A step's `meta paths` ID must equal the path page's `meta topic`;
+    otherwise the corpus build reports an unknown learning path.
+  - Exact keyword matches outrank title and field matches in whatis.
+    If a teaching and a glossary page share one exact keyword, the
+    earlier index entry wins; vary the teaching page's wording.
   - Sandbox <tam-cmd match> is a literal glob string, not a shell
     expression: it does not expand `$$` or variables. Author exact
     output rules for those commands, and use &quot; for quotes inside

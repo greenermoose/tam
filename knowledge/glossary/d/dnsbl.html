@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>DNSBL (DNS-based Blocklist)</title>
+<meta name="topic" content="glossary-dnsbl">
+<meta name="summary" content="DNSBL (DNS-based Blocklist): a DNS-published list of addresses associated with unwanted mail.">
+<meta name="keywords" content="glossary-dnsbl, dnsbl, rbl, blocklist, blacklist, spam, dns">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DNSBL (DNS-based Blocklist)</p></nav>
+
+<p>A DNSBL is a blocklist of IP addresses or domains published through DNS queries.</p>
+<section data-level="novice"><p>The letters stand for DNS-based Blocklist. A receiving mail server can ask a shared list whether a connecting server has a bad reputation, much like checking a do-not-admit book before accepting a visitor.</p></section>
+<section data-level="learner"><p>For an IPv4 address such as <code>192.0.2.99</code>, the query is <code>99.2.0.192.&lt;list-domain&gt;</code>. An A record means the address is listed; its value is a flag, not a usable address. A TXT record often explains why. The older term RBL originally named a particular list.</p></section>
+<section data-level="expert"><p>RFC 5782 describes DNS-based blocklists using the older blacklist and whitelist terminology. Modern teaching prefers blocklist and allowlist. Listings are operational judgments, not proof of guilt: delisting policy, false positives and shared mail infrastructure matter before rejecting mail.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/spam-and-abuse.html">Spam and abuse</a></li><li><a href="bibliography/rfc-5782.html">RFC 5782</a></li></ul>
+</body></html>

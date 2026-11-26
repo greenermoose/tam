@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Envelope (SMTP)</title>
+<meta name="topic" content="glossary-envelope-smtp">
+<meta name="summary" content="Envelope (SMTP): the MAIL FROM and RCPT TO identities used to route a message.">
+<meta name="keywords" content="glossary-envelope-smtp, envelope, smtp envelope, mail from, rcpt to, return path">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/e/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / Envelope (SMTP)</p></nav>
+
+<p>The SMTP envelope is the routing information a client gives a server before sending the message itself.</p>
+<section data-level="novice"><p>Think of the envelope as the outside of a paper letter: it says where the letter goes and who to contact if it cannot be delivered. The message inside may show a different "from" name.</p></section>
+<section data-level="learner"><p>The envelope sender comes from <code>MAIL FROM</code> and each recipient comes from <code>RCPT TO</code>. These commands are separate from the <code>From:</code> and <code>To:</code> header fields. The final delivery agent records the envelope sender in a <code>Return-Path</code> header.</p></section>
+<section data-level="expert"><p>RFC 5321 section 4.1 defines the envelope commands, and section 4.4 defines bounce handling. SPF checks the envelope-related domain, while DMARC connects that result to the visible author domain through alignment. Forwarding can change the envelope sender, which is why <a href="glossary/s/srs.html">SRS</a> exists.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/addresses-and-message-format.html">Addresses and message format</a></li><li><a href="bibliography/rfc-5321.html">RFC 5321</a></li></ul>
+</body></html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>STARTTLS (Start Transport Layer Security)</title>
+<meta name="topic" content="glossary-starttls">
+<meta name="summary" content="STARTTLS (Start Transport Layer Security): an SMTP command that upgrades an existing connection to TLS.">
+<meta name="keywords" content="glossary-starttls, starttls, tls, smtp tls, encryption, port 587">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / STARTTLS (Start Transport Layer Security)</p></nav>
+
+<p>STARTTLS is a command that turns an existing cleartext mail connection into an encrypted TLS connection.</p>
+<section data-level="novice"><p>The name means Start Transport Layer Security. The client and server first talk in the open, agree to upgrade, and then continue the conversation inside an encrypted channel.</p></section>
+<section data-level="learner"><p>In SMTP the server advertises <code>STARTTLS</code> in its <code>EHLO</code> reply. The client sends the command, performs a TLS handshake, then starts a fresh <code>EHLO</code>. If the upgrade fails and the client continues in cleartext, a network attacker may have interfered, so policy matters.</p></section>
+<section data-level="expert"><p>RFC 3207 defines the SMTP upgrade. RFC 8314 says cleartext only is obsolete and prefers implicit TLS for submission and mail access. For server-to-server relay, <a href="glossary/m/mta-sts.html">MTA-STS</a> or <a href="glossary/d/dane.html">DANE</a> can require TLS rather than merely offer it.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/smtp-and-submission.html">SMTP and submission</a></li><li><a href="bibliography/rfc-3207.html">RFC 3207</a></li></ul>
+</body></html>

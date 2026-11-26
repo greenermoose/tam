@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>ESMTP (Extended Simple Mail Transfer Protocol)</title>
+<meta name="topic" content="glossary-esmtp">
+<meta name="summary" content="ESMTP (Extended Simple Mail Transfer Protocol): SMTP with negotiated extensions announced by EHLO.">
+<meta name="keywords" content="glossary-esmtp, esmtp, extended smtp, ehlo, smtp extensions">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/e/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / ESMTP (Extended Simple Mail Transfer Protocol)</p></nav>
+
+<p>ESMTP is SMTP with extra capabilities that the client and server negotiate at the start of a session.</p>
+<section data-level="novice"><p>The letters stand for Extended Simple Mail Transfer Protocol. Instead of assuming every server can do the same things, the client asks what extensions are available and uses only the ones both sides support.</p></section>
+<section data-level="learner"><p>A client greets with <code>EHLO</code> instead of the older <code>HELO</code>. The server replies with a list of extensions such as <code>STARTTLS</code>, <code>8BITMIME</code> or <code>SMTPUTF8</code>. Each extension may add commands, parameters or reply behaviour.</p></section>
+<section data-level="expert"><p>RFC 1869 introduced the extension framework and is historical; the current capability registry is maintained by IANA. ESMTP is not a separate transfer system: it is the normal way modern <a href="glossary/s/smtp.html">SMTP</a> negotiates optional features without breaking older servers.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/smtp-and-submission.html">SMTP and submission</a></li><li><a href="bibliography/rfc-5321.html">RFC 5321</a></li></ul>
+</body></html>

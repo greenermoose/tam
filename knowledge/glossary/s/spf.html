@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>SPF (Sender Policy Framework)</title>
+<meta name="topic" content="glossary-spf">
+<meta name="summary" content="SPF (Sender Policy Framework): a DNS TXT record that authorises hosts to send mail for a domain.">
+<meta name="keywords" content="glossary-spf, spf, sender policy framework, txt record, email authentication">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / SPF (Sender Policy Framework)</p></nav>
+
+<p>SPF is an email authentication method that publishes which servers are allowed to send mail for a domain.</p>
+<section data-level="novice"><p>The letters stand for Sender Policy Framework. A domain owner writes a public note in DNS saying which servers may send its mail. A receiving server can check that note before trusting the sender.</p></section>
+<section data-level="learner"><p>The record is a TXT record beginning <code>v=spf1</code> at the domain used by the SMTP envelope sender or HELO identity. A receiver compares the connecting server's address with the record. SPF does not check the visible <code>From:</code> header.</p></section>
+<section data-level="expert"><p>RFC 7208 defines SPF. Forwarding and mailing lists can break SPF because they change the envelope sender; <a href="glossary/s/srs.html">SRS</a> rewrites it so the forwarder becomes the sender. DMARC adds alignment between the SPF-authenticated domain and the author domain. SPF alone is not an anti-spam verdict.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/identity-and-transport-security.html">Identity and transport security</a></li><li><a href="bibliography/rfc-7208.html">RFC 7208</a></li></ul>
+</body></html>

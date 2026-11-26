@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html><head>
+<title>Deliverability and troubleshooting</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="mail.novice, mail.learner, mail.expert">
+<meta name="topic" content="deliverability-and-troubleshooting">
+<meta name="summary" content="Deliverability work reads bounces, queues, deferrals, blocks and headers while respecting the limits of available evidence.">
+<meta name="keywords" content="email deliverability, bounce, backscatter, mail queue, deferral, blocklist, Received header, logs, troubleshooting">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/email/index.html">
+<meta name="prereqs" content="mail-clients-and-mailboxes">
+<meta name="paths" content="email:10">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/email/index.html">Email</a> / Deliverability and troubleshooting</p></nav>
+
+<p>Deliverability is the practical question of whether mail reaches the mailbox. When it does not, the useful evidence is a bounce, a queue entry, a header trail or a server log &mdash; each with limits.</p>
+
+<section data-level="novice">
+<h2>Missing mail has several causes</h2>
+<p>A message might still be waiting in a queue, rejected by a server, filtered into a <dfn><a href="glossary/q/quarantine.html">quarantine</a></dfn> folder, or delivered to the wrong folder. A bounce is a report about a delivery attempt, not proof that a person never saw any copy.</p>
+<h3>Why it matters</h3>
+<p>Different causes need different actions. Resending immediately can duplicate mail if the first copy is only delayed. Checking the right evidence avoids making the problem worse.</p>
+<h3>How to think about it</h3>
+<p>Track a parcel. A delay notice, a returned parcel and a parcel left at a neighbour's desk are three different events. The same message can produce a delay and then a delivery.</p>
+<h3>New words</h3>
+<dl>
+<dt>Bounce</dt><dd>A report that a delivery attempt failed.</dd>
+<dt>Deferral</dt><dd>A temporary failure that leaves the message eligible for retry.</dd>
+<dt>Backscatter</dt><dd>Unsolicited bounce messages caused by forged sender addresses.</dd>
+<dt>Received header</dt><dd>A trace line added by a server that handled the message.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Choose evidence before acting</h2>
+<p><strong>Goal:</strong> you will be able to tell a temporary delay from a permanent failure in a sample trail.</p>
+<tam-sandbox
+  title="Try it: diagnose a sample delivery trail"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line that marks a permanent failure">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="trail.txt" size="300">queue: message q184 accepted for relay
+result: 451 temporary local problem, retry later
+result: 250 accepted by mx2.example.org
+result: 550 recipient mailbox unavailable
+quarantine: message q190 held as suspicious
+backscatter: bounce received for an address we never used</file>
+  <file name="advice.txt" size="160">4xx: wait for the retry policy
+5xx: permanent failure for that recipient
+quarantine: review without resending blindly
+backscatter: do not reply to the bounce</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat trail.txt" hint="Reply-code classes tell you whether a retry can help."><out>queue: message q184 accepted for relay</out><out>result: 451 temporary local problem, retry later</out><out>result: 250 accepted by mx2.example.org</out><out>result: 550 recipient mailbox unavailable</out><out>quarantine: message q190 held as suspicious</out><out>backscatter: bounce received for an address we never used</out></tam-cmd>
+  <tam-cmd match="grep 451 trail.txt" hint="The first digit marks the outcome class."><out>result: 451 temporary local problem, retry later</out></tam-cmd>
+  <tam-cmd match="grep 550 trail.txt" goal="true" hint="A 5xx result is permanent for that recipient."><out>result: 550 recipient mailbox unavailable</out></tam-cmd>
+  <tam-cmd match="cat advice.txt" hint="The advice links each signal to an action."><out>4xx: wait for the retry policy</out><out>5xx: permanent failure for that recipient</out><out>quarantine: review without resending blindly</out><out>backscatter: do not reply to the bounce</out></tam-cmd>
+  <tam-init>Try: cat trail.txt, then grep 550 trail.txt</tam-init>
+  <tam-hint after="1">A 4xx reply means temporary; a 5xx reply means permanent.</tam-hint>
+  <tam-hint after="2">A permanent failure calls for a corrected address or a conversation, not an instant resend.</tam-hint>
+  <tam-fallback>Try cat trail.txt, grep 451 trail.txt, grep 550 trail.txt, or cat advice.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>451</code> was a temporary failure, so a retry is the correct action.</li>
+<li><code>250</code> meant one receiving server accepted the message, not that the human read it.</li>
+<li><code>550</code> was a permanent failure for that recipient.</li>
+<li>Quarantine needs review, and a backscatter bounce should not be answered.</li>
+</ol>
+<p>These codes and lines are authored teaching samples. The sandbox does not inspect a real queue, read provider logs or send any mail.</p>
+<h3>Try it</h3>
+<p>Run <code>grep quarantine trail.txt</code>. Explain why a quarantined message is not the same as a rejected message.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You resent a delayed message immediately.</dt><dd>A temporary failure may still be queued. Waiting for the retry policy prevents duplicates.</dd>
+<dt>You replied to a bounce that named an address you never used.</dt><dd>That may be <a href="glossary/b/backscatter.html">backscatter</a> caused by a forged sender. Reply to a genuine contact through another channel instead.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The guide gives portable diagnostic method, not provider-specific settings. Tamlinux does not add a private mail transport or a special logging format.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Does a 250 acceptance prove the recipient read the message?</i></summary><p>No. It proves one server accepted responsibility at that hop. Filtering, quarantine and mailbox state come later.</p></details>
+<details class="q"><summary><i>Why is a 4xx reply handled differently from a 5xx reply?</i></summary><p>A 4xx condition may clear, so the sender keeps the message and retries. A 5xx condition is permanent for that recipient and needs a corrected address or another channel.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Evidence, headers and limits</h2>
+<h3>Reference</h3>
+<table><tr><th>Evidence</th><th>What it can show</th><th>What it cannot show</th></tr>
+<tr><td>Mail queue</td><td>Accepted message awaiting retry</td><td>Why a downstream server filters it</td></tr>
+<tr><td>SMTP reply or DSN</td><td>Outcome for one recipient at one hop</td><td>Whether a human saw another copy</td></tr>
+<tr><td><code>Received:</code> headers</td><td>Handoffs added along the path</td><td>Complete proof of every hop; early lines can be forged</td></tr>
+<tr><td>Authentication results</td><td>SPF, DKIM, DMARC and ARC outcomes</td><td>That the content is safe</td></tr>
+<tr><td>Provider logs and reports</td><td>Local policy, rate limits and blocks</td><td>Another provider's private rules</td></tr>
+</table>
+<h3>How it works</h3>
+<p><cite data-ref="rfc-5321"><a href="bibliography/rfc-5321.html">RFC 5321</a></cite> defines reply-code classes and the model in which a server accepts or defers a message for each recipient. <cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">RFC 5598</a></cite> explains why acceptance at one hop is not the end of delivery. Delivery status notifications report the outcome of a transfer attempt; they are evidence about the transfer, not a read receipt.</p>
+<h3>Advanced usage</h3>
+<p>A diagnostic order works well: confirm the envelope recipient, check the queue state, read the first definitive failure code, inspect authentication and <code>Received:</code> lines from the bottom upward, then compare with provider reports. A blocklist listing or rate limit may explain a deferral; an alignment failure may explain a policy rejection. Coordinate with the receiving postmaster when local evidence stops.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A message can be accepted and later bounced, producing confusingly successful local logs.</li>
+<li><a href="glossary/b/backscatter.html">Backscatter</a> can fill a mailbox with bounces for addresses forged by someone else.</li>
+<li>A blocklist entry may be stale or shared; delisting and reputation recovery take time.</li>
+<li>Privacy rules mean a receiver may not disclose why a message was filtered in detail.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why read Received headers from the bottom upward?</i></summary><p>The lowest line was added nearest to the receiver, so it is the least likely to have been fabricated by the original sender. It gives the most trustworthy starting point for tracing the last hop.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc-5321"><a href="bibliography/rfc-5321.html">RFC 5321</a></cite>; <cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">RFC 5598</a></cite>; <cite data-ref="rfc-5322"><a href="bibliography/rfc-5322.html">RFC 5322</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/email/index.html">Email hub</a> &mdash; return to the start and choose another branch.</li>
+<li><a href="networking/email/how-a-mail-server-works.html">How a mail server works</a> &mdash; revisit queues and relay roles.</li>
+<li><a href="glossary/b/backscatter.html">Backscatter</a> and <a href="glossary/d/dsn.html">DSN (Delivery Status Notification)</a> &mdash; look up bounce-related terms.</li>
+</ul>
+</body></html>

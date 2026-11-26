@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>DMARC (Domain-based Message Authentication, Reporting and Conformance)</title>
+<meta name="topic" content="glossary-dmarc">
+<meta name="summary" content="DMARC: a DNS policy that aligns SPF or DKIM with the visible From domain and requests reports.">
+<meta name="keywords" content="glossary-dmarc, dmarc, domain-based message authentication reporting and conformance, alignment, reports">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DMARC (Domain-based Message Authentication, Reporting and Conformance)</p></nav>
+
+<p>DMARC connects SPF and DKIM results to the domain a person sees in the <code>From:</code> header.</p>
+<section data-level="novice"><p>The letters stand for Domain-based Message Authentication, Reporting and Conformance. A domain owner publishes a rule that says what a receiver should do when a message claims to be from that domain but fails its checks.</p></section>
+<section data-level="learner"><p>The policy is a TXT record at <code>_dmarc.domain</code> beginning <code>v=DMARC1</code>. A pass requires SPF or DKIM to pass and the authenticated domain to align with the author domain. Common policy tags are <code>p=none</code>, <code>p=quarantine</code> and <code>p=reject</code>; <code>rua</code> requests aggregate reports.</p></section>
+<section data-level="expert"><p>RFC 9989 is the current DMARC specification and obsoletes RFC 7489. Alignment can be strict or relaxed with <code>adkim</code> and <code>aspf</code>. A DMARC pass proves authorised use of a domain, not that the content is safe. Third-party senders often fail alignment even when SPF and DKIM pass separately; <a href="glossary/a/arc.html">ARC</a> can preserve prior results across intermediaries.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/identity-and-transport-security.html">Identity and transport security</a></li><li><a href="bibliography/rfc-9989.html">RFC 9989</a></li></ul>
+</body></html>

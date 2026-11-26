@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html><head>
+<title>Identity and transport security</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="mail.novice, mail.learner, mail.expert">
+<meta name="topic" content="identity-and-transport-security">
+<meta name="summary" content="SPF, DKIM, DMARC and related systems check domains, preserve trust through forwarding, protect SMTP connections and report failures.">
+<meta name="keywords" content="SPF, DKIM, DMARC, alignment, ARC, SRS, BIMI, DANE, TLSA, MTA-STS, TLS-RPT, STARTTLS, email security">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/email/index.html">
+<meta name="prereqs" content="dns-and-email">
+<meta name="paths" content="email:7">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/email/index.html">Email</a> / Identity and transport security</p></nav>
+
+<p>Email security answers two different questions: is a message allowed to claim a domain, and is the connection between servers protected? DNS records and signatures provide the evidence for both.</p>
+
+<section data-level="novice">
+<h2>Two jobs, not one</h2>
+<p><dfn><a href="glossary/s/spf.html">SPF</a></dfn>, <dfn><a href="glossary/d/dkim.html">DKIM</a></dfn> and <dfn><a href="glossary/d/dmarc.html">DMARC</a></dfn> help a receiver decide whether a domain really stands behind a message. <a href="glossary/t/tls.html">TLS</a> protects the connection while mail moves between servers. A passing check does not make the content safe: a genuine sender can still send a bad message.</p>
+<h3>Why it matters</h3>
+<p>A visible <code>From:</code> line is easy to write and easy to fake. Domain checks give the receiver something harder to forge. Encryption stops a network observer from reading or changing a connection in transit.</p>
+<h3>How to think about it</h3>
+<p>Think of an identity badge and a sealed delivery van. The badge says which organisation sent the parcel; the van protects it on the road. A real badge does not prove the parcel's contents are harmless.</p>
+<h3>New words</h3>
+<dl>
+<dt>SPF</dt><dd>A DNS record listing hosts allowed to send for a domain.</dd>
+<dt>DKIM</dt><dd>A signature in the message verified with a public key in DNS.</dd>
+<dt>DMARC</dt><dd>A policy that connects SPF or DKIM results to the visible sender domain.</dd>
+<dt>STARTTLS</dt><dd>An SMTP extension that upgrades a connection to TLS.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Combine the signals carefully</h2>
+<p><strong>Goal:</strong> you will be able to explain why one SPF pass does not by itself prove a visible sender is authorised.</p>
+<tam-sandbox
+  title="Try it: separate authentication results"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the result that mentions alignment">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="auth-sample.txt" size="260">SPF: pass for envelope domain bounce.example.net
+DKIM: pass for signing domain mail.example.net
+DMARC: fail for visible domain example.org
+Alignment: the passing domains do not match the visible domain
+STARTTLS: advertised and negotiated for this hop
+Content: contains a link to a login page</file>
+  <file name="policy.txt" size="120">check the domain in the visible From header
+require SPF or DKIM to align with that domain
+treat connection encryption as a separate signal</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat auth-sample.txt" hint="Each line reports a different kind of check."><out>SPF: pass for envelope domain bounce.example.net</out><out>DKIM: pass for signing domain mail.example.net</out><out>DMARC: fail for visible domain example.org</out><out>Alignment: the passing domains do not match the visible domain</out><out>STARTTLS: advertised and negotiated for this hop</out><out>Content: contains a link to a login page</out></tam-cmd>
+  <tam-cmd match="grep Alignment auth-sample.txt" goal="true" hint="DMARC cares whether a passing result lines up with the visible domain."><out>Alignment: the passing domains do not match the visible domain</out></tam-cmd>
+  <tam-cmd match="cat policy.txt" hint="The policy explains what the receiver is trying to establish."><out>check the domain in the visible From header</out><out>require SPF or DKIM to align with that domain</out><out>treat connection encryption as a separate signal</out></tam-cmd>
+  <tam-init>Try: cat auth-sample.txt, then grep Alignment auth-sample.txt</tam-init>
+  <tam-hint after="1">SPF passed, but for a different domain than the one a person sees.</tam-hint>
+  <tam-hint after="2">DMARC uses alignment to connect a result to the visible sender.</tam-hint>
+  <tam-fallback>Try cat auth-sample.txt, grep Alignment auth-sample.txt, or cat policy.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li>SPF passed for the envelope domain, and DKIM passed for a signing domain.</li>
+<li>Neither domain aligned with the visible <code>From:</code> domain, so DMARC failed.</li>
+<li>TLS protected one hop but said nothing about the sender's identity.</li>
+<li>The content signal remained separate: a message can pass technical checks and still be a phishing attempt.</li>
+</ol>
+<p>All results and domains in this sandbox are authored teaching samples. No DNS query, signature check or mail connection took place.</p>
+<h3>Try it</h3>
+<p>Run <code>grep Content auth-sample.txt</code>. Explain why an encrypted message can still contain a deceptive link.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You assumed SPF pass means the visible sender is genuine.</dt><dd>SPF authorises the envelope domain. DMARC adds the alignment requirement for the visible domain.</dd>
+<dt>You assumed TLS makes the sender trustworthy.</dt><dd>TLS protects a hop. It does not authenticate the human author or approve the content.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The guide presents these as internet standards, not settings unique to Tamlinux. A reader's mail provider decides which checks it applies and how strictly it enforces them.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Can SPF pass and DMARC fail for the same message?</i></summary><p>Yes. SPF may authorise the envelope domain while that domain does not align with the visible <code>From:</code> domain required by DMARC.</p></details>
+<details class="q"><summary><i>Does STARTTLS guarantee an encrypted hop?</i></summary><p>No. It is often opportunistic. If the extension is stripped or negotiation fails and the sender continues in plaintext, the hop may be unencrypted.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Mechanisms, policy and transport enforcement</h2>
+<h3>Reference</h3>
+<table><tr><th>System</th><th>Evidence</th><th>What it establishes</th></tr>
+<tr><td>SPF</td><td>DNS TXT record at the sender domain</td><td>Whether a host is authorised for an envelope identity</td></tr>
+<tr><td>DKIM</td><td>Signature header and DNS key at a selector</td><td>That a domain signed selected message content</td></tr>
+<tr><td>DMARC</td><td>Policy at <code>_dmarc.domain</code></td><td>Alignment requirement and handling instruction with reports</td></tr>
+<tr><td><a href="glossary/a/arc.html">ARC</a></td><td>Chain of trust headers</td><td>That intermediate hops preserved a verifiable history</td></tr>
+<tr><td><a href="glossary/s/srs.html">SRS</a></td><td>Rewritten return path</td><td>A practical way for forwarders to keep SPF meaningful</td></tr>
+<tr><td><a href="glossary/b/bimi.html">BIMI</a></td><td>Brand indicator record and verified mark</td><td>An industry-specific display mechanism with strict prerequisites</td></tr>
+</table>
+<h3>How it works</h3>
+<p><cite data-ref="rfc-7208"><a href="bibliography/rfc-7208.html">RFC 7208</a></cite> defines SPF and its ordered evaluation; <cite data-ref="rfc-6376"><a href="bibliography/rfc-6376.html">RFC 6376</a></cite> defines DKIM signing and verification. <cite data-ref="rfc-9989"><a href="bibliography/rfc-9989.html">RFC 9989</a></cite> is the current DMARC specification and obsoletes RFC 7489; it requires SPF or DKIM to align with the visible domain and requests aggregate and forensic reports. ARC is defined by <cite data-ref="rfc-8617"><a href="bibliography/rfc-8617.html">RFC 8617</a></cite> so a receiver can see which hop broke authentication. SRS is a widely used convention rather than an IETF standard. <cite data-ref="bimi-group"><a href="bibliography/bimi-group.html">BIMI group specification</a></cite> is an industry specification, not an IETF RFC.</p>
+<h3>Advanced usage</h3>
+<p>Transport protection has three complementary approaches. Opportunistic STARTTLS, defined by <cite data-ref="rfc-3207"><a href="bibliography/rfc-3207.html">RFC 3207</a></cite>, encrypts when both sides negotiate successfully. DANE for SMTP, built on <cite data-ref="rfc-6698"><a href="bibliography/rfc-6698.html">RFC 6698</a></cite> and <cite data-ref="rfc-7672"><a href="bibliography/rfc-7672.html">RFC 7672</a></cite>, uses a DNSSEC-validated TLSA record to pin the expected certificate. MTA-STS, defined by <cite data-ref="rfc-8461"><a href="bibliography/rfc-8461.html">RFC 8461</a></cite>, publishes an HTTPS policy with a DNS marker; <cite data-ref="rfc-8460"><a href="bibliography/rfc-8460.html">RFC 8460</a></cite> defines TLS-RPT reporting for connection failures.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Forwarding can break SPF because the forwarding host is not the original authorised sender; DKIM often survives forwarding unchanged.</li>
+<li>DMARC pass is an identity result, not a safety judgement. Malware and phishing from an authorised domain can pass.</li>
+<li>DANE requires end-to-end DNSSEC validation at the relying server; MTA-STS has its own fetch and caching rules.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why do ARC and SRS exist if SPF and DKIM already exist?</i></summary><p>Forwarding changes the path. SRS rewrites the return path so SPF can still be meaningful, while ARC records a verifiable chain of authentication results across hops.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc-7208"><a href="bibliography/rfc-7208.html">RFC 7208</a></cite>; <cite data-ref="rfc-6376"><a href="bibliography/rfc-6376.html">RFC 6376</a></cite>; <cite data-ref="rfc-9989"><a href="bibliography/rfc-9989.html">RFC 9989</a></cite>; <cite data-ref="rfc-8617"><a href="bibliography/rfc-8617.html">RFC 8617</a></cite>; <cite data-ref="rfc-7672"><a href="bibliography/rfc-7672.html">RFC 7672</a></cite>; <cite data-ref="rfc-8461"><a href="bibliography/rfc-8461.html">RFC 8461</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/email/spam-and-abuse.html">Spam and abuse</a> &mdash; add content, reputation and user signals to the identity results.</li>
+<li><a href="networking/email/deliverability-and-troubleshooting.html">Deliverability and troubleshooting</a> &mdash; interpret authentication reports and failures.</li>
+<li><a href="glossary/d/dmarc.html">DMARC (Domain-based Message Authentication, Reporting and Conformance)</a> &mdash; review the policy definition.</li>
+</ul>
+</body></html>

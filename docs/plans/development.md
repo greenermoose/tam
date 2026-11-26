@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-25:** Corpus 0.132.0 (minor): add the Networking / Email curriculum: a subject hub, ten teaching pages with Novice, Learner and Expert sections, a five-stage goal path, glossary entries for the requested mail protocols and the practical full set of DNS, identity, transport-security and anti-spam standards, 24 bibliography sources and the `mail.*` skill cells. Teaching examples use labelled sandboxes with sample output; no mail software is installed. The MX mail-exchange entry is distinct from MX Linux, and `whatis` resolves the requested names at this corpus version. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.131.1 (patch): expand the OLAP glossary title to "OLAP (Online Analytical Processing)" and repeat the full title in the breadcrumb. The summary and keywords also carry the expansion. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.131.0 (minor): add a glossary page for OAuth, covering its history and the difference between OAuth 1.0 and OAuth 2.0, and link existing OAuth mentions to it. OAuth is an authorization framework; OIDC supplies authentication on top. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.130.2 (patch): expand the OLTP glossary title to "OLTP (Online Transaction Processing)" and explain Online, Transaction and Processing at all three levels. The intro also states that O and L form Online, T is Transaction and P is Processing. Command version 0.69.7 is unchanged.
@@ -1595,6 +1596,25 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 `windowing.learner` and `windowing.expert` skills. Session-check examples were
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
+developer-directed.
+
+### 2026-11-25 — Email systems curriculum (corpus 0.132.0)
+
+The developer asked for a series about email: what a mail server is and how it
+works, glossary pages for POP, SMTP, IMAP, JMAP and other relevant email
+protocols and standards, the correct `Acronym (Written Out)` title format, the
+client/server distinction, thorough DNS and anti-spam coverage, and glossary
+pages for spam, white list and related terms. When asked about the two design
+choices, he chose Networking > Email as the subject home and the practical full
+set of standards as the scope. The result is a Networking / Email hub, ten
+three-level teaching pages, the five-stage `email` goal path, 37 new and one
+revised glossary entry, 24 bibliography sources and `mail.*` skill cells.
+Teaching examples are sandboxes with labelled sample output; the series
+installs or configures no mail software. `make corpus`, `make corpus-and-test`,
+`make check-repo`, the coverage report and reader spot checks pass. Live-corpus
+`whatis` resolves SMTP, POP, IMAP, JMAP, MX record, spam, allowlist and related
+names to their own pages while MX Linux stays reachable. This is corpus content
+only; command version, stage promotion and installation remain
 developer-directed.
 
 ### 2026-11-25 — OLAP glossary title (corpus 0.131.1)

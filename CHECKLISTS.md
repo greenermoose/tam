@@ -11,7 +11,7 @@ procedure and design.
 ## Rules
 
 - Mint top-level IDs in sequence (`TCK1`, `TCK2`, ...) across all plans; never
-  restart per plan, reuse or renumber an ID. **Next free: TCK34.** Update this
+  restart per plan, reuse or renumber an ID. **Next free: TCK35.** Update this
   counter and add the item to this file in the same change that adds a new
   top-level item.
 - Mint IDs only while holding a `tam-work` claim on this file and the plan
@@ -88,6 +88,11 @@ labels.
 | `TCK33.2` | Databases path and supporting corpus | [database-systems-curriculum.md](docs/plans/database-systems-curriculum.md) | Completed (2026-11-25) | Five-stage goal path, thirty glossary pages, twelve sources, `data.*` skills |
 | `TCK33.3` | Databases bookkeeping and verification | [database-systems-curriculum.md](docs/plans/database-systems-curriculum.md) | Completed (2026-11-25) | Corpus 0.129.0 records; corpus, repository and reader checks |
 | `TCK33.4` | Database glossary whatis discoverability | [database-systems-curriculum.md](docs/plans/database-systems-curriculum.md) | Completed (2026-11-25) | Corpus 0.130.0; SQLite, PostgreSQL and MySQL glossary entries and pager whatis checks |
+| `TCK34` | Email systems curriculum | [email-systems-curriculum.md](docs/plans/email-systems-curriculum.md) | In progress | Networking > Email series at corpus 0.132.0 |
+| `TCK34.1` | Email hub and teaching pages | [email-systems-curriculum.md](docs/plans/email-systems-curriculum.md) | Planned | Hub and ten level-tagged pages with path steps 1–10 |
+| `TCK34.2` | Email path and supporting corpus | [email-systems-curriculum.md](docs/plans/email-systems-curriculum.md) | Planned | Five-stage goal path, acronym and anti-spam glossary, sources, skills and cross-links |
+| `TCK34.3` | Email bookkeeping and verification | [email-systems-curriculum.md](docs/plans/email-systems-curriculum.md) | Planned | Corpus 0.132.0 records; corpus, repository and reader checks |
+| `TCK34.4` | Email glossary whatis discoverability | [email-systems-curriculum.md](docs/plans/email-systems-curriculum.md) | Planned | Protocol, MX record and anti-spam names resolve in the live corpus |
 
 ### Knowledge system (corpus 0.31.0)
 
@@ -210,3 +215,25 @@ Owning plan: [welcome-page-layout.md](docs/plans/welcome-page-layout.md)
   version, roadmap, development contract, plan index and work record written.
 - [x] **TCK32.4 (Verification):** Corpus, repository and reader checks pass.
   Completed 2026-11-24.
+
+### Email systems curriculum
+
+Owning plan: [email-systems-curriculum.md](docs/plans/email-systems-curriculum.md)
+
+- [x] **TCK34 (Email systems curriculum):** Rollup for the zero-to-expert email
+  series at corpus 0.132.0. Every child below is complete and verified.
+  Completed 2026-11-25.
+- [x] **TCK34.1 (Email hub and teaching pages):** Networking > Email hub and
+  ten three-level teaching pages from the client/server distinction to mail
+  server roles, message format, SMTP, retrieval, DNS, identity, transport
+  security, spam, clients and deliverability. Steps 1–10 declared in order.
+- [x] **TCK34.2 (Email path and supporting corpus):** Five-stage goal path
+  with checkpoints and a capstone, acronym and anti-spam glossary pages,
+  bibliography entries, `mail.*` skill cells, hub links and contextual links
+  from existing pages.
+- [x] **TCK34.3 (Email bookkeeping and verification):** Corpus 0.132.0 version,
+  roadmap, development contract, plan index and work record; corpus, repository
+  and reader checks pass.
+- [x] **TCK34.4 (Email glossary whatis discoverability):** Requested protocol,
+  MX record and anti-spam names resolve in the live corpus while MX Linux stays
+  reachable.

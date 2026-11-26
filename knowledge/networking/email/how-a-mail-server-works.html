@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html><head>
+<title>How a mail server works</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="mail.novice, mail.learner, mail.expert">
+<meta name="topic" content="how-a-mail-server-works">
+<meta name="summary" content="A mail server accepts a message, queues it, relays it through other servers and finally places it in a mailbox.">
+<meta name="keywords" content="mail server, MSA, MTA, MDA, mail queue, relay, delivery, mailbox">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/email/index.html">
+<meta name="prereqs" content="what-is-email">
+<meta name="paths" content="email:2">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/email/index.html">Email</a> / How a mail server works</p></nav>
+
+<p>A mail server is a set of jobs rather than one magic action. It accepts a message, keeps it in a queue, chooses a next hop, and eventually writes the message into a mailbox or passes it to another server.</p>
+
+<section data-level="novice">
+<h2>Accept, carry, deliver</h2>
+<p>When you send mail, a server accepts it from your client. Another server may carry it part of the way. At the end, a server puts it into the receiver's mailbox. Each step can happen at a different time.</p>
+<h3>Why it matters</h3>
+<p>If the next server is busy or offline, the current server can keep the message and try again. That is why a message can be sent successfully even when the receiver cannot yet read it.</p>
+<h3>How to think about it</h3>
+<p>Imagine a sorting office. A counter accepts your parcel, a sorter chooses the next office, a truck carries it, and a local delivery worker puts it in a letter box. The parcel may wait at more than one desk.</p>
+<h3>New words</h3>
+<dl>
+<dt>Submission agent</dt><dd>The server role that accepts a new message from a client.</dd>
+<dt>Transfer agent</dt><dd>A server role that relays mail toward the receiver.</dd>
+<dt>Delivery agent</dt><dd>The role that places mail into a mailbox.</dd>
+<dt>Queue</dt><dd>A held list of messages waiting for a later step.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Follow one message through the roles</h2>
+<p><strong>Goal:</strong> you will be able to tell which server role produced each event in a delivery trail.</p>
+<tam-sandbox
+  title="Try it: read a sample delivery trail"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Find the line that says the message reached the mailbox">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="trail.txt" size="220">submission: accepted from client for ada@example.net
+queue: message q184 held for relay
+relay: handed to mx2.example.org
+queue: temporary failure, retry scheduled
+delivery: placed in mailbox for bo@example.org</file>
+  <file name="roles.txt" size="120">submission agent: accepts new mail from a client
+transfer agent: relays mail between servers
+delivery agent: writes mail into a mailbox</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat trail.txt" hint="Each line begins with the role that acted."><out>submission: accepted from client for ada@example.net</out><out>queue: message q184 held for relay</out><out>relay: handed to mx2.example.org</out><out>queue: temporary failure, retry scheduled</out><out>delivery: placed in mailbox for bo@example.org</out></tam-cmd>
+  <tam-cmd match="grep queue trail.txt" hint="Look for the held state, not the delivery state."><out>queue: message q184 held for relay</out><out>queue: temporary failure, retry scheduled</out></tam-cmd>
+  <tam-cmd match="grep delivery trail.txt" goal="true" hint="The final role wrote the message into a mailbox."><out>delivery: placed in mailbox for bo@example.org</out></tam-cmd>
+  <tam-cmd match="cat roles.txt" hint="The sample role list maps labels to functions."><out>submission agent: accepts new mail from a client</out><out>transfer agent: relays mail between servers</out><out>delivery agent: writes mail into a mailbox</out></tam-cmd>
+  <tam-init>Try: cat trail.txt, then grep delivery trail.txt</tam-init>
+  <tam-hint after="1">A queue line means the message is waiting, not that it was lost.</tam-hint>
+  <tam-hint after="2">The word delivery marks the final step in this trail.</tam-hint>
+  <tam-fallback>Try cat trail.txt, grep queue trail.txt, or grep delivery trail.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li>The message was accepted during <strong>submission</strong>, not delivered immediately.</li>
+<li>A <strong>queue</strong> entry kept it safe while the server chose a next step.</li>
+<li>A <strong>temporary failure</strong> produced another queue entry. The message was retried rather than discarded.</li>
+<li>The <strong>delivery agent</strong> finished the journey by writing to the mailbox.</li>
+</ol>
+<p>All lines in this sandbox are authored teaching samples, not readings from a running mail server. No mail software is installed by these pages.</p>
+<h3>Try it</h3>
+<p>Run <code>grep relay trail.txt</code> and explain why a relay line is not the same as final delivery.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The trail seems to go backwards.</dt><dd>A retry can return a message to a queue after a relay attempt fails. That is normal store-and-forward behaviour.</dd>
+<dt>You expected one server to do everything.</dt><dd>Small systems may combine roles in one program, but the sample separates them so each boundary is visible.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The Tamlinux guide keeps this model independent of any particular mail package. The same roles and queue states apply whether a reader runs a local service or uses a hosted mailbox.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>A message is queued after a temporary failure. Was it rejected?</i></summary><p>No. A temporary failure leaves the message eligible for retry. A permanent rejection ends that delivery attempt and normally produces a bounce.</p></details>
+<details class="q"><summary><i>Which role puts a message into a mailbox?</i></summary><p>A mail delivery agent, or the delivery stage of a combined server. Transfer agents hand the message onward; they do not normally write the final mailbox.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Roles, queues and failure handling</h2>
+<h3>Reference</h3>
+<table><tr><th>Stage</th><th>Input</th><th>Decision</th><th>Possible output</th></tr>
+<tr><td>Submission</td><td>Client message</td><td>Is the client allowed to submit?</td><td>Accepted into queue or rejected</td></tr>
+<tr><td>Relay</td><td>Queued message</td><td>Where should the next hop go?</td><td>Handoff, deferral or bounce</td></tr>
+<tr><td>Delivery</td><td>Message for a local recipient</td><td>Does the mailbox accept it?</td><td>Stored, filtered or bounced</td></tr>
+</table>
+<h3>How it works</h3>
+<p><cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">RFC 5598</a></cite> names the functional roles; <cite data-ref="rfc-5321"><a href="bibliography/rfc-5321.html">RFC 5321</a></cite> defines the SMTP session and status codes that drive queue decisions. A two-digit class in a reply code separates a temporary 4xx condition from a permanent 5xx condition. A transfer agent records the envelope recipient and attempts each recipient separately, because one recipient can fail while another succeeds.</p>
+<h3>Advanced usage</h3>
+<p>Relay selection uses DNS MX records, address records and connection policy. Delivery may pass through a local <a href="glossary/l/lmtp.html">LMTP</a> service or a filtering stage before the message store. Alias expansion can change the final recipient without changing the visible header.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A queue can hold a message for a long time if every retry is temporary; operators watch queue age and retry counts.</li>
+<li>Loop prevention relies on hop counts and recipient tracing. A misconfigured relay can still create a mail loop.</li>
+<li>Accepting a message does not prove the final mailbox stored it. Later filtering or a downstream failure can still produce a bounce.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is queue age a useful signal but not proof of loss?</i></summary><p>An old queued message may be waiting on a deliberate retry interval or a downstream outage. Loss needs evidence such as a final bounce or missing queue entry after the retry policy ends.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">RFC 5598</a></cite>; <cite data-ref="rfc-5321"><a href="bibliography/rfc-5321.html">RFC 5321</a></cite>; <cite data-ref="rfc-6409"><a href="bibliography/rfc-6409.html">RFC 6409</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/email/addresses-and-message-format.html">Addresses and message format</a> &mdash; see what a queued message actually contains.</li>
+<li><a href="networking/email/smtp-and-submission.html">SMTP and submission</a> &mdash; learn the conversation that starts the queue.</li>
+<li><a href="networking/email/deliverability-and-troubleshooting.html">Deliverability and troubleshooting</a> &mdash; read queues and bounces as evidence.</li>
+</ul>
+</body></html>

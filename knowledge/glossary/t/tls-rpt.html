@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>TLS-RPT (SMTP TLS Reporting)</title>
+<meta name="topic" content="glossary-tls-rpt">
+<meta name="summary" content="TLS-RPT (SMTP TLS Reporting): DNS-published reports about SMTP TLS failures.">
+<meta name="keywords" content="glossary-tls-rpt, tls-rpt, smtp tls reporting, dns txt, reports">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/t/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / TLS-RPT (SMTP TLS Reporting)</p></nav>
+
+<p>TLS-RPT tells sending servers where to report failures when they cannot make a valid TLS connection.</p>
+<section data-level="novice"><p>The letters stand for SMTP TLS Reporting. It is a way for a domain to ask other mail servers to send a summary when encrypted delivery runs into trouble.</p></section>
+<section data-level="learner"><p>The DNS TXT record lives at <code>_smtp._tls.domain</code> and begins <code>v=TLSRPTv1</code>. Its <code>rua</code> tag names the report destination. Reports often cover failures related to <a href="glossary/m/mta-sts.html">MTA-STS</a> or <a href="glossary/d/dane.html">DANE</a>.</p></section>
+<section data-level="expert"><p>RFC 8460 defines SMTP TLS reporting. Reports are operational telemetry, not authentication of message content, and they can reveal infrastructure details. Report destinations outside the domain need authorization records, and retention should be short.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/identity-and-transport-security.html">Identity and transport security</a></li><li><a href="bibliography/rfc-8460.html">RFC 8460</a></li></ul>
+</body></html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Greylisting</title>
+<meta name="topic" content="glossary-greylisting">
+<meta name="summary" content="Greylisting: temporarily rejecting unknown mail senders so genuine servers retry.">
+<meta name="keywords" content="glossary-greylisting, greylisting, temporary failure, spam, retry, 451">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/g/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/g/index.html">Terms beginning with G</a> / Greylisting</p></nav>
+
+<p>Greylisting asks an unknown sender to try again later before accepting a message.</p>
+<section data-level="novice"><p>The first time a stranger knocks, the receiver asks them to come back after a short wait. A real mail server will return; many bulk-mail senders give up. No message is thrown away permanently by the first refusal.</p></section>
+<section data-level="learner"><p>The receiver returns a temporary SMTP failure, often a 4xx reply such as 451, and records the sender address, recipient and time. When the sender retries after the delay, the combination is allowed through.</p></section>
+<section data-level="expert"><p>RFC 6647 documents greylisting and its costs. It delays legitimate mail, especially from servers with long retry intervals, and it is weaker against senders that retry faithfully. It works as one signal among many, not as a universal check.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/spam-and-abuse.html">Spam and abuse</a></li><li><a href="bibliography/rfc-6647.html">RFC 6647</a></li></ul>
+</body></html>

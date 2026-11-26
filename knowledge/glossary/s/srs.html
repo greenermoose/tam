@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>SRS (Sender Rewriting Scheme)</title>
+<meta name="topic" content="glossary-srs">
+<meta name="summary" content="SRS (Sender Rewriting Scheme): rewrites the envelope sender so forwarding does not break SPF.">
+<meta name="keywords" content="glossary-srs, srs, sender rewriting scheme, forwarding, spf">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / SRS (Sender Rewriting Scheme)</p></nav>
+
+<p>SRS changes the envelope sender when a message is forwarded so the forwarding domain becomes responsible for it.</p>
+<section data-level="novice"><p>The letters stand for Sender Rewriting Scheme. If a letter is sent on to a new address, the forwarding service puts its own return address on the outside and keeps a coded note about the original sender.</p></section>
+<section data-level="learner"><p>An SRS address uses an <code>SRS0</code> or <code>SRS1</code> local part containing a timestamp, the original sender and a hash. If the forwarded message bounces, the forwarding service can decode the address and pass the bounce back to the original sender.</p></section>
+<section data-level="expert"><p>SRS addresses the SPF breakage described in RFC 7208 appendix D.2; it is not an IETF standard. Rewriting the envelope sender helps SPF, but the new domain will usually not align with the original <code>From:</code> domain under <a href="glossary/d/dmarc.html">DMARC</a>. DKIM may still align if the signature survives, and <a href="glossary/a/arc.html">ARC</a> may preserve the earlier result.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/identity-and-transport-security.html">Identity and transport security</a></li><li><a href="bibliography/rfc-7208.html">RFC 7208</a></li></ul>
+</body></html>

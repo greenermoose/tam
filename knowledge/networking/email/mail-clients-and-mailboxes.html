@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html><head>
+<title>Mail clients and mailboxes</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="mail.novice, mail.learner, mail.expert">
+<meta name="topic" content="mail-clients-and-mailboxes">
+<meta name="summary" content="A mail client manages an account, folders, flags, local copies and encryption while a server owns the authoritative mailbox.">
+<meta name="keywords" content="mail client, MUA, mailbox, folders, flags, synchronisation, aliases, offline mail, end-to-end encryption, JMAP, IMAP">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/email/index.html">
+<meta name="prereqs" content="spam-and-abuse">
+<meta name="paths" content="email:9">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/email/index.html">Email</a> / Mail clients and mailboxes</p></nav>
+
+<p>The <dfn><a href="glossary/m/mail-user-agent.html">mail client</a></dfn> is the part a person sees. It presents folders, flags and search, but the server usually holds the authoritative <dfn><a href="glossary/m/mailbox.html">mailbox</a></dfn>.</p>
+
+<section data-level="novice">
+<h2>What the client keeps, and what the server keeps</h2>
+<p>A client needs an account address, a place to send messages and a place to read them. With IMAP or JMAP, folders and read flags live on the server, so several devices can see the same state. A client may also keep local copies for offline reading.</p>
+<h3>Why it matters</h3>
+<p>Knowing where state lives explains why marking a message read on a phone can change it on a laptop, and why deleting a local copy may not delete the server copy.</p>
+<h3>How to think about it</h3>
+<p>The server is the shared filing cabinet. Each client is a desk with its own notepad. A person can write notes at a desk, but the cabinet decides which folders exist for everyone.</p>
+<h3>New words</h3>
+<dl>
+<dt>Account</dt><dd>The identity and mailbox a client connects to.</dd>
+<dt>Folder</dt><dd>A named collection of messages in a mailbox.</dd>
+<dt>Flag</dt><dd>A marker such as read, flagged or answered.</dd>
+<dt>Alias</dt><dd>An additional address that delivers to the same mailbox.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Trace shared state across two devices</h2>
+<p><strong>Goal:</strong> you will be able to decide whether a change belongs to the server or to one device.</p>
+<tam-sandbox
+  title="Try it: find the server-side state"
+  prompt="you@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line about shared read flags">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="client-state.txt" size="280">phone: read flag changed for message 12
+laptop: local copy of message 12 cached for offline use
+server: folder Projects holds message 12
+server: read flag for message 12 updated
+server: alias contact@example.net delivers to this mailbox
+client: search index rebuilt from downloaded headers
+client: quarantine review requested through webmail</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat client-state.txt" hint="Lines beginning server are authoritative; client lines are local."><out>phone: read flag changed for message 12</out><out>laptop: local copy of message 12 cached for offline use</out><out>server: folder Projects holds message 12</out><out>server: read flag for message 12 updated</out><out>server: alias contact@example.net delivers to this mailbox</out><out>client: search index rebuilt from downloaded headers</out><out>client: quarantine review requested through webmail</out></tam-cmd>
+  <tam-cmd match="grep server client-state.txt" hint="The authoritative lines name folders, flags and aliases."><out>server: folder Projects holds message 12</out><out>server: read flag for message 12 updated</out><out>server: alias contact@example.net delivers to this mailbox</out></tam-cmd>
+  <tam-cmd match="grep 'read flag' client-state.txt" goal="true" hint="The shared change appears on the phone and then on the server."><out>phone: read flag changed for message 12</out><out>server: read flag for message 12 updated</out></tam-cmd>
+  <tam-init>Try: cat client-state.txt, then grep 'read flag' client-state.txt</tam-init>
+  <tam-hint after="1">A cached local copy is not the authoritative mailbox.</tam-hint>
+  <tam-hint after="2">Look for the change after the server accepted it.</tam-hint>
+  <tam-fallback>Try cat client-state.txt, grep server client-state.txt, or grep 'read flag' client-state.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li>The phone changed a read flag and the server recorded it.</li>
+<li>The laptop's cached copy was local, so it is not the source of truth.</li>
+<li>Folders and aliases were server-side objects.</li>
+<li>Search indexes and quarantine review were client-side activities even when the data came from the server.</li>
+</ol>
+<p>These device names and events are a teaching sample. The sandbox does not open an account, change flags or create aliases.</p>
+<h3>Try it</h3>
+<p>Run <code>grep alias client-state.txt</code>. Explain why sending to an alias can still place mail in the same mailbox.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A message stays unread on another device.</dt><dd>The second client may be offline or using a local copy that has not synchronised. Check the server-side state when it reconnects.</dd>
+<dt>You expected a deleted local copy to remove the server message.</dt><dd>Deletion policy is a client setting. A local-only copy and a server mailbox are different stores.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The guide avoids prescribing a mail app. Readers choose their client and provider; the client/server rules stay the same across Tamlinux and other systems.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why can a client work offline and still need a server later?</i></summary><p>It uses cached copies for reading and composing, but changes such as sent mail and flags must be synchronised with the authoritative mailbox when a connection returns.</p></details>
+<details class="q"><summary><i>Is an alias a second mailbox?</i></summary><p>Not necessarily. An alias is an additional address that routes into an existing mailbox.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Client architecture and trust boundaries</h2>
+<h3>Reference</h3>
+<table><tr><th>Concern</th><th>Server-side model</th><th>Client-side model</th></tr>
+<tr><td>Message store</td><td>Authoritative folders and flags</td><td>Cache or downloaded copy</td></tr>
+<tr><td>Search</td><td>Server search or JMAP queries</td><td>Local index, possibly partial</td></tr>
+<tr><td>Submission</td><td>MSA accepts a new message</td><td>Client authenticates and submits</td></tr>
+<tr><td>Confidentiality in transit</td><td>TLS on each connection</td><td>TLS configured for submission and retrieval</td></tr>
+<tr><td>Confidentiality at rest</td><td>Provider controls the stored message</td><td>End-to-end encryption can protect content from the store</td></tr>
+</table>
+<h3>How it works</h3>
+<p>IMAP models mailboxes and permanence flags on the server; JMAP models mailboxes and searchable records with batched method calls. Both allow a client to keep a cache. POP centres on downloaded messages and has little shared state. <a href="glossary/e/encryption.html">Encryption</a> in transit protects a connection; end-to-end systems such as OpenPGP or S/MIME protect message content so that the store and intermediate servers cannot read it. Those systems require key management and do not hide envelope routing information.</p>
+<h3>Advanced usage</h3>
+<p>Configuration may be discovered automatically from the domain or supplied by the provider. OAuth-based authentication is common for hosted mail. Synchronisation must reconcile concurrent flag changes, local deletions and sent messages. A robust client keeps a durable local queue for messages composed offline and replays them after reconnecting.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>End-to-end encryption breaks server-side content search unless the client searches decrypted local copies.</li>
+<li>Aliases complicate SPF, DKIM and DMARC because the visible sender domain may differ from the delivery domain.</li>
+<li>Webmail is a client with a server-side session; it does not remove the need for an access protocol behind the browser.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why does end-to-end encryption not replace transport encryption?</i></summary><p>End-to-end encryption protects message content, but metadata and connection behaviour remain visible. Transport encryption still protects the protocol exchange and any content not covered by the end-to-end layer.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc-9051"><a href="bibliography/rfc-9051.html">RFC 9051</a></cite>; <cite data-ref="rfc-8621"><a href="bibliography/rfc-8621.html">RFC 8621</a></cite>; <cite data-ref="rfc-5598"><a href="bibliography/rfc-5598.html">RFC 5598</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/email/deliverability-and-troubleshooting.html">Deliverability and troubleshooting</a> &mdash; interpret what happens when mail fails to arrive.</li>
+<li><a href="networking/email/retrieval-pop-imap-and-jmap.html">POP, IMAP and JMAP</a> &mdash; compare the access protocols that shape this state.</li>
+<li><a href="paths/email.html">From first message to reliable delivery</a> &mdash; finish the learning path.</li>
+</ul>
+</body></html>

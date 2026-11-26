@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Backscatter</title>
+<meta name="topic" content="glossary-backscatter">
+<meta name="summary" content="Backscatter: bounce messages sent to an innocent address because a sender forged it.">
+<meta name="keywords" content="glossary-backscatter, backscatter, bounce, forged sender, dsn, spam">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/b/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / Backscatter</p></nav>
+
+<p>Backscatter is unwanted bounce mail caused by someone using your address as a forged sender.</p>
+<section data-level="novice"><p>If a forger writes your address on the outside of a message that cannot be delivered, the failure notice comes back to you instead of the forger. You did not send the original message, but you receive the complaint.</p></section>
+<section data-level="learner"><p>Bounces go to the SMTP envelope sender, not necessarily the visible <code>From:</code> header. Filters can reject forged mail during the SMTP conversation so that the receiving server never generates a bounce to an innocent party.</p></section>
+<section data-level="expert"><p>Backscatter is a consequence of RFC 5321 bounce handling combined with spoofed envelope senders. Sender authentication and reputation reduce it, but no single check removes it. Callback verification can make the problem worse by probing addresses and leaking validity.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/deliverability-and-troubleshooting.html">Deliverability and troubleshooting</a></li><li><a href="bibliography/rfc-5321.html">RFC 5321</a></li></ul>
+</body></html>

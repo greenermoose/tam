@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>TLSA record</title>
+<meta name="topic" content="glossary-tlsa">
+<meta name="summary" content="TLSA record: a DNS record that associates a TLS certificate or key with a service name.">
+<meta name="keywords" content="glossary-tlsa, tlsa, tlsa record, dane, dns, certificate">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/t/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / TLSA record</p></nav>
+
+<p>A TLSA record is a DNS record that says which TLS certificate or public key a service should present.</p>
+<section data-level="novice"><p>TLSA is the name of a DNS record type, not an acronym to spell out. It is a signed note beside a service's name that helps another computer recognise the right server.</p></section>
+<section data-level="learner"><p>For SMTP the record appears under names such as <code>_25._tcp.mail.example.com</code>. It contains a usage, a selector, a matching type and the certificate association data.</p></section>
+<section data-level="expert"><p>RFC 6698 defines the TLSA record and RFC 7672 gives SMTP rules. DANE treats a bogus TLSA answer as a hard failure; silently ignoring it would defeat the pin. TLSA data needs a DNSSEC-validated answer to provide its intended trust.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/email/identity-and-transport-security.html">Identity and transport security</a></li><li><a href="bibliography/rfc-6698.html">RFC 6698</a></li></ul>
+</body></html>
