@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html><head>
+<title>Addresses, numbers and routing</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="addressing-and-routing">
+<meta name="summary" content="A text is addressed with a phone number, but carrier systems must translate that public address into the subscriber and network state needed to deliver it.">
+<meta name="keywords" content="phone number, E.164, MSISDN, addressing, routing, number portability, short code, sender ID">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="sim-and-subscriber-identity">
+<meta name="paths" content="texting:4">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / Addresses, numbers and routing</p></nav>
+
+<p>The address a person types into a text is not the same as the internal identity a carrier uses. Systems must translate the visible number into a subscriber record and then into a route to the phone's current network.</p>
+
+<section data-level="novice">
+<h2>The number on the envelope</h2>
+<p>When you text someone, you type their phone number. That number is like a postal address: it tells the service who should receive the message. Inside the network, other numbers identify the subscription and the place where the phone is currently registered.</p>
+<h3>Why it matters</h3>
+<p>People keep the same phone number when they change phones or carriers. The network has to keep track of where that number currently leads, or texts would go to an old device or an old carrier.</p>
+<h3>How to think about it</h3>
+<p>Think of a forwarded letter. The name on the envelope stays the same, but the postal service looks up a current forwarding address before it delivers the letter.</p>
+<h3>New words</h3>
+<dl>
+<dt>Phone number</dt><dd>The public address a person dials or texts.</dd>
+<dt>Subscriber identity</dt><dd>The internal account identity stored by the carrier.</dd>
+<dt>Routing</dt><dd>Choosing the next system that can move the message closer to the receiver.</dd>
+<dt>Portability</dt><dd>Keeping a phone number when changing carrier.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Following a number</h2>
+<p><strong>Goal:</strong> you will be able to explain why a carrier must look up a current route before delivering a text.</p>
+<tam-sandbox
+  title="Try it: resolve the address"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the step that finds the current serving network">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="route.txt" size="200">address: +15550102 is the number typed by the sender
+lookup: home network finds the subscriber record
+state: record points to the visited network
+route: message service sends to the serving system</file>
+  <file name="aliases.txt" size="110">short code: a special address for a service
+sender ID: a name shown to the receiver</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat route.txt" hint="The steps run from visible address to current route."><out>address: +15550102 is the number typed by the sender</out><out>lookup: home network finds the subscriber record</out><out>state: record points to the visited network</out><out>route: message service sends to the serving system</out></tam-cmd>
+  <tam-cmd match="grep lookup route.txt" goal="true" hint="Find the step that looks up the subscriber record."><out>lookup: home network finds the subscriber record</out></tam-cmd>
+  <tam-cmd match="cat aliases.txt" hint="Not every visible sender field is a reachable phone number."><out>short code: a special address for a service</out><out>sender ID: a name shown to the receiver</out></tam-cmd>
+  <tam-init>Try: cat route.txt, then grep lookup route.txt</tam-init>
+  <tam-hint after="1">The typed number is the starting point, not the final route.</tam-hint>
+  <tam-hint after="2">Filter on lookup to isolate the subscriber record step.</tam-hint>
+  <tam-fallback>Try cat route.txt, grep lookup route.txt, or cat aliases.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat route.txt</code> showed a public address becoming a subscriber lookup, then a current route.</li>
+<li><code>grep lookup route.txt</code> isolated the step that explains why an old carrier or old phone is not enough.</li>
+<li><code>cat aliases.txt</code> reminded us that a visible sender name may not be a number that can receive a reply.</li>
+</ol>
+<p>The sample addresses and output are teaching data. No real number is queried or texted.</p>
+<h3>Try it</h3>
+<p>Run <code>grep state route.txt</code>. Describe what would go wrong if that state were stale.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You assumed the number is stored on the SIM.</dt><dd>The number is a public address associated with the subscription. The SIM's internal identity is different.</dd>
+<dt>You expected a sender ID to be routable.</dt><dd> Some sender IDs are display labels only. A reply may fail or go to a different service.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux's guide uses fictional sample numbers such as <code>+15550102</code> so readers can reason about addresses without contacting anyone.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why does number portability require a lookup?</i></summary><p>The number no longer implies one fixed carrier. A lookup finds the current serving network before the message is sent.</p></details>
+<details class="q"><summary><i>Is a visible sender name proof of identity?</i></summary><p>No. It is a display field. Authentication or a separate verification system is needed to decide who actually sent a message.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Numbering plans and translation</h2>
+<h3>Reference</h3>
+<table><tr><th>Identifier</th><th>Plan or owner</th><th>Use in messaging</th></tr>
+<tr><td><a href="glossary/e/e-164.html">E.164 (International Public Telecommunication Numbering Plan)</a></td><td>ITU-T</td><td>International public phone numbers such as <code>+15550102</code></td></tr>
+<tr><td><a href="glossary/i/imsi.html">IMSI (International Mobile Subscriber Identity)</a></td><td>ITU-T E.212 and 3GPP</td><td>Home-network subscriber identity</td></tr>
+<tr><td><a href="glossary/m/msisdn.html">MSISDN (Mobile Station International Subscriber Directory Number)</a></td><td>3GPP</td><td>Phone number associated with a mobile subscription</td></tr>
+<tr><td><a href="glossary/s/short-code.html">Short code</a></td><td>National or carrier assignment</td><td>Special application or emergency address</td></tr>
+</table>
+<h3>How it works</h3>
+<p>3GPP numbering and addressing rules in <cite data-ref="spec-3gpp-23-003"><a href="bibliography/spec-3gpp-23-003.html">3GPP TS 23.003</a></cite> distinguish the MSISDN used for addressing from the IMSI used inside the network. A short message gateway asks the home subscriber record where the subscriber is currently served, then forwards the message toward that system. <cite data-ref="itu-e164"><a href="bibliography/itu-e164.html">ITU-T E.164</a></cite> defines the public numbering plan; <cite data-ref="itu-e212"><a href="bibliography/itu-e212.html">ITU-T E.212</a></cite> defines the land mobile identity plan behind IMSI-style identities. Portability databases and national numbering rules decide which network currently owns a number.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Alphanumeric sender IDs can be convenient for brands and deceptive for attackers; display text is not an authenticated address.</li>
+<li>International prefixes, national dialling plans and short codes are different namespaces. A number valid in one country may not route from another.</li>
+<li>Address lookup can succeed while message delivery fails, for example when the serving system rejects the message or the phone cannot be paged.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Which distinction matters most when debugging a text sent to a number that recently changed carrier?</i></summary><p>Separate number ownership from current subscriber state. If portability data or the home record is stale, the gateway can send the message to the wrong serving system even though the number itself is well formed.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="spec-3gpp-23-003"><a href="bibliography/spec-3gpp-23-003.html">3GPP TS 23.003</a></cite>; <cite data-ref="itu-e164"><a href="bibliography/itu-e164.html">ITU-T E.164</a></cite>; <cite data-ref="itu-e212"><a href="bibliography/itu-e212.html">ITU-T E.212</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/sms-store-and-forward.html">SMS and store-and-forward</a> &mdash; see how the routed message is stored and retried.</li>
+<li><a href="systems/mobile-communications/texting/spam-smishing-and-abuse.html">Spam, smishing and abuse</a> &mdash; examine what sender labels can and cannot prove.</li>
+<li><a href="networking/connections.html">Network connections and DNS</a> &mdash; compare numbering lookup with name lookup on the internet.</li>
+</ul>
+</body></html>

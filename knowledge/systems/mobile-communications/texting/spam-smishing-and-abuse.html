@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html><head>
+<title>Spam, smishing and abuse</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="spam-smishing-and-abuse">
+<meta name="summary" content="Unwanted texts and smishing use believable sender labels, urgent stories and links; defences combine filtering, registration and user judgement.">
+<meta name="keywords" content="spam, smishing, phishing, sender ID, short code, A2P, OTP fraud, SIM swap, reporting, filtering">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="delivery-and-reliability">
+<meta name="paths" content="texting:11">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / Spam, smishing and abuse</p></nav>
+
+<p>Not every message is welcome or honest. Bulk senders fill inboxes with advertising, and attackers send texts that try to make a person reveal a code or open a harmful link. The same delivery systems that make texting useful also make abuse cheap.</p>
+
+<section data-level="novice">
+<h2>Unwanted and deceptive texts</h2>
+<p><dfn><a href="glossary/s/spam.html">Spam</a></dfn> is an unwanted message sent to many people. <a href="glossary/s/smishing.html">Smishing (SMS phishing)</a> is a text that pretends to be from a bank, a courier or a friend so that the reader will click a link or reveal a secret.</p>
+<h3>Why it matters</h3>
+<p>A text can look as if it came from a trusted organisation even when the visible name is false. A code sent by text is useful only if the right person still controls the number.</p>
+<h3>How to think about it</h3>
+<p>Think of a stranger knocking on your door wearing a uniform badge. The badge is easy to print. You check by asking your own bank or by going to the official app, not by replying to the stranger.</p>
+<h3>New words</h3>
+<dl>
+<dt>Spam</dt><dd>Unwanted messages sent in bulk.</dd>
+<dt><a href="glossary/s/smishing.html">Smishing (SMS phishing)</a></dt><dd>A deceptive text that tries to steal information or install something.</dd>
+<dt><a href="glossary/s/sender-id.html">Sender ID</a></dt><dd>The name or number displayed as the sender of a message.</dd>
+<dt>Report</dt><dd>Telling a carrier, app or regulator about an unwanted message.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Spotting the signals</h2>
+<p><strong>Goal:</strong> you will be able to name the features that make a message suspicious without relying on the displayed sender name.</p>
+<tam-sandbox
+  title="Try it: mark the warning signs"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line that uses urgency to push the reader">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="messages.txt" size="270">bulk: the same offer was sent to thousands of phones
+urgent: claims your account will close in one hour
+link: a short address hides the real website
+sender: a display name can be spoofed
+code: asks you to read out a one-time password
+report: a carrier or app can filter similar messages</file>
+  <file name="safe.txt" size="120">check: open the official app yourself
+verify: call a number you already trust
+never: share a one-time password by reply</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat messages.txt" hint="Each line names a property of a message or a defence."><out>bulk: the same offer was sent to thousands of phones</out><out>urgent: claims your account will close in one hour</out><out>link: a short address hides the real website</out><out>sender: a display name can be spoofed</out><out>code: asks you to read out a one-time password</out><out>report: a carrier or app can filter similar messages</out></tam-cmd>
+  <tam-cmd match="grep urgent messages.txt" goal="true" hint="Find the line that pressures the reader to act quickly."><out>urgent: claims your account will close in one hour</out></tam-cmd>
+  <tam-cmd match="cat safe.txt" hint="The safe path starts from a channel you already trust."><out>check: open the official app yourself</out><out>verify: call a number you already trust</out><out>never: share a one-time password by reply</out></tam-cmd>
+  <tam-init>Try: cat messages.txt, then grep urgent messages.txt</tam-init>
+  <tam-hint after="1">Urgency and hidden links are warnings, not proof by themselves.</tam-hint>
+  <tam-hint after="2">Filter on urgent to isolate the pressure tactic.</tam-hint>
+  <tam-fallback>Try cat messages.txt, grep urgent messages.txt, or cat safe.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat messages.txt</code> listed bulk sending, urgency, hidden links, sender display, code requests and reporting.</li>
+<li><code>grep urgent messages.txt</code> isolated the pressure tactic.</li>
+<li><code>cat safe.txt</code> showed the safer habit: start from an official app or a number you already trust.</li>
+</ol>
+<p>The examples are teaching samples. No real message is sent, filtered or reported.</p>
+<h3>Try it</h3>
+<p>Run <code>grep code messages.txt</code>. Explain why a one-time code should never be read back to the person who contacted you.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You trusted a familiar display name.</dt><dd>A display name is a label, not proof. Check through the official app or a saved phone number.</dd>
+<dt>You assumed encryption makes a request safe.</dt><dd>An attacker can use an encrypted chat to ask for a secret. Encryption protects transport, not judgement.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux does not install a spam filter or choose a carrier. These habits work with any phone or messaging app.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why is a short link a warning sign?</i></summary><p>It hides the real destination. A reader can check by opening the official app directly instead of following the link from an unexpected message.</p></details>
+<details class="q"><summary><i>What makes a text-based one-time code weaker than an in-app approval?</i></summary><p>The code can be obtained through SIM swap, forwarding, social engineering or signalling abuse. An in-app approval can bind the action to a logged-in session and device.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Attack surfaces and controls</h2>
+<h3>Reference</h3>
+<table><tr><th>Surface</th><th>Abuse</th><th>Control</th></tr>
+<tr><td><a href="glossary/a/a2p.html">A2P (Application-to-Person)</a> submission</td><td>Bulk unsolicited traffic through a service centre</td><td>Sender registration, rate limits, reputation, consent rules</td></tr>
+<tr><td><a href="glossary/s/sender-id.html">Sender ID</a></td><td>Display-name spoofing</td><td>Verified brand channels; treat display text as unauthenticated</td></tr>
+<tr><td><a href="glossary/o/otp.html">OTP (One-Time Password)</a> over SMS</td><td>Interception, replay or social engineering</td><td>In-app approvals, device binding, short lifetimes, step-up checks</td></tr>
+<tr><td><a href="glossary/s/sim-swap.html">SIM swap</a></td><td>Attacker receives texts for the victim's number</td><td>Strong carrier proof of identity and transfer notifications</td></tr>
+<tr><td>RCS spam controls</td><td>Unwanted business or bulk chat</td><td>Verified business identity and client-side reporting in the Universal Profile</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Application providers submit traffic to message centres through protocols such as <cite data-ref="smpp"><a href="bibliography/smpp.html">SMPP</a></cite>; the sender fields carried there can include a display name that the receiver's device shows without cryptographic proof. Carrier signalling systems such as MAP, specified in <cite data-ref="spec-3gpp-29-002"><a href="bibliography/spec-3gpp-29-002.html">3GPP TS 29.002</a></cite>, move routing and subscriber information between network systems. RCS adds capability discovery and verified business messaging in the <cite data-ref="gsma-rcs-up"><a href="bibliography/gsma-rcs-up.html">GSMA Universal Profile</a></cite>, but a verified badge is a policy control rather than end-to-end content authentication. Filters combine sender reputation, message content, link reputation and user reports; each signal produces false positives as well as catches.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A legitimate service can send an urgent text during a real emergency. Teach the habit of independent verification, not blanket distrust of urgency.</li>
+<li>Short codes and verified sender IDs are namespaces with their own rules. A number that works for one country or carrier may not be reachable elsewhere.</li>
+<li>End-to-end encryption does not stop an attacker who convincingly asks the reader for a code. Security training must cover both technical and human channels.</li>
+<li>Blocking by content alone harms accessibility and multilingual users. Reputation and reporting need audit trails and appeals.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why can verified business messaging reduce spoofing but not eliminate smishing?</i></summary><p>It gives the receiver a stronger signal about some senders, but attackers can still use unverified numbers, compromised accounts or lookalike names. The reader still needs an independent way to confirm a sensitive request.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="smpp"><a href="bibliography/smpp.html">SMPP</a></cite>; <cite data-ref="spec-3gpp-29-002"><a href="bibliography/spec-3gpp-29-002.html">3GPP TS 29.002</a></cite>; <cite data-ref="gsma-rcs-up"><a href="bibliography/gsma-rcs-up.html">GSMA RCS Universal Profile</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/texting-research-frontiers.html">Texting research frontiers</a> &mdash; look at open problems in privacy, identity and abuse.</li>
+<li><a href="systems/mobile-communications/texting/encryption-and-key-management.html">Encryption and key management</a> &mdash; revisit what encryption does not protect.</li>
+<li><a href="glossary/s/smishing.html">Smishing (SMS phishing)</a> &mdash; keep the short definition nearby.</li>
+</ul>
+</body></html>

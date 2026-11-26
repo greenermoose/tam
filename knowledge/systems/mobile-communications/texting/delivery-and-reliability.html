@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html><head>
+<title>Delivery, retries and reliability</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="delivery-and-reliability">
+<meta name="summary" content="A delivery status is a report about a system event, not a promise that a person read a message; retries improve odds but can duplicate messages.">
+<meta name="keywords" content="delivery receipt, retry, queue, validity period, idempotency, ordering, roaming, read receipt, message status">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="encryption-and-key-management">
+<meta name="paths" content="texting:10">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / Delivery, retries and reliability</p></nav>
+
+<p>Message systems use several different success events. A service may accept a text, queue it, hand it to a network, and receive a report, while the person at the other end may never open it. Reliability means being clear about which event is being claimed.</p>
+
+<section data-level="novice">
+<h2>Sent, delivered, read</h2>
+<p>When a message shows "sent", the sender's device has usually handed it to a service. "Delivered" normally means a network or device reported that it accepted the message. "Read" is a separate event that happens only when someone opens it, and not every service reports it.</p>
+<h3>Why it matters</h3>
+<p>These labels help people decide whether to try again. A message that was accepted but never delivered may need a retry; a message that was delivered but not read may simply be waiting on a person.</p>
+<h3>How to think about it</h3>
+<p>Think of a parcel. "Sent" means the depot took it. "Delivered" means the courier left it at the address. "Read" means the recipient opened the box. Those are three different facts.</p>
+<h3>New words</h3>
+<dl>
+<dt>Acceptance</dt><dd>A service agrees to take responsibility for a message.</dd>
+<dt><a href="glossary/d/delivery-receipt.html">Delivery receipt</a></dt><dd>A report about a delivery attempt.</dd>
+<dt>Retry</dt><dd>Sending again after a temporary failure.</dd>
+<dt>Expiry</dt><dd>Giving up when a message has waited too long.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Reading status transitions</h2>
+<p><strong>Goal:</strong> you will be able to name the terminal states of a message and explain why a retry can produce a duplicate.</p>
+<tam-sandbox
+  title="Try it: find the ending states"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the state that means the message waited too long">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="states.txt" size="260">accepted: the service took the message
+queued: the service is waiting for a route
+delivered: the receiving network reported acceptance
+read: the receiver opened the conversation
+expired: the validity period ended
+duplicate: a retry repeated an already delivered message</file>
+  <file name="retry.txt" size="110">attempt 1: no route, keep the message
+attempt 2: route found, delivered
+attempt 3: acknowledgement lost, try again</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat states.txt" hint="Some states are intermediate; two are endings."><out>accepted: the service took the message</out><out>queued: the service is waiting for a route</out><out>delivered: the receiving network reported acceptance</out><out>read: the receiver opened the conversation</out><out>expired: the validity period ended</out><out>duplicate: a retry repeated an already delivered message</out></tam-cmd>
+  <tam-cmd match="grep expired states.txt" goal="true" hint="Find the state where waiting ends without delivery."><out>expired: the validity period ended</out></tam-cmd>
+  <tam-cmd match="cat retry.txt" hint="A lost acknowledgement can make a sender retry a message that already arrived."><out>attempt 1: no route, keep the message</out><out>attempt 2: route found, delivered</out><out>attempt 3: acknowledgement lost, try again</out></tam-cmd>
+  <tam-init>Try: cat states.txt, then grep expired states.txt</tam-init>
+  <tam-hint after="1">Accepted and queued are not endings; expired is.</tam-hint>
+  <tam-hint after="2">Filter on expired to isolate the terminal waiting state.</tam-hint>
+  <tam-fallback>Try cat states.txt, grep expired states.txt, or cat retry.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat states.txt</code> showed intermediate states and ending states side by side.</li>
+<li><code>grep expired states.txt</code> isolated the case where the service stops trying.</li>
+<li><code>cat retry.txt</code> showed why a lost acknowledgement can create a duplicate.</li>
+</ol>
+<p>The state names and output are teaching samples, not a carrier log.</p>
+<h3>Try it</h3>
+<p>Run <code>grep delivered states.txt</code>. Decide whether that state proves a person read the text.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You read "sent" as proof of delivery.</dt><dd>Sent usually means acceptance by the sender's service. Look for a delivery report before claiming the receiver's network accepted it.</dd>
+<dt>You assumed retries never duplicate.</dt><dd>If an acknowledgement is lost, the sender cannot know the earlier attempt succeeded. Systems use message identifiers to reduce duplicates, but cannot guarantee a single visible copy in every app.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux does not run a message centre. This page teaches how to read status claims from any messaging service.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why can a delivery receipt arrive after a message is already visible?</i></summary><p>Reports and content can take different paths or be processed at different times. A receipt is evidence about a network event, not the moment the screen updated.</p></details>
+<details class="q"><summary><i>What is the difference between expiry and failure?</i></summary><p>Failure can be a temporary attempt error that a retry may fix. Expiry is a policy decision: the service stops trying after a validity period, so later retries will not happen.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Status semantics and failure modes</h2>
+<h3>Reference</h3>
+<table><tr><th>Event</th><th>Usual source</th><th>What it proves</th></tr>
+<tr><td>Submit / accept</td><td>Service centre or app provider</td><td>The sender handed over a message</td></tr>
+<tr><td>Delivery report</td><td>Service centre, network or app</td><td>A defined handoff event occurred</td></tr>
+<tr><td>Read report</td><td>Receiving client, when supported</td><td>A client reported display, not comprehension</td></tr>
+<tr><td>Expiry</td><td>Validity policy</td><td>The service stopped trying</td></tr>
+<tr><td>Idempotency key</td><td>Application layer</td><td>A receiver can collapse repeated submissions</td></tr>
+</table>
+<h3>How it works</h3>
+<p><cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite> defines short message status reports and validity handling; reports are optional and their exact meaning depends on the network path. <cite data-ref="smpp"><a href="bibliography/smpp.html">SMPP</a></cite> adds message identifiers and delivery receipts for application-submitted traffic. <cite data-ref="spec-3gpp-23-140"><a href="bibliography/spec-3gpp-23-140.html">3GPP TS 23.140</a></cite> adds delivery and read reports for multimedia messages. Internet apps define their own receipts above the transport. Across all these systems, retries make delivery closer to at-least-once than exactly-once; application-level identifiers are needed when a duplicate would matter.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Concatenated short messages can be delivered as segments. One segment may fail while others arrive; the phone may show nothing until all parts are present.</li>
+<li>Roaming adds a visited network between the home subscriber record and the device. A stale mobility state can cause a failed page even when the message is correctly queued.</li>
+<li>Push notification success for an internet app does not prove the app fetched the message. The two signals come from different systems.</li>
+<li>Ordering is not universal. Messages can be stored, retried or routed independently, so a conversation view may need sequence metadata to display them sensibly.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is exactly-once delivery difficult across these systems?</i></summary><p>A sender learns about success through acknowledgements that can be delayed or lost. If it retries after a lost acknowledgement, the message may arrive twice. True exactly-once behaviour needs cooperation from the receiver, such as stable message identifiers and deduplication.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite>; <cite data-ref="smpp"><a href="bibliography/smpp.html">SMPP</a></cite>; <cite data-ref="spec-3gpp-23-140"><a href="bibliography/spec-3gpp-23-140.html">3GPP TS 23.140</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/spam-smishing-and-abuse.html">Spam, smishing and abuse</a> &mdash; see how attackers exploit delivery and identity signals.</li>
+<li><a href="systems/mobile-communications/texting/texting-research-frontiers.html">Texting research frontiers</a> &mdash; examine what researchers still try to improve.</li>
+<li><a href="glossary/d/delivery-receipt.html">Delivery receipt</a> &mdash; keep the short definition nearby.</li>
+</ul>
+</body></html>

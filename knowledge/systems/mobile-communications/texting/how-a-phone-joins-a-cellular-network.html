@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html><head>
+<title>How a phone joins a cellular network</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="how-a-phone-joins-a-cellular-network">
+<meta name="summary" content="A phone reaches a nearby cell, registers with the mobile core and uses radio and core resources for a text at the right time.">
+<meta name="keywords" content="cellular network, cell tower, base station, radio access network, registration, paging, handover, LTE, 5G">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="what-is-texting">
+<meta name="paths" content="texting:2">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / How a phone joins a cellular network</p></nav>
+
+<p>Before a phone can send a text, it must find a radio cell and be known to the mobile network. The radio link carries the message only a short distance; the rest of the journey happens inside the carrier's core network.</p>
+
+<section data-level="novice">
+<h2>Cells and a wider network</h2>
+<p>A mobile network is divided into small areas called cells. Each cell has a base station with antennas. Your phone talks to the nearest usable base station by radio. That station connects to the carrier's wider network, which can find the person you are writing to.</p>
+<h3>Why it matters</h3>
+<p>Radio does not travel forever and buildings block it. Many small cells let a phone use less power and let the carrier reuse the same radio frequencies in places that do not interfere with each other.</p>
+<h3>How to think about it</h3>
+<p>Think of a relay race across a field. The phone hands the message to the nearest relay point. Other relay points carry it onward through cables and bigger stations until it reaches the right area.</p>
+<h3>New words</h3>
+<dl>
+<dt>Cell</dt><dd>The area served by one base station or one set of antennas.</dd>
+<dt>Base station</dt><dd>The radio equipment a phone talks to.</dd>
+<dt><a href="glossary/r/ran.html">RAN (Radio Access Network)</a></dt><dd>The part of the network that handles radio links to phones.</dd>
+<dt>Core network</dt><dd>The part that routes messages, tracks subscribers and connects to other services.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Reading a registration trace</h2>
+<p><strong>Goal:</strong> you will be able to name the radio step, the registration step and the paging step in a simplified trace.</p>
+<tam-sandbox
+  title="Try it: read the phone's steps"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line that tells the network where the phone is">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="trace.txt" size="210">radio: phone selects a strong cell
+register: network learns which area the phone is in
+paging: network asks the cell to wake the phone
+handover: phone moves to a new cell</file>
+  <file name="layers.txt" size="120">radio: phone to base station
+core: base station to message service
+service: message centre to receiver</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat trace.txt" hint="Each line names one stage of a phone's connection."><out>radio: phone selects a strong cell</out><out>register: network learns which area the phone is in</out><out>paging: network asks the cell to wake the phone</out><out>handover: phone moves to a new cell</out></tam-cmd>
+  <tam-cmd match="grep register trace.txt" goal="true" hint="Look for the stage where the network records the phone's area."><out>register: network learns which area the phone is in</out></tam-cmd>
+  <tam-cmd match="cat layers.txt" hint="The radio link is only the first part of the path."><out>radio: phone to base station</out><out>core: base station to message service</out><out>service: message centre to receiver</out></tam-cmd>
+  <tam-init>Try: cat trace.txt, then grep register trace.txt</tam-init>
+  <tam-hint after="1">Registration is not the radio link; it is how the core knows where to look for the phone.</tam-hint>
+  <tam-hint after="2">Filter on the label register to isolate that step.</tam-hint>
+  <tam-fallback>Try cat trace.txt, grep register trace.txt, or cat layers.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat trace.txt</code> showed a phone selecting a cell, registering, being paged and moving to another cell.</li>
+<li><code>grep register trace.txt</code> isolated the step that tells the core network which area holds the phone.</li>
+<li><code>cat layers.txt</code> separated the short radio hop from the core and service parts of the journey.</li>
+</ol>
+<p>The trace and output are teaching samples, not readings from a real phone or network.</p>
+<h3>Try it</h3>
+<p>Run <code>grep paging trace.txt</code>. Explain why paging must happen before a waiting message can reach a sleeping phone.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You assumed the base station stores the message.</dt><dd>A base station handles the radio hop. Message storage is a service function deeper in the network.</dd>
+<dt>You expected registration to mean a permanent address.</dt><dd>The core tracks an area or state, not a fixed physical location. The phone may move without registering again in every cell.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux treats mobile radio as a system to understand, not a setting it manages. No command in this series queries or changes a phone network.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why does a phone need paging if the network already knows its area?</i></summary><p>An area is much larger than one cell and the phone may sleep to save power. Paging tells the phone to listen so the network can deliver a waiting message over the right radio link.</p></details>
+<details class="q"><summary><i>What changes during handover?</i></summary><p>The radio cell serving the phone changes. The message service does not need to become a different service just because the phone moved.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Radio access and core separation</h2>
+<h3>Reference</h3>
+<table><tr><th>Part</th><th>Job</th><th>Names you will see</th></tr>
+<tr><td>User equipment</td><td>The phone or modem</td><td>UE</td></tr>
+<tr><td>Radio access network</td><td>Radio scheduling, encryption on the air and handover</td><td><a href="glossary/r/ran.html">RAN</a>, eNodeB, gNodeB</td></tr>
+<tr><td>Mobile core</td><td>Subscriber state, mobility, authentication and session routing</td><td>EPC, 5GC, <a href="glossary/h/hss.html">HSS (Home Subscriber Server)</a>, <a href="glossary/u/udm.html">UDM (Unified Data Management)</a></td></tr>
+<tr><td>Service layer</td><td>Messages, chat, presence and application traffic</td><td>SMSC, MMSC, IMS</td></tr>
+</table>
+<h3>How it works</h3>
+<p><a href="glossary/l/lte.html">LTE (Long-Term Evolution)</a> and <a href="glossary/n/nr.html">NR (New Radio)</a> define how the phone and base station encode radio signals, schedule time and frequency resources, and move between cells. The overall radio behaviour is described in <cite data-ref="spec-3gpp-36-300"><a href="bibliography/spec-3gpp-36-300.html">3GPP TS 36.300</a></cite> and <cite data-ref="spec-3gpp-38-300"><a href="bibliography/spec-3gpp-38-300.html">3GPP TS 38.300</a></cite>. The packet core and 5G system architecture are described in <cite data-ref="spec-3gpp-23-501"><a href="bibliography/spec-3gpp-23-501.html">3GPP TS 23.501</a></cite>. A short message can travel over signalling procedures while rich chat and app text generally use IP bearers; the radio network sees both as traffic to schedule, but the core treats them differently.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Poor radio does not prove a service failure. The phone can have a usable signal for voice yet fail to reach a message service through a data bearer.</li>
+<li>Roaming splits the visited network's radio and core from the home network's subscriber records and services.</li>
+<li>Paging strategy trades battery life against delivery latency. A phone that sleeps longer may receive a text later.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>If a text arrives after the phone moves to a new cell, which layer should you reason about first?</i></summary><p>Start with mobility state: did the core update the phone's tracking area and did paging reach the new cell? Then check the service queue. A successful radio handover alone does not prove the message service delivered anything.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="spec-3gpp-36-300"><a href="bibliography/spec-3gpp-36-300.html">3GPP TS 36.300</a></cite>; <cite data-ref="spec-3gpp-38-300"><a href="bibliography/spec-3gpp-38-300.html">3GPP TS 38.300</a></cite>; <cite data-ref="spec-3gpp-23-501"><a href="bibliography/spec-3gpp-23-501.html">3GPP TS 23.501</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/sim-and-subscriber-identity.html">SIM cards and subscriber identity</a> &mdash; see how the network knows who is allowed on it.</li>
+<li><a href="systems/mobile-communications/texting/addressing-and-routing.html">Addresses, numbers and routing</a> &mdash; follow the address used to choose a receiver.</li>
+<li><a href="networking/stack/application-layer.html">The application layer</a> &mdash; place messaging services among the network layers.</li>
+</ul>
+</body></html>

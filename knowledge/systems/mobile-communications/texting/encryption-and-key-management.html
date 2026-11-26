@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html><head>
+<title>Encryption and key management</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="encryption-and-key-management">
+<meta name="summary" content="Messaging protection depends on which secrets exist, who holds them and what metadata remains visible, not only on the word encrypted.">
+<meta name="keywords" content="encryption, end-to-end encryption, E2EE, Signal Protocol, MLS, key management, safety number, forward secrecy, metadata">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="internet-messaging-apps">
+<meta name="paths" content="texting:9">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / Encryption and key management</p></nav>
+
+<p>When people say a chat is encrypted, they may mean different things. The important question is who can read the words, and whether an old message stays secret if a key is stolen later.</p>
+
+<section data-level="novice">
+<h2>Who holds the key?</h2>
+<p>Encryption turns a readable message into scrambled data. A key is the secret that lets a device turn it back into words. If the service provider holds that key, the provider can read the message. If only the two people's devices hold it, the message is <a href="glossary/e/e2ee.html">E2EE (End-to-End Encryption)</a>.</p>
+<h3>Why it matters</h3>
+<p>A message can travel through many systems. Link encryption protects one hop at a time. End-to-end encryption stays with the message from sender to receiver, so a store or relay in the middle cannot read the content.</p>
+<h3>How to think about it</h3>
+<p>Think of a locked box. With hop-by-hop protection, each courier opens the box and locks a new one for the next courier. With end-to-end protection, only the two people at the ends have the key, so every courier just carries the same locked box.</p>
+<h3>New words</h3>
+<dl>
+<dt>Key</dt><dd>A secret value used to lock and unlock protected data.</dd>
+<dt>Transport encryption</dt><dd>Protection for one connection, such as between a phone and a provider.</dd>
+<dt>End-to-end encryption</dt><dd>Protection that only the communicating devices can undo.</dd>
+<dt>Fingerprint</dt><dd>A short code people can compare to check that they share the right key.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Checking what encryption covers</h2>
+<p><strong>Goal:</strong> you will be able to say whether a line describes transport protection, content protection or a key-verification step.</p>
+<tam-sandbox
+  title="Try it: sort the protection claims"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line where two people compare keys">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="crypto.txt" size="260">transport: phone to provider is protected in transit
+content: only the two apps hold the message key
+fingerprint: compare this code with your friend's code
+change: safety number changed after a device was added
+backup: a cloud copy may hold readable history
+metadata: the provider can still see who messaged whom</file>
+  <file name="claim.txt" size="90">claim: this chat is encrypted
+question: who holds the key?</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat crypto.txt" hint="Each line says what is protected, or who can see what."><out>transport: phone to provider is protected in transit</out><out>content: only the two apps hold the message key</out><out>fingerprint: compare this code with your friend's code</out><out>change: safety number changed after a device was added</out><out>backup: a cloud copy may hold readable history</out><out>metadata: the provider can still see who messaged whom</out></tam-cmd>
+  <tam-cmd match="grep fingerprint crypto.txt" goal="true" hint="Find the line where people compare a key code."><out>fingerprint: compare this code with your friend's code</out></tam-cmd>
+  <tam-cmd match="cat claim.txt" hint="The word encrypted is not enough; ask who holds the key."><out>claim: this chat is encrypted</out><out>question: who holds the key?</out></tam-cmd>
+  <tam-init>Try: cat crypto.txt, then grep fingerprint crypto.txt</tam-init>
+  <tam-hint after="1">Transport protection and content protection are different claims.</tam-hint>
+  <tam-hint after="2">Filter on fingerprint to find the verification step.</tam-hint>
+  <tam-fallback>Try cat crypto.txt, grep fingerprint crypto.txt, or cat claim.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat crypto.txt</code> listed transport protection, content protection, verification, key change, backups and metadata.</li>
+<li><code>grep fingerprint crypto.txt</code> isolated the step where people check that they share the right key.</li>
+<li><code>cat claim.txt</code> showed why "encrypted" alone is too vague to answer a security question.</li>
+</ol>
+<p>The codes and output are teaching samples. No key is generated and no app setting is changed.</p>
+<h3>Try it</h3>
+<p>Run <code>grep change crypto.txt</code>. Explain why a changed safety number is a prompt to check with the other person, not proof of an attack.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You assumed transport encryption means the provider cannot read messages.</dt><dd>Transport encryption protects the path to the provider. If the provider holds the content key, it can still read stored messages.</dd>
+<dt>You treated a changed safety number as always malicious.</dt><dd>A new phone, reinstall or restored backup can change keys. Verify out of band before concluding there was an attacker.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux does not provide a messaging client or hold chat keys. This lesson teaches the claims to examine before trusting an encryption label.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>What does end-to-end encryption not hide?</i></summary><p>It does not by itself hide metadata such as who contacted whom, when, from which devices and how often. It also does not protect a device after an attacker has already unlocked it or a backup that stores plaintext.</p></details>
+<details class="q"><summary><i>Why compare safety numbers in person or through another trusted channel?</i></summary><p>The chat channel could be controlled by the party you are trying to exclude. An independent channel lets two people confirm that no impostor replaced a key.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Protocols and key lifecycles</h2>
+<h3>Reference</h3>
+<table><tr><th>Mechanism</th><th>Scope</th><th>Property it supplies</th></tr>
+<tr><td><a href="glossary/e/e2ee.html">E2EE (End-to-End Encryption)</a></td><td>Sender device to receiver device</td><td>Relays cannot read content</td></tr>
+<tr><td><a href="glossary/s/signal-protocol.html">Signal Protocol</a></td><td>One-to-one and small groups</td><td>Per-message keys, forward secrecy and post-compromise recovery</td></tr>
+<tr><td><a href="glossary/m/mls.html">MLS (Messaging Layer Security)</a></td><td>Scaleable groups</td><td>Efficient group key agreement with membership changes</td></tr>
+<tr><td>Transport Layer Security</td><td>Device to provider</td><td>Protection against network observers on that connection</td></tr>
+<tr><td><a href="glossary/o/otp.html">OTP (One-Time Password)</a> or <a href="glossary/numeric/2fa.html">2FA (Two-Factor Authentication)</a></td><td>Account access</td><td>Extra check before a new device joins the account</td></tr>
+</table>
+<h3>How it works</h3>
+<p>The <a href="glossary/s/signal-protocol.html">Signal Protocol</a> establishes a session with an authenticated key agreement and then uses a Double Ratchet: each message advances a symmetric key so that compromise of one key does not reveal older messages, and fresh randomness helps recover security after a compromise. <a href="glossary/m/mls.html">MLS (Messaging Layer Security)</a> is specified in <cite data-ref="rfc9420"><a href="bibliography/rfc9420.html">RFC 9420</a></cite> and uses a tree structure to update group keys when members join or leave. Carrier radio and core networks also encrypt traffic on their own links; 5G authentication and key agreement are described in <cite data-ref="spec-3gpp-33-501"><a href="bibliography/spec-3gpp-33-501.html">3GPP TS 33.501</a></cite>. Those protections are not the same as content encryption controlled by the people chatting.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Forward secrecy protects past messages after a later key theft. Post-compromise security aims to restore future sessions after an attacker's access ends; not every protocol supplies both.</li>
+<li>Group membership changes are a hard problem: removing a member must stop future reading without rewriting history that the former member already stored.</li>
+<li>Verified safety numbers can change legitimately when a device is re-registered. Verification systems need a policy for what to do after a change, not just a warning.</li>
+<li>Metadata can be as sensitive as content. Research systems try to reduce it through private information retrieval, padding and mix networks, with latency and bandwidth costs.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is group encryption harder than one-to-one encryption?</i></summary><p>Every membership change changes who should hold future keys. A scheme must add and remove members efficiently, keep old messages readable to the intended group, and prevent a removed member from reading new conversations, all without trusting the server with content keys.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="signal-protocol"><a href="bibliography/signal-protocol.html">Signal Protocol documentation</a></cite>; <cite data-ref="rfc9420"><a href="bibliography/rfc9420.html">RFC 9420</a></cite>; <cite data-ref="spec-3gpp-33-501"><a href="bibliography/spec-3gpp-33-501.html">3GPP TS 33.501</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/delivery-and-reliability.html">Delivery, retries and reliability</a> &mdash; see how receipts and encryption interact.</li>
+<li><a href="systems/mobile-communications/texting/spam-smishing-and-abuse.html">Spam, smishing and abuse</a> &mdash; examine attacks that bypass encryption by targeting people.</li>
+<li><a href="glossary/e/e2ee.html">E2EE (End-to-End Encryption)</a> &mdash; keep the short definition nearby.</li>
+</ul>
+</body></html>

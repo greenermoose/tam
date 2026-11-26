@@ -11,7 +11,7 @@ procedure and design.
 ## Rules
 
 - Mint top-level IDs in sequence (`TCK1`, `TCK2`, ...) across all plans; never
-  restart per plan, reuse or renumber an ID. **Next free: TCK35.** Update this
+  restart per plan, reuse or renumber an ID. **Next free: TCK36.** Update this
   counter and add the item to this file in the same change that adds a new
   top-level item.
 - Mint IDs only while holding a `tam-work` claim on this file and the plan
@@ -93,6 +93,11 @@ labels.
 | `TCK34.2` | Email path and supporting corpus | [email-systems-curriculum.md](docs/plans/email-systems-curriculum.md) | Planned | Five-stage goal path, acronym and anti-spam glossary, sources, skills and cross-links |
 | `TCK34.3` | Email bookkeeping and verification | [email-systems-curriculum.md](docs/plans/email-systems-curriculum.md) | Planned | Corpus 0.132.0 records; corpus, repository and reader checks |
 | `TCK34.4` | Email glossary whatis discoverability | [email-systems-curriculum.md](docs/plans/email-systems-curriculum.md) | Planned | Protocol, MX record and anti-spam names resolve in the live corpus |
+| `TCK35` | Texting and mobile messaging curriculum | [texting-curriculum.md](docs/plans/texting-curriculum.md) | Completed (2026-11-25) | Systems > Mobile communications series at corpus 0.133.0 |
+| `TCK35.1` | Mobile communications and texting teaching pages | [texting-curriculum.md](docs/plans/texting-curriculum.md) | Completed (2026-11-25) | Hub, subhub, twelve level-tagged pages and path steps 1–12 |
+| `TCK35.2` | Texting path and supporting corpus | [texting-curriculum.md](docs/plans/texting-curriculum.md) | Completed (2026-11-25) | Six-stage goal path, acronym and full practical glossary, sources, skills and cross-links |
+| `TCK35.3` | Texting bookkeeping and verification | [texting-curriculum.md](docs/plans/texting-curriculum.md) | Completed (2026-11-25) | Corpus 0.133.0 records; corpus, repository and reader checks |
+| `TCK35.4` | Texting glossary whatis discoverability | [texting-curriculum.md](docs/plans/texting-curriculum.md) | Completed (2026-11-25) | SMS, MMS, RCS and related names resolve in the live corpus |
 
 ### Knowledge system (corpus 0.31.0)
 
@@ -237,3 +242,25 @@ Owning plan: [email-systems-curriculum.md](docs/plans/email-systems-curriculum.m
 - [x] **TCK34.4 (Email glossary whatis discoverability):** Requested protocol,
   MX record and anti-spam names resolve in the live corpus while MX Linux stays
   reachable.
+
+### Texting and mobile messaging curriculum
+
+Owning plan: [texting-curriculum.md](docs/plans/texting-curriculum.md)
+
+- [x] **TCK35 (Texting and mobile messaging curriculum):** Rollup for the
+  zero-to-expert texting series at corpus 0.133.0. Every child below is complete
+  and verified. Completed 2026-11-25.
+- [x] **TCK35.1 (Mobile communications and texting teaching pages):** Systems >
+  Mobile communications hub, texting subhub and twelve three-level teaching
+  pages from what a text is to cellular radio, SIM identity, addressing, SMS,
+  MMS, RCS/IMS, internet messaging apps, encryption, delivery, abuse and
+  research frontiers. Steps 1–12 declared in order.
+- [x] **TCK35.2 (Texting path and supporting corpus):** Six-stage goal path
+  with checkpoints and a capstone, acronym and full practical glossary pages,
+  bibliography entries, `texting.*` skill cells and contextual links from
+  existing pages.
+- [x] **TCK35.3 (Texting bookkeeping and verification):** Corpus 0.133.0
+  version, roadmap, development contract, plan index and work record; corpus,
+  repository and reader checks pass.
+- [x] **TCK35.4 (Texting glossary whatis discoverability):** SMS, MMS, RCS and
+  related names resolve in the live corpus to their own glossary pages.

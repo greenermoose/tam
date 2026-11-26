@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html><head>
+<title>SMS and store-and-forward</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="sms-store-and-forward">
+<meta name="summary" content="SMS carries a short message through a service centre that accepts, stores, routes, retries and eventually reports on it.">
+<meta name="keywords" content="SMS, SMSC, store and forward, mobile originated, mobile terminated, SMPP, concatenation, delivery receipt, validity period">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="addressing-and-routing">
+<meta name="paths" content="texting:5">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / SMS and store-and-forward</p></nav>
+
+<p><a href="glossary/s/sms.html">SMS (Short Message Service)</a> is the classic text service. Its central idea is simple: a message centre accepts a short message, keeps it, finds the receiver's current network and tries again until the message is delivered or expires.</p>
+
+<section data-level="novice">
+<h2>A message centre</h2>
+<p>When you send a short message, your phone gives it to a <dfn><a href="glossary/s/smsc.html">SMSC (Short Message Service Center)</a></dfn>. The centre is a store that holds the message. It asks the network where the receiver is, sends the message onward and keeps trying if the phone is unavailable.</p>
+<h3>Why it matters</h3>
+<p>The sender's phone can be switched off as soon as the centre accepts the message. The receiver's phone can be off too. The centre bridges the gap between them.</p>
+<h3>How to think about it</h3>
+<p>Think of a parcel depot. You drop off a parcel and the depot keeps it until a delivery route is open. If the recipient is away, the depot tries again rather than asking you to hand over the parcel again.</p>
+<h3>New words</h3>
+<dl>
+<dt>Short message</dt><dd>A small text message carried by the SMS service.</dd>
+<dt>Message centre</dt><dd>A system that stores and forwards short messages.</dd>
+<dt>Retry</dt><dd>Trying delivery again after a temporary failure.</dd>
+<dt>Validity period</dt><dd>How long the centre should keep trying.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Watching a queue</h2>
+<p><strong>Goal:</strong> you will be able to follow a short message from submission to receipt and name the step that proves only centre acceptance.</p>
+<tam-sandbox
+  title="Try it: read the message queue"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line that reports successful delivery to the phone">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="queue.txt" size="230">submit: phone gives message to the centre
+accept: centre stores the message
+lookup: centre asks where the receiver is
+retry: first attempt failed
+deliver: receiver's phone accepted the message
+receipt: delivery report returns to sender</file>
+  <file name="limits.txt" size="110">single: about 160 seven-bit characters
+longer: split into numbered segments
+expiry: validity period ends the attempt</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat queue.txt" hint="Each line is a stage in the centre's work."><out>submit: phone gives message to the centre</out><out>accept: centre stores the message</out><out>lookup: centre asks where the receiver is</out><out>retry: first attempt failed</out><out>deliver: receiver's phone accepted the message</out><out>receipt: delivery report returns to sender</out></tam-cmd>
+  <tam-cmd match="grep deliver queue.txt" goal="true" hint="Match the stage where the receiver's phone accepted it."><out>deliver: receiver's phone accepted the message</out></tam-cmd>
+  <tam-cmd match="cat limits.txt" hint="Long messages are split; the centre tracks the pieces."><out>single: about 160 seven-bit characters</out><out>longer: split into numbered segments</out><out>expiry: validity period ends the attempt</out></tam-cmd>
+  <tam-init>Try: cat queue.txt, then grep deliver queue.txt</tam-init>
+  <tam-hint after="1">Acceptance by the centre is not the same as delivery to the receiver.</tam-hint>
+  <tam-hint after="2">Filter on deliver to find the receiver-side success line.</tam-hint>
+  <tam-fallback>Try cat queue.txt, grep deliver queue.txt, or cat limits.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat queue.txt</code> showed submission, acceptance, lookup, retry, delivery and receipt.</li>
+<li><code>grep deliver queue.txt</code> isolated the receiver-side event. The earlier <code>accept</code> line only proves that the centre took responsibility.</li>
+<li><code>cat limits.txt</code> showed why a long text becomes several short messages with an expiry rule.</li>
+</ol>
+<p>The queue and output are teaching samples, not a log from a carrier system.</p>
+<h3>Try it</h3>
+<p>Run <code>grep accept queue.txt</code>. Explain why that line alone cannot tell you whether the receiver saw the text.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You treated a delivery receipt as proof that a person read the text.</dt><dd>A receipt normally reports delivery to a network or device, not human attention.</dd>
+<dt>You expected a long message to be one unlimited message.</dt><dd>SMS has a small payload. Longer text is split into segments that are reassembled by the receiving device.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux's email lesson uses the same store-and-forward idea with different protocols. Compare the two, but do not assume their receipts or identity checks mean the same thing.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>What does centre acceptance prove?</i></summary><p>It proves that the SMSC took the message and will try to deliver it. It does not prove that the receiver was found, that the phone was on, or that anyone read the text.</p></details>
+<details class="q"><summary><i>Why can parts of a long text arrive out of order?</i></summary><p>The segments are separate short messages. Networks may retry or route them independently; the receiving phone uses concatenation information to reassemble them.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>SMS transfer semantics</h2>
+<h3>Reference</h3>
+<table><tr><th>Concept</th><th>Where it appears</th><th>Meaning</th></tr>
+<tr><td>Mobile-originated (MO)</td><td>Phone to centre</td><td>A phone submits a message for delivery.</td></tr>
+<tr><td>Mobile-terminated (MT)</td><td>Centre to phone</td><td>The centre delivers a stored message to the receiver.</td></tr>
+<tr><td><a href="glossary/s/smpp.html">SMPP (Short Message Peer-to-Peer)</a></td><td>Application to centre</td><td>Protocol used by many application providers to submit and receive messages.</td></tr>
+<tr><td><a href="glossary/m/map.html">MAP (Mobile Application Part)</a></td><td>Carrier signalling</td><td>Queries and transfer procedures between mobile network systems.</td></tr>
+<tr><td><a href="glossary/d/delivery-receipt.html">Delivery receipt</a></td><td>Status report</td><td>Report about a delivery attempt, not proof of reading.</td></tr>
+</table>
+<h3>How it works</h3>
+<p><cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite> defines the short message service, including the transfer protocol, segmentation and status reports. <cite data-ref="spec-3gpp-24-011"><a href="bibliography/spec-3gpp-24-011.html">3GPP TS 24.011</a></cite> covers the radio-interface side of point-to-point short messages. The default alphabet allows about 160 seven-bit characters in one payload; using a wider character set reduces that count. Longer messages carry user-data headers that identify segments for reassembly. Application-to-person traffic often reaches the centre through <cite data-ref="smpp"><a href="bibliography/smpp.html">SMPP version 3.4</a></cite>, while carrier systems use MAP procedures to find a serving system and forward the message.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A validity period can expire while the receiver is unreachable. The message is then discarded or reported as expired; delivery is not guaranteed.</li>
+<li>Duplicate delivery can occur after a retry if an acknowledgement is lost. Idempotency keys or application-level deduplication matter for one-time codes.</li>
+<li><a href="glossary/c/cell-broadcast.html">Cell broadcast</a> uses a different path from point-to-point SMS: one message is sent to all phones in an area, not addressed to a subscriber.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is SMS unsuitable as the only factor for a high-value action?</i></summary><p>It is convenient but not proof of possession by the intended person. SIM swap, interception by network insiders, replay and message forwarding all break the assumption that receipt by a number means control by the account holder.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite>; <cite data-ref="spec-3gpp-24-011"><a href="bibliography/spec-3gpp-24-011.html">3GPP TS 24.011</a></cite>; <cite data-ref="smpp"><a href="bibliography/smpp.html">SMPP version 3.4</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/mms-and-multimedia.html">MMS and multimedia messages</a> &mdash; see why a picture is not just a longer text.</li>
+<li><a href="systems/mobile-communications/texting/delivery-and-reliability.html">Delivery, retries and reliability</a> &mdash; compare receipts with real delivery semantics.</li>
+<li><a href="glossary/s/sms.html">SMS (Short Message Service)</a> &mdash; use the short glossary definition while reading.</li>
+</ul>
+</body></html>

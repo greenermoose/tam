@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html><head>
+<title>What is texting?</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="what-is-texting">
+<meta name="summary" content="Texting is a store-and-forward message service: a phone app writes a message, service systems carry and store it, and another app later reads it.">
+<meta name="keywords" content="texting, text message, short message, SMS, MMS, RCS, instant messaging, OTT, store and forward">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="hub-systems">
+<meta name="paths" content="texting:1">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / What is texting?</p></nav>
+
+<p>Texting is sending short written messages between phones or apps. The person sending a text does not need the receiver to be online at that exact moment, because a service keeps the message until the other side can receive it.</p>
+
+<section data-level="novice">
+<h2>Words that wait</h2>
+<p>When you type a text, you use a program on your phone called a <dfn><a href="glossary/t/texting.html">texting</a></dfn> app. That app hands the words to a service. The service finds the other person, keeps a copy for a while and delivers it. The other person reads the words in their own app, perhaps much later.</p>
+<h3>Why it matters</h3>
+<p>People carry phones that are switched off, out of signal or in another country. A text can still be waiting when the phone comes back. That is why texting is more like leaving a note than making a phone call.</p>
+<h3>How to think about it</h3>
+<p>Think of a noticeboard with a clerk. You give the clerk a note with a name on it. The clerk writes it down, finds the right noticeboard and pins it there. You can go home before the other person arrives to read it.</p>
+<h3>New words</h3>
+<dl>
+<dt>Texting app</dt><dd>The program a person uses to write, send and read messages.</dd>
+<dt>Message service</dt><dd>A system in the background that carries and stores messages.</dd>
+<dt>Store and forward</dt><dd>Accepting a message, keeping it safely, and sending it onward when possible.</dd>
+<dt>Carrier</dt><dd>A company that runs the mobile radio network a phone uses.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Finding the two sides</h2>
+<p><strong>Goal:</strong> you will be able to name which part of a text message a person uses and which parts work in the background.</p>
+<tam-sandbox
+  title="Try it: identify the message services"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the lines that describe carrier services">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="services.txt" size="180">person: I type a message in an app
+carrier: a short message service accepts it
+carrier: a rich communication service may add chat features
+internet: an over-the-top app may carry it instead</file>
+  <file name="message.txt" size="90">to: bo
+text: Are we still meeting?
+kind: short message</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat services.txt" hint="The first line names the person; the rest name services."><out>person: I type a message in an app</out><out>carrier: a short message service accepts it</out><out>carrier: a rich communication service may add chat features</out><out>internet: an over-the-top app may carry it instead</out></tam-cmd>
+  <tam-cmd match="grep carrier services.txt" goal="true" hint="Keep only the lines labelled carrier."><out>carrier: a short message service accepts it</out><out>carrier: a rich communication service may add chat features</out></tam-cmd>
+  <tam-cmd match="cat message.txt" hint="The sample names the receiver and the message kind."><out>to: bo</out><out>text: Are we still meeting?</out><out>kind: short message</out></tam-cmd>
+  <tam-init>Try: cat services.txt, then grep carrier services.txt</tam-init>
+  <tam-hint after="1">The person uses the app; the services do the work in the background.</tam-hint>
+  <tam-hint after="2">Filter on the word carrier to leave the two service lines.</tam-hint>
+  <tam-fallback>Try cat services.txt, grep carrier services.txt, or cat message.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat services.txt</code> showed one person-side role and three service-side routes.</li>
+<li><code>grep carrier services.txt</code> kept the carrier routes: <a href="glossary/s/sms.html">SMS (Short Message Service)</a> and <a href="glossary/r/rcs.html">RCS (Rich Communication Services)</a>.</li>
+<li><code>cat message.txt</code> showed a small message sample. A real system adds addresses, identity and delivery information that this sample leaves out.</li>
+</ol>
+<p>The files and output in this sandbox are teaching samples. This series does not send a text, change a SIM or install a messaging app.</p>
+<h3>Try it</h3>
+<p>Run <code>grep internet services.txt</code>. Predict which single line will remain before you type it.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>grep</code> printed every line.</dt><dd>Check that the label matches the exact word in the sample file.</dd>
+<dt>You expected every text to use a carrier service.</dt><dd>Internet messaging apps can carry a text over data instead. The next pages separate those routes.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The offline guide describes messaging services neutrally. Tamlinux does not choose a phone carrier or a messaging app for the reader.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why can a sender finish before the receiver is online?</i></summary><p>Because a service stores the message and forwards it later. Store and forward does not require both people to be connected at the same moment.</p></details>
+<details class="q"><summary><i>Is the app on the phone the same thing as the message service?</i></summary><p>No. The app is what a person sees and uses. A separate service carries, stores and delivers the message; one app may use more than one service.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Architectural boundaries</h2>
+<h3>Reference</h3>
+<table><tr><th>Route</th><th>Carry path</th><th>Typical store</th></tr>
+<tr><td>SMS</td><td>Signalling network through a short message service centre</td><td>Message centre queue</td></tr>
+<tr><td>MMS</td><td>IP-oriented transport through a multimedia service centre</td><td>Multimedia store with link retrieval</td></tr>
+<tr><td>RCS</td><td>IMS-based chat and rich services over IP</td><td>Service and conversation store</td></tr>
+<tr><td><a href="glossary/o/ott.html">OTT (Over-The-Top)</a></td><td>Public internet to an app provider</td><td>Provider or device store</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A text is not one protocol. The word covers several service models with different trust boundaries. A carrier short message uses <cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite>; multimedia uses <cite data-ref="spec-3gpp-23-140"><a href="bibliography/spec-3gpp-23-140.html">3GPP TS 23.140</a></cite>; <a href="glossary/i/ims.html">IMS (IP Multimedia Subsystem)</a> underpins RCS as described by <cite data-ref="spec-3gpp-23-228"><a href="bibliography/spec-3gpp-23-228.html">3GPP TS 23.228</a></cite>. An internet messaging app instead uses ordinary IP connectivity and its provider's own service, which is why it is called over the top.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>"Delivered" can mean accepted by a service, stored for the receiver, or displayed on a device. These are different events.</li>
+<li>A message may cross more than one store. Retention, retry and privacy rules differ at each store.</li>
+<li>An app may fall back from a rich route to a carrier message; the visible conversation can hide that change.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>What is lost if a history of texting is taught as one protocol?</i></summary><p>The model erases the boundaries that explain authentication, delivery, cost and privacy. A short message, a rich chat and an app message can look identical on screen while having different stores, identifiers and failure modes.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite>; <cite data-ref="spec-3gpp-23-140"><a href="bibliography/spec-3gpp-23-140.html">3GPP TS 23.140</a></cite>; <cite data-ref="spec-3gpp-23-228"><a href="bibliography/spec-3gpp-23-228.html">3GPP TS 23.228</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/how-a-phone-joins-a-cellular-network.html">How a phone joins a cellular network</a> &mdash; find out what the radio link actually provides.</li>
+<li><a href="systems/mobile-communications/texting/sms-store-and-forward.html">SMS and store-and-forward</a> &mdash; follow the classic short message route.</li>
+<li><a href="paths/texting.html">From first text to research-level messaging</a> &mdash; learn the subject in order.</li>
+</ul>
+</body></html>

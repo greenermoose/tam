@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html><head>
+<title>SIM cards and subscriber identity</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="sim-and-subscriber-identity">
+<meta name="summary" content="A SIM or eSIM holds the credentials that let a phone prove it belongs to a mobile subscription, distinct from the phone's own hardware identity.">
+<meta name="keywords" content="SIM, eSIM, USIM, IMSI, IMEI, subscriber identity, authentication, roaming, SIM swap">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="how-a-phone-joins-a-cellular-network">
+<meta name="paths" content="texting:3">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / SIM cards and subscriber identity</p></nav>
+
+<p>The small card in a phone tells a mobile network which subscription the phone is using. A phone can change without the subscription changing, and a subscription can move to another phone, because identity and hardware are recorded separately.</p>
+
+<section data-level="novice">
+<h2>A key for an account</h2>
+<p>A <dfn><a href="glossary/s/sim.html">SIM (Subscriber Identity Module)</a></dfn> is a small secure card. It holds a number that names the subscription and a secret that the network can check. An <a href="glossary/e/esim.html">eSIM (embedded Subscriber Identity Module)</a> does the same job but is built into the phone instead of being a removable card.</p>
+<h3>Why it matters</h3>
+<p>Without this identity, the network would not know which account should pay for calls and data, or which texts belong to which person. Taking the card out of one phone and putting it in another moves the subscription, not the phone itself.</p>
+<h3>How to think about it</h3>
+<p>Think of a library card. The card identifies the borrower; the book bag they carry is not the borrower. A phone is like the bag, and the SIM is like the card that says whose account it is.</p>
+<h3>New words</h3>
+<dl>
+<dt>SIM</dt><dd>A card that holds subscription identity and a secret used to prove it.</dd>
+<dt>IMSI</dt><dd>A number stored on the card that names the subscriber in mobile networks.</dd>
+<dt>IMEI</dt><dd>A number that names the phone hardware itself.</dd>
+<dt>Roaming</dt><dd>Using another carrier's network while keeping your own subscription.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Telling identity apart</h2>
+<p><strong>Goal:</strong> you will be able to say whether a line describes the subscriber, the phone hardware or the network record.</p>
+<tam-sandbox
+  title="Try it: sort the identifiers"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show which identifier names the subscription">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="identity.txt" size="190">subscription: IMSI names the subscriber
+hardware: IMEI names the phone
+secret: the SIM proves the subscription
+home: HSS or UDM keeps subscriber records</file>
+  <file name="roam.txt" size="100">visited: radio network you are using
+home: network that holds your account</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat identity.txt" hint="Each line has a label and an identifier."><out>subscription: IMSI names the subscriber</out><out>hardware: IMEI names the phone</out><out>secret: the SIM proves the subscription</out><out>home: HSS or UDM keeps subscriber records</out></tam-cmd>
+  <tam-cmd match="grep subscription identity.txt" goal="true" hint="Match the label for the account, not the hardware."><out>subscription: IMSI names the subscriber</out></tam-cmd>
+  <tam-cmd match="cat roam.txt" hint="Roaming separates the visited network from the home account."><out>visited: radio network you are using</out><out>home: network that holds your account</out></tam-cmd>
+  <tam-init>Try: cat identity.txt, then grep subscription identity.txt</tam-init>
+  <tam-hint after="1">A subscription can move to another phone; hardware identity cannot.</tam-hint>
+  <tam-hint after="2">Filter on the label subscription to find the subscriber identifier.</tam-hint>
+  <tam-fallback>Try cat identity.txt, grep subscription identity.txt, or cat roam.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat identity.txt</code> separated subscriber identity, hardware identity, the proving secret and the home record.</li>
+<li><code>grep subscription identity.txt</code> isolated the subscriber identifier, <a href="glossary/i/imsi.html">IMSI (International Mobile Subscriber Identity)</a>.</li>
+<li><code>cat roam.txt</code> showed why a visited network still asks the home network about the account.</li>
+</ol>
+<p>The files and output are teaching samples. No SIM, account or network setting is changed here.</p>
+<h3>Try it</h3>
+<p>Run <code>grep hardware identity.txt</code>. Explain why blocking a lost phone by hardware identity is different from stopping the subscription.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You treated the phone number and IMSI as the same thing.</dt><dd>A phone number is an address other people dial or text. The IMSI is an internal subscriber identity. A later page covers address translation.</dd>
+<dt>You assumed roaming moves the account to the visited network.</dt><dd>The visited network gives radio and local access; the home network keeps the subscription record and authorisation.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux does not store or manage a phone's SIM credentials. This series explains the identity model so that messaging security claims can be judged accurately.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>If a person moves their SIM to a new phone, what identity changed?</i></summary><p>The subscription stayed the same and the hardware changed. The network still sees the same subscriber, while the phone's equipment identity is different.</p></details>
+<details class="q"><summary><i>Why is a SIM swap dangerous for text-based codes?</i></summary><p>An attacker who convinces the carrier to move the subscription to their SIM can receive texts intended for the victim. The code may be valid even though the account holder never got it.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Subscriber credentials and privacy</h2>
+<h3>Reference</h3>
+<table><tr><th>Item</th><th>Belongs to</th><th>Role</th></tr>
+<tr><td><a href="glossary/i/imsi.html">IMSI (International Mobile Subscriber Identity)</a></td><td>Subscription</td><td>Permanent subscriber identifier in the home network</td></tr>
+<tr><td><a href="glossary/i/imei.html">IMEI (International Mobile Equipment Identity)</a></td><td>Phone hardware</td><td>Equipment identity used for inventory and blocking</td></tr>
+<tr><td>Subscriber key</td><td>SIM or USIM and home network</td><td>Secret used in authentication</td></tr>
+<tr><td><a href="glossary/h/hss.html">HSS (Home Subscriber Server)</a> / <a href="glossary/u/udm.html">UDM (Unified Data Management)</a></td><td>Home network</td><td>Subscriber records and authentication data</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A USIM application on the card holds the subscriber identifiers and a long-lived key. The card performs authentication so that the secret need not be exposed to the phone's general software. <cite data-ref="spec-3gpp-31-102"><a href="bibliography/spec-3gpp-31-102.html">3GPP TS 31.102</a></cite> defines the USIM application. In 5G, the permanent subscriber identity is concealed before it is sent over the air; the home network can recover it, while a passive observer should not be able to read it directly. Authentication and key agreement are specified in <cite data-ref="spec-3gpp-33-501"><a href="bibliography/spec-3gpp-33-501.html">3GPP TS 33.501</a></cite>.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>The phone number, IMSI and device identity answer different questions. Confusing them produces wrong conclusions about routing, billing and fraud.</li>
+<li>SIM swap is an account takeover problem, not a flaw in radio encryption: the network legitimately moves the subscription to different credentials.</li>
+<li>eSIM removes the physical card swap but not the need for strong carrier proof of identity when a profile is transferred.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why conceal a permanent subscriber identifier on the radio link?</i></summary><p>A stable identifier lets an observer track a person across cells and sessions even when message contents are encrypted. Concealment reduces that tracking surface; it does not by itself hide all metadata or stop lawful or fraudulent identity recovery at the network.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="spec-3gpp-31-102"><a href="bibliography/spec-3gpp-31-102.html">3GPP TS 31.102</a></cite>; <cite data-ref="spec-3gpp-33-501"><a href="bibliography/spec-3gpp-33-501.html">3GPP TS 33.501</a></cite>; <cite data-ref="spec-3gpp-23-003"><a href="bibliography/spec-3gpp-23-003.html">3GPP TS 23.003</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/addressing-and-routing.html">Addresses, numbers and routing</a> &mdash; connect the subscriber identity to the number other people text.</li>
+<li><a href="systems/mobile-communications/texting/spam-smishing-and-abuse.html">Spam, smishing and abuse</a> &mdash; see how identity fraud becomes a messaging attack.</li>
+<li><a href="security/computer-security-principles.html">Computer security principles</a> &mdash; place SIM credentials in a wider threat model.</li>
+</ul>
+</body></html>

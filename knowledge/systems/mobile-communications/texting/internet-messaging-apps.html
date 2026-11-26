@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html><head>
+<title>Internet messaging apps</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="internet-messaging-apps">
+<meta name="summary" content="Internet messaging apps carry chats over data connections through their own providers, using push notifications, account identity and synchronised conversation state.">
+<meta name="keywords" content="instant messaging, OTT, push notification, APNs, FCM, XMPP, Matrix, contact discovery, delivery receipt, sync">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="rcs-and-ims">
+<meta name="paths" content="texting:8">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / Internet messaging apps</p></nav>
+
+<p>An internet messaging app sends words over a data connection instead of through the carrier's text service. The app provider keeps the conversation, the account and the delivery records, while the phone's operating system helps wake the app when something arrives.</p>
+
+<section data-level="novice">
+<h2>Chat over data</h2>
+<p>Some messages travel through the mobile network's text service. Others travel through the internet like a web page or a video. Apps that do this are called <a href="glossary/o/ott.html">OTT (Over-The-Top)</a> services: they run on top of the network rather than inside the carrier's messaging system.</p>
+<h3>Why it matters</h3>
+<p>Internet apps can add read receipts, typing indicators, group chats, stickers and sync across several devices. They can also work on Wi-Fi, because they use data rather than a phone number route.</p>
+<h3>How to think about it</h3>
+<p>Think of two ways to send a note across town. A carrier text is like handing the note to the postal service. An internet app is like uploading the note to a shared noticeboard that both people visit.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/i/instant-messaging.html">Instant messaging</a></dt><dd>Chat that appears on a screen while both people are using the service.</dd>
+<dt><a href="glossary/p/push-notification.html">Push notification</a></dt><dd>A small alert that tells an app to check for something new.</dd>
+<dt>Account</dt><dd>The identity the app provider uses to decide which chats belong to a person.</dd>
+<dt>Sync</dt><dd>Copying conversation state between a person's devices.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Reading an app delivery</h2>
+<p><strong>Goal:</strong> you will be able to separate the push alert from the step that fetches the actual chat message.</p>
+<tam-sandbox
+  title="Try it: separate the alert from the message"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line where the app fetches the conversation">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="app.txt" size="250">push: the operating system wakes the app with a small alert
+fetch: the app opens a channel to its provider and reads the message
+decrypt: the app turns protected content into readable text
+receipt: the app reports delivery to the provider
+sync: another device reads the same conversation later</file>
+  <file name="identity.txt" size="100">account: the provider knows which account owns the chat
+contacts: the app matches people by phone number or username</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat app.txt" hint="Each line is one step in an app delivery."><out>push: the operating system wakes the app with a small alert</out><out>fetch: the app opens a channel to its provider and reads the message</out><out>decrypt: the app turns protected content into readable text</out><out>receipt: the app reports delivery to the provider</out><out>sync: another device reads the same conversation later</out></tam-cmd>
+  <tam-cmd match="grep fetch app.txt" goal="true" hint="Find the step where the message itself is read."><out>fetch: the app opens a channel to its provider and reads the message</out></tam-cmd>
+  <tam-cmd match="cat identity.txt" hint="The account is not the same thing as the person's phone number."><out>account: the provider knows which account owns the chat</out><out>contacts: the app matches people by phone number or username</out></tam-cmd>
+  <tam-init>Try: cat app.txt, then grep fetch app.txt</tam-init>
+  <tam-hint after="1">A push alert is a wake-up signal, not the whole message.</tam-hint>
+  <tam-hint after="2">Filter on fetch to isolate the message read step.</tam-hint>
+  <tam-fallback>Try cat app.txt, grep fetch app.txt, or cat identity.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat app.txt</code> showed push, fetch, decrypt, receipt and sync as separate steps.</li>
+<li><code>grep fetch app.txt</code> isolated the step where the app actually reads the conversation.</li>
+<li><code>cat identity.txt</code> showed why the provider's account and the visible phone number are different layers.</li>
+</ol>
+<p>The trace and output are teaching samples. No app is installed and no push service is contacted.</p>
+<h3>Try it</h3>
+<p>Run <code>grep receipt app.txt</code>. Decide whether that receipt proves a person read the words.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You assumed the push alert always contains the message.</dt><dd>Push services are best treated as small wake-up notices. The app usually fetches the encrypted conversation from its provider afterwards.</dd>
+<dt>You expected the phone number to authenticate the person.</dt><dd>A phone number can be an address used for discovery. Real account security depends on how the provider binds that number to a credential.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux does not bundle a messaging app. This page explains the common parts so the reader can compare apps without treating any one product as the definition of messaging.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why might a lock-screen preview reveal a message even when the chat uses end-to-end encryption?</i></summary><p>The notification is generated by the app or operating system for display before the reader unlocks the app. Encryption in transit does not prevent a trusted device from showing a preview on screen.</p></details>
+<details class="q"><summary><i>What does sync across devices add to the security question?</i></summary><p>Each device must receive keys or plaintext, and backups may hold conversation history. More devices and backups mean more places where protection depends on account security.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Provider services and federation</h2>
+<h3>Reference</h3>
+<table><tr><th>Layer</th><th>Example</th><th>What it actually does</th></tr>
+<tr><td>Device push</td><td><a href="glossary/a/apns.html">APNs (Apple Push Notification service)</a>, <a href="glossary/f/fcm.html">FCM (Firebase Cloud Messaging)</a></td><td>Delivers a small wake-up notice to an app on a device</td></tr>
+<tr><td>App transport</td><td>TLS over a persistent connection, such as a WebSocket</td><td>Carries messages, receipts and state to the provider</td></tr>
+<tr><td>Account directory</td><td>Phone number or username binding</td><td>Maps a person to an account and its devices</td></tr>
+<tr><td>Federation</td><td><a href="glossary/x/xmpp.html">XMPP (Extensible Messaging and Presence Protocol)</a>, <a href="bibliography/matrix-spec.html">Matrix</a></td><td> Lets independent servers exchange messages</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A centralised app provider stores account records, contact graphs, conversation state and device push tokens. The operating system's push service wakes the app; the app then opens a transport to its provider, typically protected by TLS, and reads the conversation. <cite data-ref="apns"><a href="bibliography/apns.html">Apple's APNs documentation</a></cite> and <cite data-ref="fcm"><a href="bibliography/fcm.html">Firebase Cloud Messaging documentation</a></cite> describe the push side. XMPP is specified in <cite data-ref="rfc6120"><a href="bibliography/rfc6120.html">RFC 6120</a></cite> and <cite data-ref="rfc6121"><a href="bibliography/rfc6121.html">RFC 6121</a></cite>; the <cite data-ref="matrix-spec"><a href="bibliography/matrix-spec.html">Matrix specification</a></cite> defines another federated model. Federation moves trust across servers; it does not automatically make content private or make every server behave alike.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Contact discovery that uploads phone numbers can expose a person's social graph to the provider. Hashing numbers does not by itself make discovery private, because the number space is small enough to enumerate.</li>
+<li>Push notifications may be delayed or suppressed by the operating system. A delivery receipt inside the app is a different signal from a push confirmation.</li>
+<li>Cloud backups, linked devices and session restoration each add a place where ciphertext, keys or plaintext can be stored. Threat models must name those places explicitly.</li>
+<li>A central provider can change visibility, retention and interoperability rules without changing the app's visible conversation layout.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why does a federated chat network solve a different problem from end-to-end encryption?</i></summary><p>Federation answers who may run a server and exchange messages. Encryption answers who can read the content. A federated network can have weak encryption, and a centralised service can have strong content encryption while still learning metadata.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="apns"><a href="bibliography/apns.html">Apple APNs documentation</a></cite>; <cite data-ref="fcm"><a href="bibliography/fcm.html">Firebase Cloud Messaging</a></cite>; <cite data-ref="rfc6120"><a href="bibliography/rfc6120.html">RFC 6120</a></cite>; <cite data-ref="rfc6121"><a href="bibliography/rfc6121.html">RFC 6121</a></cite>; <cite data-ref="matrix-spec"><a href="bibliography/matrix-spec.html">Matrix specification</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/encryption-and-key-management.html">Encryption and key management</a> &mdash; find out what the word encrypted actually covers.</li>
+<li><a href="systems/mobile-communications/texting/delivery-and-reliability.html">Delivery, retries and reliability</a> &mdash; compare app receipts with carrier receipts.</li>
+<li><a href="glossary/o/ott.html">OTT (Over-The-Top)</a> &mdash; review the short definition.</li>
+</ul>
+</body></html>

@@ -1,0 +1,72 @@
+W144 TEXTING AND MOBILE MESSAGING CURRICULUM
+
+Date: 2026-11-25
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Continues: W143
+
+GUIDANCE
+
+  Fred: "Write a series of pages about texting. Include glossary pages
+  for SMS and MMS and RCS. Make sure that the glossary page titles
+  adhere to the format Acronym (What is stands for). The series should
+  take a reader from no prior knowledge to a PhD-level understanding
+  of how cell phone technology and all instant texting works."
+  When asked about the two design choices, Fred chose Systems >
+  Mobile communications as the subject home and the full practical
+  messaging set as the scope.
+
+DONE
+
+  - Added the Systems > Mobile communications hub, a texting subhub,
+    twelve three-level teaching pages and the six-stage `texting` goal
+    path with checkpoints and a folded capstone. Steps 1–12 are
+    declared on the teaching pages.
+  - Added 47 glossary pages and revised the NR entry, covering the
+    requested acronyms plus cellular radio, identity, addressing,
+    transport, encryption, delivery and anti-abuse terms. Acronym
+    titles spell out the expansion and breadcrumbs repeat the title.
+    RCS encryption is bounded to person-to-person conversations in
+    the current GSMA specification.
+  - Added 28 bibliography pages and updated every bibliography view;
+    registered `texting.*` skills and linked the series from Systems,
+    Networking, Security and relevant glossary pages.
+  - Bumped the corpus to 0.133.0 and updated the roadmap, decision
+    record, plan index, checklist and work records. Command version
+    stays 0.69.7.
+  - `make corpus`, `make corpus-and-test`, `make check-repo`, the
+    coverage report and reader spot checks pass. Live `whatis`
+    resolves SMS, MMS, RCS, IMS, IMSI, SIM, eSIM, LTE, NR, 2FA, OTP,
+    smishing, SIM swap, MLS, Signal Protocol and RCS Universal
+    Profile. Nothing was installed, promoted, tagged or pushed.
+
+FAILED
+
+  - The first corpus build rejected bibliography IDs beginning with a
+    digit. Renamed the 3GPP source IDs to `spec-3gpp-*` in pages,
+    citations and filenames.
+  - A `<dfn>` was not accepted with the glossary link wrapped around
+    it. Put the link inside the `<dfn>` element.
+  - Stage 3 of the path was counted as five steps because checkpoint
+    answer links carried `?level=`. Removed those answer links.
+  - Link checks found a wrong 2FA folder and no IMS glossary page.
+    Corrected the folder and added the IMS entry.
+  - `whatis "SIM swapping"` found no topic. Added `sim swapping` to
+    the SIM swap glossary keywords.
+
+CHECKED AGAINST
+
+  - 3GPP TS 23.003, 23.040, 23.041, 23.140, 23.222, 23.228, 23.501,
+    24.011, 24.229, 29.002, 31.102, 33.501, 36.300 and 38.300;
+    GSMA RCC.07, RCC.16 and RCC.71; RFC 6120, 6121 and 9420; ITU-T
+    E.164 and E.212; the APNs, FCM, Signal, Matrix, SMPP and NIST
+    SP 800-63B documentation.
+  - `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`,
+    `docs/templates/ladder.html`, `docs/templates/path.html` and the
+    email curriculum as the house pattern.
+
+HANDOFF
+
+  - Commit pages and bookkeeping, then rerun `make corpus` and commit
+    only the regenerated indexes. Await Fred's development cycle;
+    Test, Run and Release each need his exact word.

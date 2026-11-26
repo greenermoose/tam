@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html><head>
+<title>MMS and multimedia messages</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="mms-and-multimedia">
+<meta name="summary" content="MMS adds pictures, sound and longer text by storing media at a service centre and letting the receiver fetch it over IP.">
+<meta name="keywords" content="MMS, multimedia message, MMSC, attachment, WAP push, content adaptation, APN, delivery report">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="sms-store-and-forward">
+<meta name="paths" content="texting:6">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / MMS and multimedia messages</p></nav>
+
+<p><a href="glossary/m/mms.html">MMS (Multimedia Messaging Service)</a> carries more than short text. A photo, sound clip or longer note is stored by a service, and the receiver's phone fetches the content after receiving a small notice.</p>
+
+<section data-level="novice">
+<h2>A message with something attached</h2>
+<p>A short message is made of words. A multimedia message can include a picture, a sound or a longer piece of writing. Because that content is bigger, the phone usually does not carry it all in the same small notification that announces the message.</p>
+<h3>Why it matters</h3>
+<p>People want to share a photo or a voice note without opening a separate chat app. MMS gives the carrier messaging service a way to carry that content, even when the two phones use different models or networks.</p>
+<h3>How to think about it</h3>
+<p>Think of a postcard that says "a photo is waiting for you at the studio." The postcard is small. The photo itself is kept somewhere else until you go and collect it. Multimedia messaging works in a similar two-step way.</p>
+<h3>New words</h3>
+<dl>
+<dt>Multimedia message</dt><dd>A message that can carry more than plain short text.</dd>
+<dt>Media content</dt><dd>The picture, sound or longer text inside the message.</dd>
+<dt><a href="glossary/m/mmsc.html">MMSC (Multimedia Messaging Service Center)</a></dt><dd>The service that stores multimedia messages and handles them.</dd>
+<dt>Retrieval</dt><dd>Fetching the content after the phone has been told it is waiting.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Reading a multimedia delivery</h2>
+<p><strong>Goal:</strong> you will be able to tell the waiting notice apart from the step that actually fetches the media.</p>
+<tam-sandbox
+  title="Try it: follow the notice and the fetch"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line where the phone fetches the content">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="mms.txt" size="240">notice: a short control message says content is waiting
+retrieve: phone fetches the content over a data connection
+content: picture and caption stored at a temporary address
+adapt: centre may resize content for the receiver
+report: centre records delivery and read reports</file>
+  <file name="settings.txt" size="100">data setting: the phone uses a carrier data profile
+roaming: the profile may come from another network</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat mms.txt" hint="Each line names a stage in a multimedia delivery."><out>notice: a short control message says content is waiting</out><out>retrieve: phone fetches the content over a data connection</out><out>content: picture and caption stored at a temporary address</out><out>adapt: centre may resize content for the receiver</out><out>report: centre records delivery and read reports</out></tam-cmd>
+  <tam-cmd match="grep retrieve mms.txt" goal="true" hint="Find the stage that fetches the stored content."><out>retrieve: phone fetches the content over a data connection</out></tam-cmd>
+  <tam-cmd match="cat settings.txt" hint="The retrieval step needs a data profile, not only a radio signal."><out>data setting: the phone uses a carrier data profile</out><out>roaming: the profile may come from another network</out></tam-cmd>
+  <tam-init>Try: cat mms.txt, then grep retrieve mms.txt</tam-init>
+  <tam-hint after="1">The notice arrives first; the content comes later.</tam-hint>
+  <tam-hint after="2">Filter on retrieve to isolate the fetch step.</tam-hint>
+  <tam-fallback>Try cat mms.txt, grep retrieve mms.txt, or cat settings.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat mms.txt</code> showed notice, retrieval, stored content, adaptation and reports.</li>
+<li><code>grep retrieve mms.txt</code> isolated the step where the phone fetches the media.</li>
+<li><code>cat settings.txt</code> showed why a data profile matters. A phone with radio signal may still be unable to fetch the content if the data profile is missing.</li>
+</ol>
+<p>The files and output are teaching samples. No message is sent and no data setting is changed.</p>
+<h3>Try it</h3>
+<p>Run <code>grep report mms.txt</code>. Explain why a delivery report and a read report are not the same event.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You expected the picture to arrive with the first notice.</dt><dd>The notice is small. The media is usually stored and fetched in a second step.</dd>
+<dt>You assumed a message that is "sent" has been viewed.</dt><dd>A delivery report can mean the MMSC handed it off; a read report comes from the receiving device and is not always available.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux's guide describes carrier data profiles as a concept. It does not configure a phone's <a href="glossary/a/apn.html">APN (Access Point Name)</a> or install a messaging application.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why can a multimedia message fail when ordinary short texts still arrive?</i></summary><p>The short notice can travel over signalling, but the media usually needs a data connection and a working carrier data profile. If that path fails, the notice can arrive while the content cannot be fetched.</p></details>
+<details class="q"><summary><i>What can change between the sender's phone and the receiver's phone?</i></summary><p>The centre can adapt or resize content to suit the receiver and network policy. The picture the receiver sees need not be byte-for-byte the one the sender stored.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Multimedia service architecture</h2>
+<h3>Reference</h3>
+<table><tr><th>Interface or idea</th><th>Between</th><th>Purpose</th></tr>
+<tr><td>MM1</td><td>Phone and MMSC</td><td>Submit and retrieve multimedia messages</td></tr>
+<tr><td>MM4</td><td>MMSCs</td><td>Forward a message between service centres</td></tr>
+<tr><td>MM7</td><td>Value-added service and MMSC</td><td>Application-side submission and notifications</td></tr>
+<tr><td>WAP Push notice</td><td>MMSC and receiving phone</td><td>Advertise a waiting message, often carried as a short control message</td></tr>
+<tr><td><a href="glossary/a/apn.html">APN (Access Point Name)</a></td><td>Phone and packet network</td><td>Selects the data path used for retrieval</td></tr>
+</table>
+<h3>How it works</h3>
+<p><cite data-ref="spec-3gpp-23-140"><a href="bibliography/spec-3gpp-23-140.html">3GPP TS 23.140</a></cite> defines the multimedia messaging service. The sender uploads content to its MMSC; the centre stores it and sends a notification to the receiver. The receiver uses a data bearer to retrieve the content from a temporary address. The message body is structured with multipart content types, so text, images and audio can be carried together. Network operators set their own maximum message size and retention policy, so a limit that works on one carrier may fail on another.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A retrieval link can expire. After expiry, the notice may still be present in the conversation but the media can no longer be fetched.</li>
+<li>Roaming can break retrieval when the visited network does not supply the right data profile, even though the notification arrived.</li>
+<li>Group multimedia messaging may create one stored object per recipient, which complicates privacy expectations and read reports.</li>
+<li>An untrusted sender can use a multimedia notice to lure a reader into fetching content. Treat link-based delivery as part of the abuse surface, not only a transport detail.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>A user says "the text came through but the picture did not." Which layer do you inspect first?</i></summary><p>Inspect retrieval: did the phone receive a notice, was there a usable data connection and APN, and is the stored content still within its retention window? Only then inspect the sender's submission or the MMSC's forwarding path.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="spec-3gpp-23-140"><a href="bibliography/spec-3gpp-23-140.html">3GPP TS 23.140</a></cite>; <cite data-ref="spec-3gpp-23-040"><a href="bibliography/spec-3gpp-23-040.html">3GPP TS 23.040</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/rcs-and-ims.html">RCS and IMS</a> &mdash; see how rich chat moves beyond store-and-forward messages.</li>
+<li><a href="systems/mobile-communications/texting/delivery-and-reliability.html">Delivery, retries and reliability</a> &mdash; compare the meaning of a receipt across services.</li>
+<li><a href="glossary/m/mms.html">MMS (Multimedia Messaging Service)</a> &mdash; keep the short definition nearby while reading.</li>
+</ul>
+</body></html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html><head>
+<title>RCS and IMS</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="rcs-and-ims">
+<meta name="summary" content="RCS brings chat, presence and rich content to carrier messaging over IMS, with capability checks and a defined path to end-to-end encryption.">
+<meta name="keywords" content="RCS, IMS, Rich Communication Services, Universal Profile, capability exchange, presence, SIP, group chat, E2EE, fallback">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="mms-and-multimedia">
+<meta name="paths" content="texting:7">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / RCS and IMS</p></nav>
+
+<p><a href="glossary/r/rcs.html">RCS (Rich Communication Services)</a> is a carrier messaging service that uses internet-style data connections. It adds chat features such as delivery status, typing indicators, group chat and richer content, while still depending on the mobile network's subscriber system.</p>
+
+<section data-level="novice">
+<h2>Chat with a capability check</h2>
+<p>Not every phone supports the same chat features. Before starting a rich conversation, the service checks what each phone can do. If both sides support a feature, they use it. If they do not, the service may fall back to an ordinary short or multimedia message.</p>
+<h3>Why it matters</h3>
+<p>RCS tries to give carrier messaging some of the features people expect from chat apps, without requiring everyone to install the same app. The capability check is what makes that possible across different phones and carriers.</p>
+<h3>How to think about it</h3>
+<p>Think of two people deciding how to talk. One speaks three languages and the other speaks two, so they use a language they both know. RCS checks which "languages" the two phones speak before it sends.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/i/ims.html">IMS (IP Multimedia Subsystem)</a></dt><dd>The carrier's internet-style service platform.</dd>
+<dt>Capability exchange</dt><dd>The check that finds which chat features a phone supports.</dd>
+<dt><a href="glossary/p/presence.html">Presence</a></dt><dd>Information about whether a contact is available.</dd>
+<dt>Fallback</dt><dd>Using an older message service when a rich service cannot be used.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Reading an RCS conversation setup</h2>
+<p><strong>Goal:</strong> you will be able to identify capability discovery, rich chat, fallback and the separate category of business messages.</p>
+<tam-sandbox
+  title="Try it: follow the feature check"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line where the service checks supported features">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="rcs.txt" size="280">capability: the service asks which features the phone supports
+presence: a contact may appear available or busy
+chat: messages go over a data connection through the carrier service
+fallback: when RCS is unavailable, SMS may be used
+e2ee: supported person-to-person chats can be encrypted end to end
+bot: business messages are a separate category</file>
+  <file name="limits.txt" size="110">rollout: carrier and phone support differ by country
+backup: encrypted chats may not be backed up by the service</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat rcs.txt" hint="Each line names a feature or a boundary of RCS."><out>capability: the service asks which features the phone supports</out><out>presence: a contact may appear available or busy</out><out>chat: messages go over a data connection through the carrier service</out><out>fallback: when RCS is unavailable, SMS may be used</out><out>e2ee: supported person-to-person chats can be encrypted end to end</out><out>bot: business messages are a separate category</out></tam-cmd>
+  <tam-cmd match="grep capability rcs.txt" goal="true" hint="Find the line about checking supported features."><out>capability: the service asks which features the phone supports</out></tam-cmd>
+  <tam-cmd match="cat limits.txt" hint="A standard can exist before every carrier and phone supports it."><out>rollout: carrier and phone support differ by country</out><out>backup: encrypted chats may not be backed up by the service</out></tam-cmd>
+  <tam-init>Try: cat rcs.txt, then grep capability rcs.txt</tam-init>
+  <tam-hint after="1">Capability comes before chat; the service must know what both phones support.</tam-hint>
+  <tam-hint after="2">Filter on capability to isolate the feature check.</tam-hint>
+  <tam-fallback>Try cat rcs.txt, grep capability rcs.txt, or cat limits.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat rcs.txt</code> showed capability checking, presence, chat, fallback, encryption and business messages.</li>
+<li><code>grep capability rcs.txt</code> isolated the step that decides which features are usable.</li>
+<li><code>cat limits.txt</code> showed why support and backup rules matter in real deployments.</li>
+</ol>
+<p>The lines and output are teaching samples. No carrier service is queried and no chat setting is changed.</p>
+<h3>Try it</h3>
+<p>Run <code>grep fallback rcs.txt</code>. Explain why falling back to SMS can change the privacy of a conversation.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You assumed RCS is the same as an internet chat app.</dt><dd>RCS is a carrier service built on IMS. It shares features with apps, but identity, rollout and standards are different.</dd>
+<dt>You assumed all RCS messages are encrypted.</dt><dd>Encryption depends on the participants, clients, carriers and message category. Business bot traffic and SMS fallback are outside the person-to-person encrypted path.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux does not enable RCS or choose a messaging client. This page describes the service model so the reader can evaluate claims about chat features and privacy.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why must a reader check whether a conversation fell back to SMS before trusting a privacy claim?</i></summary><p>SMS has no standard application-layer end-to-end content encryption. A rich encrypted chat and a fallback short message can appear in the same conversation view but have different protection.</p></details>
+<details class="q"><summary><i>Why is presence different from a delivery receipt?</i></summary><p>Presence describes availability; a receipt describes a message event. A contact can be available while a message is delayed, or unavailable while a message was delivered to a device.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>IMS foundation and Universal Profile</h2>
+<h3>Reference</h3>
+<table><tr><th>Layer</th><th>Source</th><th>Role</th></tr>
+<tr><td>IMS core</td><td><cite data-ref="spec-3gpp-23-228"><a href="bibliography/spec-3gpp-23-228.html">3GPP TS 23.228</a></cite></td><td>Session control, subscriber integration and service platform</td></tr>
+<tr><td>SIP/SDP control</td><td><cite data-ref="spec-3gpp-24-229"><a href="bibliography/spec-3gpp-24-229.html">3GPP TS 24.229</a></cite></td><td>Call and session signalling for IMS clients</td></tr>
+<tr><td>RCS client</td><td><cite data-ref="gsma-rcc07"><a href="bibliography/gsma-rcc07.html">GSMA RCC.07 v17.0</a></cite></td><td>Client behaviour for RCS services</td></tr>
+<tr><td>Universal Profile</td><td><cite data-ref="gsma-rcs-up"><a href="bibliography/gsma-rcs-up.html">GSMA RCC.71 UP 4.0</a></cite></td><td>Interoperable feature baseline across carriers and clients</td></tr>
+<tr><td>RCS encryption</td><td><cite data-ref="gsma-rcc16"><a href="bibliography/gsma-rcc16.html">GSMA RCC.16 v3.0</a></cite></td><td>End-to-end encryption for person-to-person conversations</td></tr>
+</table>
+<h3>How it works</h3>
+<p>RCS uses the IP Multimedia Subsystem, whose stage-two architecture is defined in 3GPP TS 23.228 and whose SIP/SDP procedures are defined in 3GPP TS 24.229. GSMA's RCC.07 defines the RCS client; RCC.71 defines the Universal Profile, with UP 4.0 published in 2026 as value <code>UP_4.0</code>. The profile includes capability discovery, one-to-one and group chat, file transfer, enriched calling, multi-device behaviour, rich cards for business messaging and spam controls. Capability discovery lets a client learn which features the other side supports before choosing a route.</p>
+<p>The Universal Profile now includes end-to-end encryption requirements based on RCC.16. RCC.16 uses <cite data-ref="rfc9420"><a href="bibliography/rfc9420.html">MLS (RFC 9420)</a></cite> and HPKE, with key packages distributed via key distribution services. Its scope is person-to-person conversations; chatbot conversations are excluded, and SMS fallback is not encrypted. UP 4.0 requires clients to enable encryption by default unless local regulation prohibits it, but a specification requirement is not the same as universal deployment. Cross-operator and cross-client availability is fast-changing and must be checked against current carrier and client documentation.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Fallback can happen inside a single visible conversation. A privacy analysis must ask which transport carried a given message, not only which app displayed it.</li>
+<li>Business messages and rich cards are valuable for services but are a different trust category from person-to-person chat; a verified brand channel is still a policy signal, not proof of content authenticity.</li>
+<li>Encrypted RCS messages may not be backed up by the service. That improves content confidentiality but changes recovery expectations when a phone is lost.</li>
+<li>Rollout differs by country, carrier, client version and regulation. A feature listed in a Universal Profile may not be active for a particular pair of users.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is "RCS supports E2EE" a different claim from "this RCS conversation is E2EE"?</i></summary><p>The first is a specification capability. The second requires both clients, carriers and key services to support it for that conversation and message category, with no fallback to SMS. Check the deployed path before making the stronger claim.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="gsma-rcc07"><a href="bibliography/gsma-rcc07.html">GSMA RCC.07</a></cite>; <cite data-ref="gsma-rcs-up"><a href="bibliography/gsma-rcs-up.html">GSMA RCC.71 Universal Profile</a></cite>; <cite data-ref="gsma-rcc16"><a href="bibliography/gsma-rcc16.html">GSMA RCC.16</a></cite>; <cite data-ref="spec-3gpp-23-228"><a href="bibliography/spec-3gpp-23-228.html">3GPP TS 23.228</a></cite>; <cite data-ref="spec-3gpp-24-229"><a href="bibliography/spec-3gpp-24-229.html">3GPP TS 24.229</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/internet-messaging-apps.html">Internet messaging apps</a> &mdash; compare carrier chat with provider-owned chat.</li>
+<li><a href="systems/mobile-communications/texting/encryption-and-key-management.html">Encryption and key management</a> &mdash; examine what an encrypted RCS conversation still reveals.</li>
+<li><a href="glossary/r/rcs.html">RCS (Rich Communication Services)</a> &mdash; keep the short definition nearby.</li>
+</ul>
+</body></html>

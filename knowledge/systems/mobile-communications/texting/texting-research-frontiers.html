@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html><head>
+<title>Texting research frontiers</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="texting-research-frontiers">
+<meta name="summary" content="Messaging research asks how to extend reach, reduce metadata, secure groups and measure reliability without assuming today's systems are final.">
+<meta name="keywords" content="research, satellite messaging, direct-to-device, post-quantum, MLS, privacy, measurement, interoperability, 6G">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/mobile-communications/texting/index.html">
+<meta name="prereqs" content="spam-smishing-and-abuse">
+<meta name="paths" content="texting:12">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and administration</a> / <a href="systems/mobile-communications/index.html">Mobile communications</a> / <a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> / Texting research frontiers</p></nav>
+
+<p>The basics of messaging are settled well enough to build services, but many questions are still open. Researchers study how to reach places without coverage, how to protect large groups, and how to measure privacy and reliability honestly.</p>
+
+<section data-level="novice">
+<h2>What is still being investigated?</h2>
+<p>Some problems have a clear answer today: a phone can join a cellular network, and a short message can be stored and forwarded. Other problems are still being explored. Engineers test new ways to send texts from remote places and new ways to keep conversations private.</p>
+<h3>Why it matters</h3>
+<p>Research turns questions into evidence. A claim such as "this chat is private" becomes useful when someone can say exactly which information is hidden and which is still visible.</p>
+<h3>How to think about it</h3>
+<p>Think of a map with solid roads and dotted paths. The solid roads are standards that work today. The dotted paths are ideas people are still testing before anyone should rely on them.</p>
+<h3>New words</h3>
+<dl>
+<dt>Research question</dt><dd>A problem that does not yet have a settled, widely deployed answer.</dd>
+<dt>Measurement</dt><dd>Collecting evidence about how a system behaves in real conditions.</dd>
+<dt>Interoperability</dt><dd>Different services working together without losing their security promises.</dd>
+<dt>Direct-to-device</dt><dd>A network talking straight to an ordinary phone, without a separate satellite phone.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Telling settled facts from open questions</h2>
+<p><strong>Goal:</strong> you will be able to separate a settled standard from an open research question.</p>
+<tam-sandbox
+  title="Try it: find the open questions"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line that names an unsettled interoperability problem">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="frontiers.txt" size="280">settled: cellular radio and core networks have published standards
+settled: short messages can be stored and forwarded
+question: can ordinary phones text reliably from orbit?
+question: can large groups stay private as membership changes?
+open: interoperable encryption across carriers and apps
+method: measure delivery, delay and user-visible failures in the field</file>
+  <file name="care.txt" size="100">claim: name the threat model and the evidence
+caution: a demo is not a deployed service</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat frontiers.txt" hint="Some lines are settled; others are still questions."><out>settled: cellular radio and core networks have published standards</out><out>settled: short messages can be stored and forwarded</out><out>question: can ordinary phones text reliably from orbit?</out><out>question: can large groups stay private as membership changes?</out><out>open: interoperable encryption across carriers and apps</out><out>method: measure delivery, delay and user-visible failures in the field</out></tam-cmd>
+  <tam-cmd match="grep open frontiers.txt" goal="true" hint="Find the line about a problem that is not settled."><out>open: interoperable encryption across carriers and apps</out></tam-cmd>
+  <tam-cmd match="cat care.txt" hint="Research claims need a threat model and evidence."><out>claim: name the threat model and the evidence</out><out>caution: a demo is not a deployed service</out></tam-cmd>
+  <tam-init>Try: cat frontiers.txt, then grep open frontiers.txt</tam-init>
+  <tam-hint after="1">Settled standards and research questions belong in different columns.</tam-hint>
+  <tam-hint after="2">Filter on open to isolate the interoperability question.</tam-hint>
+  <tam-fallback>Try cat frontiers.txt, grep open frontiers.txt, or cat care.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat frontiers.txt</code> separated settled facts from questions and a measurement method.</li>
+<li><code>grep open frontiers.txt</code> isolated the unsettled interoperability case.</li>
+<li><code>cat care.txt</code> reminded us to name a threat model and not treat a demo as a deployed service.</li>
+</ol>
+<p>The lines and output are teaching samples, not research results.</p>
+<h3>Try it</h3>
+<p>Run <code>grep question frontiers.txt</code>. Choose one question and write what evidence would answer it.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You assumed a published specification means universal deployment.</dt><dd>A standard can exist while devices, carriers and regulators still differ on whether and how to deploy it.</dd>
+<dt>You treated a new protocol as proof of better privacy.</dt><dd>A protocol needs review, implementation, deployment and measurement before its privacy claims apply to real users.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux records what is deployed and verifiable. Research ideas stay labelled as ideas unless a source and a reproducible check support them.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why must a research claim name its threat model?</i></summary><p>"Private" means little without saying who the adversary is, what they can observe and what is protected. A system can hide message content yet expose contact graphs, timing or device identities.</p></details>
+<details class="q"><summary><i>Why is measurement harder for messaging than for a file transfer?</i></summary><p>Delivery involves queues, retries, push notifications, user behaviour and multiple providers. A single successful transfer says little about latency under congestion, duplicate suppression or privacy leaks.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Open problems and how to reason about them</h2>
+<h3>Reference</h3>
+<table><tr><th>Area</th><th>Question</th><th>Constraint</th></tr>
+<tr><td>Direct-to-device satellite messaging</td><td>Can ordinary phones reach a satellite network with acceptable power and antenna limits?</td><td>Link budget, regulation, roaming and emergency access</td></tr>
+<tr><td>Group encryption</td><td>Can large, changing groups keep forward secrecy and remove members cleanly?</td><td>Key tree maintenance, device state and bandwidth</td></tr>
+<tr><td>Interoperable E2EE</td><td>Can different carriers and apps protect the same conversation end to end?</td><td>Shared key management, fallback rules and verification UX</td></tr>
+<tr><td>Private discovery</td><td>Can people find contacts without revealing their whole address book?</td><td>Private information retrieval, rate limits and server trust</td></tr>
+<tr><td>Post-quantum protection</td><td>How do long-lived secrets resist future quantum attackers?</td><td>Standardised algorithms, hybrid handshakes and deployment cost</td></tr>
+<tr><td>Measurement and regulation</td><td>How can researchers measure delivery and abuse without exposing users?</td><td>Consent, data minimisation and reproducible methods</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Current radio and core standards are defined in <cite data-ref="spec-3gpp-38-300"><a href="bibliography/spec-3gpp-38-300.html">3GPP TS 38.300</a></cite> and <cite data-ref="spec-3gpp-23-501"><a href="bibliography/spec-3gpp-23-501.html">3GPP TS 23.501</a></cite>; research extends those foundations rather than replacing them. <cite data-ref="rfc9420"><a href="bibliography/rfc9420.html">RFC 9420</a></cite> gives a concrete group-key protocol to study, and the <cite data-ref="gsma-rcc16"><a href="bibliography/gsma-rcc16.html">GSMA RCC.16</a></cite> RCS encryption specification shows how a standard can move from a design into a deployment path while leaving fallback and bot interoperability unresolved. Good research states the adversary, names the observable evidence, and separates laboratory results from field measurements.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A protocol can be formally correct and still fail through key backup, unsafe device recovery or confusing verification prompts.</li>
+<li>Emergency messaging creates a tension between broad reach and strict authentication; rules differ by country and service.</li>
+<li>Archive and audit needs can conflict with ephemeral messaging. Research must specify retention and legal constraints instead of assuming them away.</li>
+<li>Evaluation on one carrier, app or country does not generalise. Report the deployment context with every measurement.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is interoperable end-to-end encryption more than picking the same cipher?</i></summary><p>Parties must agree on identity, key packages, group membership, fallback behaviour and verification semantics across organisations. A shared cipher library does not settle who is allowed to join or what happens when encryption is unavailable.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="spec-3gpp-38-300"><a href="bibliography/spec-3gpp-38-300.html">3GPP TS 38.300</a></cite>; <cite data-ref="spec-3gpp-23-501"><a href="bibliography/spec-3gpp-23-501.html">3GPP TS 23.501</a></cite>; <cite data-ref="rfc9420"><a href="bibliography/rfc9420.html">RFC 9420</a></cite>; <cite data-ref="gsma-rcc16"><a href="bibliography/gsma-rcc16.html">GSMA RCC.16</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/mobile-communications/texting/index.html">Texting and instant messaging</a> &mdash; return to the series hub and reread any earlier step.</li>
+<li><a href="paths/texting.html">From first text to research-level messaging</a> &mdash; revisit the whole path and try the capstone.</li>
+<li><a href="bibliography/index.html">Sources and further reading</a> &mdash; open the standards behind the claims.</li>
+</ul>
+</body></html>

@@ -3,32 +3,33 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-25, with W143
+Updated: 2026-11-25, with W144
 
 STATE
 
-  Command 0.69.7 and corpus 0.132.0 are on dev. W143 added the
-  Networking / Email curriculum: hub, ten three-level teaching pages,
-  the five-stage `email` goal path, 37 new and one revised glossary
-  entry, 24 sources and the `mail.*` skills. Examples are labelled
-  sandboxes; no mail software was installed. make corpus,
-  corpus-and-test, check-repo, the coverage report and reader spot
-  checks pass; live whatis resolves the requested names. W137–W142
-  are committed; W143 and its generated index follow-ups still need
-  commits on dev and are not pushed.
+  Command 0.69.7 and corpus 0.133.0 are on dev. W144 added the
+  Systems / Mobile communications texting curriculum: two hubs,
+  twelve three-level teaching pages, the six-stage `texting` goal
+  path, 47 new and one revised glossary entry, 28 sources and the
+  `texting.*` skills. Examples are labelled sandboxes; no phone
+  service, SIM, network setting or messaging app was configured.
+  make corpus, corpus-and-test, check-repo, the coverage report and
+  reader spot checks pass; live whatis resolves the requested names.
+  W143 is committed; W144 and its generated index follow-ups still
+  need commits on dev and are not pushed.
 
 NEXT
 
-  1. Commit W143's pages and bookkeeping, rerun `make corpus`, then
+  1. Commit W144's pages and bookkeeping, rerun `make corpus`, then
      commit only the regenerated indexes.
-  2. Await Fred's development cycle for corpus 0.132.0. Test, Run and
+  2. Await Fred's development cycle for corpus 0.133.0. Test, Run and
      Release still need his exact word.
   3. If he asks for a push, check `git log @{u}..` for other agents'
      commits first, then push only dev.
 
 WAITING FOR FRED
 
-  - Fred's development cycle for corpus 0.132.0. Tamlinux 0.6.38
+  - Fred's development cycle for corpus 0.133.0. Tamlinux 0.6.38
     remains in Test.
 
 WATCH OUT
@@ -63,6 +64,12 @@ WATCH OUT
     `python3 tools/corpus_pipeline.py check --fix-glossary`: it moves
     the page, fixes its parent and breadcrumb, rewrites inbound links
     and regenerates the hubs.
+  - Bibliography IDs must start with a letter. Prefix numeric standards
+    such as 3GPP with `spec-` in filenames, `data-ref` values and links.
+  - A `<dfn>` needs a glossary link inside the element, not around it.
+  - A path stage's step count includes checkpoint links carrying
+    `?level=`. Keep answer prose free of levelled page links or reduce
+    the numbered steps to stay within four.
   - Every meta skills ID must exist in knowledge/skills/skills.json;
     register a new domain at all three levels before building.
   - A step's `meta paths` ID must equal the path page's `meta topic`;

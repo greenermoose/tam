@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html><head>
+<title>From first text to research-level messaging</title>
+<meta name="kind" content="path">
+<meta name="skills" content="texting.novice, texting.learner, texting.expert">
+<meta name="topic" content="texting">
+<meta name="summary" content="Start with no messaging background and finish able to explain cellular access, SMS, MMS, RCS, internet apps, encryption, delivery and open research.">
+<meta name="keywords" content="path, texting, SMS, MMS, RCS, cellular network, instant messaging, encryption, delivery, spam">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / From first text to research-level messaging</p></nav>
+
+<p>This path follows one text from the person who writes it to the research questions that remain after it arrives. Each stage tells you which lens to read with: Novice for the idea, Learner for a worked sample, and Expert for standards and failure modes.</p>
+<p>All examples live in labelled teaching sandboxes. Nothing here sends a real text, changes a SIM or installs a messaging app.</p>
+
+<h2>Stage 1: The whole journey</h2>
+<ol>
+<li><a href="systems/mobile-communications/texting/what-is-texting.html?level=2">What is texting?</a> &mdash; name the person-side app and the background services.</li>
+<li><a href="systems/mobile-communications/texting/how-a-phone-joins-a-cellular-network.html?level=2">How a phone joins a cellular network</a> &mdash; separate the radio hop from the core and service layers.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why can a text arrive after both people have left their current locations?</i></summary><p>A service stores it and forwards it later. The radio link only carries one hop; the core tracks where to send it and the message service keeps it until delivery or expiry. Reread <a href="systems/mobile-communications/texting/what-is-texting.html?level=1">What is texting?</a> if the store-and-forward idea is unclear.</p></details>
+</section>
+
+<h2>Stage 2: Identity and addressing</h2>
+<ol>
+<li><a href="systems/mobile-communications/texting/sim-and-subscriber-identity.html?level=2">SIM cards and subscriber identity</a> &mdash; tell the subscription, the phone and the home record apart.</li>
+<li><a href="systems/mobile-communications/texting/addressing-and-routing.html?level=2">Addresses, numbers and routing</a> &mdash; turn a visible phone number into a current route.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why does moving a SIM to a new phone not change the subscriber?</i></summary><p>The subscription credential moves with the SIM; the equipment identity belongs to the phone. Reread <a href="systems/mobile-communications/texting/sim-and-subscriber-identity.html?level=1">SIM cards and subscriber identity</a>, then compare it with <a href="systems/mobile-communications/texting/addressing-and-routing.html?level=1">Addresses, numbers and routing</a>.</p></details>
+</section>
+
+<h2>Stage 3: Carrier messaging</h2>
+<ol>
+<li><a href="systems/mobile-communications/texting/sms-store-and-forward.html?level=2">SMS and store-and-forward</a> &mdash; follow submission, acceptance, retry and receipt.</li>
+<li><a href="systems/mobile-communications/texting/mms-and-multimedia.html?level=2">MMS and multimedia messages</a> &mdash; separate the small notice from the media fetch.</li>
+<li><a href="systems/mobile-communications/texting/rcs-and-ims.html?level=2">RCS and IMS</a> &mdash; compare rich chat, capability discovery and fallback.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why is a delivery receipt not proof that a person read a text?</i></summary><p>It reports a system event such as handoff to a network or device. Reading is a separate client event.</p></details>
+</section>
+
+<h2>Stage 4: Internet messaging</h2>
+<ol>
+<li><a href="systems/mobile-communications/texting/internet-messaging-apps.html?level=2">Internet messaging apps</a> &mdash; trace push, fetch, account identity and sync.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>What does an over-the-top app use that a carrier text service does not?</i></summary><p>A data connection to the app provider's own servers, plus push notifications from the device operating system. Reread <a href="systems/mobile-communications/texting/internet-messaging-apps.html?level=1">Internet messaging apps</a>.</p></details>
+</section>
+
+<h2>Stage 5: Trust and delivery</h2>
+<ol>
+<li><a href="systems/mobile-communications/texting/encryption-and-key-management.html?level=2">Encryption and key management</a> &mdash; ask who holds the key and what metadata remains.</li>
+<li><a href="systems/mobile-communications/texting/delivery-and-reliability.html?level=2">Delivery, retries and reliability</a> &mdash; read status labels as events, not promises.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why can an end-to-end encrypted message still be delivered late?</i></summary><p>Encryption changes who can read the content, not how queues, paging, retries and push notifications behave. Reread <a href="systems/mobile-communications/texting/encryption-and-key-management.html?level=1">Encryption and key management</a> and <a href="systems/mobile-communications/texting/delivery-and-reliability.html?level=1">Delivery, retries and reliability</a>.</p></details>
+</section>
+
+<h2>Stage 6: Abuse and research</h2>
+<ol>
+<li><a href="systems/mobile-communications/texting/spam-smishing-and-abuse.html?level=2">Spam, smishing and abuse</a> &mdash; identify spoofing, urgency and code requests.</li>
+<li><a href="systems/mobile-communications/texting/texting-research-frontiers.html?level=2">Texting research frontiers</a> &mdash; separate settled standards from open questions.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why does encryption not stop a convincing request for a one-time code?</i></summary><p>The attacker targets the reader rather than the transport. Reread <a href="systems/mobile-communications/texting/spam-smishing-and-abuse.html?level=1">Spam, smishing and abuse</a>, then read the threat-model guidance in <a href="systems/mobile-communications/texting/texting-research-frontiers.html?level=1">Texting research frontiers</a>.</p></details>
+</section>
+
+<h2>Capstone</h2>
+<p>Design, on paper, a messaging service for a small volunteer group. Some members have only a basic phone, some use a chat app, and a few work in areas with poor coverage. State how a message is addressed, stored and delivered; what each status label means; which parts are encrypted; how a new device joins; and how the group handles spam and a suspected SIM swap. Write the design as a one-page table with a column for what can still fail.</p>
+<details class="solution"><p>A sound answer separates four planes. <strong>Access:</strong> a phone registers with a cell; poor coverage means longer queueing and paging delays. <strong>Identity:</strong> the basic phone uses a subscription and a public number; app users have accounts bound to devices, with a strong re-registration check. <strong>Transport:</strong> the basic path uses SMS store-and-forward, while the app path uses a data connection and push wake-up; rich chat may use RCS where both sides support it and fall back explicitly. <strong>Trust:</strong> content is end-to-end encrypted where possible, safety numbers are verified out of band, and no one-time code is accepted over the same channel that requested it. Status labels distinguish accept, deliver and read. A suspected SIM swap triggers out-of-band confirmation and a temporary hold on sensitive actions. Remaining failures include expiry, duplicates after retries, metadata exposure, push delays and social engineering.</p></details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/email.html">From first message to reliable delivery</a> &mdash; compare store-and-forward with a different identity and anti-spam model.</li>
+<li><a href="paths/security-protocols-and-access-control.html">Security protocols and access control</a> &mdash; deepen the study of authentication and keys.</li>
+<li><a href="paths/cryptography-and-quantum-safety.html">Cryptography and quantum safety</a> &mdash; follow the long-term key question further.</li>
+</ul>
+</body></html>
