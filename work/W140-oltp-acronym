@@ -1,0 +1,34 @@
+W140 OLTP GLOSSARY ACRONYM
+
+Date: 2026-11-25
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Continues: W139
+
+GUIDANCE
+
+  Fred: "Do the same for OLTP."
+
+DONE
+
+  - Applied the ACID correction pattern to `glossary/o/oltp.html`. The
+    title and breadcrumb now read "OLTP (Online Transaction
+    Processing)".
+  - The intro says O and L form Online, T stands for Transaction and P
+    for Processing. Each level explains those parts and the workload
+    they describe, with links to transaction, ACID and OLAP.
+  - Bumped the corpus to 0.130.2 and updated the roadmap and decision
+    record. Command version stays 0.69.7.
+  - make corpus, make corpus-and-test, make check-repo and the coverage
+    report pass. Reader spot check shows the expanded title and the
+    acronym explanation. No install, stage, tag or push action.
+
+FAILED
+
+  Nothing.
+
+HANDOFF
+
+  - Commit the page and bookkeeping, then rerun make corpus and commit
+    only the regenerated indexes. Await Fred's development cycle;
+    Test, Run and Release each need his exact word.

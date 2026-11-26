@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-25:** Corpus 0.130.2 (patch): expand the OLTP glossary title to "OLTP (Online Transaction Processing)" and explain Online, Transaction and Processing at all three levels. The intro also states that O and L form Online, T is Transaction and P is Processing. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.130.1 (patch): expand the ACID glossary title to "ACID (Atomicity, Consistency, Isolation, Durability)" and explain what each letter stands for in the novice, learner and expert sections. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.130.0 (minor): add glossary entries for SQLite, PostgreSQL and MySQL, link them from their teaching pages, and verify that the pager's `w` / `whatis:` prompt resolves each name to its own glossary entry. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.129.0 (minor): add the Programming / Databases and data storage curriculum: hub, ten three-level pages, five-stage goal path, thirty glossary entries, twelve bibliography sources and `data.*` skills. All teaching examples are sandboxes with sample output labelled as simulated; no database software is installed. Command version 0.69.7 is unchanged.
@@ -1592,6 +1593,16 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 `windowing.learner` and `windowing.expert` skills. Session-check examples were
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
+developer-directed.
+
+### 2026-11-25 — OLTP glossary acronym (corpus 0.130.2)
+
+Following the ACID correction, the developer asked for the same treatment on
+`glossary/o/oltp.html`. The title and breadcrumb now read "OLTP (Online
+Transaction Processing)". The intro says O and L form Online, T stands for
+Transaction and P for Processing; each level explains those parts and how
+they shape an interactive, latency-sensitive workload. This is a corpus
+correction only; command version, stage promotion and installation remain
 developer-directed.
 
 ### 2026-11-25 — ACID glossary acronym (corpus 0.130.1)

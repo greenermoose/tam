@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html><head>
-<title>OLTP</title>
+<title>OLTP (Online Transaction Processing)</title>
 <meta name="topic" content="glossary-oltp">
-<meta name="summary" content="OLTP: online transaction processing, the short, frequent reads and writes that run an application.">
-<meta name="keywords" content="glossary-oltp, transaction, application, row, indexing, acid">
+<meta name="summary" content="OLTP: Online Transaction Processing, the short, frequent reads and writes that run an application.">
+<meta name="keywords" content="glossary-oltp, oltp, online transaction processing, transaction, application, row, indexing, acid">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="glossary">
 <meta name="parent" content="glossary/o/index.html">
 <meta name="kind" content="glossary">
 <meta name="skills" content="">
 </head><body>
-<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/o/index.html">Terms beginning with O</a> / OLTP</p></nav>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/o/index.html">Terms beginning with O</a> / OLTP (Online Transaction Processing)</p></nav>
 
-<p>OLTP describes the many small operations an application performs while people use it.</p>
-<section data-level="novice"><p>It is placing one order, changing one address or checking one account balance.</p></section>
-<section data-level="learner"><p>OLTP workloads need fast indexed point lookups and reliable <a href="glossary/t/transaction.html">transactions</a>.</p></section>
-<section data-level="expert"><p>OLTP systems are usually normalized and write-heavy. Long analytical scans can disturb latency, so reporting is often moved to a replica or warehouse.</p></section>
+<p>OLTP (Online Transaction Processing) describes the many small operations an application performs while people use it. The first two letters, O and L, form <strong>Online</strong>; T stands for <strong>Transaction</strong> and P for <strong>Processing</strong>.</p>
+<section data-level="novice"><p><strong>Online</strong> means the work happens while a user is waiting, not later in a batch. <strong>Transaction</strong> means one request is treated as a complete unit, such as placing an order. <strong>Processing</strong> is the database reading or writing the few rows that request needs. Checking one account balance or changing one address is OLTP.</p></section>
+<section data-level="learner"><p>OLTP workloads need fast indexed point lookups and reliable <a href="glossary/t/transaction.html">transactions</a>. Many users act at once, so each request touches little data but must finish quickly and leave consistent results. The guarantees are the same <a href="glossary/a/acid.html">ACID</a> properties described elsewhere.</p></section>
+<section data-level="expert"><p>OLTP systems are usually normalized and write-heavy. "Online" means interactive and latency-sensitive, not necessarily exposed on the public web. Short transactions, row lookups and indexes serve requests; locks or multiversion concurrency control keep overlapping work safe. Long analytical scans can disturb latency, so reporting is often moved to a replica or warehouse for <a href="glossary/o/olap.html">OLAP</a>.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="programming/databases/indexes-transactions-and-storage.html">Indexes, transactions and storage</a></li></ul>
 </body></html>
