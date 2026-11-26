@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html><head>
+<title>Making chips</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="lifecycle.novice, lifecycle.learner, lifecycle.expert">
+<meta name="topic" content="making-chips">
+<meta name="summary" content="Silica is refined into silicon wafers, circuits are built in repeated layers, and tested dies are packaged for use.">
+<meta name="keywords" content="silicon wafer, photolithography, EUV, ion implantation, metallisation, CMP, die, chip packaging">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="hardware">
+<meta name="parent" content="hardware/lifecycle/index.html">
+<meta name="prereqs" content="life-of-a-computer">
+<meta name="paths" content="hardware-lifecycle:3">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> /
+<a href="hardware/lifecycle/index.html">Lifecycle and environment</a> / Making chips</p></nav>
+
+<p>A chip begins with a material much like sand and ends as a small tile carrying circuits. The work has two
+broad halves: preparing a blank wafer and building circuit layers on it, then cutting and packaging the
+finished pieces.</p>
+
+<section data-level="novice">
+<h2>From sand to a small tile</h2>
+<p>Silicon dioxide is refined to a very pure form of silicon. The silicon is melted and pulled into a
+single-crystal rod, which is sliced into thin discs. Each disc is smoothed until it is flat enough for
+circuits to be built on it.</p>
+
+<h3>Why it matters</h3>
+<p>A single chip can hold billions of tiny switches. They are not carved one by one. Layers are added and
+patterned over the whole disc at once, so the same steps repeat many times before the disc is finished.</p>
+
+<h3>How to think about it</h3>
+<p>Imagine making a many-layered print. On each layer you coat the surface, shine light through a pattern,
+change the places the light selected, and smooth the surface for the next layer. When all layers are done, you
+cut the sheet into tiles.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Wafer</dt><dd>A thin, polished disc of silicon on which chips are built.</dd>
+<dt>Fab</dt><dd>A factory that builds circuits on wafers.</dd>
+<dt>Die</dt><dd>One small rectangular piece cut from a finished wafer; it becomes a chip after packaging.</dd>
+<dt>Photoresist</dt><dd>A light-sensitive coating that carries a pattern during fabrication.</dd>
+</dl>
+<p>The packaged die is later mounted on a <a href="glossary/p/pcb.html">printed circuit board</a> with other
+parts.</p>
+</section>
+
+<section data-level="learner">
+<h2>Order the fabrication steps</h2>
+<p><strong>Goal:</strong> you will be able to put the main chip-making steps in order and say what each one
+does.</p>
+<p>Learning path: <a href="hardware/lifecycle/life-of-a-computer.html?level=2">Back</a> ·
+<a href="hardware/lifecycle/making-chips.html?level=2">Here</a> ·
+<a href="hardware/lifecycle/boards-displays-and-assembly.html?level=2">Next</a>.</p>
+
+<h3>Worked example</h3>
+<p>Follow one wafer through a simplified sequence. The real recipe repeats these steps many times and differs
+between makers.</p>
+<ol>
+<li>Grow or deposit a thin film, often by oxidation.</li>
+<li>Coat with photoresist and expose a pattern. Deep ultraviolet light passes through a mask or reticle;
+advanced fabs use extreme ultraviolet at 13.5 nm.</li>
+<li>Change the exposed regions by doping, usually ion implantation followed by heat.</li>
+<li>Deposit more thin films and add metal connections.</li>
+<li>Remove unwanted material with wet or plasma etching.</li>
+<li>Flatten the surface by chemical-mechanical planarisation, then measure the result.</li>
+<li>When every layer is complete, dice the wafer into dies.</li>
+<li>Attach each die to a substrate, interconnect it, and test it.</li>
+</ol>
+<p>The lesson is that patterning, changing material and measuring repeat; the wafer does not move through a
+single one-way line.</p>
+
+<h3>Try it</h3>
+<p>Write the eight steps above from memory on a scrap of paper. Then mark which ones could repeat on the same
+wafer. Check your list against the worked example and note one step you would want to look up in a process
+specification.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You put dicing before the circuit layers.</dt><dd>Dicing is the last step of wafer processing. A blank die
+would carry no circuits.</dd>
+<dt>You think photolithography removes material.</dt><dd>It transfers a pattern into photoresist. Etching is
+the step that removes unwanted material afterwards.</dd>
+<dt>You assume every fab uses EUV.</dt><dd>EUV at 13.5 nm is used in advanced fabs. Many devices are made with
+DUV patterning through a mask or reticle.</dd>
+</dl>
+
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why is the wafer polished before circuits are built?</i></summary><p>Lithography
+needs a very flat surface to focus a pattern across the disc. Slicing leaves roughness, so lapping and
+polishing prepare a wafer that the later layers can use.</p></details>
+<details class="q"><summary><i>What is the difference between a die and a chip you can solder?</i></summary><p>A
+die is the bare piece cut from the wafer. It is attached to a substrate, interconnected and tested to become a
+packaged chip that can be mounted on a board.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Process detail and package boundary</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Stage</th><th>Operation</th><th>Purpose</th></tr>
+<tr><td>Silicon preparation</td><td>Refine silicon dioxide to electronic-grade silicon; melt and pull a
+single-crystal ingot; slice, lap and polish wafers</td><td>Provide a flat, uniform substrate</td></tr>
+<tr><td>Oxidation</td><td>Grow a controlled oxide film</td><td>Insulation and a patterned masking layer</td></tr>
+<tr><td>Photolithography</td><td>DUV through a mask or reticle onto photoresist, or EUV at 13.5 nm in advanced
+fabs</td><td>Transfer a design pattern</td></tr>
+<tr><td>Doping</td><td>Ion implantation plus heat</td><td>Set the electrical behaviour of selected regions</td></tr>
+<tr><td>Deposition and metallisation</td><td>Add thin films and metal conductors</td><td>Build devices and
+links between them</td></tr>
+<tr><td>Etch</td><td>Wet or plasma removal</td><td>Shape films and open contacts</td></tr>
+<tr><td>Planarisation and metrology</td><td>Chemical-mechanical planarisation and measurement</td><td>Restore
+flatness and check the result</td></tr>
+<tr><td>Assembly and test</td><td>Dice, attach to a substrate, interconnect and test</td><td>Turn dies into
+usable packaged parts</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p><cite data-ref="chip-manufacturing"><a href="bibliography/chip-manufacturing.html">Chip manufacturing</a></cite>
+describes the front-end sequence as a repeating cycle rather than a single pass. Each patterned layer must
+line up with the ones below it, so metrology feeds corrections into later steps. Packaging is a separate
+back-end discipline: die attach, interconnect and test are governed by assembly practices such as those
+described in <cite data-ref="ipc-standards"><a href="bibliography/ipc-standards.html">IPC standards</a></cite>.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>EUV needs a different light source and mask approach from DUV; it is not a drop-in replacement in every
+fab.</li>
+<li>A defect in one layer can be repeated by every later layer. Metrology catches drift before a whole disc is
+lost.</li>
+<li>Package choices change thermal and electrical behaviour. The same die can appear in several package forms.</li>
+</ul>
+
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why does planarisation matter after metallisation?</i></summary><p>Metal
+and film steps leave an uneven surface. Later lithography has a limited depth of focus, so a layer that is not
+flattened can print poorly or fail to align. Chemical-mechanical planarisation restores a surface the next
+pattern can use.</p></details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="chip-manufacturing"><a href="bibliography/chip-manufacturing.html">Chip manufacturing</a></cite>;
+<cite data-ref="ipc-standards"><a href="bibliography/ipc-standards.html">IPC standards</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="hardware/lifecycle/boards-displays-and-assembly.html">Boards, displays and assembly</a> &mdash;
+see where packaged chips are mounted.</li>
+<li><a href="hardware/foundations/computer-materials.html">Computer materials</a> &mdash; connect the finished
+chip to the materials it came from.</li>
+<li><a href="paths/from-atoms-to-bits.html">From atoms to bits</a> &mdash; follow the solid-state ideas behind
+the process.</li>
+</ul>
+</body></html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html><head>
+<title>Reuse and data</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="lifecycle.novice, lifecycle.learner, lifecycle.expert">
+<meta name="topic" content="reuse-and-data">
+<meta name="summary" content="Back up first, then sanitise storage with a verified Clear, Purge or Destroy method before a device changes hands.">
+<meta name="keywords" content="reuse, backup, data sanitisation, NIST SP 800-88, Clear, Purge, Destroy, verification">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="hardware">
+<meta name="parent" content="hardware/lifecycle/index.html">
+<meta name="prereqs" content="diagnosing-and-repairing">
+<meta name="paths" content="hardware-lifecycle:6">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> /
+<a href="hardware/lifecycle/index.html">Lifecycle and environment</a> / Reuse and data</p></nav>
+
+<p>A repaired or upgraded computer can serve another owner. Before it leaves your hands, the data on its
+storage must be handled deliberately, because deleting a file is not the same as making it unreadable.</p>
+
+<section data-level="novice">
+<h2>A second owner, a clean start</h2>
+<p>Reuse means a product keeps being used instead of being discarded. A backup is a separate copy of files you
+want to keep. Sanitising storage means making old data unrecoverable by the next user.</p>
+
+<h3>Why it matters</h3>
+<p>Repair and upgrades usually save more of the existing product's embodied resources than buying new. The
+useful comparison is product-specific: the model, the failed part and the remaining life all matter. Without a
+backup, a repair can lose the very files it was meant to protect.</p>
+
+<h3>How to think about it</h3>
+<p>Think of lending a notebook to a friend. You copy the pages you still need, then remove your own notes so
+the new reader starts with a clean book. The device is the notebook; its storage holds the notes.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Backup</dt><dd>A separate copy of data kept so it survives a change to the original device.</dd>
+<dt>Sanitisation</dt><dd>Removing data from storage so it cannot be recovered by the next user.</dd>
+<dt>Clear</dt><dd>A sanitisation category for ordinary reuse of the same device.</dd>
+<dt>Purge</dt><dd>A stronger category for cases that need more assurance.</dd>
+<dt>Verification</dt><dd>A check that the chosen method actually produced the intended result.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Prepare a device for its next owner</h2>
+<p><strong>Goal:</strong> you will be able to write a short handover plan with a backup and a verified
+sanitisation step.</p>
+<p>Learning path: <a href="hardware/lifecycle/diagnosing-and-repairing.html?level=2">Back</a> ·
+<a href="hardware/lifecycle/reuse-and-data.html?level=2">Here</a> ·
+<a href="hardware/lifecycle/collection-and-depollution.html?level=2">Next</a>.</p>
+
+<h3>Worked example</h3>
+<p>A repaired laptop will go to a colleague. The plan has five short steps.</p>
+<ol>
+<li>Back up the files you must keep to another device or service, and confirm the copy is readable.</li>
+<li>List every storage location in the machine, including any second drive.</li>
+<li>Choose a sanitisation category from
+<cite data-ref="nist-800-88"><a href="bibliography/nist-800-88.html">NIST SP 800-88r1</a></cite>: Clear for
+ordinary reuse, Purge when stronger assurance is needed.</li>
+<li>Apply the chosen method to each storage location.</li>
+<li>Verify the result and keep a short record of what was done.</li>
+</ol>
+<p>Destroy is a separate category for media being retired, not the normal route when the whole device is
+passed on.</p>
+
+<h3>Try it</h3>
+<p>Write the same five-step plan for a device you know. Replace the laptop with your device, name its storage
+locations and state what would count as verification. Keep the plan to a few lines; the goal is a repeatable
+decision, not a long document.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You relied on deleting files or a quick format.</dt><dd>Those steps may leave data recoverable. Use a
+defined Clear or Purge method and verify it.</dd>
+<dt>You forgot a second storage device.</dt><dd>Inventory the machine first. A card or spare drive can hold
+data even when the main drive is clean.</dd>
+<dt>You sanitised before making a backup.</dt><dd>Stop and recover what you can from another copy. Make the
+backup the first step next time.</dd>
+</dl>
+
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why does a handover need verification?</i></summary><p>A method only works if
+it was applied to every storage location and completed correctly. Verification is the evidence that the
+intended state was reached. A note of the method and the check also gives the next owner a clear record.</p></details>
+<details class="q"><summary><i>Why back up before a repair rather than after?</i></summary><p>A repair can
+replace a drive, disturb a connection or fail in a way that makes the old storage unreadable. A verified copy
+made first means the files survive whatever happens to the device during the work.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Sanitisation categories and comparison scope</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Category</th><th>Intended use</th><th>What to record</th></tr>
+<tr><td>Clear</td><td>Ordinary reuse of the device</td><td>Method, storage locations covered, verification
+result</td></tr>
+<tr><td>Purge</td><td>Higher assurance for sensitive data</td><td>Method, coverage, verification result and
+any limits</td></tr>
+<tr><td>Destroy</td><td>Media leaving service</td><td>Destruction method and confirmation for each item</td></tr>
+</table>
+<p><cite data-ref="nist-800-88"><a href="bibliography/nist-800-88.html">NIST SP 800-88r1</a></cite> defines
+Clear, Purge and Destroy and treats verification as part of the process. Choose the category from the risk of
+the data and the future use of the media, not from the speed of the method.</p>
+
+<h3>How it works</h3>
+<p>The choice between repairing and buying new is a <a href="glossary/l/life-cycle-assessment.html">life-cycle</a>
+question, not a slogan. Repair and upgrades usually preserve more of the existing product's embodied
+resources, but the useful comparison is product-specific: a device with a replaceable battery and a long
+remaining life is unlike one with a failed soldered processor. Compare like with like before repeating a
+general claim.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>A device may contain several storage devices, including removable cards and small soldered memories.</li>
+<li>A backup that has never been read back is a guess, not evidence.</li>
+<li>Sanitising storage does not address data already synced to another account; check those separately.</li>
+</ul>
+
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is Purge not automatically better than Clear for every handover?</i></summary><p>Purge
+gives stronger assurance but can cost time and may affect media differently. The right category follows the
+sensitivity of the data and the next use of the device. For ordinary reuse, a verified Clear is often
+sufficient; for sensitive data, Purge or separate media handling may be warranted.</p></details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="nist-800-88"><a href="bibliography/nist-800-88.html">NIST SP 800-88r1</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="hardware/lifecycle/collection-and-depollution.html">Collection and depollution</a> &mdash; see
+what happens when reuse is no longer possible.</li>
+<li><a href="hardware/energy/sustainability.html">Sustainability and hardware longevity</a> &mdash; connect
+longer use with energy and waste choices.</li>
+<li><a href="systems/operating-systems/environment-minded.html">Environment-minded computing</a> &mdash; see
+the software side of the same question.</li>
+</ul>
+</body></html>

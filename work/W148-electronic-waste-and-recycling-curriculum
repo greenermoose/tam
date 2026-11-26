@@ -1,0 +1,97 @@
+W148 ELECTRONIC WASTE AND RECYCLING CURRICULUM
+
+Date: 2026-11-26
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Continues: W147
+
+GUIDANCE
+
+  Fred: "Add to the from atoms to bits a discussion of the materials used
+  to build computers. Explain which metals, which types of plastic, which
+  chemicals are used for different display types, etc. Add a series on
+  electronic waste and recycling, explaining in detail how computers are
+  manufactured, how they can be repaired, and how they can be recycled at
+  the end of their life. Add a glossary page for RoHS and other standards
+  designed to make computers more environmentally friendly. Also discuss
+  EPA's Energy Star and other environmental standards computer hardware
+  and software can achieve."
+
+DECISIONS
+
+  - The subject home is Hardware, in a new Lifecycle and environment hub.
+    The practical full set of standards is in scope, not a short subset.
+  - Computer materials is stage 4 of From atoms to bits and step 2 of the
+    `hardware-lifecycle` path. The eight lifecycle pages occupy steps 3-9.
+  - RoHS, WEEE, REACH, ENERGY STAR, EPEAT, EU Ecodesign and ESPR, ISO
+    14001, ISO 14040/14044, ISO/IEC 21031, EU Batteries Regulation, R2v3,
+    e-Stewards, conflict minerals, TCO Certified, Blue Angel and the right
+    to repair get glossary coverage. The existing ISO/IEC 21031 entry is
+    revised in place rather than replaced.
+
+DONE
+
+  - Added a Hardware / Lifecycle and environment hub, eight three-level
+    teaching pages (whole life, chips, boards and displays, repair, reuse
+    and data, collection and depollution, material recovery, standards),
+    a five-stage `hardware-lifecycle` goal path and contextual links from
+    Hardware, Physical foundations, displays, energy and operating systems.
+  - Added Computer materials to From atoms to bits: metals and their jobs,
+    polymers and laminates, display chemistries and flame retardants,
+    with no unverified grams-per-computer quantities.
+  - Added 29 glossary pages and 26 bibliography sources, registered
+    `lifecycle.*` at all three levels, and revised ISO/IEC 21031 to say
+    that it measures and discloses impact without a threshold or label.
+  - Kept the limits visible: ENERGY STAR certifies named product
+    categories, RoHS does not ban all brominated flame retardants, the
+    ESPR is Regulation (EU) 2024/1781, and Regulation (EU) 2019/2022
+    covers dishwashers, not computers.
+  - Bumped the corpus to 0.135.0; updated the roadmap, development
+    decision record, plan index, CHECKLISTS.md (TCK36, next free TCK37),
+    plan file and work records. The command is outside this work; the
+  neighbouring command-lane 0.69.8 bookkeeping was added to the roadmap
+  and decision record at its request.
+  - `make corpus` reported 1,790 pages and current indexes.
+    `make corpus-and-test` passed the corpus checker, component-coverage
+    check and 96 corpus tooling tests. The coverage report shows all
+    three `lifecycle.*` cells with no gaps and anatomy warnings of zero.
+    Reader spot checks with `TAM_KNOWLEDGE_DIR=knowledge build/tam
+    show --pipe` rendered the hub, Computer materials, the goal path,
+    Standards and labels, and a RoHS bibliography source. Live `whatis`
+    checks resolved RoHS, WEEE, REACH, ENERGY STAR, EPEAT, R2v3,
+    e-Stewards, Blue Angel, ISO 14001, Surface-mount technology, Right to
+    repair, Electronic waste and Life cycle assessment.
+
+FAILED
+
+  - The first corpus build reported a duplicate step 2 on the
+    `hardware-lifecycle` path. Numbering Computer materials as step 2 and
+    the eight teaching pages as steps 3-9 fixed the path contract.
+  - The first `make check-repo` failed on ROADMAP version lines while a
+    neighbouring session bumped the command to 0.69.8. It passed after
+    the command bookkeeping was added at that session's request.
+  - The first commit raced with the command-lane session, which staged its
+    `src/` files while the commit ran. Those files were swept into the
+    commit; a path-limited correction removed them and left the edits in
+    the working tree for that session. No command file was changed here.
+  - The runtime detector printed a stale `beam-free` fallback. The local
+    session record identifies this session as `big-pickle`, which the
+    record and commit trailers use.
+
+CHECKED AGAINST
+
+  - `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`,
+    `docs/plan-maintenance.md`, `work/README-work` and AGENTS.md.
+  - EU directives and regulations 2011/65/EU, 2012/19/EU, 1907/2006,
+    2019/2021, 617/2013, 2019/424, 2023/1542, 2024/1799 and 2024/1781;
+    ENERGY STAR product specifications, EPEAT/IEEE 1680.1, ISO 14001,
+    ISO 14040/14044, ISO/IEC 21031, R2v3, e-Stewards, OECD and USGS
+    sources, and NIST SP 800-88 Revision 1.
+
+HANDOFF
+
+  - Rerun `make check-repo`, commit only the claimed paths, rerun
+    `make corpus`, then commit only the regenerated indexes.
+  - Add the private ledger row after the public commit exists, then
+    finish both claims. Await Fred's development cycle; Test, Run and
+    Release each need his exact word. Do not push unless he asks.

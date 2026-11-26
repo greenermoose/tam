@@ -11,7 +11,7 @@ procedure and design.
 ## Rules
 
 - Mint top-level IDs in sequence (`TCK1`, `TCK2`, ...) across all plans; never
-  restart per plan, reuse or renumber an ID. **Next free: TCK36.** Update this
+  restart per plan, reuse or renumber an ID. **Next free: TCK37.** Update this
   counter and add the item to this file in the same change that adds a new
   top-level item.
 - Mint IDs only while holding a `tam-work` claim on this file and the plan
@@ -264,3 +264,15 @@ Owning plan: [texting-curriculum.md](docs/plans/texting-curriculum.md)
   repository and reader checks pass.
 - [x] **TCK35.4 (Texting glossary whatis discoverability):** SMS, MMS, RCS and
   related names resolve in the live corpus to their own glossary pages.
+- [x] **TCK36.1 (Lifecycle series):** Hardware / Lifecycle and environment hub,
+  eight three-level teaching pages, the five-stage `hardware-lifecycle` goal
+  path and the Computer materials page in From atoms to bits.
+- [x] **TCK36.2 (Lifecycle glossary):** 29 new glossary pages for materials,
+  lifecycle stages and environmental standards, plus the revised ISO/IEC 21031
+  entry.
+- [x] **TCK36.3 (Lifecycle sources and links):** 26 bibliography sources,
+  `lifecycle.*` skill cells and contextual links from Hardware, Physical
+  foundations, displays, energy and operating systems pages.
+- [x] **TCK36.4 (Lifecycle bookkeeping and verification):** Corpus 0.135.0
+  version, roadmap, development contract, plan index and work record; corpus,
+  repository, reader and `whatis` checks pass.

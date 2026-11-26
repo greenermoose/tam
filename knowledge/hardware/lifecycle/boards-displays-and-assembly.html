@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html><head>
+<title>Boards, displays and assembly</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="lifecycle.novice, lifecycle.learner, lifecycle.expert">
+<meta name="topic" content="boards-displays-and-assembly">
+<meta name="summary" content="A subtractive board flow, soldered assembly, liquid-crystal panel build and box build turn parts into a product.">
+<meta name="keywords" content="FR-4, PCB, solder mask, surface-mount, reflow, wave soldering, LCD, backlight, box build">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="hardware">
+<meta name="parent" content="hardware/lifecycle/index.html">
+<meta name="prereqs" content="making-chips">
+<meta name="paths" content="hardware-lifecycle:4">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> /
+<a href="hardware/lifecycle/index.html">Lifecycle and environment</a> / Boards, displays and assembly</p></nav>
+
+<p>Chips become useful when they are mounted on a board and linked to other parts. This page follows a
+<a href="glossary/p/pcb.html">printed circuit board</a> through fabrication, a <a href="glossary/l/lcd.html">liquid-crystal
+display</a> through cell assembly, and a set of parts through final assembly.</p>
+
+<section data-level="novice">
+<h2>Layers joined into a product</h2>
+<p>A board starts as a sheet of woven glass fibre in epoxy with copper on its faces. Circuits are drawn into
+that copper. Small parts are soldered onto the board, a display panel is built from layers of glass and light,
+and the parts are fitted into a case.</p>
+
+<h3>Why it matters</h3>
+<p>The way a product is joined decides what can be repaired. A part that is plugged into a slot can often be
+replaced with a simple tool. A part soldered or bonded to a board needs more care, and sometimes specialist
+work.</p>
+
+<h3>How to think about it</h3>
+<p>Think of a city built in layers. The board is the road network, the soldered parts are the buildings, the
+display is a window, and the final assembly puts walls around everything and connects the services.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>FR-4</dt><dd>The common glass-fibre epoxy material used for copper-clad boards.</dd>
+<dt>Solder mask</dt><dd>A protective coating over copper, leaving openings where parts are attached.</dd>
+<dt>Surface-mount part</dt><dd>A small component soldered onto the surface of a board.</dd>
+<dt>Backlight</dt><dd>A light source behind a liquid-crystal panel; the panel itself does not glow.</dd>
+<dt>Box build</dt><dd>The final stage that fits a built board and other parts into a product.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Match a step to a fault</h2>
+<p><strong>Goal:</strong> you will be able to name the assembly step that a given fault points back to.</p>
+<p>Learning path: <a href="hardware/lifecycle/making-chips.html?level=2">Back</a> ·
+<a href="hardware/lifecycle/boards-displays-and-assembly.html?level=2">Here</a> ·
+<a href="hardware/lifecycle/diagnosing-and-repairing.html?level=2">Next</a>.</p>
+
+<h3>Worked example</h3>
+<p>Three observations from a production line, each traced to a step rather than guessed at.</p>
+<ol>
+<li>A board has no continuity through a hole. The drilling and desmear steps prepare the hole; plating then
+lays down copper. A break points to that chain, not to the solder mask.</li>
+<li>Some <a href="glossary/s/surface-mount-technology.html">surface-mount</a> joints are dull and cracked.
+Paste stencilling, placement and reflow are the suspects; check the reflow profile before blaming the parts.</li>
+<li>A display is evenly dark with no image. Check the backlight, polarisers and driver bonds before assuming
+the pixels have failed.</li>
+</ol>
+<p>The habit is to ask which step could produce exactly this evidence.</p>
+
+<h3>Try it</h3>
+<p>Look at a device you can open safely or at a clear product photograph. List three parts that plug in and
+three that are soldered or bonded. For one soldered part, write which assembly step would have attached it.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You assume every part can be unplugged.</dt><dd>Many parts are soldered or bonded. Check the board view
+and service information before applying force.</dd>
+<dt>You blame the chip for a dark screen.</dt><dd>A backlight, a polariser or a driver bond can produce the
+same symptom. Work through the layers from light outwards.</dd>
+<dt>You treat one maker's sequence as universal.</dt><dd>The exact order varies by maker. Learn the purpose of
+each step so you can adapt to a different line.</dd>
+</dl>
+
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why is solder mask printed after copper is etched?</i></summary><p>Etching
+removes unwanted copper to leave the circuit. The mask then protects the copper that remains and leaves
+openings at the places where parts will be soldered. Printing it earlier would not define those circuits.</p></details>
+<details class="q"><summary><i>Which assembly method suits a through-hole connector?</i></summary><p>Wave
+soldering is still common for through-hole parts: the board passes over a wave of molten solder. Surface-mount
+parts are usually stencilled with paste, placed and reflowed instead.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Fabrication, panel build and box build</h2>
+<h3>Reference</h3>
+<p><a href="glossary/f/fr-4.html">FR-4</a> is woven glass fibre in an epoxy copper-clad laminate, specified
+for boards by IPC-4101. A typical subtractive <a href="glossary/p/pcb.html">PCB</a> flow is:</p>
+<ol>
+<li>Clean the laminate and apply etch resist.</li>
+<li>Drill holes, desmear the hole walls, and plate through-holes and circuitry.</li>
+<li>Strip the resist and etch away unwanted copper.</li>
+<li>Print solder mask and apply a surface finish.</li>
+</ol>
+<p><a href="glossary/s/surface-mount-technology.html">Surface-mount assembly</a> (<a href="glossary/s/smt.html">SMT</a>)
+stencils solder paste, places parts and reflows the board.
+<cite data-ref="ipc-standards"><a href="bibliography/ipc-standards.html">IPC-A-610</a></cite> defines the
+acceptability criteria for the finished assembly. Wave soldering remains common for through-hole parts.</p>
+
+<p>An <a href="glossary/l/lcd.html">LCD</a> build makes TFT-array glass and colour-filter glass separately,
+injects and laminates liquid crystal between them, attaches polarisers, bonds driver integrated circuits, fits
+the backlight and tests illumination. Transparent conductors such as
+<a href="glossary/i/indium-tin-oxide.html">indium tin oxide</a> form pixel electrodes. An
+<a href="glossary/o/oled.html">OLED</a> panel uses emissive materials instead of a liquid-crystal layer and
+does not need the same backlight.</p>
+
+<p>Box build adds the PCBA, heatsinks, fans, cables and firmware loading, then runs functional and burn-in
+tests. The exact sequence varies by maker.</p>
+
+<h3>How it works</h3>
+<p>Material choices connect the board to the wider supply chain:
+<cite data-ref="usgs-minerals"><a href="bibliography/usgs-minerals.html">USGS mineral summaries</a></cite>
+describe where conductors come from, while
+<cite data-ref="epa-pcbs"><a href="bibliography/epa-pcbs.html">EPA guidance on PCBs</a></cite> and
+<cite data-ref="display-materials"><a href="bibliography/display-materials.html">display materials</a></cite>
+explain why certain substances need control during manufacture and at end of life.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Desmear and plating faults appear only after drilling, so a visual check of the finished mask cannot find
+them.</li>
+<li>Reflow can hide voids inside joints; acceptability criteria describe what is visible and what needs
+further inspection.</li>
+<li>A bonded display stack may be excellent optically but awkward to repair; assembly ease and optical quality
+pull in different directions.</li>
+</ul>
+
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why can a panel pass an illumination test and still show no image?</i></summary><p>Illumination
+checks the backlight path. Image formation also needs polarisers, transparent electrodes, an intact
+liquid-crystal layer and working driver bonds. A fault in any of those can leave a uniformly lit panel with no
+pixels changing.</p></details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="ipc-standards"><a href="bibliography/ipc-standards.html">IPC standards</a></cite>;
+<cite data-ref="usgs-minerals"><a href="bibliography/usgs-minerals.html">USGS minerals</a></cite>;
+<cite data-ref="epa-pcbs"><a href="bibliography/epa-pcbs.html">EPA PCB guidance</a></cite>;
+<cite data-ref="display-materials"><a href="bibliography/display-materials.html">Display materials</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="hardware/lifecycle/diagnosing-and-repairing.html">Diagnosing and repairing</a> &mdash; use
+assembly knowledge to narrow a fault.</li>
+<li><a href="paths/hardware-lifecycle.html">From raw materials to a second life</a> &mdash; keep reading in
+path order.</li>
+<li><a href="glossary/f/fr-4.html">FR-4</a> and <a href="glossary/p/pcb.html">printed circuit board</a>
+&mdash; check the short definitions.</li>
+</ul>
+</body></html>

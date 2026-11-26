@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html><head>
+<title>Diagnosing and repairing</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="lifecycle.novice, lifecycle.learner, lifecycle.expert">
+<meta name="topic" content="diagnosing-and-repairing">
+<meta name="summary" content="Check power, signs of life, firmware access and the backlight before condemning a board, then work safely on replaceable modules.">
+<meta name="keywords" content="repair, diagnosis, ESD, battery, display, RAM, M.2, solder rework, right to repair">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="hardware">
+<meta name="parent" content="hardware/lifecycle/index.html">
+<meta name="prereqs" content="boards-displays-and-assembly">
+<meta name="paths" content="hardware-lifecycle:5">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> /
+<a href="hardware/lifecycle/index.html">Lifecycle and environment</a> / Diagnosing and repairing</p></nav>
+
+<p>A device that looks dead is not always beyond repair. A few checks of power, signs of life, the firmware
+setup screen and the backlight narrow the fault before anyone opens the case.</p>
+
+<section data-level="novice">
+<h2>Check the easy things first</h2>
+<p>Repair means finding the part that has failed and replacing or reworking it. Many failures are in parts
+that can be changed: a battery, a display, a keyboard, a fan, a drive or a memory module. The main board is
+often blamed before those parts are checked.</p>
+
+<h3>Why it matters</h3>
+<p>A careful check can save a working machine. It also keeps you safer, because a battery or a board can be
+damaged by careless handling. Ideas about a <dfn><a href="glossary/r/right-to-repair.html">right to repair</a></dfn>
+concern access to the parts and information needed for this work, but the rules differ by place.</p>
+
+<h3>How to think about it</h3>
+<p>Think like a doctor: ask what the patient can still do before assuming the worst. A light that comes on, a
+fan that turns or a setup screen that appears is evidence that narrows the search.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Signs of life</dt><dd>Any response to power, such as a light, fan movement or a keyboard reaction.</dd>
+<dt>Firmware setup</dt><dd>The built-in configuration screen available before the operating system loads.</dd>
+<dt>Module</dt><dd>A part that can be replaced as a unit, such as a battery or memory card.</dd>
+<dt>Electrostatic discharge</dt><dd>A sudden flow of static electricity that can damage sensitive electronics.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Narrow the fault before you open the case</h2>
+<p><strong>Goal:</strong> you will be able to run a first-line check before deciding that a device needs
+board-level work.</p>
+<p>Learning path: <a href="hardware/lifecycle/boards-displays-and-assembly.html?level=2">Back</a> ·
+<a href="hardware/lifecycle/diagnosing-and-repairing.html?level=2">Here</a> ·
+<a href="hardware/lifecycle/reuse-and-data.html?level=2">Next</a>.</p>
+
+<h3>Worked example</h3>
+<p>A laptop powers on but shows no picture. Work from outside inwards.</p>
+<ol>
+<li>Check the charger and the battery. Try the known-good charger and confirm the outlet works.</li>
+<li>Look for signs of life: a power light, fan movement, keyboard response or a boot sound.</li>
+<li>Try to reach the firmware setup screen. If it appears on an external display, the main board is probably
+working.</li>
+<li>Shine a flashlight at an angle through the screen. A faint image means the backlight may have failed
+rather than the panel.</li>
+</ol>
+<p>Only after those checks does a display or board fault become the leading explanation. Each step removes a
+simpler cause.</p>
+
+<h3>Try it</h3>
+<p>With a powered-off device, list the parts you could replace as modules: typically the battery, display,
+keyboard, fan and heatsink, storage drive, memory, hinges and ports. Mark which ones are slotted, such as RAM
+or M.2 storage, and which are soldered or glued. Note where static control would be needed before touching a
+board.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You pry at a glued battery.</dt><dd>Use a suitable adhesive remover instead. A battery that is punctured
+or heated can be dangerous.</dd>
+<dt>You touch a board without static control.</dt><dd>Use a grounded wrist strap, a common-point ground and a
+static-safe surface; store parts in static-safe packaging.</dd>
+<dt>You conclude the motherboard is dead after one dark screen.</dt><dd>Repeat the flashlight test and try an
+external display. Display and backlight faults are common.</dd>
+</dl>
+
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why reach for a flashlight before replacing the screen?</i></summary><p>A faint
+image under strong side light shows that the panel is still forming a picture. That points to the backlight or
+its drive rather than the whole display. Replacing the panel first would be guesswork and would leave a
+working part unused.</p></details>
+<details class="q"><summary><i>Which parts are usually the first replaceable modules to check?</i></summary><p>Battery,
+display, keyboard, fan and heatsink, storage drive, memory, hinges and ports. Slotted RAM and M.2 storage are
+straightforward; soldered memory or processors need board-level work. A glued battery needs adhesive remover,
+not force.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Static control, rework and repair policy</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Symptom</th><th>First check</th><th>Likely area</th></tr>
+<tr><td>No response to power</td><td>Charger, outlet, battery state</td><td>Charger or battery before the
+board</td></tr>
+<tr><td>Lights and fan, no image</td><td>External display, flashlight test</td><td>Backlight, panel cable or
+display</td></tr>
+<tr><td>Boots, then stops</td><td>Firmware settings, storage detection</td><td>Drive, memory or firmware
+configuration</td></tr>
+<tr><td>Overheating and noise</td><td>Fan movement, heatsink seating</td><td>Fan, heatsink or thermal
+interface</td></tr>
+<tr><td>Intermittent key or port</td><td>Reseat and inspect connector</td><td>Keyboard, hinge cable or port
+assembly</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>Under electrostatic discharge control, a grounded wrist strap and a common-point ground keep the worker and
+the board at the same potential. Use a static-safe surface and static-safe packaging for removals;
+<cite data-ref="esd-standards"><a href="bibliography/esd-standards.html">ESD standards</a></cite> give the
+controlling practice. Isolate batteries and tape their terminals. Never puncture or heat a lithium-ion cell. A
+glued battery is softened with adhesive remover rather than levered out.</p>
+
+<p>Solder rework uses a temperature-controlled iron, solder wick and flux. Professional acceptability criteria
+for repair are in
+<cite data-ref="ipc-standards"><a href="bibliography/ipc-standards.html">IPC-7711/7721</a></cite>. Soldered
+memory or processors need board-level work; slotted RAM and M.2 storage do not. Service manuals, board views,
+part numbers and firmware versions reduce misdiagnosis because they tell you what should be present and where
+it sits.</p>
+
+<p>Policy is separate from technique.
+<cite data-ref="eu-repair-directive"><a href="bibliography/eu-repair-directive.html">EU Repair Directive 2024/1799</a></cite>
+applies from 31 July 2026 and requires repair at a reasonable price that does not deter repair for covered
+goods. It is not a single global <a href="glossary/r/right-to-repair.html">right-to-repair</a> law; scope and
+duties depend on the jurisdiction and product category.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>A failed backlight can look like a failed panel until the flashlight test separates them.</li>
+<li>A loose cable can mimic a dead module; reseat once before buying parts.</li>
+<li>Board-level rework can damage nearby pads if heat or force is applied for too long.</li>
+</ul>
+
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is a common-point ground part of ESD control?</i></summary><p>If the
+worker, board and tools sit at different potentials, a touch can discharge through a sensitive input. Bonding
+them to one point removes the voltage difference. A wrist strap alone does not help if the work surface or the
+board floats at another potential.</p></details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="eu-repair-directive"><a href="bibliography/eu-repair-directive.html">EU Repair Directive 2024/1799</a></cite>;
+<cite data-ref="esd-standards"><a href="bibliography/esd-standards.html">ESD standards</a></cite>;
+<cite data-ref="ipc-standards"><a href="bibliography/ipc-standards.html">IPC standards</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="hardware/lifecycle/reuse-and-data.html">Reuse and data</a> &mdash; prepare the repaired device
+for another owner.</li>
+<li><a href="paths/hardware-lifecycle.html">From raw materials to a second life</a> &mdash; continue the path.</li>
+<li><a href="glossary/r/right-to-repair.html">Right to repair</a> &mdash; check the short definition of the
+policy term.</li>
+</ul>
+</body></html>
