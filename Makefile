@@ -15,7 +15,7 @@
 # `make` (or `make all`) builds both. See docs/plans/development.md.
 
 CC       ?= cc
-CFLAGS   ?= -O2 -Wall -Wextra -Wpedantic -std=c11
+CFLAGS   ?= -O2 -Wall -Wextra -Wpedantic -std=c17
 # libtam 0.15.0 and later set no feature macros; tam uses GNU and
 # POSIX.1-2008 interfaces.
 override CPPFLAGS += -D_GNU_SOURCE
@@ -188,7 +188,7 @@ else
 endif
 
 SANITIZE_BUILD := $(BUILD)/sanitize
-SANITIZE_CFLAGS := -O1 -g -Wall -Wextra -Wpedantic -std=c11 -fsanitize=address,undefined -fno-omit-frame-pointer
+SANITIZE_CFLAGS := -O1 -g -Wall -Wextra -Wpedantic -std=c17 -fsanitize=address,undefined -fno-omit-frame-pointer
 SANITIZE_LDFLAGS := -fsanitize=address,undefined
 
 sanitize: export ASAN_OPTIONS := detect_leaks=0:abort_on_error=1:log_path=$(CURDIR)/$(SANITIZE_BUILD)/asan
