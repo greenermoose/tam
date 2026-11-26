@@ -1,0 +1,40 @@
+W147 GHASH GLOSSARY TITLE
+
+Date: 2026-11-26
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Continues: W146
+
+GUIDANCE
+
+  Fred: "Add what GHASH stands for to its title in the Glossary,
+  i.e. GHASH (stands for)"
+
+DONE
+
+  - Changed the GHASH glossary title and breadcrumb to
+    "GHASH (Galois Hash)", following the `Acronym (Meaning)`
+    convention. The summary and keywords carry the expansion so
+    Search also finds the full name.
+  - Checked the expansion against NIST SP 800-38D, which describes
+    the GCM hash function over a binary Galois field, and against
+    cryptographic references that name it the Galois hash.
+  - Bumped the corpus to 0.134.1 and updated the roadmap and
+    decision record. Command version stays 0.69.7.
+  - `make corpus`, `make corpus-and-test` and `make check-repo`
+    passed. A pipe spot check renders the expanded breadcrumb.
+
+FAILED
+
+  Nothing.
+
+CHECKED AGAINST
+
+  - `docs/corpus-authoring.md`, `work/README-work`, NIST SP 800-38D
+    and the existing GCM and OLAP glossary title pages.
+
+HANDOFF
+
+  - Commit the claimed paths, rerun `make corpus`, then commit only
+    the regenerated indexes. Await Fred's development cycle;
+    Test, Run and Release each need his exact word.

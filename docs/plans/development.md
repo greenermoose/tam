@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-26:** Corpus 0.134.1 (patch): expand the GHASH glossary title to "GHASH (Galois Hash)" and repeat the full title in the breadcrumb. The summary and keywords also carry the expansion. NIST SP 800-38D describes the GCM hash function over a binary Galois field, and cryptographic references name it the Galois hash. Command version 0.69.7 is unchanged.
 - **2026-11-26:** Corpus 0.134.0 (minor): extend the quality review across the knowledge corpus. Add the ten approved glossary pages for IP (Internet Protocol), UI (User Interface), Unit interval, Core network, Capability discovery, Mobile paging, D-Bus, Direct-to-device, Measurement and Interoperability. Retarget or remove 104 wrong-sense links, including generic UI to the user-interface or unit-interval page, protocol-sense IP to the protocol page and D-Bus to its own page; keep electrical Current links and hardware Bus links. Add 611 conservative first-use links across 342 pages, skipping navigation, code, sample output, metaphors and later mentions. The unverified RCS encryption-default claim stays in place. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.133.2 (patch): pilot the corpus quality review on the fourteen Systems / Mobile communications texting pages. Read all pilot pages and a corpus-wide link inventory; found no wrong-sense glossary links in the pilot, added conservative first-use links to existing glossary pages, corrected confusing or inaccurate wording and one spelling error, and left the unverified RCS encryption-default claim in place. New glossary pages await an approved shortlist. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.133.1 (patch): standardize 107 glossary acronym titles from `Acronym - Meaning` to `Acronym (Meaning)` and repeat each full title in its breadcrumb. A scripted audit checked every glossary title and breadcrumb; the generated glossary hubs and corpus indexes are refreshed. Command version 0.69.7 is unchanged.
@@ -1601,6 +1602,17 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
+
+### 2026-11-26 — GHASH glossary title (corpus 0.134.1)
+
+The developer asked for the GHASH glossary title to say what the acronym
+stands for. The title and breadcrumb now read "GHASH (Galois Hash)", matching
+the `Acronym (Meaning)` convention used across the glossary. The summary and
+keywords carry the expansion, so Search reaches the page by its full name as
+well. NIST SP 800-38D defines the hash function within GCM over a binary
+Galois field, and cryptographic references name it the Galois hash. This is a
+corpus correction only; command version, stage promotion and installation
+remain developer-directed.
 
 ### 2026-11-26 — Corpus-wide quality review (corpus 0.134.0)
 
