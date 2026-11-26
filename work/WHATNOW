@@ -10,25 +10,29 @@ STATE
   Command 0.72.0 and corpus 0.139.1 are ready on dev after W156.
   Tamlinux's own C code now targets C17: Makefiles use `-std=c17`, with
   `-std=gnu17` in libtam's header check, and current docs and corpus
-  pages say C17. The C11 lesson, glossary entry, `c11` topic and
-  `c11-systems` path stay as teaching content. W155's `tam:paths`
-  introduction, menu, fixed categories and clear path details remain
-  in force. W154's outcomes, exact prerequisites, stage-count times,
-  stuck notes and checkpoint sandbox state remain in force. W153's
+  pages say C17, as do the component architecture and ideas docs.
+  The C11 lesson, glossary entry, `c11` topic and `c11-systems` path
+  stay as teaching content. W155's `tam:paths` introduction, menu,
+  fixed categories and clear path details remain in force.
+  W154's outcomes, exact prerequisites, stage-count times, stuck notes
+  and checkpoint sandbox state remain in force. W153's
   search terms and anchor graph and W152's canonical IDs are unchanged.
   W151's 29 project notes and synthesis.md remain research only.
   W151 (Claude) also landed command 0.71.1 on dev.
 
 NEXT
 
-  1. Commit W156's corpus and shared paths, rerun make corpus and
-     commit the index follow-up. Check git log @{u}.. before pushing
-     dev; tam/Makefile's C17 change is already committed (d12a804).
-  2. Let Fred choose which documentation ideas in ideas/synthesis.md
+  1. Check Claude's reply on libtam/Makefile and
+     tam-monitor/Makefile: both lack an explicit -std and inherited
+     GCC 16's gnu23 default. Claude offered to add -std=c17 there.
+     Verify before calling the C17 change complete.
+  2. Check git log @{u}.. and push dev for the changed repositories;
+     the private planning repository stays local on main.
+  3. Let Fred choose which documentation ideas in ideas/synthesis.md
      become plans. Do not start implementation from an idea file alone.
-  3. Re-check the snippet-heavy Fedora, Debian wiki, elementary, LXQt
+  4. Re-check the snippet-heavy Fedora, Debian wiki, elementary, LXQt
      and Docsy details before treating any of them as settled.
-  4. Await Fred's word before any Test, Run or Release move.
+  5. Await Fred's word before any Test, Run or Release move.
 
 WAITING FOR FRED
 

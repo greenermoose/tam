@@ -32,6 +32,9 @@ DONE
     state C17. The C11 lesson, glossary entry, `c11` topic and
     `c11-systems` path remain teaching content; their Tamlinux asides
     point at C17.
+  - A follow-up scan found active arch/ and ideas/ docs in the component
+    repositories that the first inventory missed. Those now say C17 too:
+    29 files across ten repositories, plus tam-open's Makefile (1e2ed5b).
   - Corpus 0.139.1 (patch) records the correction in knowledge/version,
     ROADMAP.md (header, dev row and delivered-history row) and the
     decision record. The command version stays 0.72.0. The live-corpus
@@ -50,9 +53,17 @@ FAILED
   - Two bulk replacement scripts printed a trailing NameError from the
     shell heredoc after applying every intended edit. Verification
     found all edits present, so no re-run was needed.
+  - The first inventory missed the component arch/ and ideas/ docs. A
+    final scan found them; they were claimed, corrected and committed
+    separately.
 
 HANDOFF
 
-  - Commit the corpus and shared paths, then refresh and commit the
-    generated indexes. Check git log @{u}.. before pushing dev.
+  - Commit and push the claimed paths to dev, except the private
+    planning repository, which stays local on main.
+  - Claude is adding -std=c17 to libtam/Makefile and
+    tam-monitor/Makefile; both had no explicit standard and inherited
+    GCC 16's gnu23 default. Check its reply and those two flags before
+    calling the C17 change complete. Its other C17 Makefiles and
+    check-headers.sh are committed.
   - Test, Run and Release still need Fred's exact word for a candidate.
