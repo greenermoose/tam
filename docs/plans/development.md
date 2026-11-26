@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-25:** Corpus 0.131.1 (patch): expand the OLAP glossary title to "OLAP (Online Analytical Processing)" and repeat the full title in the breadcrumb. The summary and keywords also carry the expansion. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.131.0 (minor): add a glossary page for OAuth, covering its history and the difference between OAuth 1.0 and OAuth 2.0, and link existing OAuth mentions to it. OAuth is an authorization framework; OIDC supplies authentication on top. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.130.2 (patch): expand the OLTP glossary title to "OLTP (Online Transaction Processing)" and explain Online, Transaction and Processing at all three levels. The intro also states that O and L form Online, T is Transaction and P is Processing. Command version 0.69.7 is unchanged.
 - **2026-11-25:** Corpus 0.130.1 (patch): expand the ACID glossary title to "ACID (Atomicity, Consistency, Isolation, Durability)" and explain what each letter stands for in the novice, learner and expert sections. Command version 0.69.7 is unchanged.
@@ -1595,6 +1596,14 @@ eight three-level teaching pages, the four-stage `windowing-systems` goal path,
 captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
+
+### 2026-11-25 — OLAP glossary title (corpus 0.131.1)
+
+The developer asked for the OLAP glossary title to state what the acronym
+stands for. The title and breadcrumb now read "OLAP (Online Analytical
+Processing)". The summary carries the capitalised expansion and the keywords
+include the full phrase. This is a corpus correction only; command version,
+stage promotion and installation remain developer-directed.
 
 ### 2026-11-25 — OAuth glossary page (corpus 0.131.0)
 
