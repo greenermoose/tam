@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>OpenType</title>
+<meta name="topic" content="glossary-opentype">
+<meta name="summary" content="OpenType: A scalable font format that pairs outlines with layout tables for shaping, languages and color.">
+<meta name="keywords" content="glossary-opentype, opentype, otf, sfnt, font format, GSUB, GPOS">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/o/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/o/index.html">Terms beginning with O</a> / OpenType</p></nav>
+
+<p>A scalable font format that stores letter outlines together with rules for shaping text.</p>
+<section data-level="novice"><p>An OpenType font is a file that tells a computer how to draw letters at any size. It can hold the simple curved outlines used by <a href="glossary/t/truetype.html">TrueType</a> or the PostScript-style outlines known as CFF. It also carries extra instructions: when two letters should join, where accents belong, and which shapes to use for a particular language. The same file can therefore serve a book, a web page and a terminal that understands it.</p></section>
+<section data-level="learner"><p>You meet OpenType whenever you choose an <code>.otf</code> or a modern <code>.ttf</code> font. Both can be OpenType fonts; the extension alone does not tell you which outline style is inside. <code>fc-query</code> and <code>ttx -l</code> show the tables in a file, so you can see whether it uses <a href="glossary/g/glyf.html">glyf</a> or CFF outlines and whether it has shaping tables. A font without those tables can still draw plain Latin text but cannot correctly join Arabic letters or place Indic vowel signs.</p><details class="q"><summary><i>Why can two fonts both be called OpenType but need different rendering code?</i></summary><p>OpenType is a container. One font may hold quadratic TrueType outlines in glyf and another cubic CFF charstrings; a rasterizer must understand the outline language actually present, even though the surrounding tables share the same format.</p></details></section>
+<section data-level="expert"><p>OpenType is built on the <a href="glossary/s/sfnt.html">sfnt</a> container: a table directory followed by named tables. Required tables include <code>head</code>, <code>hhea</code>, <code>hmtx</code>, <code>maxp</code>, <code>cmap</code>, <code>name</code>, <code>OS/2</code> and <code>post</code>. Outlines live in <a href="glossary/g/glyf.html">glyf</a> with <code>loca</code> offsets, or in CFF / <a href="glossary/c/cff2.html">CFF2</a> charstrings. Layout is described by GSUB for substitutions such as <a href="glossary/l/ligature.html">ligatures</a>, GPOS for positioning and <a href="glossary/k/kerning.html">kerning</a>, and GDEF for glyph classes. Variable fonts add <code>fvar</code>, <code>gvar</code>, <code>avar</code> and variation metrics; color fonts add COLR/CPAL or bitmap image tables. A <code>cmap</code> maps a <a href="glossary/c/code-point.html">code point</a> to a glyph identifier; shaping runs before rasterization decide which glyph identifiers are actually drawn.</p><p>The specification is maintained by Microsoft and Adobe, and the Open Font Format standard (ISO/IEC 14496-22) is based on it. A font may carry a DSIG signature, but conversion and subsetting can remove it. Support is not uniform: a table can be present while an application's shaping engine ignores it.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li><li><a href="desktop/typography/opentype-internals.html">Inside OpenType and TrueType files</a></li></ul>
+</body></html>

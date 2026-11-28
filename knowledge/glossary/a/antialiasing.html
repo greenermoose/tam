@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Antialiasing</title>
+<meta name="topic" content="glossary-antialiasing">
+<meta name="summary" content="Antialiasing: Blending edge pixels so curved glyph edges look smooth instead of jagged.">
+<meta name="keywords" content="glossary-antialiasing, Antialiasing, anti-aliasing, AA, edge smoothing">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/a/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / Antialiasing</p></nav>
+
+<p>Antialiasing softens the jagged edges of drawn shapes by giving edge pixels intermediate colors.</p>
+<section data-level="novice"><p>Screens draw with tiny square pixels, so a slanted letter edge can look like a staircase. Antialiasing paints the squares along that edge in partial shades of the text color, tricking the eye into seeing a smooth curve. It is why small letters on a screen look almost as smooth as printed ones.</p></section>
+<section data-level="learner"><p>Font rasterizers such as FreeType compute how much of each pixel a glyph outline covers and blend that coverage with the background. Grayscale antialiasing uses shades of gray; subpixel antialiasing uses the red, green and blue emitters of a liquid-crystal display as separate horizontal samples for extra sharpness. Subpixel rendering can show color fringes and depends on the panel's stripe order, so many desktops prefer grayscale.</p><details class="q"><summary><i>Why can subpixel antialiasing show colored fringes?</i></summary><p>It treats each red, green and blue emitter as a separate sample; a wrong stripe order or rotated panel makes the fringes visible.</p></details></section>
+<section data-level="expert"><p>Coverage rasterizers either sample the outline several times per pixel or compute exact area coverage, then apply gamma correction before blending in sRGB space; blending naive coverage makes edges look too light or too dark. Liquid-crystal subpixel filtering uses a short finite impulse response filter to reduce fringing and must adapt to rotated displays or non-RGB layouts. Hinting and antialiasing interact, because strong hinting collapses subtle coverage differences.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

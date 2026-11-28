@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html><head>
+<title>Writing systems of the world</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-writing-systems">
+<meta name="summary" content="Compare alphabets, syllabaries, abjads, abugidas and logographies, then meet a world catalogue of named scripts and regions.">
+<meta name="keywords" content="alphabet, syllabary, abjad, abugida, logography, featural writing, script, Unicode, quipu, hanzi, hangul">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="typography-foundations:2">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / Writing systems of the world</p></nav>
+
+<p>A script is a set of visible marks; a writing system is the language and rules behind them. Humans have built many different ways to connect marks to a spoken language, and this page gives you the vocabulary to compare them.</p>
+
+<section data-level="novice">
+<h2>Different ways to write a word</h2>
+<h3>What this is</h3>
+<p>A <dfn><a href="glossary/w/writing-system.html">writing system</a></dfn> is an agreed way of setting down a language. The <dfn><a href="glossary/w/writing-script.html">writing script</a></dfn> is the collection of marks you see on the page. English uses the Latin script. Hindi is commonly written in Devanagari. Arabic is written in the Arabic script.</p>
+<p>Systems differ in what one mark stands for. In an <a href="glossary/a/alphabet.html">alphabet</a>, marks stand for small sounds called consonants and vowels. In a <a href="glossary/s/syllabary.html">syllabary</a>, one mark stands for a whole syllable such as "ka". In a <a href="glossary/l/logogram.html">logogram</a>, one mark stands for a whole word.</p>
+<h3>Why it matters</h3>
+<p>Knowing the type of a system tells you what to expect when you read or type it. If vowels are not written as separate marks, a reader supplies them from context. If each mark is a syllable, a keyboard needs a different kind of layout. This is why one font and one keyboard do not fit every language.</p>
+<h3>How to think about it</h3>
+<p>Think of a recipe for turning speech into marks. One recipe lists every sound. Another lists every syllable. Another lists whole words. All three can record the same sentence; they cut it into different pieces.</p>
+<p>Two more recipes are common. An <a href="glossary/a/abjad.html">abjad</a> writes consonants and leaves most vowels to the reader, as Hebrew and Arabic usually do. An <a href="glossary/a/abugida.html">abugida</a> writes consonants with a built-in vowel that a small mark can change, as Devanagari does.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/w/writing-system.html">Writing system</a></dt><dd>The language plus the rules for writing it down.</dd>
+<dt><a href="glossary/w/writing-script.html">Writing script</a></dt><dd>The visible set of marks the system uses.</dd>
+<dt><a href="glossary/a/alphabet.html">Alphabet</a></dt><dd>Marks for consonants and vowels, as in Greek or Latin.</dd>
+<dt><a href="glossary/s/syllabary.html">Syllabary</a></dt><dd>One mark for a syllable, as in Japanese kana.</dd>
+<dt><a href="glossary/a/abjad.html">Abjad</a></dt><dd>Marks mainly for consonants, as in Hebrew and Arabic.</dd>
+<dt><a href="glossary/a/abugida.html">Abugida</a></dt><dd>Consonants carry a default vowel that marks can alter.</dd>
+<dt><a href="glossary/l/logogram.html">Logogram</a></dt><dd>One sign read as a whole word.</dd>
+<dt><a href="glossary/u/unicode.html">Unicode</a></dt><dd>A standard that gives each written character a stable number.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Classifying a system</h2>
+<p><strong>Goal:</strong> you will be able to look at a named script and decide which of the main types it belongs to.</p>
+<tam-sandbox
+  title="Try it: find the alphabets"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the rows classified as alphabets">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="systems.txt" size="300">Latin : alphabet
+Greek : alphabet
+Hangul : featural_alphabet
+Hebrew : abjad
+Arabic : abjad
+Devanagari : abugida
+Tamil : abugida
+Kana : syllabary
+Cherokee : syllabary
+Hanzi : logography
+Quipu : debated</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat systems.txt" hint="Each line names a script, then its type."><out>Latin : alphabet</out><out>Greek : alphabet</out><out>Hangul : featural_alphabet</out><out>Hebrew : abjad</out><out>Arabic : abjad</out><out>Devanagari : abugida</out><out>Tamil : abugida</out><out>Kana : syllabary</out><out>Cherokee : syllabary</out><out>Hanzi : logography</out><out>Quipu : debated</out></tam-cmd>
+  <tam-cmd match="grep abjad systems.txt" hint="This finds a different group; compare it with the alphabets."><out>Hebrew : abjad</out><out>Arabic : abjad</out></tam-cmd>
+  <tam-cmd match="grep alphabet systems.txt" goal="true" hint="The word also appears inside featural_alphabet."><out>Latin : alphabet</out><out>Greek : alphabet</out><out>Hangul : featural_alphabet</out></tam-cmd>
+  <tam-init>Try: cat systems.txt, then grep abjad systems.txt, then grep alphabet systems.txt</tam-init>
+  <tam-hint after="1">Read the type after the colon before you choose a filter.</tam-hint>
+  <tam-hint after="2">Hangul is included because its marks are letters, even though their shapes also hint at how they are pronounced.</tam-hint>
+  <tam-fallback>Try grep alphabet systems.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What the filter showed</h3>
+<p>Three rows are alphabets. Latin and Greek use letter marks for consonants and vowels. Hangul is a <em>featural</em> alphabet: its letter shapes are built from simple parts that reflect features of the sound, so it is still an alphabet rather than a syllabary.</p>
+<p>The files and output in this sandbox are teaching samples. They classify real script names for practice; they are not a reading of a file on your machine, and nothing is installed or changed.</p>
+<h3>Try it</h3>
+<p>Run <code>grep abugida systems.txt</code>. Predict the two rows before you type it, and explain why Devanagari and Tamil land together while Kana does not.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You expected Kana to be an alphabet.</dt><dd>Kana marks map to syllables, not to single consonants and vowels. That makes it a syllabary.</dd>
+<dt>You expected Quipu to have a type like the others.</dt><dd>Quipu is a knot-recording device whose status as writing is debated. "Debated" is the honest classification here.</dd>
+</dl>
+<aside class="tamlinux">
+<p>General script facts apply to every desktop. Tamlinux adds language-specific font choices: its fontconfig configuration prepends Noto Naskh Arabic for Arabic language patterns, appends Noto Nastaliq Urdu for Urdu, and keeps Noto Naskh Arabic as a last-resort alias. So an Arabic paragraph and an Urdu paragraph can resolve to different installed families even though both use related scripts.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>A script writes consonants and leaves most vowels unmarked. What type is it?</i></summary><p>An abjad. Hebrew and Arabic are the usual examples. Readers supply vowels from context and from optional marks, so the same consonant skeleton can be read in more than one way.</p></details>
+<details class="q"><summary><i>Why is "script" the wrong word for a computer program here?</i></summary><p>In this page a <a href="glossary/w/writing-script.html">writing script</a> is a set of written marks. A computer program is a different kind of script. The glossary keeps them separate so a link never conflates the two meanings.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>A catalogue and its semantics</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Type</th><th>What one mark maps to</th><th>Representative systems</th></tr>
+<tr><td><a href="glossary/a/alphabet.html">Alphabet</a></td><td>Consonant or vowel</td><td>Greek, Latin, Cyrillic, Armenian, Hangul</td></tr>
+<tr><td>Featural alphabet</td><td>Sound feature encoded in the shape</td><td>Hangul</td></tr>
+<tr><td><a href="glossary/s/syllabary.html">Syllabary</a></td><td>Whole syllable</td><td>Japanese kana, Cherokee, Vai, Nüshu</td></tr>
+<tr><td><a href="glossary/a/abjad.html">Abjad</a></td><td>Mainly consonants</td><td>Phoenician, Aramaic, Hebrew, Arabic</td></tr>
+<tr><td><a href="glossary/a/abugida.html">Abugida</a></td><td>Consonant with an inherent vowel</td><td>Brahmi, Devanagari, Tamil, Thai, Khmer, Tibetan, Ethiopic</td></tr>
+<tr><td><a href="glossary/l/logogram.html">Logography</a></td><td>Whole word or morpheme</td><td>Chinese hanzi, Japanese kanji, Maya</td></tr>
+<tr><td>Mixed or debated</td><td>Several principles, or disputed status</td><td>Cuneiform, hieroglyphs, quipu, rongorongo</td></tr>
+</table>
+<table>
+<tr><th>System or region</th><th>Principal type</th><th>Where it is met</th></tr>
+<tr><td><a href="glossary/c/cuneiform.html">Cuneiform</a></td><td>Logographic plus syllabic</td><td>Mesopotamia; clay tablets</td></tr>
+<tr><td><a href="glossary/h/hieroglyph.html">Egyptian hieroglyphs</a></td><td>Logographic plus consonantal, with determinatives</td><td>Egypt; monuments and papyri</td></tr>
+<tr><td><a href="glossary/h/hieratic.html">Hieratic</a></td><td>Cursive form of hieroglyphs</td><td>Egypt; handwritten papyri</td></tr>
+<tr><td>Demotic</td><td>Later cursive Egyptian script</td><td>Egypt; everyday documents</td></tr>
+<tr><td>Phoenician</td><td>Abjad</td><td>Levant; inscriptions, ancestor of many alphabets</td></tr>
+<tr><td>Aramaic</td><td>Abjad</td><td>Levant and wider Near East; inscriptions and manuscripts</td></tr>
+<tr><td>Greek</td><td>Alphabet</td><td>Greece; added vowel letters to the Phoenician set</td></tr>
+<tr><td>Latin</td><td>Alphabet</td><td>Rome and most of Europe today</td></tr>
+<tr><td>Cyrillic</td><td>Alphabet</td><td>Slavic and other Eurasian languages</td></tr>
+<tr><td>Hebrew</td><td>Abjad</td><td>Israel and Jewish communities worldwide</td></tr>
+<tr><td>Arabic</td><td>Abjad</td><td>Middle East, North Africa and beyond</td></tr>
+<tr><td>Brahmi</td><td>Abugida</td><td>Ancient India; source of many South Asian scripts</td></tr>
+<tr><td>Devanagari</td><td>Abugida</td><td>Hindi, Marathi, Nepali</td></tr>
+<tr><td>Tamil</td><td>Abugida</td><td>Tamil in South India and Sri Lanka</td></tr>
+<tr><td>Thai</td><td>Abugida with tone marks</td><td>Thailand</td></tr>
+<tr><td>Khmer</td><td>Abugida</td><td>Cambodia</td></tr>
+<tr><td>Tibetan</td><td>Abugida</td><td>Tibet and Himalayan communities</td></tr>
+<tr><td>Ethiopic (Ge'ez)</td><td>Abugida</td><td>Ethiopia and Eritrea</td></tr>
+<tr><td>Chinese hanzi</td><td>Logography</td><td>China and Chinese-language communities</td></tr>
+<tr><td>Japanese kanji</td><td>Logography, borrowed</td><td>Japan, alongside kana</td></tr>
+<tr><td>Japanese kana</td><td>Syllabary</td><td>Japan; hiragana and katakana</td></tr>
+<tr><td>Korean hangul</td><td>Featural alphabet</td><td>Korea</td></tr>
+<tr><td>Cherokee</td><td>Syllabary</td><td>Cherokee Nation, North America</td></tr>
+<tr><td>Linear A</td><td>Mostly syllabic; undeciphered</td><td>Minoan Crete</td></tr>
+<tr><td>Linear B</td><td>Syllabic</td><td>Mycenaean Greece and Crete</td></tr>
+<tr><td>Maya</td><td>Logographic plus syllabic</td><td>Mesoamerica</td></tr>
+<tr><td>Aztec (Nahuatl)</td><td>Pictographic with rebus use</td><td>Central Mexico</td></tr>
+<tr><td>Inca quipu</td><td>Knot records; status as writing debated</td><td>Andes</td></tr>
+<tr><td>Rongorongo</td><td>Undeciphered</td><td>Easter Island</td></tr>
+<tr><td>Vai</td><td>Syllabary</td><td>Liberia and Sierra Leone</td></tr>
+<tr><td>Nüshu</td><td>Syllabic script</td><td>Hunan, China; historically used among women</td></tr>
+<tr><td>Ol Chiki</td><td>Alphabet</td><td>Santali in eastern India</td></tr>
+</table>
+<h3>How it works</h3>
+<p><a href="glossary/u/unicode.html">Unicode</a> and ISO/IEC 10646 assign a stable <a href="glossary/c/code-point.html">code point</a> to each encoded <a href="glossary/c/character.html">character</a>, independent of how it looks <cite data-ref="unicode-standard"><a href="bibliography/unicode-standard.html">The Unicode Standard</a></cite> <cite data-ref="iso-iec-10646"><a href="bibliography/iso-iec-10646.html">ISO/IEC 10646</a></cite>. A font then supplies a drawn shape for that character; two fonts can draw the same code point very differently. Encoding therefore answers "which character is this?", while a font answers "what does it look like?"</p>
+<p>Some scripts need shaping before a glyph can be chosen. In an abugida, a consonant and a vowel sign may combine into one glyph; in Arabic, the shape of a letter depends on its position in a word. A text engine such as HarfBuzz applies those rules using tables in the font <cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite>, and a layout engine such as Pango decides which font and script run to use <cite data-ref="pango-docs"><a href="bibliography/pango-docs.html">Pango reference</a></cite>. CSS exposes the same idea through font families and script-aware font selection <cite data-ref="css-fonts-4"><a href="bibliography/css-fonts-4.html">CSS Fonts Module Level 4</a></cite>.</p>
+<h3>Advanced usage</h3>
+<p>These read-only commands show how a desktop resolves scripts to fonts. They query fontconfig and never change configuration:</p>
+<pre data-risk="read-only">fc-match ':lang=ar' -f '%{family}\n'
+fc-match ':lang=ur' -f '%{family}\n'
+fc-list :lang=he family | sort -u | head -n 5</pre>
+<p>The first two lines ask which family fontconfig would choose for Arabic and Urdu text. The third lists a few families registered for Hebrew. Differences here are expected: a writing system may be served by several installed families, and fontconfig ranks them by language <cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite>.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Quipu records information with knotted cords. Whether it records language, rather than only counts and categories, is debated; it should not be filed as a simple alphabet or syllabary.</li>
+<li>Egyptian hieroglyphs mix word signs, sound signs and silent classifiers in one script. Calling the whole system a logography hides the sound signs.</li>
+<li>A script and a language are not one-to-one. Latin writes English, Turkish and Vietnamese; Chinese hanzi is used for languages that are not mutually spoken-intelligible.</li>
+<li>Unicode encodes characters, not every historical glyph variant. A scribe's hand-drawn form or a ligature may have no separate code point.</li>
+<li>Hangul is featural and alphabetic at once. Its shapes encode articulation features, but each basic letter still represents a sound segment.</li>
+<li>Missing font coverage produces boxes or fallback glyphs. That is a font problem, not evidence that the writing system lacks an encoding.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why does an abugida need shaping rules but a simple alphabet often does not?</i></summary><p>Because an abugida combines a consonant with an inherent or marked vowel, and the combination may be drawn as one glyph. A plain alphabet usually maps one letter to one glyph, so less reordering and joining is needed. Arabic adds a further case: letter shapes change with position.</p></details>
+<details class="q open"><summary><i>If two fonts show different shapes for the same code point, which layer changed?</i></summary><p>The font, not the writing system or the encoding. The code point still names the same character; each font supplies its own glyph outline. Script classification describes the mapping from language to characters, not the drawing style.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="fischer-history-writing"><a href="bibliography/fischer-history-writing.html">Steven Roger Fischer, A History of Writing</a></cite>; <cite data-ref="unicode-standard"><a href="bibliography/unicode-standard.html">The Unicode Standard</a></cite>; <cite data-ref="iso-iec-10646"><a href="bibliography/iso-iec-10646.html">ISO/IEC 10646</a></cite>; <cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite>; <cite data-ref="pango-docs"><a href="bibliography/pango-docs.html">Pango reference</a></cite>; <cite data-ref="css-fonts-4"><a href="bibliography/css-fonts-4.html">CSS Fonts Module Level 4</a></cite>; <cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/scribes-and-print.html">Scribes, manuscripts and the printing press</a> &mdash; see how writing was copied before mechanical printing.</li>
+<li><a href="desktop/typography/marks-to-meaning.html">From marks to meaning</a> &mdash; go back to the first writing systems.</li>
+<li><a href="paths/typography-foundations.html">Typography foundations</a> &mdash; read the subject in order.</li>
+</ul>
+</body></html>

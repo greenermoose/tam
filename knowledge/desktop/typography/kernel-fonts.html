@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html><head>
+<title>Fonts built into the Linux kernel</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-kernel-fonts">
+<meta name="summary" content="Linux 6.12 keeps 13 bitmap console fonts in lib/fonts. Learn the Kconfig gates, fbcon=font names, setfont and PSF, and how KMScon differs.">
+<meta name="keywords" content="Linux 6.12, console font, fbcon, lib/fonts, CONFIG_FONT_SUPPORT, KDFONTOP, PSF, setfont, KMScon">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="font-internals:2">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / Fonts built into the Linux kernel</p></nav>
+
+<p>The Linux text console can draw letters without any desktop font file. It uses small fixed pictures of characters, selected when the kernel boots or changed later from the console.</p>
+
+<section data-level="novice">
+<h2>Letters as tiny pictures</h2>
+<p>Before a desktop starts, Linux can still show text on the screen. The <dfn><a href="glossary/f/framebuffer-console.html">framebuffer console</a></dfn> draws that text from a set of tiny pictures, one for each value a byte can hold. Each picture is a <dfn><a href="glossary/g/glyph.html">glyph</a></dfn>, and every glyph occupies the same small rectangular cell.</p>
+<p>These are <dfn><a href="glossary/b/bitmap-font.html">bitmap fonts</a></dfn>. The picture for a letter is stored as rows of bits, not as a curve that can be scaled. The cell has a fixed <a href="glossary/w/width.html">width</a> and height, and the kernel keeps thirteen such sets available in the version described here.</p>
+<h3>Why it matters</h3>
+<p>A console font works very early in boot and in rescue situations, when no desktop session exists. It also works on a plain text terminal where no graphical text engine is running.</p>
+<h3>How to think about it</h3>
+<p>Imagine a pegboard with identical square tiles. Each tile holds one stamped letter. You can swap the whole tile set for another, but you cannot stretch a single tile without making the stamp look wrong.</p>
+<h3>New words</h3>
+<dl>
+<dt>Bitmap</dt><dd>A picture stored as a grid of dots or bits.</dd>
+<dt>Console</dt><dd>A text-only screen provided by the kernel before a desktop runs.</dd>
+<dt>Byte value</dt><dd>One of 256 possible numbers; here, each number picks one stored picture.</dd>
+<dt>Width</dt><dd>How many pixels a glyph cell occupies across the screen.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Choosing a console font</h2>
+<p><strong>Goal:</strong> you will be able to say where Linux 6.12 keeps its built-in fonts, and how a name at boot picks one of them.</p>
+<tam-sandbox
+  title="Try it: find the documented font names"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the two names that contain VGA">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="names.txt" size="170">documented fbcon=font names (teaching sample)
+10x18
+6x10
+6x8
+7x14
+Acorn8x8
+MINI4x6
+PEARL8x8
+ProFont6x11
+SUN12x22
+SUN8x16
+TER16x32
+VGA8x16
+VGA8x8</file>
+  <file name="kconfig.txt" size="250">Kconfig roles (teaching sample)
+CONFIG_FONT_SUPPORT   tristate master gate
+CONFIG_FONTS          gates the font prompts
+CONFIG_FONT_AUTOSELECT def_bool y when all fonts but 8x16 are off
+CONFIG_FONT_8x8       built-in 8x8 set
+CONFIG_FONT_8x16      built-in 8x16 set
+CONFIG_FONT_6x11      built-in 6x11 set
+CONFIG_FONT_SUN12x22  built-in 12x22 set</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat names.txt" hint="These are the exact names accepted after fbcon=font."><out>documented fbcon=font names (teaching sample)</out><out>10x18</out><out>6x10</out><out>6x8</out><out>7x14</out><out>Acorn8x8</out><out>MINI4x6</out><out>PEARL8x8</out><out>ProFont6x11</out><out>SUN12x22</out><out>SUN8x16</out><out>TER16x32</out><out>VGA8x16</out><out>VGA8x8</out></tam-cmd>
+  <tam-cmd match="grep VGA names.txt" goal="true" hint="Keep the two names with the VGA prefix."><out>VGA8x16</out><out>VGA8x8</out></tam-cmd>
+  <tam-cmd match="cat kconfig.txt" hint="The first line names the master gate."><out>Kconfig roles (teaching sample)</out><out>CONFIG_FONT_SUPPORT   tristate master gate</out><out>CONFIG_FONTS          gates the font prompts</out><out>CONFIG_FONT_AUTOSELECT def_bool y when all fonts but 8x16 are off</out><out>CONFIG_FONT_8x8       built-in 8x8 set</out><out>CONFIG_FONT_8x16      built-in 8x16 set</out><out>CONFIG_FONT_6x11      built-in 6x11 set</out><out>CONFIG_FONT_SUN12x22  built-in 12x22 set</out></tam-cmd>
+  <tam-init>Try: cat names.txt, then grep VGA names.txt</tam-init>
+  <tam-hint after="1">Each line is one name you could write after fbcon=font.</tam-hint>
+  <tam-hint after="2">The names are exact and case-sensitive.</tam-hint>
+  <tam-fallback>Try cat names.txt, grep VGA names.txt, or cat kconfig.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat names.txt</code> showed the thirteen documented names in the sample.</li>
+<li><code>grep VGA names.txt</code> kept the two names taken from early PC video hardware.</li>
+<li>The Kconfig sample shows the master gate and one symbol per built-in set; it is a teaching sample, not a reading of your kernel configuration.</li>
+</ol>
+<h3>Try it</h3>
+<p>Run <code>grep 8x8 names.txt</code>. Predict which names will remain before you type it.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>grep</code> found none of the names you expected.</dt><dd>Capital letters matter: <code>PEARL8x8</code> is not the same as <code>pearl8x8</code>.</dd>
+<dt>You expected a name for every Kconfig symbol.</dt><dd>The documented names are the thirteen short forms listed above, not the <code>CONFIG_FONT_*</code> spellings.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The Tamlinux font configuration file <code>50-tamlinux.conf</code> assigns desktop families such as Liberation Sans and JetBrainsMono Nerd Font. Those rules govern graphical applications; the kernel console uses its own built-in bitmap sets and is not changed by them.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Where are all thirteen built-in fonts in Linux 6.12?</i></summary><p>In <code>lib/fonts/</code>. There is no <code>drivers/video/fonts/</code> directory in Linux 6.12, even though older descriptions sometimes place fonts there.</p></details>
+<details class="q"><summary><i>What does fbcon=font:VGA8x8 select?</i></summary><p>It sets the console font name that fbcon looks up with <code>find_font()</code>, selecting the descriptor whose name is <code>VGA8x8</code>. That descriptor points at the 8 by 8 bitmap array with 256 entries.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Linux 6.12 console font sources</h2>
+<h3>Reference: all thirteen built-ins</h3>
+<p>The files under <code>lib/fonts/</code> define one bitmap array and one descriptor each. Every array has 256 entries. The table follows the Linux 6.12 source files <code>lib/fonts/Kconfig</code>, <code>lib/fonts/fonts.c</code> and the individual font files.</p>
+<table>
+<tr><th>Kconfig symbol</th><th>File</th><th>Bitmap array</th><th>Descriptor / name</th><th>Width x height</th><th>Charcount</th><th>FONTDATAMAX</th></tr>
+<tr><td><code>CONFIG_FONT_8x8</code></td><td><code>font_8x8.c</code></td><td><code>fontdata_8x8</code></td><td><code>font_vga_8x8</code> / VGA8x8</td><td>8x8</td><td>256</td><td>2048</td></tr>
+<tr><td><code>CONFIG_FONT_8x16</code></td><td><code>font_8x16.c</code></td><td><code>fontdata_8x16</code></td><td><code>font_vga_8x16</code> / VGA8x16</td><td>8x16</td><td>256</td><td>4096</td></tr>
+<tr><td><code>CONFIG_FONT_6x11</code></td><td><code>font_6x11.c</code></td><td><code>fontdata_6x11</code></td><td><code>font_vga_6x11</code> / ProFont6x11</td><td>6x11</td><td>256</td><td>11*256</td></tr>
+<tr><td><code>CONFIG_FONT_7x14</code></td><td><code>font_7x14.c</code></td><td><code>fontdata_7x14</code></td><td><code>font_7x14</code> / 7x14</td><td>7x14</td><td>256</td><td>3584</td></tr>
+<tr><td><code>CONFIG_FONT_PEARL_8x8</code></td><td><code>font_pearl_8x8.c</code></td><td><code>fontdata_pearl8x8</code></td><td><code>font_pearl_8x8</code> / PEARL8x8</td><td>8x8</td><td>256</td><td>2048</td></tr>
+<tr><td><code>CONFIG_FONT_ACORN_8x8</code></td><td><code>font_acorn_8x8.c</code></td><td><code>acorndata_8x8</code></td><td><code>font_acorn_8x8</code> / Acorn8x8</td><td>8x8</td><td>256</td><td>2048</td></tr>
+<tr><td><code>CONFIG_FONT_MINI_4x6</code></td><td><code>font_mini_4x6.c</code></td><td><code>fontdata_mini_4x6</code></td><td><code>font_mini_4x6</code> / MINI4x6</td><td>4x6</td><td>256</td><td>1536</td></tr>
+<tr><td><code>CONFIG_FONT_6x10</code></td><td><code>font_6x10.c</code></td><td><code>fontdata_6x10</code></td><td><code>font_6x10</code> / 6x10</td><td>6x10</td><td>256</td><td>2560</td></tr>
+<tr><td><code>CONFIG_FONT_10x18</code></td><td><code>font_10x18.c</code></td><td><code>fontdata_10x18</code></td><td><code>font_10x18</code> / 10x18</td><td>10x18</td><td>256</td><td>9216</td></tr>
+<tr><td><code>CONFIG_FONT_SUN8x16</code></td><td><code>font_sun8x16.c</code></td><td><code>fontdata_sun8x16</code></td><td><code>font_sun_8x16</code> / SUN8x16</td><td>8x16</td><td>256</td><td>4096</td></tr>
+<tr><td><code>CONFIG_FONT_SUN12x22</code></td><td><code>font_sun12x22.c</code></td><td><code>fontdata_sun12x22</code></td><td><code>font_sun_12x22</code> / SUN12x22</td><td>12x22</td><td>256</td><td>11264</td></tr>
+<tr><td><code>CONFIG_FONT_TER16x32</code></td><td><code>font_ter16x32.c</code></td><td><code>fontdata_ter16x32</code></td><td><code>font_ter_16x32</code> / TER16x32</td><td>16x32</td><td>256</td><td>16384</td></tr>
+<tr><td><code>CONFIG_FONT_6x8</code></td><td><code>font_6x8.c</code></td><td><code>fontdata_6x8</code></td><td><code>font_6x8</code> / 6x8</td><td>6x8</td><td>256</td><td>2048</td></tr>
+</table>
+<p>FONTDATAMAX is the largest byte count a bitmap array may need. It grows with the cell height and width: an 8x8 set uses one byte per row and 2048 bytes in total, while the 10x18 set stores two bytes per row and reaches 9216. The value for ProFont6x11 is written as <code>11*256</code> in the source. None of these arrays stores glyph names, accents built from parts or a character map.</p>
+<h3>How it works: Kconfig gates and defaults</h3>
+<p><code>CONFIG_FONT_SUPPORT</code> is the tristate master gate. It is selected by <code>FRAMEBUFFER_CONSOLE</code>, <code>STI_CONSOLE</code>, <code>DRM_PANIC</code> and <code>SGI_NEWPORT_CONSOLE</code>. <code>CONFIG_FONTS</code> gates the individual font prompts.</p>
+<p><code>CONFIG_FONT_AUTOSELECT</code> is <code>def_bool y</code> only when all fonts except 8x16 are off; in that state it selects <code>FONT_8x16</code>. With <code>FONTS=n</code> and not SPARC, <code>FONT_8x8</code> and <code>FONT_8x16</code> default to <code>y</code>. Architecture defaults add <code>FONT_6x11</code> on MAC, <code>FONT_PEARL_8x8</code> on AMIGA and <code>FONT_ACORN_8x8</code> on <code>ARM &amp;&amp; ARCH_ACORN</code>.</p>
+<p><code>fonts.c</code> registers each descriptor under its matching <code>#ifdef</code> and exposes <code>find_font()</code> and <code>get_default_font()</code>. A descriptor carries the width, height, data pointer and character count that fbcon copies into a virtual console.</p>
+<h3>Boot names and runtime changes</h3>
+<p>fbcon parses <code>fbcon=font:&lt;name&gt;</code> into <code>fontname</code>. It calls <code>find_font(name)</code>, or <code>get_default_font(xres, yres, blit_x, blit_y)</code> when no name is given, then copies width, height, data and charcount into <code>vc-&gt;vc_font</code>. Built-in fonts are used with <code>userfont=0</code>. <code>fbcon_set_font</code> accepts user fonts with a charcount of 256 or 512 through <code>KDFONTOP</code>; <code>fbcon_set_def_font</code> restores a built-in by name or through <code>get_default_font()</code>.</p>
+<p>The documented names are exactly <code>10x18</code>, <code>6x10</code>, <code>6x8</code>, <code>7x14</code>, <code>Acorn8x8</code>, <code>MINI4x6</code>, <code>PEARL8x8</code>, <code>ProFont6x11</code>, <code>SUN12x22</code>, <code>SUN8x16</code>, <code>TER16x32</code>, <code>VGA8x16</code> and <code>VGA8x8</code>. These are display names; the Kconfig symbols have a different spelling. <cite data-ref="linux-fbcon"><a href="bibliography/linux-fbcon.html">Linux 6.12 fbcon docs</a></cite></p>
+<h3>PSF, setfont and the kernel path</h3>
+<p><dfn><a href="glossary/s/setfont.html">setfont</a></dfn>(8) loads a <dfn><a href="glossary/p/psf.html">PSF (PC Screen Font)</a></dfn> file, and also accepts <code>.cp</code> and raw formats. In kbd v2.10.0 the work happens in <code>kfont_load_fonts()</code>, which issues <code>ioctl(KDFONTOP)</code> with <code>KD_FONT_OP_SET</code>, <code>KD_FONT_OP_SET_TALL</code> or <code>KD_FONT_OP_SET_DEFAULT</code>. The kernel path is <code>vt_ioctl.c</code> to <code>vt.c</code> to the fbcon hooks. <cite data-ref="setfont-man"><a href="bibliography/setfont-man.html">setfont(8)</a></cite> <cite data-ref="kbd-source"><a href="bibliography/kbd-source.html">kbd v2.10.0 setfont source</a></cite></p>
+<h3>Why these are not desktop fonts</h3>
+<table>
+<tr><th>Question</th><th>Kernel-side owner</th></tr>
+<tr><td>Which built-in sets exist?</td><td>Kconfig symbols and the arrays in <code>lib/fonts/</code></td></tr>
+<tr><td>Which name maps to an array?</td><td>Descriptors registered in <code>fonts.c</code></td></tr>
+<tr><td>Which set is used at boot?</td><td>fbcon parsing <code>fbcon=font</code> or calling <code>get_default_font()</code></td></tr>
+<tr><td>Which set is loaded later?</td><td>setfont(8) through KDFONTOP and the vt/fbcon hooks</td></tr>
+</table>
+<p>Each array has 256 slots indexed by a byte value. There is no table of <a href="glossary/c/code-point.html">code points</a>, no outline curve, no shaping table and no palette. A <dfn><a href="glossary/c/character.html">character</a></dfn> reaching the console is translated to one of those 256 slots; what the slot draws depends on the console's translation rules. A desktop font can cover thousands of code points and run shaping before rasterization, which these sets cannot do.</p>
+<p><dfn><a href="glossary/k/kmscon.html">KMScon</a></dfn> is a separate userspace terminal emulator with its own 8x16, Unifont and Pango font backends. It is outside the kernel tree, does not use <code>CONFIG_FONT_*</code> and does not travel through setfont's kernel console font path. <cite data-ref="kmscon-readme"><a href="bibliography/kmscon-readme.html">KMScon v9.1.0 README</a></cite></p>
+<pre data-risk="read-only"><code>ls lib/fonts/
+grep -R 'CONFIG_FONT_' lib/fonts/Kconfig
+grep -n 'font_vga_8x8' lib/fonts/fonts.c</code></pre>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>A user font with 512 entries has twice the console character count; built-in arrays always have 256.</li>
+<li>A font name that is misspelled falls back to the default chosen from the screen's resolution and blit geometry.</li>
+<li>Autoselect only applies in the narrow configuration where every font except 8x16 is off; it is not a general fallback policy.</li>
+<li>A tall user font takes the SET_TALL path, so it is not interchangeable with an ordinary 256-entry font.</li>
+<li>Some Kconfig symbols would suggest names that are not accepted after <code>fbcon=font</code>; the kernel's display names are the thirteen short forms, not the symbol text.</li>
+<li>A built-in set selected at compile time still needs its descriptor registered in <code>fonts.c</code>; a bitmap array alone is not discoverable by name.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why does a PSF loaded by setfont not change the fonts available to a browser?</i></summary><p>setfont talks to the kernel virtual console through KDFONTOP. A browser runs in a graphical session and uses desktop font files through its own text stack. KMScon, if used, is userspace too and has its own backends. The two paths never meet.</p></details>
+<details class="q open"><summary><i>What is misleading about the path drivers/video/fonts/ in older notes?</i></summary><p>In Linux 6.12 that directory does not exist. All thirteen built-in bitmap fonts live in lib/fonts/, with their Kconfig rules in lib/fonts/Kconfig and registration in lib/fonts/fonts.c. Repeating the old path sends a reader to the wrong tree.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="linux-fbcon"><a href="bibliography/linux-fbcon.html">Linux 6.12 fbcon docs</a></cite>; <cite data-ref="setfont-man"><a href="bibliography/setfont-man.html">setfont(8)</a></cite>; <cite data-ref="kbd-source"><a href="bibliography/kbd-source.html">kbd v2.10.0 setfont source</a></cite>; <cite data-ref="kmscon-readme"><a href="bibliography/kmscon-readme.html">KMScon v9.1.0 README</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/opentype-internals.html">Inside OpenType and TrueType files</a> &mdash; compare scalable table-based fonts with fixed bitmaps.</li>
+<li><a href="desktop/typography/linux-text-stack.html">The Linux text stack</a> &mdash; see where the console path separates from the graphical path.</li>
+<li><a href="paths/font-internals.html">Inside font internals</a> &mdash; continue the reading order.</li>
+</ul>
+</body></html>

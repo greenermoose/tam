@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html><head>
+<title>Anatomy of a letterform</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-anatomy-of-type">
+<meta name="summary" content="Name the parts and measurements of a letterform, from baseline and x-height to serifs, figures and font styles, and see why code editors care.">
+<meta name="keywords" content="baseline, x-height, ascender, descender, cap-height, bowl, counter, serif, italic, oblique, small caps, figures, leading, em, en">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="typography-foundations:4">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / Anatomy of a letterform</p></nav>
+
+<p>Every letter is drawn against a small set of invisible lines and built from a few named parts. Knowing those names lets you describe why one font reads clearly and another looks cramped.</p>
+
+<section data-level="novice">
+<h2>The shape of one letter</h2>
+<h3>What this is</h3>
+<p>A <dfn><a href="glossary/g/glyph.html">glyph</a></dfn> is one drawn letter or mark. Letters sit on an imaginary line called the <dfn><a href="glossary/b/baseline.html">baseline</a></dfn>. The height of a small letter such as "x" is its <dfn><a href="glossary/x/x-height.html">x-height</a></dfn>. Letters such as "b" and "d" rise above it with an <dfn><a href="glossary/a/ascender.html">ascender</a></dfn>; letters such as "g" and "p" drop below it with a <dfn><a href="glossary/d/descender.html">descender</a></dfn>. Capital letters reach a separate <dfn><a href="glossary/c/cap-height.html">cap-height</a></dfn>.</p>
+<p>Inside a letter, a <dfn><a href="glossary/s/stroke.html">stroke</a></dfn> is a drawn line. A <dfn><a href="glossary/b/bowl.html">bowl</a></dfn> is a curved stroke, and the <dfn><a href="glossary/c/counter.html">counter</a></dfn> is the open space it surrounds. A straight stroke is often called a stem.</p>
+<h3>Why it matters</h3>
+<p>These shapes affect reading. A large x-height can make small text easier to read. An open counter keeps letters such as "e" and "a" from blurring into solid blobs. Even spacing between lines, called <dfn><a href="glossary/l/leading.html">leading</a></dfn>, gives the eye room to move from one line to the next.</p>
+<h3>How to think about it</h3>
+<p>Picture a sheet of ruled exercise paper. The thick rule is the baseline; a shorter rule above it marks the x-height; a higher rule marks the cap-height; a lower rule marks the descender. A letter is a shape fitted between those rules.</p>
+<p>Now think of a font as a family of related drawings. The regular drawing, its bold drawing and its italic drawing are members of one <dfn><a href="glossary/f/font-family.html">font family</a></dfn>. Each member is a <dfn><a href="glossary/f/font-face.html">font face</a></dfn>, and the chosen variant is a <dfn><a href="glossary/f/font-style.html">font style</a></dfn>.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/b/baseline.html">Baseline</a></dt><dd>The line on which most letters rest.</dd>
+<dt><a href="glossary/x/x-height.html">X-height</a></dt><dd>The height of a typical small letter.</dd>
+<dt><a href="glossary/a/ascender.html">Ascender</a></dt><dd>The part of a letter that rises above the x-height.</dd>
+<dt><a href="glossary/d/descender.html">Descender</a></dt><dd>The part that drops below the baseline.</dd>
+<dt><a href="glossary/b/bowl.html">Bowl</a></dt><dd>A curved stroke that encloses space.</dd>
+<dt><a href="glossary/c/counter.html">Counter</a></dt><dd>The enclosed or partly enclosed white space in a letter.</dd>
+<dt><a href="glossary/s/serif.html">Serif</a></dt><dd>A small foot or finish at the end of a stroke.</dd>
+<dt><a href="glossary/s/sans-serif.html">Sans-serif</a></dt><dd>Letterforms without those small finishes.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Naming what you see</h2>
+<p><strong>Goal:</strong> you will be able to sort a list of type terms into parts, distances, units and spacing so you can describe a font precisely.</p>
+<pre data-risk="read-only">  cap-height   - - - - - - - - - -  top of a capital letter
+  ascender     - - - - - - - - - -  top of b, d, f, h, k, l, t
+  x-height     ######              top of the bowl of p
+               ##    ##            bowl = the curved stroke
+               ##    ##            counter = the white hole inside
+  baseline  ---##----##-----------  the line letters sit on
+               ##
+               ##                  stem = the straight stroke
+  descender  ---##----------------  lowest point of p, g, j, q, y</pre>
+<p>The drawing shows a lowercase "p". The dashed rules are guides, not printed lines. A real font stores the same ideas as numbers in its tables.</p>
+<tam-sandbox
+  title="Try it: sort the anatomy terms"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the entries that are parts of a letter">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="parts.txt" size="300">baseline : guide
+x-height : distance
+ascender : distance
+descender : distance
+cap-height : distance
+bowl : part
+counter : part
+stroke : part
+serif : part
+em : unit
+en : unit
+point : unit
+leading : spacing
+measure : width</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat parts.txt" hint="Each line names a type term, then its kind."><out>baseline : guide</out><out>x-height : distance</out><out>ascender : distance</out><out>descender : distance</out><out>cap-height : distance</out><out>bowl : part</out><out>counter : part</out><out>stroke : part</out><out>serif : part</out><out>em : unit</out><out>en : unit</out><out>point : unit</out><out>leading : spacing</out><out>measure : width</out></tam-cmd>
+  <tam-cmd match="grep unit parts.txt" hint="This shows the measuring units, not the letter parts."><out>em : unit</out><out>en : unit</out><out>point : unit</out></tam-cmd>
+  <tam-cmd match="grep part parts.txt" goal="true" hint="Match the kind after the colon."><out>bowl : part</out><out>counter : part</out><out>stroke : part</out><out>serif : part</out></tam-cmd>
+  <tam-init>Try: cat parts.txt, then grep unit parts.txt, then grep part parts.txt</tam-init>
+  <tam-hint after="1">A bowl and a counter are different things: one is a stroke, the other is empty space.</tam-hint>
+  <tam-hint after="2">The word measure also appears as a term meaning the width of a text column.</tam-hint>
+  <tam-fallback>Try grep part parts.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What the filter showed</h3>
+<p>Four entries are parts of a letter; the rest are distances, units, a guide line or spacing. The word "measure" also has a second typographic meaning: the width of a line of text. Here it is only a label in the sample, not a letter part.</p>
+<p>The files and output in this sandbox are teaching samples. They sort real typographic terms for practice; nothing is read from your machine and nothing is changed.</p>
+<h3>Try it</h3>
+<p>Run <code>grep distance parts.txt</code>. Name the four distances before you type it, and say why baseline is listed as a guide rather than a distance.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You counted the counter as a stroke.</dt><dd>It is space, not ink. A bowl is the curved stroke that surrounds the counter.</dd>
+<dt>You thought em and en were letter parts.</dt><dd>They are units based on the size of the type, not shapes inside a glyph.</dd>
+</dl>
+<aside class="tamlinux">
+<p>These terms matter most in a code editor, where a monospace family is chosen. Tamlinux's fontconfig configuration strongly assigns generic monospace to JetBrainsMono Nerd Font. The command tam-font-current prints the first alias for monospace from fc-match, and the menu uses that result to offer a font selector. A change of x-height or line spacing is therefore visible every time you read code.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why can two fonts at the same point size look different in size?</i></summary><p>Because point size sets the overall em, not the x-height. A font with a large x-height draws its small letters bigger inside that em, so a paragraph looks larger even at the same nominal size.</p></details>
+<details class="q"><summary><i>What is the difference between italic and oblique?</i></summary><p>An italic is a designed letterform, often with different shapes and a true lowercase style. An oblique is the regular letterform slanted by a mathematical transform. Both lean, but only one is redrawn.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Metrics, styles and units</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Term</th><th>Precise meaning</th><th>Typical effect</th></tr>
+<tr><td><a href="glossary/b/baseline.html">Baseline</a></td><td>The reference line on which glyphs are positioned</td><td>Aligns text across spans and columns</td></tr>
+<tr><td><a href="glossary/x/x-height.html">X-height</a></td><td>Height of the lowercase x, used as a proxy for small letters</td><td>Higher x-height reads larger at the same size</td></tr>
+<tr><td><a href="glossary/a/ascender.html">Ascender</a> / <a href="glossary/d/descender.html">descender</a></td><td>Extents above x-height and below the baseline</td><td>Sets the needed line box height</td></tr>
+<tr><td><a href="glossary/c/cap-height.html">Cap-height</a></td><td>Height of an uppercase letter</td><td>Controls how capitals relate to lowercase</td></tr>
+<tr><td><a href="glossary/s/stroke.html">Stroke</a>, bowl, counter, stem</td><td>Drawn line, curved stroke, enclosed space, straight stroke</td><td>Determines openness and legibility at small sizes</td></tr>
+<tr><td><a href="glossary/s/stress.html">Stress</a></td><td>Direction and variation of stroke thickness</td><td>Distinguishes humanist, garalde and modern designs</td></tr>
+<tr><td><a href="glossary/l/leading.html">Leading</a></td><td>Distance between baselines of adjacent lines</td><td>Too little causes collisions and eye strain</td></tr>
+<tr><td><a href="glossary/m/measure.html">Measure</a></td><td>Length of a line of text</td><td>Very long lines are harder to track</td></tr>
+</table>
+<table>
+<tr><th>Feature</th><th>What it changes</th><th>Example use</th></tr>
+<tr><td><a href="glossary/s/serif.html">Serif</a></td><td>Adds small finishes to strokes</td><td>Traditional book text</td></tr>
+<tr><td><a href="glossary/s/sans-serif.html">Sans-serif</a></td><td>Removes those finishes</td><td>Interfaces and screens</td></tr>
+<tr><td><a href="glossary/s/slab-serif.html">Slab-serif</a></td><td>Uses thick, block-like serifs</td><td>Headlines and sturdy display text</td></tr>
+<tr><td><a href="glossary/i/italic.html">Italic</a> vs <a href="glossary/o/oblique.html">oblique</a></td><td>Designed letterform vs slanted regular form</td><td>Emphasis and distinction</td></tr>
+<tr><td><a href="glossary/s/small-caps.html">Small caps</a></td><td>Capital shapes drawn near x-height</td><td>Acronyms without shouting</td></tr>
+<tr><td><a href="glossary/o/oldstyle-figures.html">Oldstyle figures</a> vs lining figures</td><td>Digits with varying heights vs uniform cap height</td><td>Body text vs tables and headings</td></tr>
+<tr><td><a href="glossary/t/tabular-figures.html">Tabular</a> vs <a href="glossary/p/proportional-figures.html">proportional figures</a></td><td>Equal digit widths vs natural widths</td><td>Aligned columns vs running prose</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A font stores design coordinates in an em square, then scales them to the requested size. The <a href="glossary/p/point.html">point</a> is a traditional print unit; the <a href="glossary/e/em.html">em</a> is the font's own scale, and the <a href="glossary/e/en.html">en</a> is half an em. OpenType records metrics such as units per em and ascender and descender values in its tables, so the same numbers drive book layout and browser layout <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType specification</a></cite>.</p>
+<p>On the web, CSS exposes these ideas as font-size, line-height and font-variant settings. The specification defines how a chosen <a href="glossary/f/font-family.html">font family</a> and <a href="glossary/f/font-style.html">font style</a> are matched and how figures and caps are selected <cite data-ref="css-fonts-4"><a href="bibliography/css-fonts-4.html">CSS Fonts Module Level 4</a></cite>. Accessibility guidance treats adequate spacing and distinguishable letter shapes as part of readability rather than ornament <cite data-ref="wcag"><a href="bibliography/wcag.html">WCAG 2.2</a></cite>. Bringhurst's discussion of size, leading and measure remains the classic statement of the craft <cite data-ref="bringhurst-elements"><a href="bibliography/bringhurst-elements.html">The Elements of Typographic Style</a></cite>.</p>
+<h3>Advanced usage</h3>
+<p>These read-only queries show how a desktop resolves a family and reports its metrics:</p>
+<pre data-risk="read-only">fc-match monospace -f '%{family}\n'
+fc-match 'Liberation Serif' -f '%{family} %{style}\n'
+fc-list : family | sort -u | head -n 10</pre>
+<p>The first line answers which family a monospace request resolves to. The second shows the family and style strings fontconfig reports for a named serif. Fontconfig treats family, face and style as separate matching fields, which is why a single family can offer several faces <cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite>.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Stem is a working term for a straight stroke, but it is not always a separate glossary entry; treat it as plain language unless a definition is linked.</li>
+<li>A counter can be closed, as in "o", or open, as in the upper part of "c". Calling every counter a hole is too narrow.</li>
+<li>Some italic fonts are drawn with genuinely different letterforms, not just a slant; the lowercase "a" and "g" are common giveaways.</li>
+<li>Lining figures align by height but may break the rhythm of body text; oldstyle figures sit more comfortably in prose but line up poorly in tables.</li>
+<li>Tabular figures are not always monospaced overall; only the digits share a fixed width.</li>
+<li>In a code editor, line height depends on the tallest ascender and deepest descender in the chosen font. Changing only the font size may not fix clipped accents.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>You need a column of amounts to line up. Which figures do you choose and why?</i></summary><p>Tabular figures, because every digit shares a width so decimal points align. Proportional figures look better in prose but produce ragged columns. If the amounts sit inside body text, lining figures may also help them stand out.</p></details>
+<details class="q open"><summary><i>What breaks if leading is set below the ascender-to-descender height?</i></summary><p>Adjacent lines overlap. Ascenders can touch descenders from the line above, which makes words hard to separate. The fix is to raise leading or choose a face with shorter extents, not to shrink the text indefinitely.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="bringhurst-elements"><a href="bibliography/bringhurst-elements.html">Robert Bringhurst, The Elements of Typographic Style</a></cite>; <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">Microsoft, OpenType specification</a></cite>; <cite data-ref="css-fonts-4"><a href="bibliography/css-fonts-4.html">W3C CSS Fonts Module Level 4</a></cite>; <cite data-ref="wcag"><a href="bibliography/wcag.html">W3C WCAG 2.2</a></cite>; <cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/font-formats.html">Font formats, complete map</a> &mdash; see where these measurements are stored.</li>
+<li><a href="desktop/typography/scribes-and-print.html">Scribes, manuscripts and the printing press</a> &mdash; see how letterforms were first cut and cast.</li>
+<li><a href="paths/typography-foundations.html">Typography foundations</a> &mdash; read the subject in order.</li>
+</ul>
+</body></html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>FreeType</title>
+<meta name="topic" content="glossary-freetype">
+<meta name="summary" content="FreeType: The open-source library that loads and rasterizes font outlines.">
+<meta name="keywords" content="glossary-freetype, FreeType, FreeType library, ft">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/f/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/f/index.html">Terms beginning with F</a> / FreeType</p></nav>
+
+<p>FreeType is the library most Linux applications use to load fonts and turn their outlines into pixels.</p>
+<section data-level="novice"><p>When a program needs to draw text it often asks FreeType. It reads the font file, finds the right letter and works out which pixels to color, so the characters appear on your screen. It is a library, not a program you normally launch yourself.</p></section>
+<section data-level="learner"><p>FreeType supports TrueType, CFF/Type 1, OpenType, WOFF and bitmap formats, and handles hinting, antialiasing and color glyphs. It does not decide which font to use—<a href="glossary/f/fontconfig.html">Fontconfig</a> does that. It also does not shape complex scripts: <a href="glossary/h/harfbuzz.html">HarfBuzz</a> or Pango supplies positioned glyph IDs before FreeType rasterizes them.</p></section>
+<section data-level="expert"><p>The library exposes faces, sizes, slots and glyphs; <code>FT_Load_Glyph</code> applies hinting targets such as <code>FT_LOAD_TARGET_LCD</code>, and <code>FT_Render_Glyph</code> produces a bitmap or outline. Its TrueType interpreter runs glyph bytecode for <a href="glossary/g/grid-fitting.html">grid fitting</a>, while the Adobe CFF hinter applies automatic stem snapping and blue-zone alignment. FreeType supplies the raster result; layout engines handle shaping and toolkits composite the glyph bitmaps.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

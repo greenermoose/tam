@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>loca</title>
+<meta name="topic" content="glossary-loca">
+<meta name="summary" content="loca: The TrueType table that indexes glyph outlines stored in glyf.">
+<meta name="keywords" content="glossary-loca, loca, loca table, glyph location table">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/l/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/l/index.html">Terms beginning with L</a> / loca</p></nav>
+
+<p>The <code>loca</code> table is an index that tells a renderer where each glyph's outline begins in the <code>glyf</code> table.</p>
+<section data-level="novice"><p>If all the letter shapes are stored together in one long list, the renderer needs a table of contents to find each one. <code>loca</code> is that table of contents for TrueType outlines. Empty glyphs point to the same place twice.</p></section>
+<section data-level="learner"><p>Each entry is an offset into <code>glyf</code>; the length of a glyph's data is the difference between consecutive offsets. The table's format, short or long offsets, is declared in <code>head.indexToLocFormat</code>.</p></section>
+<section data-level="expert"><p>Short offsets are unsigned 16-bit values divided by two, allowing <code>glyf</code> sizes up to about 128 KB; long offsets are 32-bit values for larger fonts. The table has numGlyphs + 1 entries, with the last giving total glyph-data length. Validators check that offsets are monotonic and word-aligned; CFF-based OpenType fonts have no <code>loca</code> table.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

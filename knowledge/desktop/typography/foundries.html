@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html><head>
+<title>Type foundries and the people who make fonts</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-foundries">
+<meta name="summary" content="Meet the printers, designers and foundries behind fonts, from Gutenberg and Aldus Manutius to Google Fonts, Noto and Nerd Fonts.">
+<meta name="keywords" content="foundry, Gutenberg, Fust, Schoffer, Manutius, Plantin, Baskerville, Didot, Bodoni, Linotype, Monotype, Zapf, Frutiger, Carter, Nerd Fonts, Noto">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="typography-foundations:6">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / Type foundries and the people who make fonts</p></nav>
+
+<p>A foundry is a place where type is made and sold. The word began with metal type and now covers companies and open projects that publish digital fonts you can install today.</p>
+
+<section data-level="novice">
+<h2>Who makes the letters</h2>
+<h3>What this is</h3>
+<p>Early books were printed with pieces of <a href="glossary/m/movable-type.html">movable type</a>, each piece carrying one raised letter. Shops that cast and sold those pieces became the first type foundries. Johannes Gutenberg's <a href="glossary/p/printing-press.html">printing press</a> made such books possible in fifteenth-century Europe, and Johann Fust and Peter Schöffer carried the work on after him.</p>
+<p>Today a foundry usually publishes digital fonts instead of metal. Some are companies; others are volunteer projects that give their fonts away. A <a href="glossary/f/font-family.html">font family</a> such as Noto is a set of related designs shared under one name.</p>
+<h3>Why it matters</h3>
+<p>The foundry behind a font tells you something about its purpose. A family made for newspapers may prioritise compact shapes; one made for screen reading may prioritise open counters and clear spacing. Knowing the source helps you choose a font that fits the job.</p>
+<h3>How to think about it</h3>
+<p>Think of a foundry as a kitchen for letters. Some cooks work in metal, some draw shapes for screens, and some add icons to an existing recipe. The finished dish is the <a href="glossary/f/font.html">font</a> you install; every visible letter in it is a <a href="glossary/g/glyph.html">glyph</a>.</p>
+<p>Not every well-known name is a foundry. Beatrice Warde wrote about typography rather than running a type shop, and Nerd Fonts patches existing fonts to add icons rather than designing a family from scratch.</p>
+<h3>New words</h3>
+<dl>
+<dt>Foundry</dt><dd>An organisation that makes and releases type, once in metal and now usually digital.</dd>
+<dt><a href="glossary/p/printing-press.html">Printing press</a></dt><dd>A machine that presses inked type onto paper.</dd>
+<dt><a href="glossary/m/movable-type.html">Movable type</a></dt><dd>Reusable letters that can be rearranged to set new text.</dd>
+<dt><a href="glossary/f/font-family.html">Font family</a></dt><dd>Related designs issued under one name, such as Noto or Liberation.</dd>
+<dt><a href="glossary/f/font-face.html">Font face</a></dt><dd>One specific member of a family, such as bold italic.</dd>
+<dt><a href="glossary/n/nerd-fonts.html">Nerd Fonts</a></dt><dd>A project that adds developer icons to existing fonts.</dd>
+<dt><a href="glossary/a/atkinson-hyperlegible.html">Atkinson Hyperlegible</a></dt><dd>A family designed for readers with low vision.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Sorting the names by what they did</h2>
+<p><strong>Goal:</strong> you will be able to place a named person or project in the right era of type production.</p>
+<tam-sandbox
+  title="Try it: find the hot-metal names"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the entries tied to mechanical typesetting">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="foundries.txt" size="380">Gutenberg : press_era
+Fust and Schoffer : press_era
+Aldus Manutius : press_era
+Baskerville : press_era
+Didot : press_era
+Bodoni : press_era
+Linotype : hot_metal
+Monotype : hot_metal
+Frutiger : modern_design
+Carter : modern_design
+Zapf : modern_design
+Google Fonts : open_source
+Noto : open_source
+Nerd Fonts : patching_project</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat foundries.txt" hint="Each line names a person or project, then an era."><out>Gutenberg : press_era</out><out>Fust and Schoffer : press_era</out><out>Aldus Manutius : press_era</out><out>Baskerville : press_era</out><out>Didot : press_era</out><out>Bodoni : press_era</out><out>Linotype : hot_metal</out><out>Monotype : hot_metal</out><out>Frutiger : modern_design</out><out>Carter : modern_design</out><out>Zapf : modern_design</out><out>Google Fonts : open_source</out><out>Noto : open_source</out><out>Nerd Fonts : patching_project</out></tam-cmd>
+  <tam-cmd match="grep open_source foundries.txt" hint="This shows the modern shared collections."><out>Google Fonts : open_source</out><out>Noto : open_source</out></tam-cmd>
+  <tam-cmd match="grep hot_metal foundries.txt" goal="true" hint="Match the era after the colon."><out>Linotype : hot_metal</out><out>Monotype : hot_metal</out></tam-cmd>
+  <tam-init>Try: cat foundries.txt, then grep open_source foundries.txt, then grep hot_metal foundries.txt</tam-init>
+  <tam-hint after="1">Aldus Manutius belongs to the press era, even though his italic is still drawn today.</tam-hint>
+  <tam-hint after="2">Linotype and Monotype both mechanised metal typesetting, but in different ways.</tam-hint>
+  <tam-fallback>Try grep hot_metal foundries.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What the filter showed</h3>
+<p>Two entries belong to hot metal. Linotype cast a whole line of type as one piece; Monotype cast single characters. Six names belong to the hand-press era, three to modern design practice, two to open-source collections, and one is a patching project rather than a foundry.</p>
+<p>The files and output in this sandbox are teaching samples. They group real names for practice; they are not a reading of a font catalogue on your machine, and nothing is installed or changed.</p>
+<h3>Try it</h3>
+<p>Run <code>grep press_era foundries.txt</code>. Predict six rows before you type it, and say what links Gutenberg to Aldus Manutius even though they worked in different cities and centuries.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You placed Nerd Fonts with the open-source foundries.</dt><dd>Nerd Fonts is a patching project: it takes existing families and adds icon glyphs. It does not design a complete family from scratch.</dd>
+<dt>You expected Beatrice Warde in the list of designers.</dt><dd>She wrote and lectured about typography and Printing historical practice rather than drawing type for a foundry, so this sample does not classify her as a designer.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Many of these sources are visible on a running desktop. Tamlinux's fontconfig configuration strongly assigns generic sans-serif to Liberation Sans, serif to Liberation Serif and monospace to JetBrainsMono Nerd Font. It accepts Noto Color Emoji and Nerd Font glyphs where relevant, which is why a terminal prompt can show icons from a patched family while a document uses a conventional one.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why is Aldus Manutius still discussed in a page about modern fonts?</i></summary><p>Because he helped establish italic type and the portable book format. Those decisions shaped how families are built: a roman and an italic are still treated as related members of one design.</p></details>
+<details class="q"><summary><i>Name one difference between a foundry and a patching project.</i></summary><p>A foundry designs and releases fonts as its own work. A patching project such as Nerd Fonts starts from other people's families and adds glyphs, usually icons, to them.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Makers, libraries and what they left behind</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Foundry or project</th><th>Era</th><th>Notable work</th><th>Where a Linux desktop user meets it</th></tr>
+<tr><td>Johannes Gutenberg</td><td>Fifteenth century</td><td>Metal type system and the 42-line Bible</td><td>History of the book; scanned incunabula</td></tr>
+<tr><td>Johann Fust and Peter Schöffer</td><td>Fifteenth century</td><td>Early commercial printing after Gutenberg</td><td>Early printed books in collections</td></tr>
+<tr><td>Aldus Manutius</td><td>Fifteenth to sixteenth century</td><td>Italic type and compact portable books</td><td>Roman and italic pairs in any family</td></tr>
+<tr><td>Christophe Plantin</td><td>Sixteenth century</td><td>Large publishing and type-making house in Antwerp</td><td>Historical specimens and editions</td></tr>
+<tr><td>John Baskerville</td><td>Eighteenth century</td><td>Refined transitional roman and improved printing</td><td>Revivals used for book text</td></tr>
+<tr><td>Didot family</td><td>Eighteenth to nineteenth century</td><td>High-contrast Didone letterforms</td><td>Fashion and luxury display settings</td></tr>
+<tr><td>Bodoni family</td><td>Eighteenth to nineteenth century</td><td>Modern roman with thin hairlines</td><td>Display type and classical book design</td></tr>
+<tr><td>Linotype</td><td>Late nineteenth century</td><td>Line-casting machine for newspaper composition</td><td>History of hot-metal typesetting</td></tr>
+<tr><td>Monotype</td><td>Late nineteenth century</td><td>Single-character casting and composition</td><td>Historic metal and early digital libraries</td></tr>
+<tr><td>Eric Gill</td><td>Early to mid twentieth century</td><td>Gill Sans and Perpetua</td><td>Popular humanist sans and serif revivals</td></tr>
+<tr><td>Hermann Zapf</td><td>Mid to late twentieth century</td><td>Palatino, Optima and Zapf Dingbats</td><td>Book text and symbol fonts</td></tr>
+<tr><td>Adrian Frutiger</td><td>Mid to late twentieth century</td><td>Univers and Frutiger, designed for signage</td><td>Interface and wayfinding families</td></tr>
+<tr><td>Matthew Carter</td><td>Late twentieth century onward</td><td>Versions of Georgia and Verdana style families for screens</td><td>Screen fonts in documents and browsers</td></tr>
+<tr><td>Erik Spiekermann</td><td>Late twentieth century onward</td><td>FF Meta and Berlin, plus information design writing</td><td>Editorial and interface fonts</td></tr>
+<tr><td>Beatrice Warde</td><td>Twentieth century</td><td>Essays on typography and the craft of printing</td><td>Typographic reading and criticism</td></tr>
+<tr><td>Adobe</td><td>Late twentieth century onward</td><td>PostScript, <a href="glossary/t/type-1.html">Type 1</a> and <a href="glossary/o/opentype.html">OpenType</a> work</td><td>Type tools and the OpenType specification</td></tr>
+<tr><td>Microsoft</td><td>Late twentieth century onward</td><td><a href="glossary/t/truetype.html">TrueType</a> and ClearType-era screen families</td><td>Common document fonts and rasterisation ideas</td></tr>
+<tr><td>Apple</td><td>Late twentieth century onward</td><td>Early TrueType work and system families</td><td>Cross-platform font compatibility</td></tr>
+<tr><td>Google Fonts</td><td>Twenty-first century</td><td>Free hosted web font catalogue</td><td>Downloadable open families and web embeds</td></tr>
+<tr><td>Liberation</td><td>Twenty-first century</td><td>Metric-compatible open substitutes for common office fonts</td><td>Tamlinux's generic sans-serif and serif defaults</td></tr>
+<tr><td>Noto</td><td>Twenty-first century</td><td>Broad script coverage across many languages</td><td>Arabic and Urdu font choices in Tamlinux configuration</td></tr>
+<tr><td>DejaVu</td><td>Twenty-first century</td><td>Open extension of earlier Bitstream Vera designs</td><td>Fallback family on many Linux systems</td></tr>
+<tr><td>JetBrains Mono</td><td>Twenty-first century</td><td>Open monospace family for code</td><td>Tamlinux's generic monospace default</td></tr>
+<tr><td>Inter</td><td>Twenty-first century</td><td>Open neutral sans family for interfaces</td><td>UI design and installed font lists</td></tr>
+<tr><td><a href="glossary/a/atkinson-hyperlegible.html">Atkinson Hyperlegible</a></td><td>Twenty-first century</td><td>Family designed to improve legibility for low-vision readers</td><td>Accessibility-focused reading settings</td></tr>
+<tr><td><a href="glossary/n/nerd-fonts.html">Nerd Fonts</a></td><td>Twenty-first century</td><td>Patches existing families with developer icons</td><td>Terminal prompts and file lists with glyphs</td></tr>
+</table>
+<h3>How it works</h3>
+<p>The chain from Gutenberg to today is a chain of production methods. Gutenberg's metal type worked with a press; Fust and Schöffer turned that into a commercial shop; Manutius added the italic and the small book. Britannica's account gives the sequence of Gutenberg's work and its consequences <cite data-ref="britannica-gutenberg"><a href="bibliography/britannica-gutenberg.html">Gutenberg and the press</a></cite>. Later founders such as Baskerville, the Didots and Bodoni refined the letterform itself, pushing contrast and stroke stress in new directions; Bringhurst describes how such choices affect the page as a whole <cite data-ref="bringhurst-elements"><a href="bibliography/bringhurst-elements.html">The Elements of Typographic Style</a></cite>.</p>
+<p>Hot metal changed the unit again: Linotype set whole lines, Monotype set individual characters. In the digital era, Adobe, Microsoft and Apple defined competing font technologies, with Type 1 and <a href="glossary/t/truetype.html">TrueType</a> later meeting in the shared <a href="glossary/o/opentype.html">OpenType</a> format <cite data-ref="adobe-type-notes"><a href="bibliography/adobe-type-notes.html">Adobe type notes</a></cite> <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType specification</a></cite> <cite data-ref="truetype-spec"><a href="bibliography/truetype-spec.html">TrueType Reference Manual</a></cite>. Free open libraries then made type a shared resource rather than a purchased product.</p>
+<p>Atkinson Hyperlegible is a specific accessibility project with its own design goals and distribution <cite data-ref="atkinson-hyperlegible"><a href="bibliography/atkinson-hyperlegible.html">Braille Institute, Atkinson Hyperlegible</a></cite>. Nerd Fonts differs in kind: it patches an existing family by adding icon glyphs, so it is best described as a project rather than a foundry.</p>
+<h3>Advanced usage</h3>
+<p>These read-only commands show which families are actually available and where fontconfig sends a request:</p>
+<pre data-risk="read-only">fc-list : family | sort -u | head -n 20
+fc-match sans-serif -f '%{family}\n'
+fc-match serif -f '%{family}\n'
+fc-match monospace -f '%{family}\n'
+fc-list | grep -i 'noto\|liberation' | head -n 10</pre>
+<p>The first line lists installed families; the next three resolve the generic requests that a desktop application makes. The last line finds families from the open libraries in fontconfig's cache. Fontconfig reports what it matches, not which foundry designed the family <cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite>.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A foundry can be a company, a university project or an individual designer. The word no longer implies a physical casting shop.</li>
+<li>Revivals are new drawings of old designs. A digital Baskerville is not the same object as an eighteenth-century punch.</li>
+<li>Beatrice Warde is a writer and advocate, not a punchcutter. Classifying her as a foundry would misstate her role.</li>
+<li>Noto is a family collection rather than one face; it spans many scripts and many weights under one umbrella.</li>
+<li>Nerd Fonts patches other families, so its result depends on the upstream font. Updates to the source family can change the patched output.</li>
+<li>Atkinson Hyperlegible follows a stated legibility goal; choosing it for body text is a design decision, not a general rule for all reading.</li>
+<li>Metric-compatible substitutes such as Liberation keep layout widths similar to common office fonts, so documents reflow less when opened on another system.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why do Liberation and Noto appear in different parts of a desktop configuration?</i></summary><p>They solve different problems. Liberation provides familiar generic families for ordinary text, while Noto supplies wide script coverage and language-specific choices such as Arabic and Urdu. Both are open libraries, but they are selected for different needs.</p></details>
+<details class="q open"><summary><i>What is misleading about calling Nerd Fonts a foundry?</i></summary><p>It suggests original type design. Nerd Fonts adds icon glyphs to fonts made elsewhere, so the result is a patched family. The distinction matters when you trace where a glyph came from or who designed a letterform.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="britannica-gutenberg"><a href="bibliography/britannica-gutenberg.html">Encyclopaedia Britannica, Gutenberg and the press</a></cite>; <cite data-ref="bringhurst-elements"><a href="bibliography/bringhurst-elements.html">Robert Bringhurst, The Elements of Typographic Style</a></cite>; <cite data-ref="adobe-type-notes"><a href="bibliography/adobe-type-notes.html">Adobe type notes</a></cite>; <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">Microsoft, OpenType specification</a></cite>; <cite data-ref="atkinson-hyperlegible"><a href="bibliography/atkinson-hyperlegible.html">Braille Institute, Atkinson Hyperlegible</a></cite>; <cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/font-formats.html">Font formats, complete map</a> &mdash; see what a foundry actually ships.</li>
+<li><a href="desktop/typography/scribes-and-print.html">Scribes, manuscripts and the printing press</a> &mdash; go back to the first print shops.</li>
+<li><a href="paths/typography-foundations.html">Typography foundations</a> &mdash; read the subject in order.</li>
+</ul>
+</body></html>

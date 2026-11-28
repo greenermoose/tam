@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>glyf</title>
+<meta name="topic" content="glossary-glyf">
+<meta name="summary" content="glyf: The TrueType table that stores glyph outlines as quadratic Bézier contours.">
+<meta name="keywords" content="glossary-glyf, glyf, glyf table, TrueType outlines">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/g/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/g/index.html">Terms beginning with G</a> / glyf</p></nav>
+
+<p>The <code>glyf</code> table is where a TrueType font keeps the actual outlines of its glyphs.</p>
+<section data-level="novice"><p>A glyph stored in <code>glyf</code> is described as a set of curves and straight lines. The computer can scale those curves to any size, which is why TrueType letters stay sharp when you zoom in. Empty glyphs take no space in the table.</p></section>
+<section data-level="learner"><p>The table stores quadratic Bézier control points plus flags, with contours marked by the last point of each contour. Composite glyphs are built from simpler ones by referencing component glyph IDs and transforms, saving space for accented letters. The companion <code>loca</code> table gives each glyph's offset into <code>glyf</code>.</p></section>
+<section data-level="expert"><p>Points are integers in font units scaled by <code>head.unitsPerEm</code>; the on-curve/off-curve flag pattern implies quadratic control points, and implied midpoints are generated between consecutive off-curve points. The table may include TrueType hinting bytecode executed by the interpreter. Variable fonts pair <code>glyf</code> with <code>gvar</code> deltas indexed by glyph ID and axis coordinates; CFF-based OpenType fonts use CFF/CFF2 instead.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

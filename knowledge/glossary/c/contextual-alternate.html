@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Contextual alternate</title>
+<meta name="topic" content="glossary-contextual-alternate">
+<meta name="summary" content="Contextual alternate: A glyph variant selected by the characters around it.">
+<meta name="keywords" content="glossary-contextual-alternate, Contextual alternate, contextual alternative, calt">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/c/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / Contextual alternate</p></nav>
+
+<p>A contextual alternate is a special glyph shape a font uses only in particular neighboring-letter situations.</p>
+<section data-level="novice"><p>Some letters change shape depending on their neighbors. A font may swap in a more graceful form when a letter sits between two others, purely to make the word flow better. That swap is a contextual alternate.</p></section>
+<section data-level="learner"><p>Contextual alternates are normally enabled by the OpenType <code>calt</code> feature and are applied after basic character-to-glyph mapping. They are common in handwriting-style and Arabic fonts, where a letter's connecting form depends on its position in a word. Unlike a <a href="glossary/d/discretionary-ligature.html">discretionary ligature</a>, a contextual alternate is usually automatic and expected by the designer.</p></section>
+<section data-level="expert"><p>The substitutions live in GSUB lookup types 5 and 6 (chaining and contextual), using coverage tables and backtrack, input and lookahead sequences, sometimes over glyph classes. Lookup order matters: <code>calt</code> must run after standard ligatures and before or after required ligatures depending on the font's design. HarfBuzz applies lookups per script and language system, and the resulting glyph IDs are what FreeType rasterizes.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

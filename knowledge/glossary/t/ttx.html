@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>TTX</title>
+<meta name="topic" content="glossary-ttx">
+<meta name="summary" content="TTX: The fontTools command that converts font tables to and from an XML-like format.">
+<meta name="keywords" content="glossary-ttx, TTX, TTX tool, fontTools TTX">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/t/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / TTX</p></nav>
+
+<p>TTX is a utility that dumps a font's tables into readable text and can rebuild a font from that text.</p>
+<section data-level="novice"><p>Font files are hard to read directly. TTX turns their contents into a text file you can inspect, showing tables such as the character map and glyph outlines. It is part of the fontTools library.</p></section>
+<section data-level="learner"><p>Run <code>ttx -l font.ttf</code> to list tables, <code>ttx -t cmap font.ttf</code> to dump one table, and <code>ttx font.ttx</code> to compile back to a font. fontTools is widely used to inspect, subset and modify fonts in scripts as well as from the command line.</p></section>
+<section data-level="expert"><p>TTX serializes binary SFNT structures into an XML-like tree with numeric attributes and hexadecimal binary data, preserving enough information to round-trip a font. It can split tables into separate files with <code>-s</code> and control glyph naming. Checksums and offsets are recomputed on compilation, so the output is functionally equivalent but not byte-identical.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

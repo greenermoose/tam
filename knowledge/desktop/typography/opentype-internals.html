@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html><head>
+<title>Inside OpenType and TrueType files</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-opentype-internals">
+<meta name="summary" content="How an sfnt file is organised: table directory, required tables, quadratic and cubic outlines, hinting, shaping tables, variable axes, colour and DSIG.">
+<meta name="keywords" content="OpenType, TrueType, sfnt, table directory, glyf, CFF, cmap, GSUB, GPOS, variable font, DSIG, TTX">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="font-internals:1">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / Inside OpenType and TrueType files</p></nav>
+
+<p>An <dfn><a href="glossary/o/opentype.html">OpenType</a></dfn> font is one file that holds letter shapes, spacing numbers and rules for using them. Programs read named sections of that file to decide which shape to draw and where to place it.</p>
+
+<section data-level="novice">
+<h2>A file of named parts</h2>
+<p>Think of a font file as a small library. One shelf holds the shapes of letters, another says how far to move after each letter, and another connects typed characters to those shapes. The <dfn><a href="glossary/s/sfnt.html">sfnt</a></dfn> container is the outer box that keeps those shelves together.</p>
+<p>Each shape in the library is a <dfn><a href="glossary/g/glyph.html">glyph</a></dfn>. A glyph is one drawable piece, such as the letter a or a joined pair such as fi. The file also records a design size, so the same shape can be drawn large or small.</p>
+<h3>Why it matters</h3>
+<p>When a document moves between machines, the font file travels with the instructions for using it. Named sections let a program read the character map without needing to understand the shape data first.</p>
+<h3>How to think about it</h3>
+<p>Imagine a cookbook with a contents page. The page tells you which shelf holds the recipes and how long each one is. The font file has the same idea: a short list at the front names every part and where it begins.</p>
+<h3>New words</h3>
+<dl>
+<dt>Table</dt><dd>One named part of a font file, with a fixed job.</dd>
+<dt>Glyph</dt><dd>A single shape a program can draw from the file.</dd>
+<dt>Design size</dt><dd>The imaginary square on which the shape was drawn; it sets the scale for all other numbers.</dd>
+<dt><dfn><a href="glossary/h/hinting.html">Hinting</a></dfn></dt><dd>Extra instructions that help a shape stay tidy on a coarse pixel grid.</dd>
+<dt><dfn><a href="glossary/o/otf.html">OTF (OpenType Font)</a></dfn></dt><dd>A common name for an OpenType file, whether it uses either kind of outline.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Reading a font's table list</h2>
+<p><strong>Goal:</strong> you will be able to read a simplified table list and a character map excerpt, and say which part answers a given question about a font.</p>
+<tam-sandbox
+  title="Try it: find the table that maps characters"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line that lists the cmap table">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="tables.txt" size="430">tag      offset    length   purpose (teaching sample)
+head     0x000100 0x000036 header and design size
+hhea     0x000140 0x000024 horizontal header
+hmtx     0x000170 0x000840 advances and bearings
+OS/2     0x0009B0 0x000060 metrics and style
+post     0x000A10 0x000020 PostScript fields
+maxp     0x000A30 0x000020 glyph count
+cmap     0x000A50 0x000600 character to glyph map
+loca     0x000B50 0x000010 outline offsets
+name     0x000B60 0x000300 names
+glyf     0x001000 0x004000 outlines</file>
+  <file name="cmap-excerpt.txt" size="240">platform encoding format mapping (teaching sample)
+3         10       12      U+0041 -&gt; GID 36
+3         10       12      U+0042 -&gt; GID 37
+3         10       12      U+00C4 -&gt; GID 150
+0         3        4       U+0041 -&gt; GID 36</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat tables.txt" hint="The first column holds short table tags."><out>tag      offset    length   purpose (teaching sample)</out><out>head     0x000100 0x000036 header and design size</out><out>hhea     0x000140 0x000024 horizontal header</out><out>hmtx     0x000170 0x000840 advances and bearings</out><out>OS/2     0x0009B0 0x000060 metrics and style</out><out>post     0x000A10 0x000020 PostScript fields</out><out>maxp     0x000A30 0x000020 glyph count</out><out>cmap     0x000A50 0x000600 character to glyph map</out><out>loca     0x000B50 0x000010 outline offsets</out><out>name     0x000B60 0x000300 names</out><out>glyf     0x001000 0x004000 outlines</out></tam-cmd>
+  <tam-cmd match="grep cmap tables.txt" goal="true" hint="Look for the table whose purpose is the character to glyph map."><out>cmap     0x000A50 0x000600 character to glyph map</out></tam-cmd>
+  <tam-cmd match="cat cmap-excerpt.txt" hint="The format column names a cmap subtable format."><out>platform encoding format mapping (teaching sample)</out><out>3         10       12      U+0041 -&gt; GID 36</out><out>3         10       12      U+0042 -&gt; GID 37</out><out>3         10       12      U+00C4 -&gt; GID 150</out><out>0         3        4       U+0041 -&gt; GID 36</out></tam-cmd>
+  <tam-init>Try: cat tables.txt, then grep cmap tables.txt</tam-init>
+  <tam-hint after="1">A table list gives a tag, a byte offset and a length for every part.</tam-hint>
+  <tam-hint after="2">The tag for the character map is cmap.</tam-hint>
+  <tam-fallback>Try cat tables.txt, grep cmap tables.txt, or cat cmap-excerpt.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat tables.txt</code> showed the teaching sample list. Real tools read the same kind of tags from the binary file.</li>
+<li><dfn><a href="glossary/h/head.html">head</a></dfn> carries the design size, <dfn><a href="glossary/h/hhea.html">hhea</a></dfn> and <dfn><a href="glossary/h/hmtx.html">hmtx</a></dfn> carry horizontal spacing, and <code>cmap</code> connects characters to glyph numbers.</li>
+<li>The second sample shows that one character can be mapped in more than one subtable, using different formats.</li>
+</ol>
+<p>The files and output above are teaching samples. They stand in for a real font file; nothing was read from your machine.</p>
+<h3>Try it</h3>
+<p>Run <code>grep glyf tables.txt</code>. Predict whether the matching line describes outlines or spacing before you type it.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>grep</code> printed nothing.</dt><dd>Table tags are case-sensitive. Try the exact lower-case tag shown in the sample.</dd>
+<dt>You expected one mapping per character.</dt><dd>A font may hold several subtables for different platforms. A program picks one.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The Tamlinux font configuration file <code>50-tamlinux.conf</code> assigns Liberation Sans, Liberation Serif and JetBrainsMono Nerd Font to the generic families. Those desktop fonts use the tables described here; they are a different matter from the kernel console bitmaps.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Which tables tell a program how many glyphs exist and where each outline begins?</i></summary><p><code>maxp</code> records the glyph count in <code>numGlyphs</code>. For quadratic outlines, <code>loca</code> holds offsets into <code>glyf</code>, so the two work together. Neither alone describes an outline.</p></details>
+<details class="q"><summary><i>Why is a ligature not just another entry in cmap?</i></summary><p>A cmap entry maps one character to one glyph. A ligature replaces a sequence of glyphs with one glyph, so the substitution belongs in GSUB, which is applied after the initial lookup.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>The sfnt container, field by field</h2>
+<h3>Reference</h3>
+<p>An sfnt file starts with a 12-byte offset table: a four-byte version tag, then <code>numTables</code>, <code>searchRange</code>, <code>entrySelector</code> and <code>rangeShift</code>, each two bytes. Each following table record is 16 bytes: four-byte tag, checksum, offset and length. The version tag is <code>0x00010000</code> for TrueType outlines and <code>OTTO</code> for CFF-based OpenType.</p>
+<table>
+<tr><th>Required table</th><th>What it carries</th></tr>
+<tr><td><code>head</code></td><td><dfn><a href="glossary/u/units-per-em.html">unitsPerEm</a></dfn>, indexToLocFormat, creation dates, bounding box, checksumAdjustment.</td></tr>
+<tr><td><code>hhea</code></td><td>Ascent, descent, line gap, maximum advance and numberOfHMetrics.</td></tr>
+<tr><td><code>hmtx</code></td><td>Advance widths plus left side bearings; the first numberOfHMetrics entries hold both, the rest hold bearings only.</td></tr>
+<tr><td><code>maxp</code></td><td>numGlyphs and limits used to size rasterizer tables; version 1.0 for TrueType, 0.5 for CFF.</td></tr>
+<tr><td><code>cmap</code></td><td>Subtables mapping character codes to glyph IDs.</td></tr>
+<tr><td><code>name</code></td><td>Localised names, with platform, encoding, language and name identifiers.</td></tr>
+<tr><td><code>OS/2</code></td><td>Weight and width classes, embedding flags, Panose, typographic metrics and Unicode ranges.</td></tr>
+<tr><td><code>post</code></td><td>Italic angle, underline fields and, in versions 1.0 and 2.0, glyph names; version 3.0 omits names.</td></tr>
+</table>
+<table>
+<tr><th>Outline tables</th><th>Curve model</th><th>Storage</th></tr>
+<tr><td><dfn><a href="glossary/g/glyf.html">glyf</a></dfn> + <dfn><a href="glossary/l/loca.html">loca</a></dfn></td><td>Quadratic contours; off-curve points act as control points</td><td>Glyph records addressed by offsets; short or long loca, chosen in head</td></tr>
+<tr><td><dfn><a href="glossary/c/cff.html">CFF (Compact Font Format)</a></dfn></td><td>Cubic Type 2 charstrings</td><td>Compact byte-coded drawing and hint operators</td></tr>
+<tr><td><dfn><a href="glossary/c/cff2.html">CFF2 (Compact Font Format 2)</a></dfn></td><td>Cubic charstrings with blends</td><td>Variable outlines built from variation regions</td></tr>
+</table>
+<table>
+<tr><th>cmap format</th><th>Typical use</th></tr>
+<tr><td>4</td><td>BMP characters through segmented ranges; the long-standing default.</td></tr>
+<tr><td>12</td><td>Full Unicode range through groups of consecutive code points.</td></tr>
+<tr><td>6, 0</td><td>Small trimmed or byte-oriented fonts.</td></tr>
+<tr><td>13, 14</td><td>Many-to-one mappings and variation selectors.</td></tr>
+<tr><td>2, 8, 10</td><td>Legacy high-byte, mixed 8/16-bit and trimmed 32-bit mappings.</td></tr>
+</table>
+<table>
+<tr><th>Variable table</th><th>Role</th></tr>
+<tr><td><code>fvar</code></td><td>Defines each axis, its minimum, default and maximum, and named instances.</td></tr>
+<tr><td><code>gvar</code></td><td>Stores deltas for quadratic outlines as variations of shared points.</td></tr>
+<tr><td><code>avar</code></td><td>Maps normalised axis values when the design spacing is not linear.</td></tr>
+<tr><td><code>HVAR</code></td><td>Varies advance widths and side bearings; vertical and metric variants have their own tables.</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A <a href="glossary/g/glyph.html">glyph</a> ID is a 16-bit index into the font's glyph order. Glyph ID 0 is <code>.notdef</code>. The cmap answers "which ID for this code point"; GSUB and GPOS then work on IDs, not on characters. The value in <code>unitsPerEm</code> sets the coordinate system: an advance of 1024 with 2048 units per em means half an em.</p>
+<p>TrueType hinting lives in instructions attached to glyf outlines; a rasterizer executes them to align stems and edges. CFF charstrings instead carry stem hints and hint masks. Both are <a href="glossary/h/hinting.html">hinting</a> data, but they are not interchangeable.</p>
+<p>GSUB holds scripts, language systems, features and lookups. Its substitution types include single, ligature, alternate and contextual forms, including mark forms. GPOS carries pair adjustment, mark attachment, cursive attachment and contextual positioning; the older <dfn><a href="glossary/k/kern-table.html">kern table</a></dfn> is a narrower predecessor. GDEF classes glyphs as base, ligature, mark or component and defines mark attachment classes, which GPOS needs to attach a mark to the right point.</p>
+<p>A <dfn><a href="glossary/v/variable-font.html">variable font</a></dfn> adds <code>fvar</code>, which defines axes and named instances. TrueType designs use <code>gvar</code> tuple deltas; CFF2 blends deltas inside charstrings. <code>avar</code> remaps normalised axis values, and <code>HVAR</code> varies horizontal metrics. Static defaults remain in head, hhea and hmtx.</p>
+<p>The <code>name</code> table stores strings as numbered records: name ID 1 is the family, 2 the subfamily, 4 the full name and 6 the PostScript name. Each record carries a platform and encoding pair, so the same name may appear more than once in different encodings. OS/2 adds the weight and width classes that allow applications to place a font in a menu and to synthesise a bold or italic style when no real face exists.</p>
+<p>Colour glyphs may be layered through COLR/CPAL, supplied as colour bitmaps through CBDT/CBLC or sbix, or carried as SVG documents. A <dfn><a href="glossary/d/dsig.html">DSIG (Digital Signature)</a></dfn> table can sign the font; editing or subsetting it breaks the signature because the signed bytes change. Table checksums are big-endian sums padded to four-byte boundaries, and <code>head.checkSumAdjustment</code> is chosen so the checksum of the whole file has the magic value <code>0xB1B0AFBA</code>.</p>
+<pre data-risk="read-only"><code>ttx -l LiberationSans-Regular.ttf
+ttx -q -t head -o - LiberationSans-Regular.ttf | head -n 40
+ttx -q -t cmap -o - LiberationSans-Regular.ttf | grep -n 'format="12"'</code></pre>
+<p><dfn><a href="glossary/t/ttx.html">TTX</a></dfn> from fontTools converts binary tables to XML and back. Listing and dumping, as above, only read the font; recompiling an edited dump changes the bytes and invalidates any DSIG.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>A font with a valid cmap but no GSUB entry for a language will still produce base glyphs; the expected joining or alternates simply do not happen.</li>
+<li>Short <code>loca</code> stores offsets divided by two; reading it as long doubles every position and produces nonsense outlines.</li>
+<li>A format 4 cmap cannot represent code points outside the BMP; a supplementary-plane character needs format 12 or 13.</li>
+<li>A missing <code>post</code> version with names is fine for rendering but limits tools that expect glyph names, such as older feature-file workflows.</li>
+<li>A CFF2 variable font has no <code>glyf</code> or <code>loca</code>; tools that assume quadratic outlines will miss its variation data.</li>
+<li>An <code>OS/2</code> version that is too old does not carry the later typographic metrics, so line spacing can differ between otherwise similar fonts.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>What breaks if you edit one glyph in a font that carries DSIG?</i></summary><p>The signature covers the file bytes. An edit changes those bytes, so the signature no longer verifies. The font can still render, but tools that check signatures will reject or warn. Re-signing requires the signing key.</p></details>
+<details class="q open"><summary><i>Why can two fonts with the same unitsPerEm draw the same glyph at different widths?</i></summary><p>unitsPerEm only sets the coordinate scale. The actual advance comes from hmtx, or HVAR in a variable font. Designers choose different advances, side bearings and contour shapes, so equal design squares do not imply equal widths.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType specification 1.9.1</a></cite>; <cite data-ref="truetype-spec"><a href="bibliography/truetype-spec.html">TrueType Reference Manual</a></cite>; <cite data-ref="fonttools-docs"><a href="bibliography/fonttools-docs.html">fontTools and TTX</a></cite>; <cite data-ref="off-iso-iec-14496-22"><a href="bibliography/off-iso-iec-14496-22.html">ISO/IEC 14496-22 Open Font Format</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/kernel-fonts.html">Fonts built into the Linux kernel</a> &mdash; contrast these table-based files with fixed bitmaps.</li>
+<li><a href="desktop/typography/text-shaping.html">From characters to shaped glyphs</a> &mdash; see how GSUB and GPOS are used.</li>
+<li><a href="paths/font-internals.html">Inside font internals</a> &mdash; follow the subject in order.</li>
+</ul>
+</body></html>

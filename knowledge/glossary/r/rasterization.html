@@ -2,8 +2,8 @@
 <html><head>
 <title>Rasterization</title>
 <meta name="topic" content="glossary-rasterization">
-<meta name="summary" content="Rasterization: a plain definition and further detail">
-<meta name="keywords" content="glossary-rasterization, rasterization, render, pixels, vectors">
+<meta name="summary" content="Rasterization: Converting vector outlines or shapes into a grid of pixels for display.">
+<meta name="keywords" content="glossary-rasterization, Rasterization, render, pixels, vectors">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="glossary">
 <meta name="parent" content="glossary/r/index.html">
@@ -12,10 +12,10 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/r/index.html">Terms beginning with R</a> / Rasterization</p></nav>
 
-<p>Rasterization is the process of converting mathematical shapes, curves, or 3D models into a two-dimensional grid of pixels for display on a screen.</p>
-<section data-level="novice"><p>Imagine drawing a smooth circle on graph paper and then coloring in whole squares to match it. Screens cannot display infinitely smooth curves; they are grids of tiny colored dots called pixels. Rasterization decides which dots to light up and what color each one should be so that fonts, icons, and 3D game scenes look clear on your monitor.</p></section>
-<section data-level="learner"><p>In Linux desktops and 3D graphics, rasterization happens both in software (such as FreeType turning vector font outlines into glyph bitmaps at your chosen <a href="glossary/d/dpi.html">DPI</a>) and on the <a href="glossary/g/gpu.html">GPU</a> (converting 3D triangle meshes into pixels). Because pixels are discrete squares, diagonal edges can look stair-stepped (“aliasing”) unless anti-aliasing blends edge pixels with the background.</p><details class="q"><summary><i>Why does zooming into a rasterized image make edges look blocky, whereas zooming into a vector graphic stays sharp?</i></summary><p>Once a shape is rasterized into a fixed pixel grid, zooming in only enlarges those existing squares. A vector graphic stores mathematical curves instead of pixels, so the renderer can re-rasterize it at the new size using more pixels for a smooth edge.</p></details></section>
-<section data-level="expert"><p>Hardware GPU rasterizers evaluate triangle edge equations across tile or 2×2 quad bounding boxes using top-left fill rules so shared edges neither double-draw nor leave hairline cracks. Perspective-correct attribute interpolation divides vertex attributes by clip-space w before linear screen-space interpolation and multiplies back by interpolated 1/w. Subpixel font rasterization (<a href="glossary/l/lcd.html">LCD</a> <a href="glossary/r/rgb.html">RGB</a> subpixel rendering) triples horizontal resolution by treating R, G, and B emitters as offset samples, requiring color-fringe filtering and breaking under rotated displays or non-standard subpixel layouts.</p></section>
+<p>Rasterization is the process of converting mathematical shapes, curves or models into a two-dimensional grid of pixels for display.</p>
+<section data-level="novice"><p>Imagine drawing a smooth circle on graph paper and coloring whole squares to match it. Screens cannot display infinitely smooth curves; they use tiny colored dots called pixels. Rasterization decides which dots to light and what shade each should have so fonts and icons look clear.</p></section>
+<section data-level="learner"><p>In text rendering, FreeType turns <a href="glossary/o/outline-font.html">outline</a> glyphs into bitmaps at a chosen size, applying hinting and antialiasing; the same idea appears when drawing vector icons or three-dimensional scenes. Because pixels are discrete squares, diagonals look stair-stepped unless edge pixels are blended with the background.</p><details class="q"><summary><i>Why does zooming into a rasterized image look blocky while zooming into a vector graphic stays sharp?</i></summary><p>A raster stores fixed squares that only enlarge; a vector stores curves that the renderer can rasterize again at the new size.</p></details></section>
+<section data-level="expert"><p>Font rasterizers compute coverage for each pixel from the outline, optionally snap stems to the grid, and blend coverage with the background using gamma-aware arithmetic. Subpixel color rendering treats the red, green and blue emitters as offset samples for sharper horizontal detail, at the cost of color fringes and sensitivity to panel layout. A rasterized bitmap is size-specific; <a href="glossary/v/vector-graphics.html">vector</a> source data can be rasterized again at a new size.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
-<h2>Learn more</h2><ul><li><a href="hardware/displays/computer-graphics.html">Computer graphics and the rendering pipeline</a></li><li><a href="desktop/appearance/fonts.html">Typography, fonts and text rendering</a></li></ul>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
 </body></html>

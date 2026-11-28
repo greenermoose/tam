@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Hinting</title>
+<meta name="topic" content="glossary-hinting">
+<meta name="summary" content="Hinting: Instructions or hints that adjust glyph outlines for crisp rendering at small sizes.">
+<meta name="keywords" content="glossary-hinting, Hinting, font hinting, grid fitting">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/h/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / Hinting</p></nav>
+
+<p>Hinting is the set of instructions in a font that tell a renderer how to keep letters clear at small pixel sizes.</p>
+<section data-level="novice"><p>Tiny text can look blurry because thin strokes fall between pixels. Hinting tells the renderer which strokes should line up and how thick they should stay, so small letters remain readable. It is most noticeable at sizes used in terminals and menus.</p></section>
+<section data-level="learner"><p>TrueType hinting uses bytecode run by FreeType's interpreter; CFF hinting uses declarative stem widths and alignment zones handled automatically. Many desktop environments offer hinting styles such as slight, medium or full: stronger hinting sharpens small text but can distort curves. Subpixel rendering usually pairs with lighter hinting.</p></section>
+<section data-level="expert"><p>TrueType instructions operate on points and contours in fixed-point space, with commands for snapping, delta shifts and control-value tables indexed by size. CFF hints describe stems and blue zones that the hinter solves without a program. Hinting alters both outlines and advance widths, so it must stay consistent across a run; FreeType's <code>FT_LOAD_TARGET_*</code> flags select normal, LCD or monochrome hinting.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

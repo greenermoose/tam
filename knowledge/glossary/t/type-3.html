@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Type 3</title>
+<meta name="topic" content="glossary-type-3">
+<meta name="summary" content="Type 3: A PostScript font format whose glyphs are arbitrary drawing procedures.">
+<meta name="keywords" content="glossary-type-3, Type 3, PostScript Type 3, Type3">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/t/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / Type 3</p></nav>
+
+<p>Type 3 is a PostScript font format in which each glyph can be a small program rather than a fixed outline.</p>
+<section data-level="novice"><p>Most fonts describe letters as curves. Type 3 goes further: each character can be a tiny drawing program, which allows patterns, color and other unusual effects. It is an old but very flexible idea.</p></section>
+<section data-level="learner"><p>Type 3 fonts were used for mathematical symbols, decorative marks and early color fonts. Because glyphs are programs, they can be slow and are not always well supported by rasterizers or PDF extraction. Modern color font tables such as COLR/CPAL replaced many of their uses.</p></section>
+<section data-level="expert"><p>A Type 3 font dictionary defines a <code>CharProcs</code> dictionary mapping glyph names to PostScript procedures executed within a glyph matrix, plus metrics and a <code>FontBBox</code>. Procedures may paint, clip and invoke other operators, so rasterizers must sandbox or restrict them; PDF supports Type 3 fonts, but text extraction and search can fail when glyphs have no simple Unicode mapping.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

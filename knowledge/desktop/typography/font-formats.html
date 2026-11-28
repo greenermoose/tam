@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html><head>
+<title>Font formats, complete map</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-font-formats">
+<meta name="summary" content="A complete map of bitmap, outline, web, color and variable font formats, the sfnt container, ttc collections, PDF embedding and ttx inspection.">
+<meta name="keywords" content="BDF, PCF, PSF, FON, TrueType, TTF, OpenType, OTF, CFF, Type 1, Type 3, WOFF, WOFF2, EOT, variable font, color font, sfnt, ttx">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="typography-foundations:5">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / Font formats, complete map</p></nav>
+
+<p>A font file is a container for letter shapes plus the rules that place them. Different formats store those shapes in different ways, and this page maps the families you will meet on a Linux desktop and on the web.</p>
+
+<section data-level="novice">
+<h2>Three questions about a font file</h2>
+<h3>What this is</h3>
+<p>When you see a file ending in .ttf, .otf or .woff2, the ending tells you how the font is packed. A <dfn><a href="glossary/b/bitmap-font.html">bitmap font</a></dfn> stores each letter as a small grid of pixels. An <a href="glossary/o/outline-font.html">outline font</a> stores a mathematical description of each shape, so it can be drawn at any size. A web format wraps an outline font so a browser can fetch it efficiently.</p>
+<p>The older bitmap formats include <a href="glossary/b/bdf.html">BDF (Bitmap Distribution Format)</a>, PCF (Portable Compiled Format), <a href="glossary/p/psf.html">PSF (PC Screen Font)</a> and FON. The common outline formats are <a href="glossary/t/truetype.html">TrueType</a>, <a href="glossary/o/opentype.html">OpenType</a> and <a href="glossary/t/type-1.html">Type 1</a>.</p>
+<h3>Why it matters</h3>
+<p>The format decides where a font works. A PSF font is for a text console, not a word processor. A WOFF2 file is for a web page, not a printing workflow. A variable font can hold many weights in one file, while an older family may need one file per weight.</p>
+<h3>How to think about it</h3>
+<p>Think of three separate ideas that often get confused. The <em>file format</em> is the box the font arrives in. The <em>font program</em> is what is inside: outlines, a pixel grid, or even a small drawing program. The <em>encoding</em> is the numbering system that says which character a shape belongs to. A single font can be repacked from one box into another without changing the letters it draws.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/b/bitmap-font.html">Bitmap font</a></dt><dd>A font whose letters are fixed pixel patterns.</dd>
+<dt><a href="glossary/o/outline-font.html">Outline font</a></dt><dd>A font whose letters are described by scalable curves.</dd>
+<dt><a href="glossary/s/sfnt.html">Sfnt</a></dt><dd>A common container that holds font tables.</dd>
+<dt><a href="glossary/t/truetype.html">TrueType</a></dt><dd>An outline format using quadratic curves.</dd>
+<dt><a href="glossary/o/opentype.html">OpenType</a></dt><dd>A format that can hold TrueType or CFF outlines and layout tables.</dd>
+<dt><a href="glossary/w/woff2.html">WOFF2</a></dt><dd>A compressed web wrapper for font data.</dd>
+<dt><a href="glossary/v/variable-font.html">Variable font</a></dt><dd>One font file holding a range of settings such as weight.</dd>
+<dt><a href="glossary/s/subsetting.html">Subsetting</a></dt><dd>Keeping only the characters a document needs.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Sorting by what a format carries</h2>
+<p><strong>Goal:</strong> you will be able to place a named font format in the right family: bitmap, outline, web, color or variable.</p>
+<tam-sandbox
+  title="Try it: find the bitmap formats"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the formats that store fixed pixel patterns">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="formats.txt" size="340">BDF : bitmap
+PCF : bitmap
+PSF : bitmap
+FON : bitmap
+TTF : outline
+OTF : outline
+Type 1 : outline
+Type 3 : outline
+WOFF : web
+WOFF2 : web
+EOT : web
+SVG font : web
+COLR CPAL : color
+CBDT CBLC : color
+sbix : color</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat formats.txt" hint="Each line names a format, then the family it belongs to."><out>BDF : bitmap</out><out>PCF : bitmap</out><out>PSF : bitmap</out><out>FON : bitmap</out><out>TTF : outline</out><out>OTF : outline</out><out>Type 1 : outline</out><out>Type 3 : outline</out><out>WOFF : web</out><out>WOFF2 : web</out><out>EOT : web</out><out>SVG font : web</out><out>COLR CPAL : color</out><out>CBDT CBLC : color</out><out>sbix : color</out></tam-cmd>
+  <tam-cmd match="grep outline formats.txt" hint="This shows the scalable formats, the opposite family."><out>TTF : outline</out><out>OTF : outline</out><out>Type 1 : outline</out><out>Type 3 : outline</out></tam-cmd>
+  <tam-cmd match="grep bitmap formats.txt" goal="true" hint="Match the family after the colon."><out>BDF : bitmap</out><out>PCF : bitmap</out><out>PSF : bitmap</out><out>FON : bitmap</out></tam-cmd>
+  <tam-init>Try: cat formats.txt, then grep outline formats.txt, then grep bitmap formats.txt</tam-init>
+  <tam-hint after="1">PSF is the format a Linux text console loads with setfont; it is not a document font.</tam-hint>
+  <tam-hint after="2">WOFF and WOFF2 wrap outline fonts; they are listed by delivery role here.</tam-hint>
+  <tam-fallback>Try grep bitmap formats.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What the filter showed</h3>
+<p>Four formats store fixed pixel grids. Four store outlines. Three are web delivery wrappers, one is the older SVG font approach, and three are used for color glyphs. The families overlap: a WOFF2 file usually contains an outline font, and a color font can also be an sfnt container.</p>
+<p>The files and output in this sandbox are teaching samples. They sort real format names for practice; they are not a reading of your font directory, and no font is installed or changed.</p>
+<h3>Try it</h3>
+<p>Run <code>grep color formats.txt</code>. Predict the three rows before you type them, then explain why an emoji font may use one of these rather than a plain outline.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You put WOFF2 with the outline formats.</dt><dd>Both descriptions are true at different layers. WOFF2 is a compressed web container that usually holds outline data, so this sample groups it by where it is used.</dd>
+<dt>You expected Type 3 to be a bitmap format.</dt><dd>Type 3 stores outlines through a small PostScript program. It is an outline font program, not a pixel grid.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Bitmap formats are still real on a text console. Linux 6.12 keeps thirteen built-in bitmap fonts in its font library, with documented console names from VGA8x8 to TER16x32; setfont loads PSF fonts into a virtual terminal. Tamlinux's graphical desktop takes the other route: its fontconfig configuration strongly assigns generic families such as serif and monospace to installed outline fonts.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why can the same design ship as OTF and as WOFF2?</i></summary><p>Because the outlines and layout tables can be packed into different containers. OTF suits desktop installation; WOFF2 compresses the same data for web transfer. The file format changes, the letterforms need not.</p></details>
+<details class="q"><summary><i>Which question does a format answer, and which does an encoding answer?</i></summary><p>A format answers how the font data is stored and delivered. An encoding answers which character number a glyph belongs to. A conversion between formats should leave the encoding unchanged.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>The format map</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Format</th><th>Extension</th><th>Bitmap or outline</th><th>Origin</th><th>Where used</th></tr>
+<tr><td><a href="glossary/b/bdf.html">BDF</a> (Bitmap Distribution Format)</td><td>.bdf</td><td>Bitmap</td><td>Adobe text font exchange</td><td>Unix font sources, terminal fonts</td></tr>
+<tr><td>PCF (Portable Compiled Format)</td><td>.pcf, .pcf.gz</td><td>Bitmap</td><td>X Window System</td><td>Legacy X11 bitmap fonts</td></tr>
+<tr><td><a href="glossary/p/psf.html">PSF</a> (PC Screen Font)</td><td>.psf, .psf.gz</td><td>Bitmap</td><td>Linux console tooling</td><td>setfont and virtual terminals</td></tr>
+<tr><td>FON</td><td>.fon</td><td>Bitmap or outline</td><td>Windows and DOS</td><td>Legacy system resources</td></tr>
+<tr><td><a href="glossary/t/truetype.html">TrueType</a></td><td>.ttf</td><td>Outline</td><td>Apple and Microsoft</td><td>Desktop applications, cross-platform documents</td></tr>
+<tr><td><a href="glossary/t/ttc.html">TTC</a> (TrueType Collection)</td><td>.ttc</td><td>Outline</td><td>TrueType container extension</td><td>Several related faces sharing tables</td></tr>
+<tr><td><a href="glossary/o/opentype.html">OpenType</a> with TrueType outlines</td><td>.otf, .ttf</td><td>Outline</td><td>Microsoft and Adobe</td><td>Modern desktop typography and shaping</td></tr>
+<tr><td>OpenType with <a href="glossary/c/cff.html">CFF</a> outlines</td><td>.otf</td><td>Outline</td><td>Adobe PostScript lineage</td><td>Professional publishing</td></tr>
+<tr><td>OpenType with <a href="glossary/c/cff2.html">CFF2</a></td><td>.otf</td><td>Outline, variable</td><td>OpenType variable-font extension</td><td>Variable fonts using CFF outlines</td></tr>
+<tr><td><a href="glossary/t/type-1.html">Type 1</a></td><td>.pfb, .pfa</td><td>Outline</td><td>Adobe PostScript</td><td>Legacy PostScript printing</td></tr>
+<tr><td><a href="glossary/t/type-3.html">Type 3</a></td><td>Embedded in PostScript/PDF</td><td>Outline, programmatic</td><td>PostScript language</td><td>Special-purpose fonts with arbitrary procedures</td></tr>
+<tr><td><a href="glossary/s/sfnt.html">Sfnt</a> container</td><td>None on its own</td><td>Container</td><td>TrueType specification</td><td>Underlies TrueType, OpenType, TTC and WOFF</td></tr>
+<tr><td><a href="glossary/w/woff.html">WOFF</a> (Web Open Font Format)</td><td>.woff</td><td>Wrapped outline</td><td>W3C, based on sfnt</td><td>Earlier web font delivery</td></tr>
+<tr><td><a href="glossary/w/woff2.html">WOFF2</a></td><td>.woff2</td><td>Wrapped outline</td><td>W3C, Brotli compression</td><td>Current web font delivery</td></tr>
+<tr><td><a href="glossary/e/eot.html">EOT</a> (Embedded OpenType)</td><td>.eot</td><td>Wrapped outline</td><td>Microsoft</td><td>Legacy Internet Explorer web fonts</td></tr>
+<tr><td><a href="glossary/s/svg-font.html">SVG font</a></td><td>.svg</td><td>Vector outlines</td><td>SVG specification</td><td>Deprecated web font form</td></tr>
+<tr><td><a href="glossary/c/colr-cpal.html">COLR/CPAL</a></td><td>In .otf or .ttf</td><td>Layered color outlines</td><td>OpenType</td><td>Emoji and color icons</td></tr>
+<tr><td>CBDT/CBLC</td><td>In .otf or .ttf</td><td>Color bitmaps</td><td>OpenType</td><td>Bitmap color glyphs in an sfnt</td></tr>
+<tr><td>sbix</td><td>In .otf or .ttf</td><td>Color bitmaps</td><td>Apple</td><td>Apple color font images</td></tr>
+<tr><td>SVG color table</td><td>In .otf or .ttf</td><td>Color <a href="glossary/v/vector-graphics.html">vector graphics</a></td><td>OpenType</td><td>SVG colour glyphs inside a font</td></tr>
+<tr><td><a href="glossary/v/variable-font.html">Variable font</a></td><td>.otf, .ttf, .woff2</td><td>Outline plus axes</td><td>OpenType variable extension</td><td>Weight, width and optical size ranges</td></tr>
+<tr><td><a href="glossary/d/dsig.html">DSIG</a> table</td><td>In .otf or .ttf</td><td>Metadata</td><td>OpenType</td><td>Digital signature data</td></tr>
+<tr><td><a href="glossary/e/embedded-font.html">Embedded font</a></td><td>Inside .pdf</td><td>Outline or bitmap</td><td>PDF specification</td><td>Portable documents with reliable appearance</td></tr>
+</table>
+<h3>How it works</h3>
+<p>An sfnt file is a table directory followed by named tables. TrueType stores outlines in the <a href="glossary/g/glyf.html">glyf</a> table and locates them through the <a href="glossary/l/loca.html">loca</a> table; CFF and CFF2 store outlines with a different, PostScript-derived structure <cite data-ref="truetype-spec"><a href="bibliography/truetype-spec.html">TrueType Reference Manual</a></cite> <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType specification</a></cite>. OpenType adds layout tables for shaping and script support, which is why a font can carry more than outlines <cite data-ref="adobe-type-notes"><a href="bibliography/adobe-type-notes.html">Adobe type notes</a></cite>.</p>
+<p>WOFF and WOFF2 wrap sfnt tables with compression for web delivery; WOFF2 uses Brotli and is defined by W3C <cite data-ref="woff1-spec"><a href="bibliography/woff1-spec.html">WOFF 1.0</a></cite> <cite data-ref="woff2-spec"><a href="bibliography/woff2-spec.html">WOFF 2.0</a></cite>. The Open Font Format standardises the same family of sfnt-based formats <cite data-ref="off-iso-iec-14496-22"><a href="bibliography/off-iso-iec-14496-22.html">ISO/IEC 14496-22</a></cite>. Color glyphs use separate tables: layered outlines in COLR/CPAL, bitmap sequences in CBDT/CBLC, image glyphs in sbix, and SVG colour data in its own table <cite data-ref="opentype-color"><a href="bibliography/opentype-color.html">OpenType color tables</a></cite>.</p>
+<p>Variable fonts add design axes and named instances, letting one file stand in for many static faces. Advanced layout engines such as Graphite and HarfBuzz supply shaping behaviour beyond the basic tables; Graphite needs its own engine support in the application <cite data-ref="graphite-docs"><a href="bibliography/graphite-docs.html">SIL Graphite</a></cite> <cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite>. FreeType reads the outlines and rasterises them for display <cite data-ref="freetype-docs"><a href="bibliography/freetype-docs.html">FreeType documentation</a></cite>.</p>
+<h3>Advanced usage</h3>
+<p>These read-only commands inspect font structure without altering any file:</p>
+<pre data-risk="read-only">ttx -l Sample.ttf
+ttx -l Sample.otf
+fc-query -f '%{family} %{style}\n' Sample.otf
+python3 -c 'from fontTools.ttLib import TTFont; print(TTFont("Sample.ttf")["head"].unitsPerEm)'</pre>
+<p>The first two lines list the tables inside a font, which is the fastest way to tell glyf from CFF outlines or to spot a COLR table. The third asks fontconfig what it reads from the file. The last prints the units-per-em value from the head table using fontTools <cite data-ref="fonttools-docs"><a href="bibliography/fonttools-docs.html">fontTools and TTX</a></cite>.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A font FILE format is not a font PROGRAM format. TrueType and OpenType are file containers; PostScript Type 3 is a program that draws outlines when interpreted.</li>
+<li>A format is not an encoding. Converting OTF to WOFF2 should preserve the character mapping, which depends on Unicode and the font's cmap table <cite data-ref="unicode-standard"><a href="bibliography/unicode-standard.html">The Unicode Standard</a></cite>.</li>
+<li>TTC collections share tables between faces. Editing one face in place can damage the others; extract a face before changing it.</li>
+<li>Subsetting reduces file size by removing unused glyphs, but a later document that needs those glyphs will fall back to another font. Subsetting can also disturb shaping features if the wrong tables are dropped.</li>
+<li>DSIG signatures may be stripped by subsetting or conversion, so a signed font can become unsigned downstream.</li>
+<li>PDF embedded fonts are often subsets. A document can look correct while the embedded font carries only a fraction of the original characters <cite data-ref="iso-32000-1"><a href="bibliography/iso-32000-1.html">ISO 32000-1, PDF 1.7</a></cite>.</li>
+<li>SVG fonts were removed from the web font specification; SVG colour inside an sfnt font is a different, still-supported idea.</li>
+<li>AAT and Graphite are layout systems, not font file formats. They require application support even when the font tables are present.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>You need one family to cover five weights on a web page. Which format choice reduces downloads?</i></summary><p>A variable font delivered as WOFF2. The axes let one file represent several weights, and WOFF2 compresses the tables for transfer. Static WOFF files would need one download per weight.</p></details>
+<details class="q open"><summary><i>Why might a converted font stop shaping a complex script correctly?</i></summary><p>Because conversion or subsetting dropped layout tables, or the target engine does not support the shaping model the font expects. Outlines can survive while the rules that position glyphs do not.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">Microsoft, OpenType specification</a></cite>; <cite data-ref="truetype-spec"><a href="bibliography/truetype-spec.html">Apple, TrueType Reference Manual</a></cite>; <cite data-ref="off-iso-iec-14496-22"><a href="bibliography/off-iso-iec-14496-22.html">ISO/IEC 14496-22</a></cite>; <cite data-ref="woff1-spec"><a href="bibliography/woff1-spec.html">W3C WOFF 1.0</a></cite>; <cite data-ref="woff2-spec"><a href="bibliography/woff2-spec.html">W3C WOFF 2.0</a></cite>; <cite data-ref="opentype-color"><a href="bibliography/opentype-color.html">OpenType color tables</a></cite>; <cite data-ref="fonttools-docs"><a href="bibliography/fonttools-docs.html">fontTools and TTX</a></cite>; <cite data-ref="iso-32000-1"><a href="bibliography/iso-32000-1.html">ISO 32000-1, PDF 1.7</a></cite>; <cite data-ref="graphite-docs"><a href="bibliography/graphite-docs.html">SIL Graphite</a></cite>; <cite data-ref="freetype-docs"><a href="bibliography/freetype-docs.html">FreeType documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/foundries.html">Type foundries and the people who make fonts</a> &mdash; meet the organisations that release these formats.</li>
+<li><a href="desktop/typography/anatomy-of-type.html">Anatomy of a letterform</a> &mdash; see what the stored outlines describe.</li>
+<li><a href="paths/typography-foundations.html">Typography foundations</a> &mdash; read the subject in order.</li>
+</ul>
+</body></html>

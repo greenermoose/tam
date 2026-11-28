@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html><head>
+<title>From outlines to pixels</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-rasterization">
+<meta name="summary" content="How font outlines scale from units per em to pixels, get hinted, are scanned and filtered, and why size and pixel density change their look.">
+<meta name="keywords" content="rasterization, outline, quadratic, cubic, hinting, grid fitting, antialiasing, subpixel, FreeType, DPI, PPI">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="font-internals:4">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / From outlines to pixels</p></nav>
+
+<p>A font stores shapes as numbers, but a screen shows tiny squares of colour. <dfn><a href="glossary/r/rasterization.html">Rasterization</a></dfn> is the step that turns those numbers into the squares you see.</p>
+
+<section data-level="novice">
+<h2>From drawing instructions to dots</h2>
+<p>An <dfn><a href="glossary/o/outline-font.html">outline font</a></dfn> describes a letter with curves and straight lines, much like a drawing that can be resized. Before the letter appears on screen, a program works out which pixels lie inside the drawing and how dark each pixel should be.</p>
+<p>At small sizes, a perfect curve may cross only a few pixels. The program then has to choose which squares to colour so the letter still reads clearly. This is why the same letter can look different in a heading and in a footnote.</p>
+<h3>Why it matters</h3>
+<p>Text on a screen is made of pixels, not curves. A thoughtful conversion keeps letters legible at sizes where a simple on-or-off choice would break them.</p>
+<h3>How to think about it</h3>
+<p>Imagine colouring a grid from a curved template. A square that is half covered can be coloured halfway, which makes the edge look smoother than a hard black-or-white outline.</p>
+<h3>New words</h3>
+<dl>
+<dt>Pixel</dt><dd>One tiny coloured square on a screen.</dd>
+<dt><dfn><a href="glossary/a/antialiasing.html">Antialiasing</a></dfn></dt><dd>Using intermediate shades so edges look smoother.</dd>
+<dt><dfn><a href="glossary/d/dpi.html">DPI (dots per inch)</a></dfn></dt><dd>A count of output dots across one inch.</dd>
+<dt><dfn><a href="glossary/p/ppi.html">PPI (pixels per inch)</a></dfn></dt><dd>A count of screen pixels across one inch.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Seeing the size changes</h2>
+<p><strong>Goal:</strong> you will be able to explain why the same glyph looks different at two sizes or on two screens.</p>
+<tam-sandbox
+  title="Try it: predict the effect of size and hinting"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the lines that mention hinting">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="settings.txt" size="220">scale settings (teaching sample)
+unitsPerEm: 2048
+requested size: 12 px
+design coordinate 1024 -&gt; 6 px
+hinting: on
+pixel density: 96 ppi</file>
+  <file name="observations.txt" size="260">raster observations (teaching sample)
+12 px, hinting on: vertical stems land on whole pixels
+12 px, hinting off: smoother curves, softer edges
+24 px: more pixels per outline, finer curves
+same 12 px on denser screen: more pixels per em</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat settings.txt" hint="The design size sets the scale for every coordinate."><out>scale settings (teaching sample)</out><out>unitsPerEm: 2048</out><out>requested size: 12 px</out><out>design coordinate 1024 -&gt; 6 px</out><out>hinting: on</out><out>pixel density: 96 ppi</out></tam-cmd>
+  <tam-cmd match="grep hinting observations.txt" goal="true" hint="Keep the two lines that compare hinting on and off."><out>12 px, hinting on: vertical stems land on whole pixels</out><out>12 px, hinting off: smoother curves, softer edges</out></tam-cmd>
+  <tam-cmd match="cat observations.txt" hint="The last two lines compare size and screen density."><out>raster observations (teaching sample)</out><out>12 px, hinting on: vertical stems land on whole pixels</out><out>12 px, hinting off: smoother curves, softer edges</out><out>24 px: more pixels per outline, finer curves</out><out>same 12 px on denser screen: more pixels per em</out></tam-cmd>
+  <tam-init>Try: cat settings.txt, then grep hinting observations.txt</tam-init>
+  <tam-hint after="1">Divide the requested pixel size by unitsPerEm to get the scale.</tam-hint>
+  <tam-hint after="2">Hinting changes how edges meet the pixel grid.</tam-hint>
+  <tam-fallback>Try cat settings.txt, grep hinting observations.txt, or cat observations.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat settings.txt</code> showed a design coordinate of 1024 mapping to 6 pixels when the design square is 2048 units and the requested size is 12 pixels.</li>
+<li><code>grep hinting observations.txt</code> kept the two lines that compare aligned stems with smoother curves.</li>
+<li>The files and output are teaching samples. They illustrate a calculation; they are not a measurement from your screen.</li>
+</ol>
+<h3>Try it</h3>
+<p>Using the sample numbers, work out where design coordinate 512 lands at 12 pixels. Then predict what changes at 24 pixels.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You expected a curve to look the same at every size.</dt><dd>The number of pixels available to draw it changes, so both the outline and any hinting decisions change.</dd>
+<dt>You mixed up DPI and PPI.</dt><dd>DPI describes output such as a printer; PPI describes the screen's own pixel grid. Matching them is what makes a font size look physically similar.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The Tamlinux font configuration file <code>50-tamlinux.conf</code> assigns Liberation Sans, Liberation Serif and JetBrainsMono Nerd Font to the generic families. Different designs place stems and curves differently, so the same pixel size can rasterize quite differently across those families.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>What does unitsPerEm set?</i></summary><p>It sets the size of the design square. Every coordinate and advance in the font is a fraction of that square, so dividing the requested pixel size by unitsPerEm gives the scale used to place outline points.</p></details>
+<details class="q"><summary><i>Why does LCD filtering matter after subpixel rendering?</i></summary><p>A LCD has separate red, green and blue stripes. Sampling each stripe can sharpen text, but it can also add colour fringes. Filtering spreads the samples so the fringe is less visible.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Rasterizer internals</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Stage</th><th>What happens</th></tr>
+<tr><td>Scale</td><td>Multiply font units by pixels per em, derived from the requested size and unitsPerEm.</td></tr>
+<tr><td><dfn><a href="glossary/h/hinting.html">Hinting</a></dfn> / <dfn><a href="glossary/g/grid-fitting.html">grid-fitting</a></dfn></td><td>Adjust control points and advances so stems and edges meet the pixel grid consistently.</td></tr>
+<tr><td>Scan conversion</td><td>Determine which pixel centres fall inside the filled contour and produce a coverage mask.</td></tr>
+<tr><td><a href="glossary/a/antialiasing.html">Antialiasing</a></td><td>Blend edge pixels by coverage instead of forcing a hard on-or-off boundary.</td></tr>
+<tr><td>Subpixel filtering</td><td>Use the LCD stripe layout, then filter to reduce colour fringing.</td></tr>
+<tr><td>Blending</td><td>Composite the result over the background at the glyph's positioned offset.</td></tr>
+</table>
+<p><dfn><a href="glossary/f/freetype.html">FreeType</a></dfn> is the rasterizer used by many Linux text stacks. It loads outlines and metrics, applies hinting, renders a bitmap and exposes the result to callers; it does not decide which font to use or shape the string.</p>
+<h3>How it works</h3>
+<p>TrueType outlines use quadratic curves: off-curve points control the bend between on-curve points. CFF outlines use cubic charstrings with their own hint operators. Both describe the same visual idea, but a rasterizer must interpret different instructions to align them to a grid. <cite data-ref="truetype-spec"><a href="bibliography/truetype-spec.html">TrueType Reference Manual</a></cite> <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType specification 1.9.1</a></cite></p>
+<p>The <dfn><a href="glossary/e/em.html">em</a></dfn> is the design square; <dfn><a href="glossary/u/units-per-em.html">unitsPerEm</a></dfn> divides it into integer units. A 12-pixel em with 2048 units per em gives a scale of 12/2048, so design coordinate 1024 lands at pixel 6. Hinting can then shift the result to a whole pixel or change the advance. Grayscale antialiasing assigns a coverage value between zero and one to edge pixels; LCD rendering treats each colour stripe as a separate sample and applies a filter chosen for the panel's stripe order.</p>
+<p><dfn><a href="glossary/v/vector-graphics.html">Vector graphics</a></dfn> stay sharp when enlarged because the curves are recomputed. A rasterized glyph is a bitmap at one size, so enlarging that bitmap does not recover detail. This is why a glyph looks different at different sizes: the outline is evaluated against a new grid, and any hinting program can make different decisions at each size.</p>
+<p>Colour glyphs add another path. COLR layers are painted from outlines and a palette; <a href="glossary/c/colr-cpal.html">COLR/CPAL (color layers and palettes)</a> supplies the layer and colour data. CBDT/CBLC, sbix and SVG tables can carry ready-made colour bitmaps that bypass outline scan conversion. A monochrome outline still goes through hinting and antialiasing.</p>
+<p>Web and toolkit sizes are specified in absolute or relative units; CSS defines pixel and inch-based units so a requested size can be translated into device pixels using the display's density. <cite data-ref="css-fonts-4"><a href="bibliography/css-fonts-4.html">CSS Fonts Module Level 4</a></cite></p>
+<pre data-risk="read-only"><code>ftview LiberationSans-Regular.ttf
+ftview JetBrainsMonoNerdFont-Regular.ttf
+ftdump LiberationSans-Regular.ttf | head -n 40</code></pre>
+<p><code>ftview</code> opens a viewer and <code>ftdump</code> prints font information; both only read the font passed to them. <cite data-ref="freetype-docs"><a href="bibliography/freetype-docs.html">FreeType documentation</a></cite></p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Hinting can change advance widths, so a hinted and unhinted run may have different total lengths even with identical glyph IDs.</li>
+<li>Subpixel rendering assumes a known stripe order. On a rotated or unusual panel, the filter can make text worse.</li>
+<li>At very small sizes, grayscale antialiasing may soften a stem until it disappears; hinting protects it by snapping, at the cost of exact outline shape.</li>
+<li>Variable axes are evaluated before rasterization, so an axis change alters the outline the rasterizer receives.</li>
+<li>Bitmap colour glyphs have no hinting step; their quality depends on the sizes supplied in the font.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why can turning hinting off make a curve look smoother but a word look worse?</i></summary><p>Without hinting, the rasterizer follows the mathematical outline and coverage varies smoothly. At small sizes the stems may fall between pixels, becoming uneven or faint. Hinting deliberately distorts the outline to keep stems consistent, trading geometric accuracy for legibility.</p></details>
+<details class="q open"><summary><i>What breaks if a rasterizer assumes every outline uses quadratic curves?</i></summary><p>CFF charstrings are cubic and carry different hint information. Reading them as quadratic contours produces wrong shapes or failures. A general rasterizer must inspect the font's outline format and use the matching interpreter.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="freetype-docs"><a href="bibliography/freetype-docs.html">FreeType documentation</a></cite>; <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType specification 1.9.1</a></cite>; <cite data-ref="truetype-spec"><a href="bibliography/truetype-spec.html">TrueType Reference Manual</a></cite>; <cite data-ref="css-fonts-4"><a href="bibliography/css-fonts-4.html">CSS Fonts Module Level 4</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/text-shaping.html">From characters to shaped glyphs</a> &mdash; see what happens before rasterization.</li>
+<li><a href="desktop/typography/linux-text-stack.html">The Linux text stack</a> &mdash; find the rasterizer's place in the full path.</li>
+<li><a href="paths/font-internals.html">Inside font internals</a> &mdash; continue the reading order.</li>
+</ul>
+</body></html>

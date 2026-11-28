@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>WOFF (Web Open Font Format)</title>
+<meta name="topic" content="glossary-woff">
+<meta name="summary" content="WOFF: A compressed container for web fonts built on SFNT tables.">
+<meta name="keywords" content="glossary-woff, WOFF, Web Open Font Format, .woff">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/w/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / WOFF (Web Open Font Format)</p></nav>
+
+<p>WOFF is a compressed file format that packages font tables for efficient delivery over the web.</p>
+<section data-level="novice"><p>Fonts used to be large downloads. WOFF wraps a normal font in compression so web pages can load it faster, much like a zip archive for font data. The browser unpacks it and uses the font normally.</p></section>
+<section data-level="learner"><p>WOFF 1.0 uses zlib compression on individual SFNT tables and adds a small header with metadata such as the font's name and licence. It supports TrueType and CFF outlines and keeps the same table structure, so conversion back to a plain font is straightforward. Browsers load WOFF files through CSS <code>@font-face</code> rules.</p></section>
+<section data-level="expert"><p>The WOFF header carries a signature (<code>wOFF</code>), flavor, length, number of tables and compressed directory entries with original checksums. Tables may be stored compressed or, when compression would not help, uncompressed. WOFF is an envelope rather than a new outline format: it preserves SFNT tables and has no effect on shaping or rasterization, though its compression reduces transfer size.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html><head>
+<title>The Linux text stack</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-linux-text-stack">
+<meta name="summary" content="Trace one string from input and locale through Fontconfig, font files, FreeType, HarfBuzz and Pango to the display, and separate the console path.">
+<meta name="keywords" content="Linux text stack, Fontconfig, FreeType, HarfBuzz, Pango, fc-list, fc-match, framebuffer console, setfont">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="font-internals:5">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / The Linux text stack</p></nav>
+
+<p>A line of text passes through several programs before it reaches the screen. Each one answers a different question: which characters were typed, which font to use, which shapes to draw, and where the pixels go.</p>
+
+<section data-level="novice">
+<h2>A relay race</h2>
+<p>When you press a key, the computer turns it into a character. Other programs then choose a <dfn><a href="glossary/f/font-family.html">font family</a></dfn>, look up the shapes, arrange them, and colour the pixels. Text appears only after all of those steps have finished.</p>
+<p>There is also a simpler route for the text-only console. It uses fixed pictures stored in the kernel and does not go through the desktop's font choices.</p>
+<h3>Why it matters</h3>
+<p>When text looks wrong, the useful question is which step made the decision. A missing letter, an odd space and a rough edge usually come from different stages.</p>
+<h3>How to think about it</h3>
+<p>Imagine a relay race with a baton. The keyboard runner hands over characters, the font runner chooses a family, the shaping runner arranges shapes, and the drawing runner paints them. If the baton is dropped, you look at the runner who held it last.</p>
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/u/unicode.html">Unicode</a></dfn></dt><dd>The numbering system that gives each character a stable number.</dd>
+<dt><dfn><a href="glossary/g/glyph.html">Glyph</a></dfn></dt><dd>One shape drawn from a font file.</dd>
+<dt>Font choice</dt><dd>The decision that a request such as "monospace" becomes a particular installed family.</dd>
+<dt>Toolkit</dt><dd>The library that builds the controls and text you see in an application.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Ask each stage what it decided</h2>
+<p><strong>Goal:</strong> you will be able to name which stage answers a question about text on screen, and recognise the kind of check that belongs to each stage.</p>
+<tam-sandbox
+  title="Try it: find the shaping stage"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line that names HarfBuzz">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="stack.txt" size="280">graphical text path (teaching sample)
+1 input and locale
+2 Unicode code points
+3 Fontconfig selection
+4 font file tables
+5 FreeType outline and raster
+6 HarfBuzz shaping and Pango layout
+7 toolkit
+8 compositor and display
+9 separate path: framebuffer console and setfont</file>
+  <file name="config.txt" size="230">50-tamlinux.conf excerpt (teaching sample)
+sans-serif -&gt; Liberation Sans
+serif -&gt; Liberation Serif
+monospace -&gt; JetBrainsMono Nerd Font
+Arabic lang -&gt; prepend Noto Naskh Arabic
+Urdu lang -&gt; append Noto Nastaliq Urdu
+ui-monospace -&gt; monospace</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat stack.txt" hint="Each numbered line is one stage of the path."><out>graphical text path (teaching sample)</out><out>1 input and locale</out><out>2 Unicode code points</out><out>3 Fontconfig selection</out><out>4 font file tables</out><out>5 FreeType outline and raster</out><out>6 HarfBuzz shaping and Pango layout</out><out>7 toolkit</out><out>8 compositor and display</out><out>9 separate path: framebuffer console and setfont</out></tam-cmd>
+  <tam-cmd match="grep HarfBuzz stack.txt" goal="true" hint="Find the stage whose name begins with H."><out>6 HarfBuzz shaping and Pango layout</out></tam-cmd>
+  <tam-cmd match="cat config.txt" hint="The sample lists generic family assignments."><out>50-tamlinux.conf excerpt (teaching sample)</out><out>sans-serif -&gt; Liberation Sans</out><out>serif -&gt; Liberation Serif</out><out>monospace -&gt; JetBrainsMono Nerd Font</out><out>Arabic lang -&gt; prepend Noto Naskh Arabic</out><out>Urdu lang -&gt; append Noto Nastaliq Urdu</out><out>ui-monospace -&gt; monospace</out></tam-cmd>
+  <tam-init>Try: cat stack.txt, then grep HarfBuzz stack.txt</tam-init>
+  <tam-hint after="1">Shaping and layout come after the font file has been chosen.</tam-hint>
+  <tam-hint after="2">The name is spelled HarfBuzz, with a capital B.</tam-hint>
+  <tam-fallback>Try cat stack.txt, grep HarfBuzz stack.txt, or cat config.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat stack.txt</code> showed the graphical path and a separate console path as the last line.</li>
+<li><code>grep HarfBuzz stack.txt</code> kept the shaping and layout stage.</li>
+<li>The files are labelled teaching samples. They summarise the route; they are not output captured from your session.</li>
+</ol>
+<p><dfn><a href="glossary/f/fontconfig.html">Fontconfig</a></dfn> answers which installed family matches a request. <dfn><a href="glossary/h/harfbuzz.html">HarfBuzz</a></dfn> shapes the string and <dfn><a href="glossary/p/pango.html">Pango</a></dfn> arranges the shaped runs. <dfn><a href="glossary/f/freetype.html">FreeType</a></dfn> turns outlines into pixels, and <dfn><a href="glossary/r/rasterization.html">rasterization</a></dfn> is the name of that conversion.</p>
+<h3>Try it</h3>
+<p>Run <code>grep console stack.txt</code>. Predict which of the two paths a <dfn><a href="glossary/f/framebuffer-console.html">framebuffer console</a></dfn> message belongs to before you type it.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You expected the desktop font choice to affect the console.</dt><dd>The text-only console does not use Fontconfig, FreeType, HarfBuzz or Pango. It has its own font path.</dd>
+<dt>You expected Unicode to choose a font.</dt><dd>Unicode names characters; font selection happens later and depends on installed families and rules.</dd>
+</dl>
+<aside class="tamlinux">
+<p>Tamlinux sources show that <code>50-tamlinux.conf</code> assigns sans-serif to Liberation Sans, serif to Liberation Serif and monospace to JetBrainsMono Nerd Font. It also prepends Noto Naskh Arabic for Arabic <code>lang</code> patterns and appends Noto Nastaliq Urdu for Urdu patterns. The commands <code>tam-font-list</code> and <code>tam-font-current</code> use <code>fc-list</code> and <code>fc-match</code>, and the menu offers a font selector built on them.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Which tool chooses a font family for a generic request such as monospace?</i></summary><p>Fontconfig. It matches a pattern against installed fonts and rules. HarfBuzz receives a chosen font and shapes text; FreeType rasterizes glyphs from it.</p></details>
+<details class="q"><summary><i>Which path uses setfont and PSF files?</i></summary><p>The virtual console path: the framebuffer console in the kernel and setfont(8) loading a PSF through the kernel font interface. The graphical application path does not use that route.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>One string, stage by stage</h2>
+<h3>Reference: questions and diagnostics</h3>
+<table>
+<tr><th>Stage</th><th>Question it answers</th><th>Read-only check</th></tr>
+<tr><td>Input and locale</td><td>Which characters were produced?</td><td>Application or terminal state, not a font command</td></tr>
+<tr><td><a href="glossary/u/unicode.html">Unicode</a></td><td>Which code points are in the string?</td><td>Character properties and escape output</td></tr>
+<tr><td><dfn><a href="glossary/f/font-substitution.html">Fontconfig</a></dfn> and <dfn><a href="glossary/f/font-cache.html">font-cache</a></dfn></td><td>Which family matches the pattern?</td><td><code>fc-list</code>, <code>fc-match</code></td></tr>
+<tr><td>Font file tables</td><td>Does the font cover the code point?</td><td><code>ttx</code> or a table dump</td></tr>
+<tr><td><a href="glossary/h/harfbuzz.html">HarfBuzz</a> and <a href="glossary/p/pango.html">Pango</a></td><td>Which glyphs and runs result?</td><td><code>hb-shape</code></td></tr>
+<tr><td><a href="glossary/f/freetype.html">FreeType</a></td><td>Which pixels result at this size?</td><td><code>ftview</code></td></tr>
+<tr><td>Toolkit and compositor</td><td>Where is the text placed on screen?</td><td>Application and compositor tools</td></tr>
+<tr><td><a href="glossary/f/framebuffer-console.html">Framebuffer console</a></td><td>Which console bitmap is in use?</td><td>Console font state, not the graphical stack</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A key event becomes a character through input handling and locale settings. The application stores it as Unicode code points. Fontconfig matches a pattern, applying generic family assignments, language rules and aliases; this is <a href="glossary/f/font-substitution.html">font substitution</a>. The chosen font file supplies a character map, outlines or bitmaps, metrics and feature tables. HarfBuzz looks up glyph IDs and applies substitutions and positioning. Pango divides the text into runs, handles fallback when a font lacks coverage, and lays out lines. The toolkit draws through the rasterizer, and the compositor presents the result. <cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite> <cite data-ref="unicode-standard"><a href="bibliography/unicode-standard.html">Unicode Standard</a></cite></p>
+<p>FreeType loads outlines, applies hinting and produces a bitmap; Pango and the toolkit use that bitmap at a positioned offset. The shaping result is a list of glyph IDs and advances, not pixels. <cite data-ref="freetype-docs"><a href="bibliography/freetype-docs.html">FreeType documentation</a></cite> <cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite> <cite data-ref="pango-docs"><a href="bibliography/pango-docs.html">Pango reference and rendering pipeline</a></cite></p>
+<p>The console path is separate. fbcon uses built-in bitmaps or a PSF loaded through KDFONTOP by setfont(8). No Fontconfig rule, HarfBuzz feature or FreeType hinting is involved. Similar-looking text can therefore have completely different causes.</p>
+<pre data-risk="read-only"><code>fc-list : family | sort -u | head -n 20
+fc-match monospace -f '%{family}\n'
+hb-shape --font-file=LiberationSans-Regular.ttf --text="office"
+ftview LiberationSans-Regular.ttf</code></pre>
+<p>The first command lists families, the second reports the match for a generic request, the third prints shaped glyph IDs, and the fourth opens a rasterized view. All four read files or settings without changing them.</p>
+<p>Two Tamlinux product sources tie the graphical path together. <code>tam-font-list</code> runs <code>fc-list :spacing=100 -f "%{family[0]}\n"</code>, filters emoji, signwriting and Tamlinux Icons, then sorts unique names; it reports <dfn><a href="glossary/m/monospace.html">monospace</a></dfn> families. <code>tam-font-current</code> runs <code>fc-match monospace -f '%{family}\n' | head -n1 | cut -d, -f1</code>, so Fontconfig is the source of truth and the first alias entry is printed. <a href="glossary/n/nerd-fonts.html">Nerd Fonts</a> such as JetBrainsMono Nerd Font supply extra symbols through their glyph coverage.</p>
+<p>A cache rebuild writes files. To study it without touching real settings, point Fontconfig at a configuration and font directory inside a scratch folder:</p>
+<pre data-risk="scratch"><code>FONTCONFIG_FILE=/home/alex/scratch/fonts.conf fc-cache -f</code></pre>
+<p>Here the scratch configuration is expected to name directories under the same scratch folder. Running <code>fc-cache</code> without that override would write to the normal user cache, which is a user-level change and outside this exercise.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>A locale affects characters and sorting, but it does not select a font by itself.</li>
+<li>Fallback can split one word across fonts, which breaks ligatures and kerning at the boundary.</li>
+<li>A stale font cache can hide a newly added family; rebuild it in scratch when testing rules.</li>
+<li>Emoji and colour glyphs may skip outline rasterization but still need a font and a run.</li>
+<li>A console font change cannot fix a graphical application, and a graphical font change cannot fix the console.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is fc-match a better first check than fc-cache when a generic family resolves oddly?</i></summary><p>fc-match reports the decision Fontconfig currently makes and reads only configuration. fc-cache changes cache files. Finding the wrong decision first, then testing a rule change in scratch, keeps the investigation reversible.</p></details>
+<details class="q open"><summary><i>What is lost if the graphical path and the console path are treated as one stack?</i></summary><p>Diagnostics get aimed at the wrong layer. A console bitmap problem cannot be solved by changing a desktop font family, and a shaping problem cannot be solved by loading a PSF. The two paths share only the idea of drawing text.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite>; <cite data-ref="freetype-docs"><a href="bibliography/freetype-docs.html">FreeType documentation</a></cite>; <cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite>; <cite data-ref="pango-docs"><a href="bibliography/pango-docs.html">Pango reference and rendering pipeline</a></cite>; <cite data-ref="unicode-standard"><a href="bibliography/unicode-standard.html">Unicode Standard</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/workbench.html">A typography diagnostic workbench</a> &mdash; turn the layer map into a safe method.</li>
+<li><a href="desktop/typography/rasterization.html">From outlines to pixels</a> &mdash; revisit the drawing stage in detail.</li>
+<li><a href="paths/font-internals.html">Inside font internals</a> &mdash; continue the reading order.</li>
+</ul>
+</body></html>

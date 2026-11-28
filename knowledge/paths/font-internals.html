@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html><head>
+<title>Inside a font file</title>
+<meta name="kind" content="path">
+<meta name="skills" content="typography.novice, typography.learner, typography.expert">
+<meta name="topic" content="font-internals">
+<meta name="summary" content="Follow stored characters through font tables, kernel bitmap fonts, shaping, rasterization, the Linux text stack and a diagnostic workbench.">
+<meta name="keywords" content="path, typography, OpenType, kernel fonts, shaping, rasterization, FreeType, Fontconfig">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+<meta name="path-category" content="write-software">
+<meta name="path-order" content="8">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Inside a font file</p></nav>
+
+<p>This path follows one character from a number in a file to coloured pixels on a display. It opens the font container, names the fonts built into a cited Linux kernel, and shows where shaping and rasterization happen. The final stage turns that knowledge into a diagnostic routine.</p>
+<p>All examples are teaching samples in labelled sandboxes. No font is installed and no system setting is changed.</p>
+
+<p><strong>Outcome:</strong> You can describe the tables in an OpenType file, name the kernel's built-in bitmap fonts and their selection symbols, explain shaping and rasterization, place the main Linux text libraries in one pipeline, and locate the layer behind a text problem.</p>
+<p><strong>Prerequisites:</strong> <a href="desktop/typography/font-formats.html">Font formats, complete map</a> and <a href="desktop/typography/anatomy-of-type.html">Anatomy of a letterform</a></p>
+<p><strong>Time:</strong> About 60 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
+
+<h2>Stage 1: The container</h2>
+<ol>
+<li><a href="desktop/typography/opentype-internals.html?level=2">Inside OpenType and TrueType files</a> &mdash; read a table directory and tell glyf outlines from CFF charstrings.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why can two fonts share the sfnt container but need different rasterization code?</i></summary><p>Because TrueType stores quadratic outlines and instructions in glyf, while OpenType CFF stores cubic charstrings. The container is shared; the outline language differs. Reread <a href="desktop/typography/opentype-internals.html?level=1">Inside OpenType and TrueType files</a>.</p><p><strong>Expected sandbox state:</strong> The sample table listing is filtered to required tables; no real font file is modified.</p></details>
+</section>
+
+<h2>Stage 2: Fonts inside the kernel</h2>
+<ol>
+<li><a href="desktop/typography/kernel-fonts.html?level=2">Fonts built into the Linux kernel</a> &mdash; name all thirteen built-in bitmap fonts in Linux 6.12 and the Kconfig symbols that include them.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why does the virtual console use a bitmap font while a desktop application uses an outline font?</i></summary><p>The console draws a fixed character cell directly into a framebuffer with no shaping library; bitmap tables are small and predictable there. A desktop scales outlines through FreeType and shapes runs with HarfBuzz. Reread <a href="desktop/typography/kernel-fonts.html?level=1">Fonts built into the Linux kernel</a>.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
+</section>
+
+<h2>Stage 3: Shape the run</h2>
+<ol>
+<li><a href="desktop/typography/text-shaping.html?level=2">From characters to shaped glyphs</a> &mdash; predict when a ligature or joining form will appear.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why does changing the font sometimes change the order of marks in a complex script?</i></summary><p>Because the font's GSUB and GPOS tables supply the substitutions and anchor positions; the shaper applies them to the character sequence. Reread <a href="desktop/typography/text-shaping.html?level=1">From characters to shaped glyphs</a>.</p><p><strong>Expected sandbox state:</strong> The sample shaping transcript shows glyph IDs before and after substitution; no system font is touched.</p></details>
+</section>
+
+<h2>Stage 4: Make pixels</h2>
+<ol>
+<li><a href="desktop/typography/rasterization.html?level=2">From outlines to pixels</a> &mdash; explain why the same letter looks different at two sizes or pixel densities.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>What does hinting try to preserve when an outline is scaled to a small pixel grid?</i></summary><p>It adjusts outlines or instructions so stems and edges land consistently on pixels, keeping horizontal rhythm and legibility at the cost of exact outline geometry. Reread <a href="desktop/typography/rasterization.html?level=1">From outlines to pixels</a>.</p><p><strong>Expected sandbox state:</strong> The sample pixel grid is read from the page; no simulated files or output are expected.</p></details>
+</section>
+
+<h2>Stage 5: Put the layers together</h2>
+<ol>
+<li><a href="desktop/typography/linux-text-stack.html?level=2">The Linux text stack</a> &mdash; trace a string through Fontconfig, FreeType, HarfBuzz, Pango and the toolkit.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Which library answers "which font file should this application use"?</i></summary><p>Fontconfig. FreeType loads and rasterizes the chosen face and HarfBuzz shapes the run; none of them chooses the family from a generic name. Reread <a href="desktop/typography/linux-text-stack.html?level=1">The Linux text stack</a>.</p><p><strong>Expected sandbox state:</strong> The sample fc-match output names a family; no real font cache is rebuilt.</p></details>
+</section>
+
+<h2>Stage 6: Diagnose</h2>
+<ol>
+<li><a href="desktop/typography/workbench.html?level=2">A typography diagnostic workbench</a> &mdash; choose the responsible layer from a symptom and a first check.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>A document shows boxes for one character only. Which layer do you check first?</i></summary><p>Font coverage and selection: ask whether the chosen family contains that code point and whether fallback is configured. Shaping and rasterization come later. Reread <a href="desktop/typography/workbench.html?level=1">A typography diagnostic workbench</a>.</p><p><strong>Expected sandbox state:</strong> The sample coverage list stays in the sandbox; <code>grep</code> narrows it to one code point. No machine state changes.</p></details>
+</section>
+
+<h2>Capstone</h2>
+<p>A report displays a heading in one font, body text in another and a code block with odd spacing. Write a one-page diagnosis: name the layer responsible for each difference, list one read-only check per layer, and say which change would be reversible. Keep the console path separate from the graphical path.</p>
+<details class="solution"><p>A sound answer separates selection (Fontconfig rules and generic families), shaping (GSUB/GPOS and ligature settings), rasterization (hinting, pixel density, antialiasing) and the console path (a fixed bitmap font loaded by fbcon or setfont). Checks include fc-match, a shaping transcript and a rendered specimen; reversible changes are user-level configuration or a scratch copy, never a package removal or a boot setting. The reader verifies the answer by matching each symptom to the workbench table.</p></details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/typography-on-tamlinux.html">Typography on Tamlinux</a> &mdash; apply the pipeline to the product's own commands and defaults.</li>
+<li><a href="paths/typography-foundations.html">From marks to typefoundries</a> &mdash; go back to the history behind the formats.</li>
+</ul>
+</body></html>

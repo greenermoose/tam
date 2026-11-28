@@ -3,7 +3,7 @@
 <title>DPI (Dots Per Inch)</title>
 <meta name="topic" content="glossary-dpi">
 <meta name="summary" content="DPI: Dots per inch, a measure of print or pixel density.">
-<meta name="keywords" content="glossary-dpi, dpi, dots per inch">
+<meta name="keywords" content="glossary-dpi, DPI, dots per inch">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="glossary">
 <meta name="parent" content="glossary/d/index.html">
@@ -12,9 +12,10 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DPI (Dots Per Inch)</p></nav>
 
-<p>Dots per inch, a measurement of spatial density used for printer output, mouse sensor sensitivity, and—informally—display sharpness.</p>
-<section data-level="novice"><p>DPI counts how many tiny dots fit along a one-inch line. On a printer, higher DPI means sharper text and smoother photos because the ink droplets are smaller and packed closer together. On a computer mouse, higher DPI means the pointer moves farther across your screen for the same physical hand movement.</p></section>
-<section data-level="learner"><p>In computing, DPI is overloaded across three contexts: printer ink density, mouse sensor counts per inch (often called CPI by hardware makers), and screen scaling. For monitors, the accurate term is <a href="glossary/p/ppi.html">PPI</a> (pixels per inch), because pixels are square picture elements rather than printer ink dots; however, Linux toolkits, X11 (<code>Xft.dpi</code>), and <a href="glossary/w/wayland.html">Wayland</a> fractional scaling still use “DPI” as a shorthand for interface scaling (where 96 DPI is the traditional 1× baseline).</p><details class="q"><summary><i>Why is a 1200 DPI printer not the same thing as a 1200 PPI monitor?</i></summary><p>Printers use multiple tiny ink dots (halftoning) to approximate a single color tone, so printer DPI is much higher than the effective image resolution; a monitor’s pixels each emit full red, green, and blue directly, measured in PPI.</p></details></section>
-<section data-level="expert"><p>Strictly, DPI measures physical halftone/ink placement on media, whereas PPI equals <code>sqrt(w_px^2 + h_px^2) / diag_in</code> for a display panel and CPI measures optical sensor counts per inch of surface travel. In Linux graphics stacks, X11 historically reported physical dimensions from <a href="glossary/e/edid.html">EDID</a> to compute logical DPI, often clamped to 96 DPI by toolkits to avoid broken layouts, while Wayland compositors decouple logical coordinate spaces from physical pixel grids via integer buffer scales and the <code>wp_fractional_scale_v1</code> protocol (expressing scale in 1/120ths).</p></section>
+<p>Dots per inch, a measurement of spatial density used for printer output, mouse sensitivity and, informally, display sharpness.</p>
+<section data-level="novice"><p>DPI counts how many tiny dots fit along a one-inch line. On a printer, higher DPI means sharper text and smoother pictures because ink marks are smaller and closer together. On a mouse it means the pointer travels farther for the same hand movement.</p></section>
+<section data-level="learner"><p>The word is overloaded: printer ink density, mouse sensor counts per inch (often called CPI), and interface scaling. For screens the accurate unit is <a href="glossary/p/ppi.html">PPI</a>, because pixels are picture elements, not ink dots; desktop toolkits and display servers still say 'DPI' for scaling, with 96 DPI as the traditional 1× baseline. Font sizes in points are converted to pixels using DPI.</p><details class="q"><summary><i>Why is a 1200 DPI printer not the same thing as a 1200 PPI monitor?</i></summary><p>Printers use many ink dots, often with halftoning, to approximate one tone; a monitor's pixels directly emit full color, so the two densities are not comparable.</p></details></section>
+<section data-level="expert"><p>Strictly, DPI measures marks placed on a medium, PPI is the panel's pixel density, and CPI is sensor counts per inch of travel. Display servers historically reported physical dimensions from EDID to compute logical DPI, often clamped to 96 to avoid broken layouts; newer compositors decouple logical coordinates from physical pixels with integer buffer scales and fractional-scale protocols. Font rasterizers use the effective DPI to choose pixels per em.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
 </body></html>

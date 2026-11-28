@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html><head>
+<title>Research frontiers in typography</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-research-frontiers">
+<meta name="summary" content="Typography research spans standards, script support, readability, security, performance, and digital preservation.">
+<meta name="keywords" content="typography, research, variable fonts, COLRv1, unicode, text shaping, accessibility, font security">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="typography-on-tamlinux:5">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / Research frontiers in typography</p></nav>
+
+<p>Digital typography looks settled when text renders well, but many parts are still changing. The useful skill is knowing what is standardized, what is implemented, and what is still an open research or engineering problem.</p>
+
+<section data-level="novice">
+<h2>What is settled and what is still moving</h2>
+<p>Some parts of typography are stable enough to rely on every day. For example, <dfn><a href="glossary/u/unicode.html">Unicode</a></dfn> gives characters standard code numbers, and OpenType describes how many font files are structured. Other parts are still being improved: how to support every writing system well, how to make fonts faster and safer, and how to prove which designs are easier to read.</p>
+<h3>Why it matters</h3>
+<p>When you hear a claim like "this new font format solves everything," it helps to ask what it actually solves, where it works, and what evidence supports it. That habit protects you from hype and helps you choose tools carefully.</p>
+<h3>How to think about it</h3>
+<p>Think of typography like road building. Some rules are like traffic laws: written down and shared. Some parts are like new bridge designs: promising, but they need testing in real weather, with real vehicles, over time.</p>
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/v/variable-font.html">Variable font</a></dfn></dt><dd>A font file that can change along design axes, such as weight or width.</dd>
+<dt><dfn><a href="glossary/w/writing-system.html">Writing system</a></dfn></dt><dd>A system for writing a language, including its script, symbols, and rules.</dd>
+<dt><dfn><a href="glossary/t/text-shaping.html">Text shaping</a></dfn></dt><dd>The step that selects and positions glyphs for text.</dd>
+<dt><dfn><a href="glossary/r/rasterization.html">Rasterization</a></dfn></dt><dd>Turning outlines or font data into pixels on a screen.</dd>
+</dl>
+<p>A standard can exist before support is good everywhere. A font can be encoded in Unicode but still be hard to type, shape, render, or read on common systems. That gap is where much of the real work happens.</p>
+</section>
+
+<section data-level="learner">
+<h2>Reading claims carefully</h2>
+<p><strong>Goal:</strong> You will be able to separate a settled standard from an open research or implementation question.</p>
+
+<tam-sandbox
+  title="Try it: sort typography claims"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Find the claim that needs implementation evidence">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="claims.txt" size="360">claim: Unicode assigns code points to characters
+status: settled standard, with ongoing additions
+
+claim: A variable font can expose a weight axis
+status: settled format capability in OpenType
+
+claim: COLRv1 color fonts render identically in every app
+status: needs implementation evidence
+
+claim: Encoding a script means every device supports it well
+status: false; encoding and support are different</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat claims.txt" hint="Read all four claims before deciding."><out>claim: Unicode assigns code points to characters</out><out>status: settled standard, with ongoing additions</out><out></out><out>claim: A variable font can expose a weight axis</out><out>status: settled format capability in OpenType</out><out></out><out>claim: COLRv1 color fonts render identically in every app</out><out>status: needs implementation evidence</out><out></out><out>claim: Encoding a script means every device supports it well</out><out>status: false; encoding and support are different</out></tam-cmd>
+  <tam-cmd match="grep 'implementation evidence' claims.txt" goal="true" hint="Look for the claim that depends on real implementations."><out>status: needs implementation evidence</out></tam-cmd>
+  <tam-cmd match="grep 'different' claims.txt" hint="Encoding is not the same as full support."><out>status: false; encoding and support are different</out></tam-cmd>
+  <tam-init>Try: cat claims.txt, then grep 'implementation evidence' claims.txt</tam-init>
+  <tam-hint after="1">A format can be standardized before every renderer supports it the same way.</tam-hint>
+  <tam-hint after="2">Ask what evidence would prove the claim: a spec, a test, or a measurement.</tam-hint>
+  <tam-fallback>Try cat claims.txt, grep 'implementation evidence' claims.txt, or grep 'different' claims.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<p>The sandbox file is a teaching sample. It simplifies real claims so you can practice the evaluation habit.</p>
+
+<h3>Frontiers you can see today</h3>
+<table>
+<tr><th>Area</th><th>What is settled</th><th>What is still open</th></tr>
+<tr><td>Variable fonts</td><td><dfn><a href="glossary/v/variable-font.html">Variable fonts</a></dfn> and <dfn><a href="glossary/f/font-axis.html">font axes</a></dfn> are part of OpenType.</td><td>Good axis design, UI controls, and predictable interpolation across scripts.</td></tr>
+<tr><td>Color fonts</td><td><dfn><a href="glossary/c/colr-cpal.html">COLR/CPAL</a></dfn> and other color tables exist in OpenType.</td><td>Compatibility, performance, and authoring workflows across renderers.</td></tr>
+<tr><td>Script support</td><td>Unicode can encode scripts as <dfn><a href="glossary/c/code-point.html">code points</a></dfn>.</td><td>Fonts, keyboards, shaping, dictionaries, and community review for real use.</td></tr>
+<tr><td>Accessibility</td><td><a href="glossary/w/wcag.html">WCAG</a> gives testable criteria.</td><td>Evidence for which type features help which readers in which contexts.</td></tr>
+<tr><td>Security</td><td>Font parsing is a known attack surface.</td><td>Hardening parsers, fuzzing, safe <dfn><a href="glossary/s/subsetting.html">subsetting</a></dfn>, and supply-chain trust.</td></tr>
+</table>
+
+<h3>Try it</h3>
+<p>Pick a typography claim from a blog, product page, or font release note. Label it as one of four things: specification text, implementation behavior, measurement result, or opinion. If you cannot find evidence for the label, treat the claim as unproven.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A claim cites a standard, but the feature fails in your app.</dt><dd>The standard may be real while the implementation is incomplete. Test the specific renderer and version.</dd>
+<dt>A study says one font is best for everyone.</dt><dd>Be cautious. Readability evidence depends on participants, tasks, language, size, and display conditions.</dd>
+<dt>A script is "supported" because it is in Unicode.</dt><dd>Check the whole path: input, font coverage, shaping, rendering, sorting, and fonts people can actually get.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>On Tamlinux, the practical typography path starts with the desktop font workflow in <a href="desktop/appearance/fonts.html">Typography, fonts and text rendering</a>. Research claims become useful only when they reach real font files, rendering stacks, and user settings that can be tested.</p>
+</aside>
+
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why is "encoded in Unicode" not the same as "supported well"?</i></summary><p>Encoding gives characters standard identities, but people also need fonts, keyboards, shaping rules, rendering support, and usable tools. A script can be encoded while everyday support remains incomplete.</p></details>
+<details class="q"><summary><i>What kind of evidence would you want before trusting a claim that COLRv1 works everywhere?</i></summary><p>You would want implementation tests across the renderers, browsers, operating systems, and versions you care about. A table in the specification is necessary but not enough to prove identical real-world behavior.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Evaluating the moving edge</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Frontier</th><th>Settled base</th><th>Active question</th><th>Evidence to look for</th></tr>
+<tr><td>Variable fonts</td><td>OpenType variation axes and named instances</td><td>Interpolation quality, axis semantics, UI exposure</td><td>Spec text, font inspector output, visual diffs, rendering tests</td></tr>
+<tr><td>COLRv1 and color fonts</td><td>COLR/CPAL, SVG, bitmap color tables</td><td>Cross-engine compatibility and performance</td><td>Renderer matrices, benchmark traces, fallback behavior</td></tr>
+<tr><td>Under-served scripts</td><td>Unicode encoding model</td><td>Shaping, fonts, input, and community validation</td><td>Shaping tests, font coverage, user reports, locale data</td></tr>
+<tr><td>Accessibility</td><td>WCAG criteria</td><td>Which typographic changes improve outcomes</td><td>Task-based studies, readability measures, user control</td></tr>
+<tr><td>Font security</td><td>Parsers process untrusted binaries</td><td>Robustness of parsing, subsetting, signatures</td><td>Fuzzing, CVE history, sanitizer builds, reproducible tests</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>Variable fonts, described by <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">the OpenType specification</a></cite>, allow one font to expose <dfn><a href="glossary/f/font-axis.html">axes</a></dfn> and <dfn><a href="glossary/n/named-instance.html">named instances</a></dfn>. The settled part is the file format. The open part is design and implementation quality: interpolation can produce awkward outlines, and applications may expose axes poorly.</p>
+<p>Color fonts show a similar split. <cite data-ref="opentype-color"><a href="bibliography/opentype-color.html">OpenType color tables</a></cite> define several models, including COLRv1 gradients, SVG, and bitmap formats. A font can be valid and still render differently because engines implement features at different times or with different performance trade-offs.</p>
+<p>For scripts, <cite data-ref="unicode-standard"><a href="bibliography/unicode-standard.html">the Unicode Standard</a></cite> assigns stable code points, but encoding is only the start. Under-served and endangered scripts need shaping rules, keyboard layouts, fonts, spellchecking or dictionaries, and community review. A technically correct code chart does not create a usable reading and writing experience by itself.</p>
+<p>Accessibility research needs caution. <cite data-ref="wcag"><a href="bibliography/wcag.html">WCAG 2.2</a></cite> provides testable criteria, but readability evidence is often task-specific. A design that helps character recognition may not improve comprehension for every reader. Claims should name the population, script, display, and task.</p>
+<p>Security is a quiet frontier. Font parsers handle complex binary structures and are often exposed to untrusted content from documents, web pages, and apps. <dfn><a href="glossary/d/dsig.html">DSIG</a></dfn> signatures, where present, can signal provenance but do not make a font safe to parse. <dfn><a href="glossary/s/subsetting.html">Subsetting</a></dfn> reduces payload and can remove unused data, but bad subsetting can also break shaping or produce malformed files. Generated typefaces raise adjacent questions: provenance, licensing of training data and outputs, and whether the generated outlines are maintainable as long-term digital artifacts.</p>
+
+<h3>Advanced usage examples</h3>
+<pre data-risk="read-only"># Inspect variable font axes and named instances
+fonttools varLib.instancer --help
+
+# Dump an OpenType table for inspection
+ttx -l some-font.ttf
+
+# Compare shaping output across engines or versions in a controlled test
+hb-shape --font-file=some-font.ttf --text="sample"
+
+# Check rasterization behavior at high pixel density by testing multiple sizes and DPI settings
+fc-match -f '%{family} %{file}\n' sans-serif</pre>
+<p>These commands are illustrative. They show the kind of inspection used to evaluate claims; they do not prove a claim by themselves.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><strong>Spec compliance is not user readiness:</strong> a feature may exist in <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType</a></cite> but fail in older applications or embedded renderers.</li>
+<li><strong>Encoding without ecosystem:</strong> a script added to Unicode can remain impractical if no high-quality fonts, keyboards, or shaping implementations are widely available.</li>
+<li><strong>Performance at high density:</strong> high-DPI screens and complex color or variable fonts can expose rasterization and caching costs that are invisible at small sizes.</li>
+<li><strong>Preservation gaps:</strong> digital type depends on file formats, licenses, source files, and runtime software; preserving only a rendered PDF is not the same as preserving an editable font.</li>
+<li><strong>Generated type claims:</strong> AI-generated letterforms can look plausible while hiding license uncertainty, inconsistent spacing, or poor script coverage. Evaluate them as artifacts with provenance, not as finished type systems.</li>
+</ul>
+
+<h3>A concrete method for evaluating a claim</h3>
+<ol>
+<li><strong>Read the spec text.</strong> Identify the exact table, field, or standard behavior being claimed. Use primary sources such as <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType</a></cite> or <cite data-ref="unicode-standard"><a href="bibliography/unicode-standard.html">Unicode</a></cite>.</li>
+<li><strong>Check implementations.</strong> Test the claim in the specific engines, versions, and platforms that matter. A passing demo in one renderer is not universal support.</li>
+<li><strong>Measure.</strong> Collect evidence: rendering screenshots, shaping output, performance traces, accessibility task results, or fuzzing logs. Keep the test inputs.</li>
+<li><strong>Require reproducibility.</strong> Record versions, files, commands, and conditions so another person can get the same result. If it cannot be reproduced, label it as a report, not a conclusion.</li>
+</ol>
+
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>A vendor says its generated font engine "solves readability". What would count as adequate evidence?</i></summary><p>Adequate evidence would include a clear task definition, participant groups, scripts and languages, comparison baselines, font sizes and displays, and reproducible methods. It would also separate subjective preference from measured performance and disclose limitations. A demo or testimonial is not enough.</p></details>
+<details class="q open"><summary><i>Why is DSIG not a complete answer to font security?</i></summary><p>A signature can help establish provenance or integrity of a file, but it does not guarantee that the font parser will handle the file safely. Malformed or malicious content can still exploit parser bugs, and subsetting or transformation workflows can complicate signature meaning.</p></details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType specification</a></cite>; <cite data-ref="unicode-standard"><a href="bibliography/unicode-standard.html">Unicode Standard</a></cite>; <cite data-ref="opentype-color"><a href="bibliography/opentype-color.html">OpenType color fonts</a></cite>; <cite data-ref="wcag"><a href="bibliography/wcag.html">W3C WCAG 2.2</a></cite>; <cite data-ref="bringhurst-elements"><a href="bibliography/bringhurst-elements.html">Robert Bringhurst, The Elements of Typographic Style</a></cite>; <cite data-ref="fonttools-docs"><a href="bibliography/fonttools-docs.html">fontTools documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/index.html">Typography</a> &mdash; return to the typography subject hub.</li>
+<li><a href="desktop/typography/accessibility.html">Readable text and accessibility</a> &mdash; apply evidence-based checks to readability.</li>
+<li><a href="desktop/typography/troubleshooting.html">When text looks wrong</a> &mdash; debug current rendering problems before chasing new features.</li>
+<li><a href="paths/typography-on-tamlinux.html">Typography on Tamlinux</a> &mdash; follow the Tamlinux typography path in order.</li>
+<li><a href="desktop/appearance/fonts.html">Typography, fonts and text rendering</a> &mdash; see the existing Tamlinux font workflow.</li>
+</ul>
+</body></html>

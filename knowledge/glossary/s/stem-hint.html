@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Stem hint</title>
+<meta name="topic" content="glossary-stem-hint">
+<meta name="summary" content="Stem hint: A font instruction that keeps a stroke a consistent width at small sizes.">
+<meta name="keywords" content="glossary-stem-hint, Stem hint, stem hinting, stem width hint">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Stem hint</p></nav>
+
+<p>A stem hint tells a renderer how wide a letter's main stroke should be when drawn at small pixel sizes.</p>
+<section data-level="novice"><p>Thin letter strokes can vanish or change thickness on a low-resolution screen. A stem hint is a note in the font that says 'keep this stroke about this wide', so letters stay even. It is part of the font, not a screen setting.</p></section>
+<section data-level="learner"><p>TrueType hinting programs snap stems to pixel boundaries using control values that depend on size; CFF fonts declare stem widths and alignment zones that the hinter applies automatically. Too much snapping distorts curves, so designers tune hinting separately for small and large sizes.</p></section>
+<section data-level="expert"><p>In CFF, Type 2 charstrings use <code>hstem</code> and <code>vstem</code> operators with relative widths, sometimes masked with <code>hstemhm</code> and <code>vstemhm</code> when hints live in a separate mask. FreeType's CFF hinter resolves conflicts between stems and blue zones. TrueType has no declarative stem operator: bytecode using the control value table and delta instructions produces the equivalent behavior.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

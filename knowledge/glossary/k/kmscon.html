@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>KMScon</title>
+<meta name="topic" content="glossary-kmscon">
+<meta name="summary" content="KMScon: A userspace Linux console with its own Unicode and Pango font backends.">
+<meta name="keywords" content="glossary-kmscon, KMScon, kmscon console, kernel mode setting console">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/k/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/k/index.html">Terms beginning with K</a> / KMScon</p></nav>
+
+<p>KMScon is a userspace terminal console that renders text itself using kernel mode setting.</p>
+<section data-level="novice"><p>KMScon is an alternative text console that runs as an ordinary program rather than inside the kernel. It can draw a wider range of characters than the kernel's built-in console fonts and uses the graphics hardware directly.</p></section>
+<section data-level="learner"><p>KMScon is not part of the Linux kernel tree and does not use the <code>CONFIG_FONT_*</code> built-ins or <code>setfont</code>. It offers an 8x16 font backend, a Unifont backend for broad Unicode coverage and a Pango backend for scalable fonts, so shaping and color features are possible.</p></section>
+<section data-level="expert"><p>Because KMScon lives in userspace, its fonts load through its own backends rather than through <code>KDFONTOP</code> and fbcon; the kernel console font path is not involved. The Pango backend inherits fontconfig resolution and fallback, changing how grapheme clusters and combining marks appear compared with a fixed-cell kernel console. Its releases are independent of kernel versions.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

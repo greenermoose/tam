@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html><head>
+<title>Readable text on Tamlinux</title>
+<meta name="kind" content="path">
+<meta name="skills" content="typography.novice, typography.learner, typography.expert">
+<meta name="topic" content="typography-on-tamlinux">
+<meta name="summary" content="Use the typography vocabulary on Tamlinux: the font workflow, readable settings, common faults, a diagnostic routine and open research questions.">
+<meta name="keywords" content="path, typography, Tamlinux, fonts, accessibility, troubleshooting, research">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+<meta name="path-category" content="improve-work">
+<meta name="path-order" content="3">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Readable text on Tamlinux</p></nav>
+
+<p>This path brings the typography series back to the desktop. It starts with the commands and configuration a reader meets on Tamlinux, then covers readable choices, likely faults, a diagnostic routine and the questions researchers still ask.</p>
+<p>Every sample command is shown in a teaching sandbox. Nothing here installs a package, changes a system font or touches a boot setting.</p>
+
+<p><strong>Outcome:</strong> You can query the font in use, choose readable settings, explain common text faults, run a repeatable diagnostic routine and separate settled typography standards from open research.</p>
+<p><strong>Prerequisites:</strong> <a href="desktop/typography/index.html">Typography</a> for the vocabulary, or none beyond reading if you follow the linked pages as you go</p>
+<p><strong>Time:</strong> About 50 minutes, including checkpoints and the capstone.</p>
+<aside class="note"><p><strong>If you're stuck:</strong> read the
+<a href="help/manuals.html">program manuals</a> with <code>tam man &lt;command&gt;</code>,
+list built-in help with <code>tam help</code>, or search this guide with
+<code>tam search -- &lt;term&gt;</code>.</p></aside>
+
+<h2>Stage 1: The product workflow</h2>
+<ol>
+<li><a href="desktop/appearance/fonts.html?level=2">Typography, fonts and text rendering</a> &mdash; query the monospace family and see where font configuration lives.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Which tool reports the current monospace family, and where does it get the answer?</i></summary><p>tam-font-current asks Fontconfig with fc-match monospace and prints the first family alias. Reread <a href="desktop/appearance/fonts.html?level=1">Typography, fonts and text rendering</a>.</p><p><strong>Expected sandbox state:</strong> The sandbox prints a sample family name from fc-match; no real command runs on the machine.</p></details>
+</section>
+
+<h2>Stage 2: Readable text</h2>
+<ol>
+<li><a href="desktop/typography/accessibility.html?level=2">Readable text and accessibility</a> &mdash; check contrast, size and character distinguishability for a theme.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why does a high-contrast colour pair not guarantee readable text?</i></summary><p>Contrast is necessary but not enough; size, x-height, spacing and character distinguishability still matter. Reread <a href="desktop/typography/accessibility.html?level=1">Readable text and accessibility</a>.</p><p><strong>Expected sandbox state:</strong> The sample contrast table stays inside the sandbox; no theme file is edited.</p></details>
+</section>
+
+<h2>Stage 3: Likely faults</h2>
+<ol>
+<li><a href="desktop/typography/troubleshooting.html?level=2">When text looks wrong</a> &mdash; match a symptom to a layer before changing anything.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Text is sharp in the browser but blurry in a terminal. What is the first boundary to check?</i></summary><p>The terminal emulator's own font setting and hinting, not the browser or the font file alone. Reread <a href="desktop/typography/troubleshooting.html?level=1">When text looks wrong</a>.</p><p><strong>Expected sandbox state:</strong> The sample fc-match and coverage files remain in the sandbox; nothing is changed on the reader's machine.</p></details>
+</section>
+
+<h2>Stage 4: The workbench</h2>
+<ol>
+<li><a href="desktop/typography/workbench.html?level=2">A typography diagnostic workbench</a> &mdash; gather evidence, change one thing and confirm the result.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why change only one setting at a time?</i></summary><p>Because several layers affect the same pixels; two simultaneous changes hide which layer mattered and make rollback uncertain. Reread <a href="desktop/typography/workbench.html?level=1">A typography diagnostic workbench</a>.</p><p><strong>Expected sandbox state:</strong> The sandbox's sample rule file is the only thing "edited"; the real configuration is untouched.</p></details>
+</section>
+
+<h2>Stage 5: What remains open</h2>
+<ol>
+<li><a href="desktop/typography/research-frontiers.html?level=2">Research frontiers in typography</a> &mdash; tell a shipped specification from an active research question.</li>
+</ol>
+<section class="quiz"><h3>Checkpoint</h3><p>Answer before you go on.</p>
+<details class="q"><summary><i>Why is encoding a script in Unicode not the same as supporting it well?</i></summary><p>Encoding assigns code points; good support needs fonts with the right glyphs, shaping rules, line breaking and readable defaults. Reread <a href="desktop/typography/research-frontiers.html?level=1">Research frontiers in typography</a>.</p><p><strong>Expected sandbox state:</strong> No sandbox in this stage; no simulated files or output are expected.</p></details>
+</section>
+
+<h2>Capstone</h2>
+<p>Write a one-page accessibility and diagnosis note for a shared work machine. State which font families a reader can expect from the generic names, how a reader checks the current monospace family, two readability settings worth changing at user level, one symptom that points to shaping and one that points to font selection, and one open research question that the note does not pretend to settle.</p>
+<details class="solution"><p>A sound note uses the sourced generic-family assignments from the product Fontconfig file, names tam-font-current and fc-match as the query path, keeps changes in user configuration, separates shaping symptoms (mark order, ligatures) from selection symptoms (wrong family, boxes), and labels research questions as open. It avoids promising that any setting has been tested on the reader's machine. The reader checks the note against the linked pages before sharing it.</p></details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/font-internals.html">Inside a font file</a> &mdash; deepen the layer explanations behind the faults.</li>
+<li><a href="paths/typography-foundations.html">From marks to typefoundries</a> &mdash; return to the history and vocabulary.</li>
+</ul>
+</body></html>

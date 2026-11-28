@@ -11,7 +11,7 @@ procedure and design.
 ## Rules
 
 - Mint top-level IDs in sequence (`TCK1`, `TCK2`, ...) across all plans; never
-  restart per plan, reuse or renumber an ID. **Next free: TCK37.** Update this
+  restart per plan, reuse or renumber an ID. **Next free: TCK38.** Update this
   counter and add the item to this file in the same change that adds a new
   top-level item.
 - Mint IDs only while holding a `tam-work` claim on this file and the plan
@@ -98,6 +98,11 @@ labels.
 | `TCK35.2` | Texting path and supporting corpus | [texting-curriculum.md](docs/plans/texting-curriculum.md) | Completed (2026-11-25) | Six-stage goal path, acronym and full practical glossary, sources, skills and cross-links |
 | `TCK35.3` | Texting bookkeeping and verification | [texting-curriculum.md](docs/plans/texting-curriculum.md) | Completed (2026-11-25) | Corpus 0.133.0 records; corpus, repository and reader checks |
 | `TCK35.4` | Texting glossary whatis discoverability | [texting-curriculum.md](docs/plans/texting-curriculum.md) | Completed (2026-11-25) | SMS, MMS, RCS and related names resolve in the live corpus |
+| `TCK37` | Typography curriculum from marks to research | [typography-curriculum.md](docs/plans/typography-curriculum.md) | Completed (2026-11-28) | Desktop > Typography series at corpus 0.140.0 |
+| `TCK37.1` | Typography hub and foundations | [typography-curriculum.md](docs/plans/typography-curriculum.md) | Completed (2026-11-28) | Hub, six level-tagged pages and the foundations path |
+| `TCK37.2` | Font internals | [typography-curriculum.md](docs/plans/typography-curriculum.md) | Completed (2026-11-28) | Formats, OpenType, kernel fonts, shaping, rasterization, stack and workbench |
+| `TCK37.3` | Typography practice and support | [typography-curriculum.md](docs/plans/typography-curriculum.md) | Completed (2026-11-28) | Accessibility, troubleshooting, frontiers, glossary, sources, skills and paths |
+| `TCK37.4` | Typography bookkeeping and verification | [typography-curriculum.md](docs/plans/typography-curriculum.md) | Completed (2026-11-28) | Corpus 0.140.0 records; corpus, repository, coverage, reader and whatis checks |
 
 ### Knowledge system (corpus 0.31.0)
 
@@ -276,3 +281,19 @@ Owning plan: [texting-curriculum.md](docs/plans/texting-curriculum.md)
 - [x] **TCK36.4 (Lifecycle bookkeeping and verification):** Corpus 0.135.0
   version, roadmap, development contract, plan index and work record; corpus,
   repository, reader and `whatis` checks pass.
+
+### Typography curriculum from marks to research
+
+Owning plan: [typography-curriculum.md](docs/plans/typography-curriculum.md)
+
+- [x] **TCK37 (Typography curriculum from marks to research):** Rollup for the
+  zero-to-expert Desktop > Typography series at corpus 0.140.0.
+- [x] **TCK37.1 (Typography hub and foundations):** Hub, six level-tagged
+  teaching pages from marks to foundries and the foundations path.
+- [x] **TCK37.2 (Font internals):** OpenType, kernel fonts, shaping,
+  rasterization, Linux stack and workbench pages plus the internals path.
+- [x] **TCK37.3 (Typography practice and support):** Accessibility,
+  troubleshooting, frontiers, revised Tamlinux fonts page, glossary,
+  bibliography, skills and practice path.
+- [x] **TCK37.4 (Typography bookkeeping and verification):** Corpus 0.140.0
+  records; corpus, repository, coverage, reader and `whatis` checks pass.

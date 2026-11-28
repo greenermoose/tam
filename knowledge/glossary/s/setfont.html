@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>setfont</title>
+<meta name="topic" content="glossary-setfont">
+<meta name="summary" content="setfont: The Linux command that changes the virtual console font.">
+<meta name="keywords" content="glossary-setfont, setfont, setfont(8), console font command">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / setfont</p></nav>
+
+<p>setfont is a command-line tool that loads a bitmap font into a Linux text console.</p>
+<section data-level="novice"><p>On a plain Linux text console you can change the letters' appearance with <code>setfont</code>. It loads a font file into the console so the characters you see are drawn differently. The change affects the console you run it on.</p></section>
+<section data-level="learner"><p><code>setfont</code> loads <a href="glossary/p/psf.html">PSF</a> fonts, and also <code>.cp</code> and raw formats, using kbd's <code>kfont_load_fonts()</code>. It can set an alternate font for high-intensity video attributes. The setting lasts only for that console unless a boot script or service reapplies it.</p></section>
+<section data-level="expert"><p>The tool writes through <code>ioctl(KDFONTOP)</code> with <code>KD_FONT_OP_SET</code> or <code>SET_TALL</code>; <code>SET_DEFAULT</code> restores the kernel font. The kernel path runs vt_ioctl.c to vt.c and then fbcon's <code>fbcon_set_font</code>, with charcounts of 256 or 512 glyphs. Console fonts replaced this way are bitmaps: no shaping or outline scaling is available, unlike userspace consoles.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

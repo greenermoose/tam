@@ -11,13 +11,13 @@
 <meta name="prereqs" content="ttys-and-vts, terminfo-and-termcap">
 <meta name="kind" content="explanation">
 <meta name="skills" content="customizing.novice, customizing.learner, customizing.expert">
-<meta name="paths" content="terminal-stack:3">
+<meta name="paths" content="terminal-stack:3, typography-on-tamlinux:1">
 </head>
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/appearance/index.html">Appearance and accessibility</a> / Typography, fonts and text rendering</p></nav>
 
 
-<p>This page explains how text is turned into visible letters on screens, from Linux virtual consoles to graphical desktops.</p>
+<p>This page explains how text is turned into visible letters on screens, from Linux virtual consoles to graphical desktops. For the full story from the first writing systems to research questions, read the <a href="desktop/typography/index.html">Typography</a> series.</p>
 <h2>Before this</h2><p><a href="terminal/ttys-and-virtual-consoles.html">Text screens and terminal windows</a> · <a href="terminal/terminfo-and-termcap.html">How terminals display text</a></p>
 <p>On <a href="glossary/u/unix.html">Unix</a>-like operating systems, typography is not handled by a single monolithic engine. A small text console uses fixed bitmap grids built into kernel memory, while a graphical desktop coordinates multiple libraries to discover font <a href="glossary/f/file.html">files</a>, shape complex scripts, and draw sharp vector curves on pixel displays. Knowing how this pipeline works allows you to customize your reading environment, troubleshoot missing characters, and write lean desktop software.</p>
 
@@ -83,12 +83,12 @@
   lesson="plain"
   goal="Query the active monospace font">
   <tam-cmd match="fc-match monospace" hint="Look for the value that answers the task.">
-    <out>AtkinsonHyperlegibleMono-Regular.ttf: "Atkinson Hyperlegible Mono" "Regular"</out>
+    <out>JetBrainsMonoNerdFont-Regular.ttf: "JetBrainsMono Nerd Font" "Regular"</out>
   </tam-cmd>
-  <tam-cmd match="fc-list : family | grep -i &quot;atkinson&quot; | head -n 3" goal="true">
-    <out>Atkinson Hyperlegible
-Atkinson Hyperlegible Mono
-AtkinsonHyperlegibleMono Nerd Font</out>
+  <tam-cmd match="fc-list : family | grep -i &quot;jetbrains&quot; | head -n 3" goal="true">
+    <out>JetBrainsMono Nerd Font
+JetBrainsMono NF
+JetBrains Mono</out>
   </tam-cmd>
   <tam-init>Try: fc-match monospace</tam-init>
   <tam-hint after="1">Read the output and connect it to the task above.</tam-hint>
@@ -105,7 +105,7 @@ AtkinsonHyperlegibleMono Nerd Font</out>
 
 <p>A <dfn><a href="glossary/g/glyph.html">glyph</a></dfn> is the particular visual representation of a character. A font file contains a collection of glyphs along with lookup tables that map character codes to those shapes. In a <em>proportional</em> font, each letter takes up only as much width as it needs (such as a wide &ldquo;W&rdquo; and a narrow &ldquo;I&rdquo;). In a <em>monospace</em> font, every character occupies an identical cell width, which is essential for command-line alignment, code indentation, and terminal applications.</p>
 
-<p>On Tamlinux, the default interface typeface is <strong>Atkinson Hyperlegible</strong>, designed by the Braille Institute to maximize character distinction for low-vision readers. For terminal and code editors, Tamlinux packages <strong>Atkinson Hyperlegible Mono</strong>, enhanced with icon glyphs from Nerd Fonts.</p>
+<p>The product Fontconfig file assigns the generic families: <code>sans-serif</code> resolves to Liberation Sans, <code>serif</code> to Liberation Serif and <code>monospace</code> to JetBrainsMono Nerd Font. It also prefers Noto Naskh Arabic for Arabic text and Noto Nastaliq Urdu for Urdu text. Atkinson Hyperlegible is a separate typeface designed by the Braille Institute for character distinction; the <a href="desktop/typography/accessibility.html">readability page</a> explains why such designs help.</p>
 <h3>Try it</h3>
 <p>Run these read-only commands to see where font files are stored on disk and check your terminal font family:</p>
 
@@ -125,7 +125,7 @@ tam-font-current
 <dd>The terminal emulator is using a proportional font instead of a fixed-pitch monospace font. Terminal grids require strict character-cell widths.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, Atkinson Hyperlegible serves as the system interface typeface, and Atkinson Hyperlegible Mono (enhanced with Nerd <a href="glossary/f/font.html">Font</a> symbol glyphs) provides the terminal font. Font defaults are delivered declaratively through <code>~/.config/fontconfig/conf.d/99-tamlinux-monospace.conf</code> and selected via <code>tam-font-set</code>. Changing a font updates application preferences inside a transactional journal without modifying package files in <code>/usr</code>.</p>
+<p>The shipped Fontconfig file <code>50-tamlinux.conf</code> assigns generic families to Liberation Sans, Liberation Serif and JetBrainsMono Nerd Font, with language-specific rules for Arabic and Urdu. <code>tam-font-list</code> lists monospace families by asking Fontconfig for spacing 100, and <code>tam-font-current</code> reports the family that <code>fc-match monospace</code> resolves first. The menu uses those two commands to offer a font selector and calls <code>tam-font-set</code> when a choice is made. These statements describe the product source; they are not a reading of any particular machine.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>

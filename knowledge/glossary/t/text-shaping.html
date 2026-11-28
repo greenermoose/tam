@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Text shaping</title>
+<meta name="topic" content="glossary-text-shaping">
+<meta name="summary" content="Text shaping: Selecting and positioning glyphs for a run of text according to font and script rules.">
+<meta name="keywords" content="glossary-text-shaping, Text shaping, shaping, glyph shaping">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/t/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / Text shaping</p></nav>
+
+<p>Text shaping is the step that turns a sequence of characters into positioned glyphs before drawing.</p>
+<section data-level="novice"><p>The letters you type are not always the shapes you see. Shaping is the hidden step that joins f and i, moves accents onto letters and arranges Arabic into its connected forms. Without it, complex scripts would look wrong.</p></section>
+<section data-level="learner"><p>A shaper such as <a href="glossary/h/harfbuzz.html">HarfBuzz</a> reads the font's OpenType tables, applies features for ligatures, kerning and mark placement, and returns glyph IDs with offsets. Different scripts need different rules: Arabic letters join, Indic vowel signs move around the base consonant, and Latin text mostly needs kerning and ligatures.</p></section>
+<section data-level="expert"><p>Shaping works on items with a script, direction, language and font; it runs GSUB substitutions before GPOS positioning, with features such as <code>ccmp</code>, <code>locl</code>, <code>rlig</code>, <code>liga</code>, <code>calt</code>, <code>kern</code>, <code>mark</code> and <code>mkmk</code>. Output clusters map glyphs back to input code points for editing. Fallback for missing glyphs must restart shaping at a cluster boundary so joins and marks are recalculated.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html><head>
+<title>Scribes, manuscripts and the printing press</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-scribes-and-print">
+<meta name="summary" content="From oral tradition and scribes to manuscripts, block printing and Gutenberg's press, and on to industrial and digital typesetting.">
+<meta name="keywords" content="scribe, manuscript, codex, scriptorium, illumination, block printing, movable type, Gutenberg, incunabulum, printing press">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="typography-foundations:3">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / Scribes, manuscripts and the printing press</p></nav>
+
+<p>Before books were printed, people copied them by hand. This page follows that craft from the first scribes through the printing press, and explains why the press changed more than just the speed of copying.</p>
+
+<section data-level="novice">
+<h2>Books before machines</h2>
+<h3>What this is</h3>
+<p>For a long time, stories and laws were spoken aloud and remembered. When communities began to keep written records, a trained person called a <dfn><a href="glossary/s/scribe.html">scribe</a></dfn> copied the words onto a surface. A <dfn><a href="glossary/m/manuscript.html">manuscript</a></dfn> is a book or document made by hand.</p>
+<p>Early writings were pressed onto clay tablets in Mesopotamia. In Egypt, people wrote on papyrus and rolled it into scrolls. Later, readers folded sheets into a <dfn><a href="glossary/c/codex.html">codex</a></dfn>, the ancestor of the modern book: a stack of pages bound along one edge.</p>
+<h3>Why it matters</h3>
+<p>Hand copying is slow, and every copy can introduce a small change. A printing press makes many matching copies, so a reader far away can hold the same text as the printer. That helped new ideas travel faster and helped more people learn to read.</p>
+<h3>How to think about it</h3>
+<p>Think of a photocopier that needs a person to redraw every page. A medieval <dfn><a href="glossary/s/scriptorium.html">scriptorium</a></dfn> was a room where scribes did exactly that work, often adding decorated letters called <dfn><a href="glossary/i/illumination.html">illumination</a></dfn>. Beautiful handwritten books remained valuable even after printing arrived.</p>
+<p>Printing did not replace speaking or handwriting. Oral tradition, hand copying and printing overlapped for centuries, and each served a different purpose.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/s/scribe.html">Scribe</a></dt><dd>A person trained to write or copy texts by hand.</dd>
+<dt><a href="glossary/m/manuscript.html">Manuscript</a></dt><dd>A document written or copied by hand.</dd>
+<dt><a href="glossary/c/codex.html">Codex</a></dt><dd>A bound book of pages, rather than a roll.</dd>
+<dt><a href="glossary/s/scriptorium.html">Scriptorium</a></dt><dd>A room where scribes copied and decorated books.</dd>
+<dt><a href="glossary/i/illumination.html">Illumination</a></dt><dd>Decoration and coloured letters added to a manuscript.</dd>
+<dt><a href="glossary/b/block-printing.html">Block printing</a></dt><dd>Printing from a carved block that carries a whole page or design.</dd>
+<dt><a href="glossary/m/movable-type.html">Movable type</a></dt><dd>Reusable pieces of type, each carrying one character.</dd>
+<dt><a href="glossary/p/printing-press.html">Printing press</a></dt><dd>A machine that presses inked type onto paper.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Telling hand copying from printing</h2>
+<p><strong>Goal:</strong> you will be able to place a named book technology on the hand-copied or printed side of the divide.</p>
+<tam-sandbox
+  title="Try it: sort the technologies"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the hand-copied technologies">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="timeline.txt" size="330">papyrus scroll : hand_copied
+clay tablet : hand_copied
+codex : hand_copied
+scriptorium : hand_copied
+illuminated page : hand_copied
+calligraphy : hand_copied
+block printing : printed
+movable type : printed
+Gutenberg press : printed
+incunabulum : printed</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat timeline.txt" hint="Each line names a technology, then how its copies were made."><out>papyrus scroll : hand_copied</out><out>clay tablet : hand_copied</out><out>codex : hand_copied</out><out>scriptorium : hand_copied</out><out>illuminated page : hand_copied</out><out>calligraphy : hand_copied</out><out>block printing : printed</out><out>movable type : printed</out><out>Gutenberg press : printed</out><out>incunabulum : printed</out></tam-cmd>
+  <tam-cmd match="grep printed timeline.txt" hint="This shows the other side of the divide."><out>block printing : printed</out><out>movable type : printed</out><out>Gutenberg press : printed</out><out>incunabulum : printed</out></tam-cmd>
+  <tam-cmd match="grep hand_copied timeline.txt" goal="true" hint="Match the full label after the colon."><out>papyrus scroll : hand_copied</out><out>clay tablet : hand_copied</out><out>codex : hand_copied</out><out>scriptorium : hand_copied</out><out>illuminated page : hand_copied</out><out>calligraphy : hand_copied</out></tam-cmd>
+  <tam-init>Try: cat timeline.txt, then grep printed timeline.txt, then grep hand_copied timeline.txt</tam-init>
+  <tam-hint after="1">Clay tablets and papyrus scrolls both belong to the hand-copied side.</tam-hint>
+  <tam-hint after="2">An incunabulum is an early printed book, not a manuscript.</tam-hint>
+  <tam-fallback>Try grep hand_copied timeline.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What the filter showed</h3>
+<p>Six rows are hand made and four are printed. A codex can be either: the word describes the bound shape of a book, not how the letters reached the page. An <dfn><a href="glossary/i/incunabulum.html">incunabulum</a></dfn> is a book printed in the earliest European period, before 1501.</p>
+<p>The files and output in this sandbox are teaching samples. They order real technologies for practice; they are not a reading of a catalogue on your machine, and no files are changed.</p>
+<h3>Try it</h3>
+<p>Run <code>grep codex timeline.txt</code>. Then explain why the same physical book shape can appear on the hand-copied side while an incunabulum sits on the printed side.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You placed block printing with movable type because both are printing.</dt><dd>They differ in the reusable unit. Block printing carves a whole page or image; movable type uses individual reusable characters that can be rearranged.</dd>
+<dt>You thought illumination was a printing technique.</dt><dd>Illumination is hand decoration added to manuscripts, often in colour and with gold.</dd>
+</dl>
+<aside class="tamlinux">
+<p>This guide describes the historical press in general terms. When you view a scanned manuscript or an early printed book on a current desktop, its letters are still drawn by a font. Tamlinux's fontconfig configuration strongly assigns generic serif to Liberation Serif and generic sans-serif to Liberation Sans, so a reproduction may look different from the original even when the text is identical.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why did movable type matter more than a carved block for setting new text?</i></summary><p>Individual characters can be reused and rearranged into a new page. A carved block is tied to one page of content. Reusable type makes setting a different book a job of assembly rather than recarving.</p></details>
+<details class="q"><summary><i>Name one thing the printing press needed besides the machine itself.</i></summary><p>Paper, ink, metal for type, skilled typesetters and a distribution network. The press was a system, not a single device; a printed book reached readers through trade and transport.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>The press as a system</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Period</th><th>Main medium</th><th>Copying method</th><th>Notable form</th></tr>
+<tr><td>Oral tradition</td><td>Memory and speech</td><td>Recitation</td><td>Stories, laws, genealogies</td></tr>
+<tr><td>Ancient Near East</td><td>Clay tablet</td><td>Stylus impressed in clay</td><td>Administrative and literary tablets</td></tr>
+<tr><td>Ancient Egypt</td><td>Papyrus</td><td>Hand copying on rolls</td><td>Scrolls</td></tr>
+<tr><td>Classical and medieval</td><td>Parchment and paper</td><td>Hand copying in scriptoria</td><td>Codex, illumination, calligraphy</td></tr>
+<tr><td>East Asia, early</td><td>Woodblock</td><td><a href="glossary/b/block-printing.html">Block printing</a></td><td>Whole-page or whole-image prints</td></tr>
+<tr><td>Eleventh century China</td><td>Clay type</td><td><a href="glossary/m/movable-type.html">Movable type</a> attributed to Bi Sheng</td><td>Reusable individual characters</td></tr>
+<tr><td>Fifteenth-century Europe</td><td>Paper and metal type</td><td><a href="glossary/p/printing-press.html">Printing press</a></td><td>42-line Bible, early printed books</td></tr>
+<tr><td>Nineteenth century onward</td><td>Metal, then film and digital</td><td>Industrial and digital typesetting</td><td>Linotype, Monotype, desktop publishing</td></tr>
+</table>
+<table>
+<tr><th>Component</th><th>Role in the system</th><th>Constraint it imposed</th></tr>
+<tr><td>Type metal</td><td>Reusable raised letterforms</td><td>Casting accuracy and a supply of alloy</td></tr>
+<tr><td>Ink</td><td>Transfers the raised image</td><td>Viscosity and drying behaviour</td></tr>
+<tr><td>Paper</td><td>Receives the impression</td><td>Cost, size and absorbency</td></tr>
+<tr><td>Press</td><td>Applies even pressure</td><td>Register and consistent impression</td></tr>
+<tr><td>Compositors</td><td>Assemble and correct type</td><td>Labour and literacy in the shop</td></tr>
+<tr><td>Distribution</td><td>Moves books to readers</td><td>Trade routes, binders and booksellers</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Gutenberg's press combined existing European craft with a mechanical press adapted from other uses; the 42-line Bible is the best-known early product, and Britannica's account sets out the sequence of his work <cite data-ref="britannica-gutenberg"><a href="bibliography/britannica-gutenberg.html">Gutenberg and the press</a></cite>. Johann Fust and Peter Schöffer continued the workshop after him and produced books under their own names. Printing spread through European cities in the decades that followed, and books printed before 1501 are called incunabula.</p>
+<p>Asia had printing earlier. Carved woodblocks printed whole pages, and Bi Sheng is credited with movable type made of clay in eleventh-century China. The European innovation was a durable metal type system tied to a press, not the idea of printing itself. Bringhurst treats the book as a craft object whose form follows from its making, which is why the change from script to type altered page design as well as production <cite data-ref="bringhurst-elements"><a href="bibliography/bringhurst-elements.html">The Elements of Typographic Style</a></cite>.</p>
+<p>The press then spread through European cities as craftsmen carried the process with them. Early printed books often copied the look of manuscripts: scribes rubricated headings, and binders finished volumes by hand. An <a href="glossary/i/incunabulum.html">incunabulum</a> therefore sits between two worlds, using a new production method for an old-shaped book. The word refers to the earliest European printed books, not to a particular style of letter.</p>
+<p>Industrial typesetting changed the economics again. Hot-metal composition let a newspaper set text far faster than a hand compositor, and phototypesetting later removed the metal while keeping the idea of a master letter. Digital typesetting turned type into data, which is why a modern family can serve a printed book, a web page and a terminal without recasting anything.</p>
+<h3>Advanced usage</h3>
+<p>When you examine a digitised catalogue, separate the object's shape from its production method. These read-only queries treat a local sample listing as data:</p>
+<pre data-risk="read-only">grep -c printed timeline.txt
+cut -d: -f2 timeline.txt | sort | uniq -c
+grep -i 'type' timeline.txt | sort</pre>
+<p>The first line counts printed entries. The second groups by production method. The third gathers every row whose name mentions type, which is a quick way to compare block printing with movable type without assuming they are the same thing.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A codex is a binding format, not a production method. Manuscript codices and printed codices both exist.</li>
+<li>Oral tradition continued alongside writing and print. Printing did not erase performance, memorisation or handwriting.</li>
+<li>Early type imitated handwriting. <a href="glossary/b/blackletter.html">Blackletter</a> styles in northern Europe copied the look of manuscript letters, so a printed page can resemble a written one.</li>
+<li>Incunabula vary widely in quality. An early date does not guarantee careful setting or clear reading.</li>
+<li>Movable type in Europe and movable type in Asia used different materials and were supported by different crafts; neither is a simple copy of the other.</li>
+<li>Industrial typesetting changed the unit again: Linotype cast whole lines of metal, while Monotype cast single characters. Digital typesetting removed the metal entirely but kept the idea of reusable character shapes.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why is the press called a social and technical system rather than a machine?</i></summary><p>Because printed books required paper, ink, type metal, compositors, a press and a route to readers. A failure in any part stopped production. The technical device alone cannot explain how texts spread.</p></details>
+<details class="q open"><summary><i>What is wrong with saying Gutenberg invented printing?</i></summary><p>It ignores earlier block printing and Bi Sheng's movable type in Asia. Gutenberg's achievement was a durable metal-type system combined with a press in fifteenth-century Europe. Historical claims should name which innovation they mean.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="britannica-gutenberg"><a href="bibliography/britannica-gutenberg.html">Encyclopaedia Britannica, Gutenberg and the press</a></cite>; <cite data-ref="bringhurst-elements"><a href="bibliography/bringhurst-elements.html">Robert Bringhurst, The Elements of Typographic Style</a></cite>; <cite data-ref="fischer-history-writing"><a href="bibliography/fischer-history-writing.html">Steven Roger Fischer, A History of Writing</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/anatomy-of-type.html">Anatomy of a letterform</a> &mdash; learn the names of the parts that type designers draw.</li>
+<li><a href="desktop/typography/writing-systems.html">Writing systems of the world</a> &mdash; see which scripts the press had to serve.</li>
+<li><a href="paths/typography-foundations.html">Typography foundations</a> &mdash; read the subject in order.</li>
+</ul>
+</body></html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Discretionary ligature</title>
+<meta name="topic" content="glossary-discretionary-ligature">
+<meta name="summary" content="Discretionary ligature: An optional joined glyph for a letter pair, off by default.">
+<meta name="keywords" content="glossary-discretionary-ligature, Discretionary ligature, dlig, optional ligature">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / Discretionary ligature</p></nav>
+
+<p>A discretionary ligature is a decorative joined shape that a font offers but does not apply automatically.</p>
+<section data-level="novice"><p>Some fonts draw certain letter pairs, such as st or ff, as a single flourish. You can turn that joining on if you like the look, but the font leaves it off by default because it is decorative rather than necessary for reading.</p></section>
+<section data-level="learner"><p>Discretionary ligatures are controlled by the OpenType <code>dlig</code> feature, while common expected joins like fi and fl use the standard <code>liga</code> feature. Designers enable <code>dlig</code> for display headings and disable it for body text, code and interfaces. The underlying text is unchanged: copying it still gives the original letters, because the join happens only in the glyph stream.</p></section>
+<section data-level="expert"><p>In GSUB, discretionary ligatures are ligature substitutions (lookup type 4) placed in the <code>dlig</code> feature; HarfBuzz enables them only when the application requests it. Because a ligature may span more than two glyphs, shapers must handle multi-input lookups and ligature component indexing for correct cluster maps. Mixing fonts can produce odd joins when fallback glyphs break a sequence that the primary font would have joined.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

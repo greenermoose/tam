@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Grid fitting</title>
+<meta name="topic" content="glossary-grid-fitting">
+<meta name="summary" content="Grid fitting: Adjusting glyph outlines so they align to the pixel grid at small sizes.">
+<meta name="keywords" content="glossary-grid-fitting, Grid fitting, hinting, font hinting">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/g/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/g/index.html">Terms beginning with G</a> / Grid fitting</p></nav>
+
+<p>Grid fitting is the process of nudging glyph outlines so they line up cleanly with screen pixels.</p>
+<section data-level="novice"><p>At small sizes a letter's thin strokes can land between pixels and look blurry. Grid fitting shifts the outlines so strokes sit on whole pixels, making small text crisper, although it can slightly change the letter's shape.</p></section>
+<section data-level="learner"><p>TrueType fonts can include hinting bytecode executed by FreeType's interpreter; CFF fonts use declarative stem and blue-zone hints handled automatically. Grid fitting matters most at small pixel sizes; at large sizes plain antialiasing often looks better. Too much adjustment makes curved letters look uneven.</p></section>
+<section data-level="expert"><p>The interpreter works in fixed-point coordinates relative to pixels per em, snapping stems to whole pixels and aligning flat features to blue zones. Instructions can test points, move them and control dropout protection for thin strokes. Because hinting changes outline geometry, advance widths are also adjusted; subpixel rendering often uses a lighter mode to preserve LCD color filtering.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

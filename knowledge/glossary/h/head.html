@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>head (Font Header Table)</title>
+<meta name="topic" content="glossary-head">
+<meta name="summary" content="head: The OpenType table holding a font's global header and units-per-em.">
+<meta name="keywords" content="glossary-head, head, head table, Font Header Table">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/h/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / head (Font Header Table)</p></nav>
+
+<p>The <code>head</code> table is the mandatory OpenType table that records a font's global header values.</p>
+<section data-level="novice"><p>Every scalable font has a header that says how the font is measured and how to interpret its coordinates. That header is the <code>head</code> table. It is small, but tools consult it before reading almost anything else.</p></section>
+<section data-level="learner"><p>Among other fields, <code>head</code> stores units per em, creation and modification dates, the bounding box of all glyphs, the index of the missing-glyph character and flags describing direction. Tools such as TTX display it when inspecting a font file.</p></section>
+<section data-level="expert"><p>The table is 54 bytes long and begins with a fixed version number and <code>magicNumber</code> 0x5F0F3CF5, used to detect corruption. <code>indexToLocFormat</code> says whether <code>loca</code> offsets are short or long; <code>glyphDataFormat</code> is normally zero. The flags record baseline direction and left-to-right override. Timestamps count seconds since 1904 in the Mac epoch.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

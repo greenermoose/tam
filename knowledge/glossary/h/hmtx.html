@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>hmtx (Horizontal Metrics Table)</title>
+<meta name="topic" content="glossary-hmtx">
+<meta name="summary" content="hmtx: The table giving each glyph's advance width and left side bearing.">
+<meta name="keywords" content="glossary-hmtx, hmtx, hmtx table, Horizontal Metrics Table">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/h/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / hmtx (Horizontal Metrics Table)</p></nav>
+
+<p>The <code>hmtx</code> table records how much horizontal space each glyph takes and where its outline starts.</p>
+<section data-level="novice"><p>Every letter occupies a certain width, even the blank space after it. <code>hmtx</code> tells the renderer that width, so the next letter starts in the right place. Two fonts can draw the same letter at different widths.</p></section>
+<section data-level="learner"><p>Each entry has an advance width and a left side bearing in font units. Uniform advances across the basic Latin glyphs make a font <a href="glossary/m/monospace.html">monospace</a>; varying advances make it proportional. <a href="glossary/k/kerning.html">Kerning</a> and GPOS adjustments change the gap between particular pairs beyond these base values.</p></section>
+<section data-level="expert"><p>The <code>hhea.numberOfHMetrics</code> field gives the number of full (advance, side bearing) pairs; trailing glyphs use the last advance with individual left side bearings listed after them. Values are scaled by units per em and pixels per em before rasterization, and variable fonts apply <code>HVAR</code> deltas. CFF fonts keep <code>hmtx</code> as the SFNT-level metric table while outline widths live in charstrings.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

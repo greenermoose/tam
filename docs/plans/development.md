@@ -452,6 +452,13 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-28:** Corpus 0.140.0 (minor): the developer asked for a typography
+  series in the knowledge corpus from the first marks to research-level
+  practice, with font formats, Linux kernel fonts, foundries, printing history,
+  writing systems and glossary coverage. He chose Desktop > Typography, major
+  writing families plus a worldwide reference catalogue, and three linked
+  paths. This is corpus content only; command version, stage promotion and
+  installation remain developer-directed.
 - **2026-11-26:** Corpus 0.139.1 (patch): Tamlinux's C compile standard is now
   C17. Build flags across the bespoke C repositories use `-std=c17`, with
   `-std=gnu17` in libtam's header check, and current docs and corpus pages

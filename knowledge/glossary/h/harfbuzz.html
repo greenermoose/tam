@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>HarfBuzz</title>
+<meta name="topic" content="glossary-harfbuzz">
+<meta name="summary" content="HarfBuzz: The open-source text-shaping engine that turns characters into positioned glyphs.">
+<meta name="keywords" content="glossary-harfbuzz, HarfBuzz, HarfBuzz shaper, hb">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/h/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / HarfBuzz</p></nav>
+
+<p>HarfBuzz is the library that works out which glyphs to draw and where to place them for a run of text.</p>
+<section data-level="novice"><p>Typing the letters f and i does not always draw two separate letters; many fonts join them into one shape. HarfBuzz is the part of the text system that decides these joins and spacings before anything is drawn on screen.</p></section>
+<section data-level="learner"><p>HarfBuzz reads a font's OpenType tables, applies script-specific rules for Arabic, Indic and other complex scripts, and returns glyph IDs with positions and cluster values. Toolkits and browsers use it underneath Pango, Firefox and Chrome. It does not choose the font or rasterize glyphs: Fontconfig and FreeType handle those steps.</p></section>
+<section data-level="expert"><p>Shaping buffers items with script, direction, language and font, then runs GSUB and GPOS lookups in feature order (<code>ccmp</code>, <code>liga</code>, <code>calt</code>, <code>kern</code>, <code>mark</code>, <code>mkmk</code> and others). It supports vertical layout, variable-font coordinates and legacy Graphite and AAT shapers. Output cluster values map positioned glyphs back to input ranges so editors can hit-test; fallback runs must be shaped separately.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

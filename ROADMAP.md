@@ -4,9 +4,9 @@
 knowledge system, combining an offline HTML/man/info/Arch-Wiki pager with
 a three-level teaching corpus.
 
-- **Current version:** command `0.72.0` / corpus `0.139.1` (branch `dev`)
+- **Current version:** command `0.72.0` / corpus `0.140.0` (branch `dev`)
 - **Current Command Version:** `0.72.0`.
-- **Current Corpus Version:** `0.139.1`.
+- **Current Corpus Version:** `0.140.0`.
 - **Progress:** 3 of 4 phases done (P1–P3 done on `dev`; P4 deferred on
   Fred's word)
 - **Versioning:** Command (`src/version.h`) and corpus
@@ -17,7 +17,7 @@ a three-level teaching corpus.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `dev` | 0.72.0 / 0.139.1 | Active development on `dev`: C17 compile standard, learning-path presentation, `libtam` 0.14.0, derived CLI-aware search, canonical IDs, and expanded curricula. |
+| `dev` | 0.72.0 / 0.140.0 | Active development on `dev`: C17 compile standard, learning-path presentation, `libtam` 0.14.0, derived CLI-aware search, canonical IDs, and expanded curricula including the typography series. |
 
 ## Phase summary
 
@@ -25,8 +25,8 @@ a three-level teaching corpus.
 | --- | --- | --- | --- | --- |
 | **P1** | 0.1–0.34 / 0.1–0.35 | Native C offline reader, five-part knowledge system, corpus build, pager keys, dev loop | [P1-knowledge-foundation.md](plans/P1-knowledge-foundation.md) | Done |
 | **P2** | 0.35–0.56 / 0.36–0.89 | Three-level pedagogy, sticky lens, folds/quizzes, goal paths, glossary & security curricula | [P2-pedagogy-and-levels.md](plans/P2-pedagogy-and-levels.md) | Done |
-| **P3** | 0.57–0.72 / 0.90–0.139 | Subject library, offline Arch Wiki, interactive sandboxes, derived search, `libtam`/C17 | [P3-subject-library-and-sandboxes.md](plans/P3-subject-library-and-sandboxes.md) | Done (2026-11-26) |
-| **P4** | 0.73+ / 0.140+ | Pending console/Foot candidate review, selected `ideas/synthesis.md` plans, deferred items | [P4-future-horizons.md](plans/P4-future-horizons.md) | Deferred |
+| **P3** | 0.57–0.72 / 0.90–0.140 | Subject library, offline Arch Wiki, interactive sandboxes, derived search, `libtam`/C17, expanded curricula | [P3-subject-library-and-sandboxes.md](plans/P3-subject-library-and-sandboxes.md) | Done (2026-11-28) |
+| **P4** | 0.73+ / 0.141+ | Pending console/Foot candidate review, selected `ideas/synthesis.md` plans, deferred items | [P4-future-horizons.md](plans/P4-future-horizons.md) | Deferred |
 
 ## Decided
 
@@ -55,7 +55,7 @@ a three-level teaching corpus.
 | **0.37–0.44 / 0.37–0.45** | Teaching contract, sticky level lens, folding/quizzes, skills/glossary/bibliography, external links, incremental build | Done |
 | **0.45–0.56 / 0.46–0.89** | Dynamic multi-path engine, path-contract validation, cryptography/security curricula, 404-term glossary pass, link stepping | Done |
 
-### Phase P3: Subject library, sandboxes, and libtam/C17 (0.57–0.72 / 0.90–0.139) — [P3-subject-library-and-sandboxes.md](plans/P3-subject-library-and-sandboxes.md)
+### Phase P3: Subject library, sandboxes, and libtam/C17 (0.57–0.72 / 0.90–0.140) — [P3-subject-library-and-sandboxes.md](plans/P3-subject-library-and-sandboxes.md)
 
 | Version | Milestone | Status |
 | --- | --- | --- |
@@ -64,8 +64,9 @@ a three-level teaching corpus.
 | **0.70–0.71 / 0.129–0.138** | `libtam` 0.10–0.14 adoption, canonical IDs, derived CLI-aware search, databases/email/texting/lifecycle curricula, goal-path contracts | Done (2026-11-26) |
 | **0.72.0 command** | Learning-path presentation: friendly intro, in-page menu, fixed categories, and outcome/prerequisites/time details in `tam:paths` | Done (2026-11-26) |
 | **0.139.1 corpus** | Retarget Tamlinux C compile standard from C11 to C17 across active code and current docs (following 0.139.0 path metadata) | Done (2026-11-26) |
+| **0.140.0 corpus** | Desktop > Typography series from the beginning of writing to research practice: formats, kernel fonts, shaping, foundries, printing history, glossary, sources and three paths | Done (2026-11-28) |
 
-### Phase P4: Future horizons (0.73+ / 0.140+) — [P4-future-horizons.md](plans/P4-future-horizons.md)
+### Phase P4: Future horizons (0.73+ / 0.141+) — [P4-future-horizons.md](plans/P4-future-horizons.md)
 
 | Version | Milestone | Status |
 | --- | --- | --- |

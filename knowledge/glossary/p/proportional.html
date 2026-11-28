@@ -3,7 +3,7 @@
 <title>Proportional</title>
 <meta name="topic" content="glossary-proportional">
 <meta name="summary" content="Proportional: A font whose characters have different widths.">
-<meta name="keywords" content="glossary-proportional, proportional, variable-width font">
+<meta name="keywords" content="glossary-proportional, Proportional, variable-width font">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="glossary">
 <meta name="parent" content="glossary/p/index.html">
@@ -12,10 +12,10 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/p/index.html">Terms beginning with P</a> / Proportional</p></nav>
 
-<p>A proportional font is a typeface in which each character takes up only as much horizontal width as its shape needs, rather than every character having the same fixed width.</p>
-<section data-level="novice"><p>Compare the letters “i” and “w” in a book or on a website: “i” is narrow and “w” is wide. Proportional fonts give each letter its natural breathing room, which makes paragraphs smooth and easy to read—just like printed books and newspapers. By contrast, fixed-width (monospace) fonts force every letter into the same size box, which is useful for lining up columns of code or numbers.</p></section>
-<section data-level="learner"><p>Desktop interfaces, documents, and web pages use proportional fonts (sans-serif or serif) for prose because variable character widths let words flow naturally and fit more text comfortably on a line. Terminals and code editors avoid proportional fonts because vertical alignment of indentation, tables, and <a href="glossary/a/ascii.html">ASCII</a> art breaks when “i” and “m” have different widths.</p><details class="q"><summary><i>Check: why do financial tables in a proportional font often misalign unless “tabular figures” are enabled?</i></summary><p>Many proportional fonts give digits like <code>1</code> narrower advance widths than <code>8</code>, so numbers in a column drift out of alignment. Tabular (lining) figures override this by giving all digits <code>0</code>–<code>9</code> an identical advance width.</p></details></section>
-<section data-level="expert"><p>In OpenType and TrueType fonts, each glyph defines an advance width and left sidebearing in the <code>hmtx</code> table, measured in font design units (typically 1000 or 2048 UPM). Beyond per-glyph advance widths, proportional text rendering relies on shaping engines (such as HarfBuzz) to apply <code>GPOS</code> pair-adjustment kerning (for pairs like “AV” or “To”) and <code>GSUB</code> ligatures or contextual alternates. Proportional fonts can still expose fixed-width numerals via the OpenType <code>tnum</code> (tabular figures) feature, contrasting with <code>pnum</code> (proportional figures).</p></section>
+<p>A proportional font is a typeface in which each character takes only as much horizontal width as its shape needs.</p>
+<section data-level="novice"><p>Compare the letters i and w in a book: i is narrow and w is wide. Proportional fonts give each letter its natural space, which makes paragraphs flow smoothly. By contrast, monospace fonts force every letter into the same box to align columns of code or numbers.</p></section>
+<section data-level="learner"><p>Documents, interfaces and web pages use proportional fonts for prose because variable widths let words pack comfortably. Terminals and code editors avoid them because indentation, tables and ASCII art break when i and m differ in width. Many proportional fonts still offer fixed-width tabular digits for columns.</p><details class="q"><summary><i>Why do financial tables in a proportional font often misalign unless tabular figures are enabled?</i></summary><p>Digits such as 1 and 8 can have different advances, so columns drift; tabular figures give all digits the same width.</p></details></section>
+<section data-level="expert"><p>Each glyph has an advance width and left side bearing in <code>hmtx</code>, measured in units per em, commonly 1000 or 2048. Shapers apply GPOS pair kerning for combinations such as AV and GSUB ligatures or contextual alternates. OpenType features <code>tnum</code> and <code>pnum</code> choose tabular or proportional numerals independently of the rest of the font.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
-<h2>Learn more</h2><ul><li><a href="desktop/appearance/fonts.html">Typography, fonts and text rendering</a></li></ul>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
 </body></html>

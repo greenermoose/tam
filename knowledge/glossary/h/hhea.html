@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>hhea (Horizontal Header Table)</title>
+<meta name="topic" content="glossary-hhea">
+<meta name="summary" content="hhea: The OpenType table holding horizontal layout metrics such as ascent and line gap.">
+<meta name="keywords" content="glossary-hhea, hhea, hhea table, Horizontal Header Table">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/h/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / hhea (Horizontal Header Table)</p></nav>
+
+<p>The <code>hhea</code> table stores a font's global horizontal metrics used to lay out lines of text.</p>
+<section data-level="novice"><p>Before a program can place a line of text it needs to know how tall the letters are and how much space to leave between lines. The <code>hhea</code> table supplies those numbers in the font's own units.</p></section>
+<section data-level="learner"><p>Important fields include ascent, descent, line gap, maximum advance width and the number of horizontal metrics in <code>hmtx</code>. Applications commonly use <code>hhea</code> ascent and descent to compute line height, though OS/2 typo metrics may give better results for mixed fonts and web pages.</p></section>
+<section data-level="expert"><p>The table is 36 bytes long; <code>numberOfHMetrics</code> says how many entries <code>hmtx</code> holds, with the last advance reused for remaining glyphs. <code>ascent</code>, <code>descent</code> and <code>lineGap</code> are font-unit values relative to the baseline, and <code>advanceWidthMax</code> supports overflow checks. Disagreements between <code>hhea</code> and OS/2 metrics cause different line heights in browsers and desktop toolkits.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

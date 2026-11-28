@@ -1,0 +1,73 @@
+W158 TYPOGRAPHY CURRICULUM
+
+Date: 2026-11-28
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Commits: the commit that adds this record and its follow-up index commit
+
+GUIDANCE
+
+  Fred asked, verbatim:
+
+    "Create a series in the tam knowledge corpus about fonts and typography
+    on Tamlinux. Add glossry pages for TrueType, FreeType, OpenType, kerning,
+    ligatures, and every other typography term a developer might need to
+    know. Make sure the series takes a reader who has no background at all
+    in typography all the way to world-leading expertise. Fully describe all
+    the font formats. Explain which fonts are built into the Linux kernel.
+    List font foundries and include a history of the printing press going
+    back to Gutenberg and before with scribes. Start with the beginning of
+    writing and cover all the forms of writing that have been invented by
+    various civilizations around the world. Explain the differenc between
+    alphabet, syllabaries, etc."
+
+  He then said: "Make it so." When asked about design choices he chose
+  Desktop > Typography, deep teaching on the major writing families plus a
+  worldwide reference catalogue, and three linked paths.
+
+DONE
+
+  - Added the typography plan TCK37 and the corpus 0.140.0 records.
+  - Added a Typography hub, fifteen three-level teaching pages, three goal
+    paths, typography glossary entries and bibliography sources.
+  - Kept desktop/appearance/fonts.html as the Tamlinux workflow page and
+    linked it from the new hub; corrected its generic-family statements to
+    match the shipped Fontconfig file and the two font commands.
+  - Registered typography.novice, typography.learner and typography.expert.
+  - Verified: `make corpus` (1943 pages), `make corpus-and-test`,
+    `make check-repo` and `report-coverage.py --warnings` all exit 0; the
+    typography skill cells report no gaps. All 511 citations resolve and every
+    new page's internal links resolve. Reader spot checks on the hub, a ladder
+    page, a path, a glossary entry and a bibliography entry passed, and live
+    `whatis` resolved TrueType, FreeType, OpenType, kerning and ligature.
+  - No Test, Run, Release, install, tag, marketplace action or stage push was
+    performed.
+
+FAILED
+
+  - The first `make corpus` rejected an unlinked `<dfn>Contrast</dfn>` in
+    accessibility.html. Removed the `<dfn>` wrapper; Contrast has no glossary
+    page in this corpus.
+  - The first `make corpus-check` read the literal surrogate value U+D800 in
+    the code-point entry as an internal decision ID. Rewrote it as the two
+    1,024-value surrogate blocks in the first plane.
+  - The delegated 106-term glossary set omitted the explicitly requested
+    OpenType page. Authored glossary/o/opentype.html and its index row by hand.
+  - Six foundation drafts linked to `paths/paths/...`, a doubled prefix;
+    corrected to `paths/...` before copying them into the corpus.
+  - Teaching drafts cited `bibliography/wcag-22.html`, which does not exist;
+    retargeted those citations to the existing `wcag` bibliography entry.
+
+HANDOFF
+
+  - Learner review and any packaged acceptance still need Fred's word.
+  - Generated corpus indexes trail page commits; commit the pages first,
+    rebuild, then commit the index follow-up.
+
+CHECKED AGAINST
+
+  - Linux stable v6.12 lib/fonts/, lib/fonts/Kconfig, lib/fonts/fonts.c,
+    include/linux/font.h, fbcon documentation and setfont(8).
+  - Product sources: 50-tamlinux.conf, tam-font-list, tam-font-current and
+    the desktop menu font selector.
+  - Official specifications and histories listed in the new bibliography.

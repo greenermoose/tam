@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Framebuffer console</title>
+<meta name="topic" content="glossary-framebuffer-console">
+<meta name="summary" content="Framebuffer console: The Linux text console that draws characters into a framebuffer.">
+<meta name="keywords" content="glossary-framebuffer-console, Framebuffer console, fbcon, Linux framebuffer console">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/f/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/f/index.html">Terms beginning with F</a> / Framebuffer console</p></nav>
+
+<p>The framebuffer console is the kernel's full-screen text console, drawing directly into video memory.</p>
+<section data-level="novice"><p>When you switch to a text-only screen with Ctrl+Alt+F3, the framebuffer console is drawing those letters itself. It does not need a desktop environment or a graphical login to work, which makes it useful for recovery and early boot.</p></section>
+<section data-level="learner"><p>The framebuffer console uses a simple bitmap font to stamp character cells into the display framebuffer. Linux 6.12 ships 13 built-in fonts in <code>lib/fonts/</code>, selected at boot with <code>fbcon=font:<name></code> or chosen automatically from console size. Documented names include VGA8x8, VGA8x16, TER16x32 and ProFont6x11; a user font can be installed with <a href="glossary/s/setfont.html">setfont</a>.</p></section>
+<section data-level="expert"><p>fbcon copies width, height, data and charcount from a font descriptor into the virtual console's <code>vc_font</code>; built-ins are used with <code>userfont = 0</code>. <code>fbcon_set_font</code> accepts user fonts of 256 or 512 glyphs through <code>KDFONTOP</code>, and <code>fbcon_set_def_font</code> restores a named built-in or calls <code>get_default_font(xres, yres, blit_x, blit_y)</code>. <code>CONFIG_FONT_SUPPORT</code> gates the code and <code>CONFIG_FONT_AUTOSELECT</code> selects VGA8x16 when other fonts are disabled. <a href="glossary/k/kmscon.html">KMScon</a> is a separate userspace console.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

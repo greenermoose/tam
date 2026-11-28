@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>TTC (TrueType Collection)</title>
+<meta name="topic" content="glossary-ttc">
+<meta name="summary" content="TTC: A single file containing multiple TrueType or OpenType fonts sharing tables.">
+<meta name="keywords" content="glossary-ttc, TTC, TrueType Collection, .ttc">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/t/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / TTC (TrueType Collection)</p></nav>
+
+<p>A TTC file packages several related fonts into one file, sharing tables that are identical between them.</p>
+<section data-level="novice"><p>Some font families ship as one big file holding several members, such as regular and bold. Because the fonts share common data, the collection is smaller than separate copies of each font.</p></section>
+<section data-level="learner"><p>TTC files are common for large families and CJK fonts, where many styles share glyph outlines. Applications select a face by index within the collection; Fontconfig and FreeType can enumerate the faces in a <code>.ttc</code> file.</p></section>
+<section data-level="expert"><p>The file begins with a <code>ttcf</code> tag, a version, a face count and an array of offsets to per-font table directories. Tables can be shared between directories, so offsets are absolute within the file. TTX can extract individual faces; subsetting a collection must rewrite shared tables carefully, and a DSIG signature covers the whole collection.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Code point</title>
+<meta name="topic" content="glossary-code-point">
+<meta name="summary" content="Code point: A numeric value assigned to a character in the Unicode standard.">
+<meta name="keywords" content="glossary-code-point, Code point, codepoint, Unicode code point, code position">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/c/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / Code point</p></nav>
+
+<p>A code point is the number that <a href="glossary/u/unicode.html">Unicode</a> assigns to a character, written U+ followed by hexadecimal digits.</p>
+<section data-level="novice"><p>Unicode gives every letter, symbol and emoji its own ID number, written like U+0041 for capital A. That number is its code point. Different fonts can draw the same code point differently, but the number stays the same wherever the text is read.</p></section>
+<section data-level="learner"><p>A code point is an abstract number; <a href="glossary/u/utf-8.html">UTF-8</a> turns it into bytes for storage, while a font's <code>cmap</code> table turns it into a glyph ID for drawing. One code point may map to different glyphs depending on context, and one visible character may use several code points, such as e plus a combining accent. Confusing these layers causes wrong character counts and broken search.</p></section>
+<section data-level="expert"><p>Unicode defines 1,114,112 code points from U+0000 to U+10FFFF in 17 planes; the two 1,024-value surrogate blocks in the first plane are reserved for UTF-16 pairs and are not scalar values. A code point need not have a glyph in every font: fallback and the missing-glyph box called <a href="glossary/t/tofu.html">tofu</a> handle gaps. <a href="glossary/u/unicode-normalization.html">Normalization</a> can change the code-point sequence for identical visible text without changing its meaning.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

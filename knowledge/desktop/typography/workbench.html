@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html><head>
+<title>A typography diagnostic workbench</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-workbench">
+<meta name="summary" content="A safe method for text problems: name the symptom, choose the layer, gather read-only evidence, and change one thing reversibly.">
+<meta name="keywords" content="typography troubleshooting, font diagnostics, Fontconfig, cmap, shaping transcript, read-only checks, reversible change">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="font-internals:6, typography-on-tamlinux:4">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / A typography diagnostic workbench</p></nav>
+
+<p>Text problems are easier when you name what you see and find the layer that owns it. This page gives a small method and a safe place to practise it before touching any real settings.</p>
+
+<section data-level="novice">
+<h2>Name what you see</h2>
+<p>Sometimes a letter is missing, a word is spaced oddly, or an edge looks rough. Each clue points to a different stage between choosing a font and drawing it.</p>
+<p>The method is simple: say what the problem looks like, guess which stage could cause it, look at that stage, and then try one small change. You put the change back if it does not help.</p>
+<h3>Why it matters</h3>
+<p>Random changes can hide the original problem. A careful note of the symptom makes it possible to tell whether a fix worked.</p>
+<h3>How to think about it</h3>
+<p>Think of a mechanic listening to an engine before opening it. The sound tells them which part to inspect first, so they do not take the whole machine apart.</p>
+<h3>New words</h3>
+<dl>
+<dt>Symptom</dt><dd>What you actually see, described without guessing the cause.</dd>
+<dt>Layer</dt><dd>One stage of the text path that can be checked on its own.</dd>
+<dt><dfn><a href="glossary/t/tofu.html">Tofu</a></dfn></dt><dd>An empty box or missing-glyph shape where a letter should be.</dd>
+<dt><dfn><a href="glossary/h/hinting.html">Hinting</a></dfn></dt><dd>Instructions that help outlines meet the pixel grid.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>A four-step method</h2>
+<p><strong>Goal:</strong> you will be able to name a symptom, choose a layer, gather read-only evidence, and make one reversible change in a scratch setting.</p>
+<ol>
+<li>Name the symptom in one sentence, such as "one letter shows as a box".</li>
+<li>Choose a layer: font discovery, selection, <dfn><a href="glossary/t/text-shaping.html">text shaping</a></dfn>, <dfn><a href="glossary/r/rasterization.html">rasterization</a></dfn> or the console.</li>
+<li>Gather evidence with commands that only read files and settings.</li>
+<li>Change one thing in a scratch copy, compare the result, and restore the original.</li>
+</ol>
+<tam-sandbox
+  title="Try it: read the three teaching samples"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line where a code point is unmapped">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="rule.txt" size="190">fontconfig rule excerpt (teaching sample)
+match target=pattern
+test family=monospace
+edit family mode=prepend value="Demo Mono"
+alias ui-monospace to monospace</file>
+  <file name="cmap.txt" size="190">cmap table excerpt (teaching sample)
+format 12 platform 3 encoding 10
+U+0041 -&gt; GID 36
+U+0061 -&gt; GID 68
+U+0627 -&gt; (unmapped)</file>
+  <file name="shape.txt" size="200">shaping transcript (teaching sample)
+input: office
+plain: GID 68 GID 77 GID 77 GID 69 GID 71
+with liga: GID 402 GID 69 GID 71
+fallback: none</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat rule.txt" hint="This sample stands in for a fontconfig rule file."><out>fontconfig rule excerpt (teaching sample)</out><out>match target=pattern</out><out>test family=monospace</out><out>edit family mode=prepend value="Demo Mono"</out><out>alias ui-monospace to monospace</out></tam-cmd>
+  <tam-cmd match="grep unmapped cmap.txt" goal="true" hint="One line says the code point has no glyph."><out>U+0627 -&gt; (unmapped)</out></tam-cmd>
+  <tam-cmd match="grep liga shape.txt" hint="Compare this with the plain glyph list."><out>with liga: GID 402 GID 69 GID 71</out></tam-cmd>
+  <tam-init>Try: cat rule.txt, then grep unmapped cmap.txt</tam-init>
+  <tam-hint after="1">The first sample stands in for a fontconfig rule file; it is not a real setting.</tam-hint>
+  <tam-hint after="2">An unmapped code point explains a missing glyph in this font.</tam-hint>
+  <tam-fallback>Try cat rule.txt, grep unmapped cmap.txt, or grep liga shape.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat rule.txt</code> showed a sample rule that prepends a family for a generic request.</li>
+<li><code>grep unmapped cmap.txt</code> found the code point without a glyph, which points at font coverage rather than drawing.</li>
+<li><code>grep liga shape.txt</code> showed a shaping change from five glyph IDs to three. All three files are teaching samples, not readings from your machine.</li>
+</ol>
+<h3>Try it</h3>
+<p>Run <code>grep U+0041 cmap.txt</code>. Predict whether that code point would produce tofu in this sample font before you type it.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You treated the samples as real output.</dt><dd>They are simplified stand-ins for a rule file, a cmap excerpt and a shaping transcript. Real checks use the tools in the Expert section.</dd>
+<dt>You changed a setting while investigating.</dt><dd>Undo it and restart from a symptom sentence. One change at a time keeps the evidence readable.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The Tamlinux font configuration file <code>50-tamlinux.conf</code> assigns generic families and adds language-specific rules. In the graphical path, <code>tam-font-current</code> reports what <code>fc-match monospace</code> resolves and <code>tam-font-list</code> lists <a href="glossary/m/monospace.html">monospace</a> families. Those product sources tell you where the selection decision comes from; they do not replace a per-symptom check.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>A letter shows as a box in one application. Which layer do you check first?</i></summary><p>Font selection and coverage. Confirm which family the application chose, then check whether that font maps the code point. A rasterization or hinting change cannot create a missing glyph.</p></details>
+<details class="q"><summary><i>Console text is wrong but graphical text is fine. What does that rule out?</i></summary><p>It rules out Fontconfig rules, shaping features and FreeType rasterization for that symptom. The <a href="glossary/f/framebuffer-console.html">framebuffer console</a> has its own bitmap font path, including <a href="glossary/s/setfont.html">setfont</a>.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Decision table and evidence</h2>
+<h3>Reference: symptom to layer</h3>
+<table>
+<tr><th>Symptom</th><th>Likely layer</th><th>First check</th><th>Safe fix</th></tr>
+<tr><td>Boxes for one code point across all applications</td><td>Font coverage and cmap</td><td><code>ttx -t cmap</code> on the chosen font</td><td>Choose a family that covers it; installing a font is a separate, approved change</td></tr>
+<tr><td>Different glyph for the same word in two applications</td><td><a href="glossary/f/font-substitution.html">font substitution</a></td><td><code>fc-match</code> with the requested pattern</td><td>Test one rule in a scratch configuration</td></tr>
+<tr><td>Joining or mark placement wrong in Arabic or Urdu</td><td>Shaping</td><td><code>hb-shape</code> with script and language set</td><td>Confirm the features exist; change only the scratch test input</td></tr>
+<tr><td>Ligature missing while letters are correct</td><td>Shaping features</td><td><code>hb-shape --list-features</code></td><td>Pick a font that advertises the feature</td></tr>
+<tr><td>Spacing or edges change only at one size</td><td>Rasterization and hinting</td><td><code>ftview</code> at two sizes</td><td>Compare sizes; test hinting in scratch</td></tr>
+<tr><td>Newly installed family not offered</td><td><a href="glossary/f/font-cache.html">font-cache</a></td><td><code>fc-list</code> for the family</td><td>Rebuild the cache under a scratch configuration</td></tr>
+<tr><td>Console glyphs wrong, desktop fine</td><td>Framebuffer console</td><td>Console font name and <code>setfont</code> state</td><td>Record a documented candidate font; apply only with approval</td></tr>
+</table>
+<h3>Reading the samples as evidence</h3>
+<p>The rule sample says a monospace request is rewritten by prepending another family. That is a <a href="glossary/f/font-substitution.html">font substitution</a> decision, owned by <a href="glossary/f/fontconfig.html">Fontconfig</a>. The cmap sample says one code point is unmapped while others have glyph IDs; with a glyph missing, the likely layer is coverage, not <a href="glossary/t/text-shaping.html">text shaping</a>. The shaping sample shows that a ligature changes a five-glyph run into a three-glyph run; that is a substitution applied before <a href="glossary/r/rasterization.html">rasterization</a>. <cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite> <cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite></p>
+<pre data-risk="read-only"><code>fc-list : family | sort -u | head -n 20
+fc-match monospace -f '%{family}\n'
+hb-shape --font-file=DemoMono-Regular.ttf --text="office"
+hb-shape --list-features DemoMono-Regular.ttf
+ftview DemoMono-Regular.ttf
+ttx -q -t cmap -o - DemoMono-Regular.ttf | head -n 40</code></pre>
+<p>These commands read a font or a matching decision. They do not install anything, change settings or need privilege. <code>DemoMono-Regular.ttf</code> stands for whichever font the earlier checks chose. <cite data-ref="freetype-docs"><a href="bibliography/freetype-docs.html">FreeType documentation</a></cite> <cite data-ref="fonttools-docs"><a href="bibliography/fonttools-docs.html">fontTools and TTX</a></cite></p>
+<pre data-risk="scratch"><code>FONTCONFIG_FILE=/home/alex/scratch/fonts.conf fc-cache -f</code></pre>
+<p>Use a scratch configuration whose directories are under <code>/home/alex/scratch</code>. Keep the original rule file untouched, write one change into the copy, run the check again, then delete the scratch folder. This is the only reversible change the exercise makes, and it writes only inside scratch.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Two applications can resolve the same generic family differently if they send different language or style properties.</li>
+<li>A stale cache can make a scratch result look like a rule failure; confirm what the scratch configuration actually lists.</li>
+<li>Fallback can hide a missing glyph in one application but not another, because the fallback font differs.</li>
+<li>A console symptom and a desktop symptom can occur together for unrelated reasons; keep two symptom sentences.</li>
+<li>Changing several rules at once loses the link between a cause and its effect.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why not start with fc-cache when a family looks wrong?</i></summary><p>fc-cache writes cache files and only helps when the cache is stale. First ask fc-match what Fontconfig currently decides. If the decision is wrong for a reason in the rules, test the edited rule in scratch and rebuild that cache there.</p></details>
+<details class="q open"><summary><i>What does a console-only symptom rule out, and why?</i></summary><p>It rules out the graphical path's selection, shaping and rasterization. The console draws from bitmap arrays or a PSF loaded through setfont; it does not consult Fontconfig, HarfBuzz or FreeType. The layer decision follows the evidence, not the resemblance of the glyphs.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite>; <cite data-ref="freetype-docs"><a href="bibliography/freetype-docs.html">FreeType documentation</a></cite>; <cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite>; <cite data-ref="fonttools-docs"><a href="bibliography/fonttools-docs.html">fontTools and TTX</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/troubleshooting.html">When text looks wrong</a> &mdash; move from the method to common symptoms.</li>
+<li><a href="desktop/typography/linux-text-stack.html">The Linux text stack</a> &mdash; revisit which layer owns each decision.</li>
+<li><a href="paths/font-internals.html">Inside font internals</a> &mdash; continue the reading order.</li>
+</ul>
+</body></html>

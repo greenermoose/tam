@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>BDF (Bitmap Distribution Format)</title>
+<meta name="topic" content="glossary-bdf">
+<meta name="summary" content="BDF: A text-based bitmap font format from the X Window System.">
+<meta name="keywords" content="glossary-bdf, BDF, Bitmap Distribution Format, .bdf">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/b/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / BDF (Bitmap Distribution Format)</p></nav>
+
+<p>BDF is a plain-text format that stores bitmap fonts as rows of pixels for each glyph.</p>
+<section data-level="novice"><p>Before fonts were drawn from mathematical curves, many were stored as fixed grids of dots, one grid per letter. BDF is one such format: a readable text file listing each letter's width, height and pixel pattern. It is easy to inspect with an ordinary text editor.</p></section>
+<section data-level="learner"><p>A BDF file begins with global properties such as font name, point size, ascent and descent, followed by a <code>STARTCHAR</code>/<code>ENDCHAR</code> block per glyph containing a <code>BITMAP</code> of hexadecimal rows. Because each glyph is a fixed pixel grid, BDF fonts are sharp only at their designed size. They are mainly of historical interest, though they can be converted to PCF with <code>bdftopcf</code>.</p></section>
+<section data-level="expert"><p>BDF comes from the X Window System bitmap distribution standard and stores glyphs as binary bitmaps encoded as hexadecimal text, with <code>FONTBOUNDINGBOX</code>, <code>PIXEL_SIZE</code> and <code>RESOLUTION_X</code>/<code>RESOLUTION_Y</code> metadata plus per-character <code>SWIDTH</code>/<code>DWIDTH</code> scaling values. Modern desktop text stacks prefer scalable outlines. Bitmap fonts remain in the Linux kernel console, built into <code>lib/fonts/</code>, and in PSF fonts loaded by <a href="glossary/s/setfont.html">setfont</a>; BDF itself is not loaded by the kernel.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

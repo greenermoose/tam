@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Subsetting</title>
+<meta name="topic" content="glossary-subsetting">
+<meta name="summary" content="Subsetting: Removing unused glyphs and tables from a font to make a smaller file.">
+<meta name="keywords" content="glossary-subsetting, Subsetting, font subset, glyph subsetting">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Subsetting</p></nav>
+
+<p>Subsetting is the process of shrinking a font file by keeping only the glyphs a document or page needs.</p>
+<section data-level="novice"><p>A font can contain thousands of characters, but a single page may use only a hundred of them. Subsetting builds a smaller font with just those letters, so documents load faster and take less space.</p></section>
+<section data-level="learner"><p>Websites subset fonts to reduce downloads; PDF producers embed subsets containing only the characters used on a page. Tools such as fontTools and TTX can inspect and subset fonts. Subsetting must preserve the character-to-glyph mapping, or copying and searching text will break.</p></section>
+<section data-level="expert"><p>Subsetting requires glyph closure: starting from requested code points, follow <code>cmap</code>, GSUB closure for ligatures and alternates, composite components and variant tables such as <code>gvar</code>. The subsetter rewrites glyph IDs, offsets and name records, and may rename the family. A DSIG signature becomes invalid, and text added later can render as tofu if its glyphs were dropped.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

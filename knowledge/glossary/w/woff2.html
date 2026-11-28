@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>WOFF2 (Web Open Font Format 2)</title>
+<meta name="topic" content="glossary-woff2">
+<meta name="summary" content="WOFF2: A highly compressed web font format that transforms SFNT tables before compression.">
+<meta name="keywords" content="glossary-woff2, WOFF2, Web Open Font Format 2, .woff2">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/w/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / WOFF2 (Web Open Font Format 2)</p></nav>
+
+<p>WOFF2 is a compressed web font format that uses Brotli and specialized transforms for font tables.</p>
+<section data-level="novice"><p>WOFF2 makes font downloads even smaller than WOFF. It knows how fonts are built, so it can store repeated glyph outlines and table data more cleverly before applying strong compression. A browser unpacks it just as it unpacks WOFF.</p></section>
+<section data-level="learner"><p>WOFF2 typically yields files around a quarter smaller than WOFF 1.0. It supports TrueType, CFF and variable fonts, and modern browsers prefer it, often with WOFF as a fallback for older ones. The extra compression matters most for large CJK fonts and emoji sets.</p></section>
+<section data-level="expert"><p>The format uses Brotli compression plus a transform directory: glyf and loca may be recoded with split, null or high-order-byte transforms; hmtx may use a transformed table; and known tables such as <code>cmap</code>, <code>name</code> and <code>post</code> can be reconstructed from predefined formats. A WOFF2 decoder reverses these transforms to rebuild a valid SFNT. Metadata and table checksums are carried in the header.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

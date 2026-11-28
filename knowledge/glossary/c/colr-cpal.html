@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>COLR/CPAL (Color layers and palettes)</title>
+<meta name="topic" content="glossary-colr-cpal">
+<meta name="summary" content="COLR/CPAL: OpenType tables that build colored glyphs from layered outlines and palettes.">
+<meta name="keywords" content="glossary-colr-cpal, COLR/CPAL, COLR CPAL, color font tables">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/c/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / COLR/CPAL (Color layers and palettes)</p></nav>
+
+<p>COLR and CPAL are OpenType tables that let a font draw colored glyphs from layered shapes and a color palette.</p>
+<section data-level="novice"><p>Some emoji and logos are colored. A color font can store several stacked shapes for one character plus a list of colors, so the same glyph can appear in different palette themes without separate image files for each.</p></section>
+<section data-level="learner"><p><code>COLR</code> describes a glyph as layers of ordinary outlines in a drawing order; <code>CPAL</code> supplies palettes of colors that layers reference by index. Version 1 adds gradients and more complex composites. This differs from bitmap color tables such as CBDT/CBLC, which store raster images, and from <a href="glossary/s/svg-font.html">SVG-in-OpenType</a>, which stores vector markup.</p></section>
+<section data-level="expert"><p>The table tags are <code>COLR</code> and <code>CPAL</code>. Version 0 lists base glyph IDs and palette indices; version 1 adds a <code>BaseGlyphList</code> of paint records—solid fills, linear and radial gradients, transforms and component glyphs—that a renderer executes. <code>CPAL</code> stores <code>numPalettes</code> entries of <code>numPaletteEntries</code> BGRA colors. Shaping still maps characters to glyphs; the color layer stack is applied at rasterization time.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

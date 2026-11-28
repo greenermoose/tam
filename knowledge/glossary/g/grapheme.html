@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Grapheme</title>
+<meta name="topic" content="glossary-grapheme">
+<meta name="summary" content="Grapheme: The smallest unit of written language that a reader perceives as one character.">
+<meta name="keywords" content="glossary-grapheme, Grapheme, visible character, perceived character">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/g/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/g/index.html">Terms beginning with G</a> / Grapheme</p></nav>
+
+<p>A grapheme is what a reader thinks of as one character, which may be made of several stored code points.</p>
+<section data-level="novice"><p>When you see an accented letter such as é you think of one character. A computer might store it as a letter plus a separate accent mark. The single thing you see is a grapheme; distinguishing it from stored numbers prevents strange editing behavior.</p></section>
+<section data-level="learner"><p>Grapheme boundaries matter for cursor movement, selection and deleting text: backspace should remove the whole accented letter or emoji, not just part of it. Unicode's UAX #29 rules define grapheme clusters from code-point sequences; emoji with skin tones and family sequences are also single units for most readers.</p></section>
+<section data-level="expert"><p>A grapheme is a linguistic unit; a grapheme cluster is the Unicode approximation, defined by extended cluster rules that join base characters with combining marks, ZWJ sequences, variation selectors and regional indicators. HarfBuzz shapes a cluster into one or more glyphs, and one glyph can represent several clusters, as with a ligature. Editors should move by cluster rather than by code point or byte.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Bitmap font</title>
+<meta name="topic" content="glossary-bitmap-font">
+<meta name="summary" content="Bitmap font: A font whose glyphs are fixed grids of pixels rather than scalable outlines.">
+<meta name="keywords" content="glossary-bitmap-font, Bitmap font, raster font, dot-matrix font">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/b/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / Bitmap font</p></nav>
+
+<p>A bitmap font stores each glyph as a fixed pixel pattern, so it is sharp only at its designed size.</p>
+<section data-level="novice"><p>A bitmap font is like a stamp: each letter is a small grid of dots that the computer copies onto the screen. At the size it was made for it looks perfectly crisp; enlarge it and the dots become blocky. Early computers used them because they were cheap to draw.</p></section>
+<section data-level="learner"><p>Terminals and the Linux virtual console use bitmap fonts because a fixed grid gives predictable character cells. Linux 6.12 ships 13 built-in fonts in <code>lib/fonts/</code>, including VGA8x8, VGA8x16 and TER16x32; each has 256 characters and a fixed cell size. <code>setfont</code> can replace them with a PSF user font. Scalable outline fonts have largely replaced bitmaps in desktop applications.</p></section>
+<section data-level="expert"><p>Kernel bitmap strikes are packed rows of bits plus width, height and charcount in a font descriptor registered by <code>fonts.c</code>. The console selects one with <code>fbcon=font:<name></code> or <code>get_default_font()</code> based on dimensions, and <code>KDFONTOP</code> installs user fonts of 256 or 512 glyphs. Rendering skips outline rasterization and hinting entirely: the result is deterministic but cannot scale cleanly. Userspace consoles such as <a href="glossary/k/kmscon.html">KMScon</a> use different backends.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

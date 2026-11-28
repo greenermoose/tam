@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>kern (Kerning Table)</title>
+<meta name="topic" content="glossary-kern-table">
+<meta name="summary" content="kern: The OpenType table with legacy pair-adjustment kerning values.">
+<meta name="keywords" content="glossary-kern-table, kern, kern table, legacy kerning">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/k/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/k/index.html">Terms beginning with K</a> / kern (Kerning Table)</p></nav>
+
+<p>The <code>kern</code> table is an older OpenType table that adjusts the spacing between specific glyph pairs.</p>
+<section data-level="novice"><p>Some letters look better a little closer together. The kerning table lists pairs and how much to move them, so AV does not have an awkward gap. It is a small but old part of font technology.</p></section>
+<section data-level="learner"><p>The table exists in Apple and Microsoft variants and is superseded by GPOS pair adjustments in modern OpenType fonts. Many shapers still read <code>kern</code> for older fonts. Kerning values are in font units and are applied after base advances from <code>hmtx</code>.</p></section>
+<section data-level="expert"><p>Format 0 stores a coverage-indexed set of pairs with signed kerning values; format 1 adds versioning and a different header. In modern fonts the same adjustments live in GPOS, where type 2 pair positioning handles classes and multiple lookups by script and language system. HarfBuzz prefers GPOS when present and may fall back to the legacy table; applying both would double-adjust.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

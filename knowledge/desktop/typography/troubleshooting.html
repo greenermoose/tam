@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html><head>
+<title>When text looks wrong</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-troubleshooting">
+<meta name="summary" content="Diagnose text problems by layer: missing glyphs, substitution, cache, shaping, rendering, and console fonts.">
+<meta name="keywords" content="typography, troubleshooting, tofu, fontconfig, harfbuzz, freetype, setfont, console font, text shaping">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="typography-on-tamlinux:3">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / When text looks wrong</p></nav>
+
+<p>When text looks wrong, the cause is usually in one layer of the text stack. Identifying the layer first makes the fix smaller, safer, and easier to confirm.</p>
+
+<section data-level="novice">
+<h2>Find the layer before the fix</h2>
+<p>Text on a screen goes through several steps. A character is chosen, a font is selected, the shape is drawn, and pixels are painted. If any step goes wrong, you may see boxes, the wrong font, odd spacing, blurry letters, or a console that looks nothing like your desktop.</p>
+<h3>Why it matters</h3>
+<p>People often reinstall fonts or change random settings when text looks bad. That can hide the real problem. A calm check saves time: first look at what you see, then guess the likely layer, then try one safe check.</p>
+<h3>How to think about it</h3>
+<p>Think of printing a sign. If a letter is missing from the stencil, you get a blank box. If the wrong stencil is picked, the style changes. If the stencil is old, the shop may use an outdated copy. If the letters are placed badly, spacing looks strange. If the paint is smudged, the edges look blurry.</p>
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/t/tofu.html">Tofu</a></dfn></dt><dd>Empty boxes shown when a font has no <a href="glossary/g/glyph.html">glyph</a> for a character.</dd>
+<dt><dfn><a href="glossary/f/font-substitution.html">Font substitution</a></dfn></dt><dd>Using a different font when the requested font or character is not available.</dd>
+<dt><dfn><a href="glossary/f/font-cache.html">Font cache</a></dfn></dt><dd>Saved font information that programs reuse for speed.</dd>
+<dt><dfn><a href="glossary/t/text-shaping.html">Text shaping</a></dfn></dt><dd>Choosing and positioning glyphs for characters, especially in complex scripts or ligatures.</dd>
+</dl>
+<p>Not every problem is a font bug. A missing character is different from a blurry pixel. A virtual console also uses a different text path than a graphical terminal, so it can look different on purpose.</p>
+</section>
+
+<section data-level="learner">
+<h2>Symptom, cause, check, fix</h2>
+<p><strong>Goal:</strong> You will be able to match a common text symptom to a likely layer and choose a safe first check.</p>
+
+<tam-sandbox
+  title="Try it: inspect teaching samples"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Identify which sample explains tofu">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="fc-match-sample.txt" size="210"># Teaching sample, not a reading from your machine
+$ fc-match -f '%{family}\n' monospace
+DejaVu Sans Mono
+
+$ fc-match -f '%{family}\n' :charset=4E2D
+Noto Sans CJK SC</file>
+  <file name="cmap-coverage.txt" size="220"># Teaching sample cmap coverage list
+font: DejaVu Sans Mono
+U+0041 LATIN CAPITAL LETTER A: present
+U+4E2D CJK UNIFIED IDEOGRAPH: missing
+U+1F600 GRINNING FACE: missing
+result: missing glyphs may display as tofu</file>
+  <file name="shaping-transcript.txt" size="250"># Teaching sample shaping transcript
+input: f + i
+feature: liga on
+output glyphs: fi_ligature
+
+input: f + i
+feature: liga off
+output glyphs: f, i
+note: different glyph positions are a shaping choice, not missing text</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat cmap-coverage.txt" hint="Look for the missing-glyph sample."><out># Teaching sample cmap coverage list</out><out>font: DejaVu Sans Mono</out><out>U+0041 LATIN CAPITAL LETTER A: present</out><out>U+4E2D CJK UNIFIED IDEOGRAPH: missing</out><out>U+1F600 GRINNING FACE: missing</out><out>result: missing glyphs may display as tofu</out></tam-cmd>
+  <tam-cmd match="cat fc-match-sample.txt" goal="true" hint="Compare the default monospace result with the charset-specific result."><out># Teaching sample, not a reading from your machine</out><out>$ fc-match -f '%{family}\n' monospace</out><out>DejaVu Sans Mono</out><out></out><out>$ fc-match -f '%{family}\n' :charset=4E2D</out><out>Noto Sans CJK SC</out></tam-cmd>
+  <tam-cmd match="cat shaping-transcript.txt" hint="Shaping changes glyph selection and placement."><out># Teaching sample shaping transcript</out><out>input: f + i</out><out>feature: liga on</out><out>output glyphs: fi_ligature</out><out></out><out>input: f + i</out><out>feature: liga off</out><out>output glyphs: f, i</out><out>note: different glyph positions are a shaping choice, not missing text</out></tam-cmd>
+  <tam-init>Try: cat cmap-coverage.txt, cat fc-match-sample.txt, or cat shaping-transcript.txt</tam-init>
+  <tam-hint after="1">Each file is a teaching sample. It shows what a diagnosis can look like, not what your system currently reports.</tam-hint>
+  <tam-hint after="2">Tofu points to missing glyph coverage. A different family name points to substitution.</tam-hint>
+  <tam-fallback>Try cat cmap-coverage.txt, cat fc-match-sample.txt, or cat shaping-transcript.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<p>The files and output in this sandbox are teaching samples. They are not readings from your machine.</p>
+
+<h3>Common symptoms</h3>
+<table>
+<tr><th>What you see</th><th>Likely cause</th><th>First safe check</th><th>Reversible fix</th><th>Confirm</th></tr>
+<tr><td>Boxes or <a href="glossary/t/tofu.html">tofu</a></td><td>Missing glyph in the selected font</td><td>Check character coverage or try another font with the same text</td><td>Install or select a font that covers the script; keep the old font available</td><td>The same character renders as a readable glyph</td></tr>
+<tr><td>Wrong family or style</td><td><a href="glossary/f/font-substitution.html">Font substitution</a> by <a href="glossary/f/fontconfig.html">Fontconfig</a></td><td>Inspect which font matched the request</td><td>Adjust fontconfig rules or choose an installed family explicitly</td><td>The resolved family is the one you intended</td></tr>
+<tr><td>Newly installed font does not appear</td><td>Stale <a href="glossary/f/font-cache.html">font cache</a></td><td>Check whether the font file is in a font directory</td><td>Refresh the user font cache</td><td>The font appears in font listings and apps</td></tr>
+<tr><td>Letters joined oddly, shifted, or ligatures appear</td><td><a href="glossary/t/text-shaping.html">Text shaping</a> or font features</td><td>Compare with shaping/features disabled in an app that supports it</td><td>Toggle the specific feature, such as ligatures</td><td>The text remains readable and the expected glyph form appears</td></tr>
+<tr><td>Blurry or uneven pixels</td><td><a href="glossary/h/hinting.html">Hinting</a>, <a href="glossary/r/rasterization.html">rasterization</a>, or scaling settings</td><td>Check display scale, hinting, and antialiasing settings</td><td>Change one setting at a time</td><td>Text is clearer at the same size and scale</td></tr>
+<tr><td>Terminal font differs from desktop</td><td>Terminal has its own font setting</td><td>Compare terminal profile font with desktop font settings</td><td>Set the terminal font explicitly or select a <a href="glossary/m/monospace.html">monospace</a> family</td><td>Terminal uses the expected family after restart/reload</td></tr>
+<tr><td>Virtual console font is tiny or has wrong characters</td><td><a href="glossary/f/framebuffer-console.html">Framebuffer console</a> or <a href="glossary/s/setfont.html">setfont</a> configuration</td><td>Check console font and encoding settings</td><td>Load a known console font for the current session</td><td>Console glyphs are readable and the expected charset appears</td></tr>
+</table>
+
+<h3>Try it</h3>
+<p>When you see a text problem, write down the symptom before changing anything. Then ask: is a character missing, is the family wrong, is the shape wrong, or are the pixels wrong? That one question usually picks the layer.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You refreshed caches but the glyph is still missing.</dt><dd>A cache refresh cannot invent coverage. You need a font that contains the character.</dd>
+<dt>The terminal looks better, but the console still looks wrong.</dt><dd>The Linux virtual console uses its own font path. A desktop terminal setting will not fix it.</dd>
+<dt>Disabling ligatures changed the look but not the meaning.</dt><dd>That is normal. Ligatures are a shaping choice; confirm the underlying characters are still correct.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>On Tamlinux, desktop font selection flows through fontconfig and appearance tools described in <a href="desktop/appearance/fonts.html">Typography, fonts and text rendering</a>. The generic family defaults in <code>/usr/share/fontconfig/conf.avail/50-tamlinux.conf</code> are a good place to understand why a monospace or sans-serif request resolves to a particular family.</p>
+</aside>
+
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>A character becomes a box, but the rest of the line looks fine. Which layer do you check first?</i></summary><p>Check glyph coverage first. The selected font may not contain that <a href="glossary/u/unicode.html">Unicode</a> character, so the renderer shows tofu.</p></details>
+<details class="q"><summary><i>Why can a desktop terminal and the Linux virtual console show different fonts for the same user?</i></summary><p>They use different text paths. A graphical terminal uses desktop font rendering, while the virtual console uses console fonts loaded through tools such as setfont.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Diagnosing by text-stack layer</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Layer</th><th>Typical symptom</th><th>Inspection</th><th>Primary source</th></tr>
+<tr><td>Coverage / cmap</td><td>Tofu, missing glyph</td><td>Check font coverage and fallback</td><td><cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig manual</a></cite></td></tr>
+<tr><td>Selection / substitution</td><td>Wrong family</td><td>Resolve pattern with fontconfig</td><td><cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig manual</a></cite></td></tr>
+<tr><td>Shaping</td><td>Ligatures, misplaced marks, cursor oddities</td><td>Inspect shaping features and script support</td><td><cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite></td></tr>
+<tr><td>Rasterization / hinting</td><td>Blur, uneven stems, size-specific artifacts</td><td>Check hinting, antialiasing, DPI scaling</td><td><cite data-ref="freetype-docs"><a href="bibliography/freetype-docs.html">FreeType documentation</a></cite></td></tr>
+<tr><td>Linux console</td><td>Tiny font, wrong charset, rough glyphs</td><td>Inspect fbcon/setfont configuration</td><td><cite data-ref="linux-fbcon"><a href="bibliography/linux-fbcon.html">Linux fbcon</a></cite>; <cite data-ref="setfont-man"><a href="bibliography/setfont-man.html">setfont(8)</a></cite></td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>Text rendering failures are often misreported as "font broken". A more precise model separates selection, shaping, and rasterization. Fontconfig resolves a requested pattern to a font file or fallback chain. HarfBuzz turns Unicode text into positioned glyphs, applying font features and script rules. FreeType rasterizes outlines to bitmaps at a given size, DPI, and hinting mode. A console stack can bypass much of this and use bitmap console fonts instead.</p>
+<p>Substitution is normal. It becomes a problem when the fallback choice has different metrics, missing style variants, or poor script coverage. Cache staleness is another common but narrow cause: it affects discovery of newly installed or removed fonts, not the shape of already resolved glyphs.</p>
+
+<h3>Advanced usage examples</h3>
+<pre data-risk="read-only"># See which font resolves for a generic family
+fc-match -f '%{family}:%{style} %{file}\n' monospace
+
+# Ask fontconfig for a character-capable fallback
+fc-match -f '%{family}\n' ':charset=4E2D'
+
+# Refresh user font cache after installing fonts into a user font directory
+fc-cache -f ~/.local/share/fonts
+
+# Inspect a console font change in the current session
+setfont /usr/share/kbd/consolefonts/ter-132n.psf.gz</pre>
+<p>These commands are illustrative read-only or session-local checks. Do not treat them as a script to run blindly; confirm paths and scope on your system.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><strong>Metric mismatch:</strong> fallback fonts may have different widths, causing misaligned tables or cursor movement in terminal-like layouts.</li>
+<li><strong>Shaping versus encoding:</strong> a missing or incorrect glyph can come from encoding/input issues, not shaping. Verify the code point first.</li>
+<li><strong>Hinting disagreements:</strong> changing hinting can improve small-size Latin text but worsen other scripts or high-DPI rendering.</li>
+<li><strong>Console limitations:</strong> a PSF console font has limited glyph coverage compared with desktop font stacks; missing characters may be expected there.</li>
+<li><strong>App-specific rendering:</strong> two programs can show the same font differently because they use different shaping, hinting, or compositing paths. Compare with a second viewer before changing system-wide settings.</li>
+</ul>
+
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>A user reports blurry text only in one application after changing display scale. Why is font substitution an unlikely first cause?</i></summary><p>Substitution usually changes family, metrics, or glyph coverage, not clarity in a single scaled application. A scale, hinting, rasterization, or application rendering path issue is more plausible. You would first compare DPI/scale and rendering settings before changing fontconfig rules.</p></details>
+<details class="q open"><summary><i>When is refreshing fontconfig caches the right fix, and when is it a distraction?</i></summary><p>It is right when a newly installed or removed font is not being discovered. It is a distraction for tofu caused by missing coverage, wrong shaping, poor hinting, or console font limitations, because those problems are not caused by stale discovery metadata.</p></details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="fontconfig-manual"><a href="bibliography/fontconfig-manual.html">Fontconfig user manual</a></cite>; <cite data-ref="freetype-docs"><a href="bibliography/freetype-docs.html">FreeType documentation</a></cite>; <cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite>; <cite data-ref="linux-fbcon"><a href="bibliography/linux-fbcon.html">Linux fbcon documentation</a></cite>; <cite data-ref="setfont-man"><a href="bibliography/setfont-man.html">setfont(8)</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/index.html">Typography</a> &mdash; return to the typography subject hub.</li>
+<li><a href="desktop/typography/accessibility.html">Readable text and accessibility</a> &mdash; evaluate contrast, spacing, and readable type choices.</li>
+<li><a href="desktop/typography/research-frontiers.html">Research frontiers in typography</a> &mdash; see where standards and implementations are still changing.</li>
+<li><a href="paths/typography-on-tamlinux.html">Typography on Tamlinux</a> &mdash; follow the Tamlinux typography path in order.</li>
+<li><a href="desktop/appearance/fonts.html">Typography, fonts and text rendering</a> &mdash; use the existing Tamlinux font workflow.</li>
+</ul>
+</body></html>

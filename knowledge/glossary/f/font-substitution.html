@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Font substitution</title>
+<meta name="topic" content="glossary-font-substitution">
+<meta name="summary" content="Font substitution: Replacing a requested font with an available one when it is missing.">
+<meta name="keywords" content="glossary-font-substitution, Font substitution, font fallback, font replacement">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/f/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/f/index.html">Terms beginning with F</a> / Font substitution</p></nav>
+
+<p>Font substitution is what happens when a program asks for a font that is not installed and another one is used instead.</p>
+<section data-level="novice"><p>If a document asks for a font you do not have, the text still appears because the system picks a similar font. That swap is substitution. It is why a document can look slightly different on another computer, even though the words are unchanged.</p></section>
+<section data-level="learner"><p><a href="glossary/f/fontconfig.html">Fontconfig</a> compares the requested family, weight and slant against installed faces and returns the best match; per-character fallback can also supply glyphs the chosen face lacks. Substitution is not the same as renaming a font: the document still asks for the original name. On Linux, <code>fc-match</code> shows which face would be chosen for a given request.</p></section>
+<section data-level="expert"><p>Fontconfig applies <code>FcConfigSubstitute</code> with config rules (alias, prefer, accept, reject) and then <code>FcFontSort</code>, which scores candidates by weighted pattern properties. Strong bindings override a requested property; weak bindings only bias it, and language and charset coverage influence per-glyph fallback. Substitution can mix faces with different metrics or baselines, so shaping must rerun per run rather than across a font boundary.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

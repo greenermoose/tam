@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Pango</title>
+<meta name="topic" content="glossary-pango">
+<meta name="summary" content="Pango: The text-layout library that arranges and renders shaped text in GTK applications.">
+<meta name="keywords" content="glossary-pango, Pango, Pango layout, text layout engine">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/p/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/p/index.html">Terms beginning with P</a> / Pango</p></nav>
+
+<p>Pango is a library that measures and lays out text so applications can draw paragraphs correctly.</p>
+<section data-level="novice"><p>When an application wraps a sentence onto several lines, something has to decide where each line ends. Pango does that job for many Linux applications, using the fonts available on the system and the rules of each language.</p></section>
+<section data-level="learner"><p>Pango uses <a href="glossary/f/fontconfig.html">Fontconfig</a> to choose fonts, <a href="glossary/h/harfbuzz.html">HarfBuzz</a> to shape complex scripts, and FreeType or Cairo to rasterize glyphs. It handles line breaking, bidirectional text, attributes such as bold and underline, and mixed-font runs. GTK applications rely on it for labels and text entries.</p></section>
+<section data-level="expert"><p>Pango builds a layout from a context with a font map; items are split by script, direction, language and font, then shaped into runs with cluster mappings. It implements Unicode line breaking and the Bidirectional Algorithm, applies font variants and per-run fallback, and exposes results to Cairo or GTK render nodes. After a font change it invalidates layouts so shaping is redone.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

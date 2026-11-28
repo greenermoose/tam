@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html><head>
+<title>Readable text and accessibility</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-accessibility">
+<meta name="summary" content="Readable type depends on contrast, size, spacing, structure, and testing, not font choice alone.">
+<meta name="keywords" content="typography, accessibility, contrast, wcag, readable text, atkinson hyperlegible, dyslexia, screen reader">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="typography-on-tamlinux:2">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / Readable text and accessibility</p></nav>
+
+<p>Readable text is easier to see, follow, and understand. Good typography helps, but it works only when the text also has enough contrast, sensible spacing, and clear structure.</p>
+
+<section data-level="novice">
+<h2>Making words easy to read</h2>
+<p>When people talk about accessible text, they often start with the <dfn><a href="glossary/f/font-family.html">font family</a></dfn>, the named design used for letters. The font matters, but it is only one part. A beautiful font can still be hard to read if it is too small, too pale, packed into long lines, or squeezed together.</p>
+<h3>Why it matters</h3>
+<p>Readers come with different eyes, screens, lighting, and reading needs. Someone may read on a dim phone outdoors, use large text, read with dyslexia, or listen with a screen reader. Choices that help one of these situations often help everyone.</p>
+<h3>How to think about it</h3>
+<p>Think of text like a sign on a path. The letter shape is the lettering style, but the sign also needs enough contrast against its background, enough size to see from the right distance, and enough space around it so it is not cluttered.</p>
+<h3>New words</h3>
+<dl>
+<dt>Contrast</dt><dd>The difference in brightness between text and its background.</dd>
+<dt><dfn><a href="glossary/l/leading.html">Leading</a></dfn></dt><dd>The vertical space between lines of text.</dd>
+<dt><dfn><a href="glossary/m/measure.html">Measure</a></dfn></dt><dd>The length of a line of text.</dd>
+<dt><dfn><a href="glossary/m/monospace.html">Monospace</a></dfn></dt><dd>A font where most characters take the same horizontal width.</dd>
+<dt><dfn><a href="glossary/p/proportional.html">Proportional</a></dfn></dt><dd>A font where character widths vary, such as narrow i and wide w.</dd>
+</dl>
+<p>A <a href="glossary/m/monospace.html">monospace</a> font helps code because columns, indentation, and similar characters line up. A <a href="glossary/p/proportional.html">proportional</a> font usually helps ordinary reading because its spacing fits the natural shape of words. Neither is always better; the job decides.</p>
+<p>Some typefaces are designed for legibility. <dfn><a href="glossary/a/atkinson-hyperlegible.html">Atkinson Hyperlegible</a></dfn> is a typeface designed to make letters easier to distinguish. Dyslexia-friendly design can also help by avoiding ambiguous letterforms and crowded spacing, but no single font fixes every reading difficulty. Good layout, plain language, and user control still matter.</p>
+<p>A screen reader does not read pixels. It reads structure: headings, paragraphs, labels, links, and language information. A visible font choice can make text easier to see, but it cannot replace semantic structure.</p>
+</section>
+
+<section data-level="learner">
+<h2>Checking readability with evidence</h2>
+<p><strong>Goal:</strong> You will be able to check a text style for basic readability and explain why a font choice alone is not enough.</p>
+
+<tam-sandbox
+  title="Try it: compare text style samples"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Find which sample meets normal-text contrast">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="theme-samples.txt" size="260">sample: article
+text: #222222
+background: #ffffff
+ratio: 15.9:1
+note: strong contrast
+
+sample: muted
+text: #777777
+background: #ffffff
+ratio: 4.47:1
+note: below normal-text AA
+
+sample: banner
+text: #ffffff
+background: #336699
+ratio: 5.15:1
+note: large text can pass AA</file>
+  <file name="checklist.txt" size="180">check contrast before choosing a subtle palette
+keep body lines around 45 to 75 characters
+use enough leading for the font size
+keep semantic headings for screen readers</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat theme-samples.txt" hint="Read the three sample styles first."><out>sample: article</out><out>text: #222222</out><out>background: #ffffff</out><out>ratio: 15.9:1</out><out>note: strong contrast</out><out></out><out>sample: muted</out><out>text: #777777</out><out>background: #ffffff</out><out>ratio: 4.47:1</out><out>note: below normal-text AA</out><out></out><out>sample: banner</out><out>text: #ffffff</out><out>background: #336699</out><out>ratio: 5.15:1</out><out>note: large text can pass AA</out></tam-cmd>
+  <tam-cmd match="grep 'normal-text' theme-samples.txt" goal="true" hint="Look for the sample that fails the normal-text rule."><out>note: below normal-text AA</out></tam-cmd>
+  <tam-cmd match="cat checklist.txt" hint="The checklist covers spacing and structure, not only contrast."><out>check contrast before choosing a subtle palette</out><out>keep body lines around 45 to 75 characters</out><out>use enough leading for the font size</out><out>keep semantic headings for screen readers</out></tam-cmd>
+  <tam-init>Try: cat theme-samples.txt, then grep 'normal-text' theme-samples.txt</tam-init>
+  <tam-hint after="1">Contrast is a ratio between text and background, not a feeling that gray looks soft.</tam-hint>
+  <tam-hint after="2">The muted sample is close, but close is still below the normal-text AA threshold.</tam-hint>
+  <tam-fallback>Try cat theme-samples.txt, grep 'normal-text' theme-samples.txt, or cat checklist.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li>The sample file showed three color pairs with precomputed contrast ratios. The values are teaching samples, not a measurement from your screen.</li>
+<li>The muted gray text had a 4.47:1 ratio. For normal-sized text, <cite data-ref="wcag"><a href="bibliography/wcag.html">WCAG 2.2</a></cite> asks for at least 4.5:1 at Level AA and 7:1 at Level AAA.</li>
+<li>The banner sample passed 3:1 for large text, but that does not make it good for small body text.</li>
+</ol>
+
+<h3>A small contrast-ratio worked sample</h3>
+<p>Contrast is calculated from relative luminance. You do not need to memorize the formula to use it, but seeing one example makes the rule less mysterious. Suppose body text is near-black <code>#222222</code> on white <code>#ffffff</code>. White has relative luminance 1.0. The dark gray has relative luminance about 0.015. The contrast ratio is:</p>
+<pre data-risk="read-only">(L1 + 0.05) / (L2 + 0.05)
+(1.0 + 0.05) / (0.015 + 0.05)
+1.05 / 0.065 = 16.15:1</pre>
+<p>That is far above the 4.5:1 AA threshold for normal text. Now compare <code>#777777</code> on white. Its relative luminance is about 0.184, so the ratio is about 4.47:1. It looks readable to some people, but it misses normal-text AA. This is why "looks fine to me" is not enough.</p>
+
+<h3>Size, measure, and spacing</h3>
+<p>Text size should respond to the reader. Browser zoom, system text scaling, and large-text modes are accessibility features, not design failures. <dfn><a href="glossary/m/measure.html">Measure</a></dfn> matters too: very long lines make it harder to find the next line. A common range for body text is around 45 to 75 characters, but the right value depends on font, language, and layout. <dfn><a href="glossary/l/leading.html">Leading</a></dfn> should give lines room to breathe; tight lines make reading tiring, especially at small sizes.</p>
+
+<h3>Fonts, dyslexia, and screen readers</h3>
+<p>For code, a <a href="glossary/m/monospace.html">monospace</a> font makes columns and symbols predictable. For prose, a <a href="glossary/p/proportional.html">proportional</a> font usually reads more naturally. Distinct letterforms can help readers tell <code>I</code>, <code>l</code>, and <code>1</code> apart. <cite data-ref="atkinson-hyperlegible"><a href="bibliography/atkinson-hyperlegible.html">Atkinson Hyperlegible</a></cite> is one example designed around character recognition.</p>
+<p>Dyslexia-friendly design is broader than picking one "dyslexia font". Evidence varies across readers. Useful choices include clear letter shapes, generous spacing, avoiding justified text rivers, and letting users pick fonts and sizes. Most important, visible font styling does not help a screen reader unless the document has semantic structure: real headings, lists, labels, language, and reading order.</p>
+
+<h3>Try it</h3>
+<p>Pick one page or app theme you use. Check body text contrast, zoom to 200%, and see whether lines still wrap without losing content. Then try a screen reader or heading outline: can you understand the page from structure alone?</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The contrast ratio passes, but text still feels hard to read.</dt><dd>Check font size, weight, line length, leading, and background noise. Contrast is necessary, not sufficient.</dd>
+<dt>A dyslexia-friendly font did not help a reader.</dt><dd>Do not force one font. Offer choices, increase spacing, improve layout, and keep the content plain.</dd>
+<dt>Large text breaks the layout.</dt><dd>The layout is too rigid. Responsive spacing and reflow are part of accessibility.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux configures generic font families in <code>/usr/share/fontconfig/conf.avail/50-tamlinux.conf</code>, including sans-serif, serif, and monospace defaults. You can inspect or change desktop font choices through the appearance workflow described in <a href="desktop/appearance/fonts.html">Typography, fonts and text rendering</a>. Those choices affect visible rendering; they do not replace semantic document structure or WCAG testing.</p>
+</aside>
+
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>A theme uses 4.47:1 contrast for body text. Is that enough for WCAG AA?</i></summary><p>No. Normal text needs at least 4.5:1 for WCAG 2.2 Level AA. Large text can pass at 3:1, but small body text cannot.</p></details>
+<details class="q"><summary><i>Why can a screen reader user still struggle with a page that uses a beautiful accessible font?</i></summary><p>Because screen readers rely on semantic structure such as headings, labels, lists, and reading order. A visible font choice changes appearance, not the underlying structure.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Evaluating typography as an accessibility system</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Check</th><th>What to measure</th><th>Common target or practice</th></tr>
+<tr><td>Normal text contrast</td><td>Luminance contrast ratio</td><td>4.5:1 AA, 7:1 AAA per <cite data-ref="wcag"><a href="bibliography/wcag.html">WCAG 2.2</a></cite></td></tr>
+<tr><td>Large text contrast</td><td>Luminance contrast ratio</td><td>3:1 AA, 4.5:1 AAA</td></tr>
+<tr><td>Measure</td><td>Characters or words per line</td><td>Often 45-75 characters for body text; adjust for script and display</td></tr>
+<tr><td>Leading</td><td>Line box spacing</td><td>Enough separation to prevent collisions and line-tracking errors</td></tr>
+<tr><td>Reflow</td><td>Behavior at zoom and narrow widths</td><td>No loss of content or function at 200% text resize/reflow scenarios</td></tr>
+<tr><td>Semantics</td><td>DOM or document structure</td><td>Headings, labels, language, reading order, alternative text</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>Contrast evaluation uses relative luminance, not perceived aesthetic distance. Two colors can look "different" and still fail. WCAG thresholds are minimums; they do not guarantee comfort for every reader, font weight, or display. Thin light text on a dark background can meet a ratio and still feel weak because of halation, subpixel rendering, or font design.</p>
+<p>Font selection affects recognition, not comprehension by itself. Letter differentiation, <dfn><a href="glossary/x/x-height.html">x-height</a></dfn>, apertures, and spacing influence how quickly readers distinguish glyphs. For Latin text, <dfn><a href="glossary/s/serif.html">serif</a></dfn> and <dfn><a href="glossary/s/sans-serif.html">sans-serif</a></dfn> families can both be readable; the outcome depends more on design quality, size, spacing, and rendering than on the category label. In code, a <a href="glossary/m/monospace.html">monospace</a> design supports alignment and symbol disambiguation; in long-form reading, <a href="glossary/p/proportional.html">proportional</a> spacing usually produces a more even rhythm.</p>
+<p>Atkinson Hyperlegible, described by <cite data-ref="atkinson-hyperlegible"><a href="bibliography/atkinson-hyperlegible.html">Braille Institute</a></cite>, is a concrete example of a design aimed at character recognition. It is useful evidence that type design can target legibility. It is not evidence that one family is universally best. For dyslexia, avoid overclaiming: controlled studies show mixed results, and user preference and layout controls are often more reliable than prescribing a single font.</p>
+
+<h3>Advanced usage</h3>
+<p>When evaluating a theme, test the full text stack:</p>
+<pre data-risk="read-only"># Inspect the resolved font for a generic family
+fc-match -f '%{family} %{style} %{file}\n' sans-serif
+
+# Check a document's heading outline and landmarks with an accessibility audit tool
+# Use browser or document tooling appropriate to the format; verify structure, not only pixels.</pre>
+<p>Use real content, not lorem ipsum alone. Test body text, headings, UI labels, code blocks, error states, focus indicators, and disabled-looking but active controls. Include zoom, dark mode, high-DPI displays, and non-Latin samples where relevant.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><strong>Contrast passes, readability fails:</strong> thin weights, low x-height, tight tracking, or long measure can still cause fatigue.</li>
+<li><strong>Accessible font, inaccessible document:</strong> a screen reader cannot infer structure from visual styling. PDF tags, HTML headings, and form labels matter.</li>
+<li><strong>Large text breaks layout:</strong> clipped containers, overlapping lines, or hidden buttons become functional barriers.</li>
+<li><strong>Color-only meaning:</strong> red/green status text fails users with color vision differences even when contrast is adequate.</li>
+</ul>
+
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>A team wants to "fix accessibility" by switching everything to Atkinson Hyperlegible. What evidence would you ask for before accepting that claim?</i></summary><p>A good answer separates font recognition from whole-document accessibility. Ask for contrast measurements, zoom/reflow results, semantic structure checks, screen-reader testing, and user feedback across tasks. A font change may help some readers, but it cannot by itself satisfy WCAG criteria for contrast, structure, resize, focus, or non-text content.</p></details>
+<details class="q open"><summary><i>Why can a 5:1 contrast pair still be a poor choice for dense body text?</i></summary><p>Contrast ratio is only one variable. Small size, light weight, low x-height, tight leading, long measure, or poor rendering can reduce readability. WCAG gives minimum contrast thresholds, but good typography also needs appropriate spacing, size, and layout.</p></details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="wcag"><a href="bibliography/wcag.html">W3C WCAG 2.2</a></cite>; <cite data-ref="atkinson-hyperlegible"><a href="bibliography/atkinson-hyperlegible.html">Braille Institute, Atkinson Hyperlegible</a></cite>; <cite data-ref="bringhurst-elements"><a href="bibliography/bringhurst-elements.html">Robert Bringhurst, The Elements of Typographic Style</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/index.html">Typography</a> &mdash; return to the typography subject hub.</li>
+<li><a href="desktop/typography/troubleshooting.html">When text looks wrong</a> &mdash; diagnose missing glyphs, substitution, shaping, and rendering problems.</li>
+<li><a href="paths/typography-on-tamlinux.html">Typography on Tamlinux</a> &mdash; follow the Tamlinux typography path in order.</li>
+<li><a href="desktop/appearance/fonts.html">Typography, fonts and text rendering</a> &mdash; see the existing Tamlinux font workflow and appearance settings.</li>
+</ul>
+</body></html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html><head>
+<title>From characters to shaped glyphs</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-text-shaping">
+<meta name="summary" content="Follow Unicode code points through clusters, bidi order, cmap lookup, GSUB and GPOS to positioned glyph runs, with HarfBuzz and Pango.">
+<meta name="keywords" content="text shaping, grapheme cluster, bidi, cmap, GSUB, GPOS, ligature, kerning, HarfBuzz, Pango, complex scripts">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="font-internals:3">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / From characters to shaped glyphs</p></nav>
+
+<p>Typing a few letters does not directly choose the shapes you see. A program first works out which <dfn><a href="glossary/g/glyph.html">glyphs</a></dfn> belong together and where each one should sit.</p>
+
+<section data-level="novice">
+<h2>Letters are not always separate</h2>
+<p>When you write some words, two letters may join into one shape. In other scripts, a letter changes form depending on what comes before it, or a mark moves above and below a base letter. That work is called <dfn><a href="glossary/t/text-shaping.html">text shaping</a></dfn>.</p>
+<p>Shaping uses a <dfn><a href="glossary/u/unicode.html">Unicode</a></dfn> string and a font to produce a list of ready-to-draw shapes with positions. The list then goes to the part of the system that paints pixels.</p>
+<h3>Why it matters</h3>
+<p>A typed character is an idea, not a drawing. The same idea can be drawn several ways. Shaping picks the right way for the font and the <a href="glossary/w/writing-script.html">writing script</a> before drawing begins.</p>
+<h3>How to think about it</h3>
+<p>Think of a row of people entering a room. Some pairs hold hands and walk as one, some change clothes when they meet, and others stand above or below a friend. The final arrangement is what you see; the original list of names is still the same.</p>
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/c/code-point.html">Code point</a></dfn></dt><dd>A number that stands for one character in Unicode.</dd>
+<dt><dfn><a href="glossary/g/grapheme.html">Grapheme</a></dfn></dt><dd>The smallest unit a reader thinks of as one character.</dd>
+<dt><dfn><a href="glossary/l/ligature.html">Ligature</a></dfn></dt><dd>One shape used for a pair or group of letters, such as fi.</dd>
+<dt>Glyph run</dt><dd>A stretch of text using one font and one direction, ready to be positioned.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Following one string through shaping</h2>
+<p><strong>Goal:</strong> you will be able to describe the steps between typed characters and a run of positioned glyphs, and name the tool that does the shaping.</p>
+<tam-sandbox
+  title="Try it: trace the shaping steps"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show the line where ligatures are substituted">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="pipeline.txt" size="260">shaping stages (teaching sample)
+1 Unicode code points
+2 grapheme clusters
+3 bidirectional ordering
+4 cmap lookup to glyph IDs
+5 GSUB substitutions
+6 GPOS positioning
+7 glyph runs</file>
+  <file name="transcript.txt" size="230">hb-shape-style transcript (teaching sample)
+input: f i
+cmap:  gid 82, gid 83
+GSUB liga: gid 402
+GPOS:  gid 402 at x=0 advance=1024
+fallback: none needed</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat pipeline.txt" hint="The steps run in the order shown."><out>shaping stages (teaching sample)</out><out>1 Unicode code points</out><out>2 grapheme clusters</out><out>3 bidirectional ordering</out><out>4 cmap lookup to glyph IDs</out><out>5 GSUB substitutions</out><out>6 GPOS positioning</out><out>7 glyph runs</out></tam-cmd>
+  <tam-cmd match="grep GSUB pipeline.txt" goal="true" hint="Find the stage that substitutes glyphs."><out>5 GSUB substitutions</out></tam-cmd>
+  <tam-cmd match="cat transcript.txt" hint="The sample shows the result for the word fragment fi."><out>hb-shape-style transcript (teaching sample)</out><out>input: f i</out><out>cmap:  gid 82, gid 83</out><out>GSUB liga: gid 402</out><out>GPOS:  gid 402 at x=0 advance=1024</out><out>fallback: none needed</out></tam-cmd>
+  <tam-init>Try: cat pipeline.txt, then grep GSUB pipeline.txt</tam-init>
+  <tam-hint after="1">The lookup of characters to glyph IDs comes before substitution.</tam-hint>
+  <tam-hint after="2">Ligatures are substitutions, so they belong to GSUB.</tam-hint>
+  <tam-fallback>Try cat pipeline.txt, grep GSUB pipeline.txt, or cat transcript.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>cat pipeline.txt</code> listed the seven stages in order: characters first, positioned <a href="glossary/g/glyph.html">glyphs</a> last.</li>
+<li>A <dfn><a href="glossary/g/grapheme-cluster.html">grapheme cluster</a></dfn> groups characters that belong together, such as a letter and its accent.</li>
+<li>The transcript is a teaching sample, not output from a program on your machine. It shows a ligature replacing two glyph IDs with one.</li>
+</ol>
+<p><dfn><a href="glossary/h/harfbuzz.html">HarfBuzz</a></dfn> performs the shaping. <dfn><a href="glossary/p/pango.html">Pango</a></dfn> decides which stretches of text use which font and direction, asks HarfBuzz to shape each stretch, and lays out the result for a toolkit.</p>
+<h3>Try it</h3>
+<p>Run <code>grep liga transcript.txt</code>. Then predict what the transcript would show if the font had no ligature for fi.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You expected the typed order and the drawn order to match.</dt><dd>Bidirectional scripts reorder runs after determining direction; the drawn order can differ from the stored order.</dd>
+<dt>A ligature did not appear.</dt><dd>The font must contain the feature and the shaping engine must have the right script and language. A missing feature leaves the original glyphs in place.</dd>
+</dl>
+<aside class="tamlinux">
+<p>The Tamlinux font configuration file <code>50-tamlinux.conf</code> prepends Noto Naskh Arabic for Arabic <code>lang</code> patterns and appends Noto Nastaliq Urdu for Urdu patterns. Font selection sets the starting font; the joining and mark placement still come from shaping inside that font.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Which step turns f plus i into a single glyph?</i></summary><p>GSUB, the substitution stage. The cmap lookup first maps each character to its own glyph ID; GSUB then applies the ligature substitution to replace that pair with one glyph.</p></details>
+<details class="q"><summary><i>Why can two programs draw different shapes for the same Unicode string?</i></summary><p>They may choose different fonts, pass different script or language tags, support different OpenType features, or fall back to different fonts for part of the string. The input characters do not fix the output shapes by themselves.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>The shaping pipeline in detail</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Stage</th><th>Input to output</th><th>Owner</th></tr>
+<tr><td><a href="glossary/u/unicode.html">Unicode</a> decoding</td><td>Bytes to code points</td><td>Toolkit and text encoding</td></tr>
+<tr><td><a href="glossary/u/unicode-normalization.html">Normalization</a></td><td>Equivalent spellings to one canonical form</td><td>Application or text library</td></tr>
+<tr><td>Cluster segmentation</td><td>Code points to grapheme clusters</td><td>Unicode properties</td></tr>
+<tr><td>Bidirectional ordering</td><td>Logical order to visual order</td><td>Bidi algorithm</td></tr>
+<tr><td>Itemization</td><td>Text to runs with font, direction and script</td><td>Pango</td></tr>
+<tr><td>Character lookup</td><td>Code points to glyph IDs through cmap</td><td>HarfBuzz with the font</td></tr>
+<tr><td>Substitution</td><td>Glyph IDs to substituted glyph IDs through GSUB</td><td>HarfBuzz</td></tr>
+<tr><td>Positioning</td><td>Glyph IDs to offsets and advances through GPOS</td><td>HarfBuzz</td></tr>
+<tr><td>Rendering</td><td>Positioned glyphs to pixels</td><td>Rasterizer and toolkit</td></tr>
+</table>
+<table>
+<tr><th>Script behaviour</th><th>What shaping must decide</th></tr>
+<tr><td>Arabic joining</td><td>Isolated, initial, medial or final form, chosen from neighbours</td></tr>
+<tr><td>Indic reordering</td><td>Which consonant and vowel signs attach, and in what visual order</td></tr>
+<tr><td>Thai marks</td><td>Whether a vowel or tone mark sits above or below its base</td></tr>
+<tr><td>Latin ligatures</td><td>Whether a pair such as fi becomes one glyph</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Unicode identifies characters as numbers. <a href="glossary/u/unicode-normalization.html">Unicode normalization</a> matters because a letter with an accent can be one precomposed code point or a base plus a combining mark; the two forms must normalize before comparisons and feature matching behave consistently. Cluster segmentation then groups the code points a reader treats as one unit. The bidi algorithm uses directional properties to turn stored logical order into visual order, with neutral characters resolved from their neighbours.</p>
+<p>The font's <code>cmap</code> maps each code point to a glyph ID. An unmapped code point yields the missing-glyph glyph, which is why shaping can succeed while the screen shows boxes. Coverage is checked per run: when one font lacks a code point, Pango can split the run and ask another font for that stretch.</p>
+<p>GSUB lookups are organised by script, language system and feature. A <dfn><a href="glossary/l/ligature.html">ligature</a></dfn> substitution replaces a sequence with one glyph; a <dfn><a href="glossary/c/contextual-alternate.html">contextual alternate</a></dfn> changes a glyph because of its neighbours; mark forms choose the appropriate shape for an attached mark. GPOS then applies pair adjustment, which is the general form of <dfn><a href="glossary/k/kerning.html">kerning</a></dfn>, plus mark-to-base, mark-to-ligature and cursive attachment. The old <a href="glossary/k/kern-table.html">kern table</a> only adjusts pairs and lacks the script-aware structure of GPOS. Feature files that define these lookups are described in the Adobe type notes. <cite data-ref="unicode-standard"><a href="bibliography/unicode-standard.html">Unicode Standard</a></cite> <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType specification 1.9.1</a></cite> <cite data-ref="adobe-type-notes"><a href="bibliography/adobe-type-notes.html">Adobe type notes and AFDKO feature-file spec</a></cite></p>
+<p>GDEF makes the mark rules usable: it labels base, ligature, mark and component glyphs, groups marks by attachment class and can record caret positions inside ligatures. Without those classes, a mark has no reliable point to attach to. The same table also helps a shaping engine skip mark glyphs when deciding whether characters join.</p>
+<p>Arabic joining needs contextual substitution to pick isolated, initial, medial or final forms, followed by mark positioning. Indic scripts can reorder consonant and vowel signs before drawing, with GDEF classes helping GPOS attach marks to the right base. Thai places vowel and tone marks above or below a base by using mark attachment classes. These are font-and-engine features, not special cases in the rasterizer.</p>
+<p>Shaping is not rendering. HarfBuzz returns glyph IDs, advances and offsets in font units; Pango arranges those runs into lines; the toolkit asks the rasterizer to turn each outlined glyph into pixels. Colour emoji and bitmap glyphs may skip the outline path, but they still need the run and substitution decisions. <cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite> <cite data-ref="pango-docs"><a href="bibliography/pango-docs.html">Pango reference and rendering pipeline</a></cite></p>
+<pre data-risk="read-only"><code>hb-shape --font-file=LiberationSans-Regular.ttf --text="office"
+hb-shape --font-file=LiberationSans-Regular.ttf --text="office" --features=-liga
+hb-shape --list-features LiberationSans-Regular.ttf</code></pre>
+<p>Comparing the first two commands shows which glyph IDs change when a feature is disabled. The third lists the features the font advertises. All three only read the font file.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>A zero-width joiner can request a joining form; if the font has no such substitution, the joiner may render as a missing glyph.</li>
+<li>Fallback splits a run, so kerning and ligatures cannot span the boundary between two fonts.</li>
+<li>Vertical writing uses different metrics tables, but the substitution and positioning stages still produce glyph IDs and offsets.</li>
+<li>Bidi isolation controls are needed when numbers or neutral punctuation sit inside a right-to-left run.</li>
+<li>Caching shaped runs by text alone is wrong: font, script, language, direction and feature settings are all inputs.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>Why might a missing ligature be a font problem rather than a rasterizer problem?</i></summary><p>Ligatures are GSUB substitutions applied before rasterization. If the font has no substitution for that sequence, the rasterizer receives two ordinary glyph IDs and draws them. Changing antialiasing or hinting cannot create the missing shape.</p></details>
+<details class="q open"><summary><i>What is lost if a program skips bidi ordering but still uses the correct font?</i></summary><p>Mixed-direction text appears in the wrong visual order. The glyphs are correct, but neutral characters and runs are placed on the wrong side, so a reader sees numbers or punctuation where they do not belong.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="harfbuzz-manual"><a href="bibliography/harfbuzz-manual.html">HarfBuzz manual</a></cite>; <cite data-ref="pango-docs"><a href="bibliography/pango-docs.html">Pango reference and rendering pipeline</a></cite>; <cite data-ref="unicode-standard"><a href="bibliography/unicode-standard.html">Unicode Standard</a></cite>; <cite data-ref="opentype-spec"><a href="bibliography/opentype-spec.html">OpenType specification 1.9.1</a></cite>; <cite data-ref="adobe-type-notes"><a href="bibliography/adobe-type-notes.html">Adobe type notes and AFDKO feature-file spec</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/rasterization.html">From outlines to pixels</a> &mdash; continue with what happens after shaping.</li>
+<li><a href="desktop/typography/linux-text-stack.html">The Linux text stack</a> &mdash; place shaping inside the whole desktop path.</li>
+<li><a href="paths/font-internals.html">Inside font internals</a> &mdash; keep following the reading order.</li>
+</ul>
+</body></html>

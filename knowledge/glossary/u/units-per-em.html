@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Units per em</title>
+<meta name="topic" content="glossary-units-per-em">
+<meta name="summary" content="Units per em: The number of design units a font divides its em square into.">
+<meta name="keywords" content="glossary-units-per-em, Units per em, upem, UPM, design units">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/u/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/u/index.html">Terms beginning with U</a> / Units per em</p></nav>
+
+<p>Units per em is the number of equal design units used to measure a font's outlines and metrics.</p>
+<section data-level="novice"><p>A font designer works on an invisible grid inside the design square. Every letter coordinate and spacing value is a count on that grid. The grid size is the units-per-em value.</p></section>
+<section data-level="learner"><p>OpenType fonts commonly use 1000 units per em and TrueType often uses 2048; both are only scales. A stem of 80 units means 8% of the em in a 1000-unit font. Rasterizers convert these integers to pixels using the requested size and apply hinting at small sizes.</p></section>
+<section data-level="expert"><p><code>head.unitsPerEm</code> records the value; TrueType requires a power of two, while CFF fonts typically use 1000. <code>hmtx</code> advances, <code>hhea</code> metrics and glyph coordinates all share the same scale, so changing the value without rescaling every number would distort the font. Variable-font deltas in <code>gvar</code> are also expressed in these units.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html><head>
+<title>From marks to meaning</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="typography.novice,typography.learner,typography.expert">
+<meta name="topic" content="typography-marks-to-meaning">
+<meta name="summary" content="How marks became writing: clay tokens and picture signs led to systems that record language, not just counts or reminders.">
+<meta name="keywords" content="proto-writing, tokens, pictogram, ideogram, logogram, rebus, determinative, cuneiform, hieroglyph, writing origin">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/typography/index.html">
+<meta name="prereqs" content="hub-desktop-typography">
+<meta name="paths" content="typography-foundations:1">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/typography/index.html">Typography</a> / From marks to meaning</p></nav>
+
+<p>People made marks long before they wrote sentences. This page follows the step from a count kept in clay to signs that stand for the words of a language.</p>
+
+<section data-level="novice">
+<h2>Marks that carry a message</h2>
+<h3>What this is</h3>
+<p>A <dfn><a href="glossary/w/writing-system.html">writing system</a></dfn> is a way of recording language with visible marks. You scratch, draw or press the marks onto a surface. Someone who knows the system can read them back as words. A small picture of a jar can stand for the word "jar".</p>
+<p>Not every mark is writing. A notch cut in a bone may only help a person remember that three sheep were counted. That is a memory aid. It does not record the words "three sheep".</p>
+<h3>Why it matters</h3>
+<p>Writing lets a message outlive the moment it was made. A count on a clay token can be checked later, and a written agreement can be read by someone who was not there when it was made. That changed how people kept records, traded goods and passed on stories.</p>
+<p>The earliest steps are often called proto-writing: marks that carry information but do not yet set down a full language. It is a useful label, not a sharp boundary.</p>
+<h3>How to think about it</h3>
+<p>Think of two kinds of mark. The first kind points at something without using words, like a tally that says "five". The second kind stands for a word or a sound, so it can be read as language. Writing begins when the second kind takes over.</p>
+<p>Imagine a picture of a bee next to a picture of a leaf. If you read it as "bee" and "leaf", it is two pictures. If you use the sounds to read "belief", you have made a rebus. That sound step is what turns pictures into a <dfn><a href="glossary/w/writing-script.html">writing script</a></dfn> that can spell things it never drew.</p>
+<h3>New words</h3>
+<dl>
+<dt>Writing system</dt><dd>A set of agreed marks and rules for recording a language.</dd>
+<dt>Proto-writing</dt><dd>Marks that carry a message but do not yet write down full language.</dd>
+<dt><a href="glossary/p/pictogram.html">Pictogram</a></dt><dd>A picture that stands for the thing it looks like.</dd>
+<dt><a href="glossary/i/ideogram.html">Ideogram</a></dt><dd>A mark that stands for an idea, not only for one picture.</dd>
+<dt>Logogram</dt><dd>A single sign that stands for one whole word.</dd>
+<dt>Rebus</dt><dd>Using a sign for its sound so it can spell a different word.</dd>
+<dt><a href="glossary/d/determinative.html">Determinative</a></dt><dd>A silent sign that tells the reader what kind of word is nearby.</dd>
+<dt><a href="glossary/g/glyph.html">Glyph</a></dt><dd>One visible mark in a script.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Sorting the stages</h2>
+<p><strong>Goal:</strong> you will be able to tell a memory aid from a sign that records language when you meet both in a list.</p>
+<tam-sandbox
+  title="Try it: separate counts from writing"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="plain"
+  goal="Show only the stages that are true writing">
+  <tam-fs>
+<dir name="/home/alex">
+  <file name="stages.txt" size="360">clay token : proto_writing
+token impression : proto_writing
+tally notches : proto_writing
+pictogram : true_writing
+ideogram : true_writing
+logogram : true_writing
+rebus : true_writing
+determinative : true_writing
+cuneiform : true_writing
+hieroglyph : true_writing</file>
+</dir>
+  </tam-fs>
+  <tam-cmd match="cat stages.txt" hint="Each line names a kind of mark, then a category."><out>clay token : proto_writing</out><out>token impression : proto_writing</out><out>tally notches : proto_writing</out><out>pictogram : true_writing</out><out>ideogram : true_writing</out><out>logogram : true_writing</out><out>rebus : true_writing</out><out>determinative : true_writing</out><out>cuneiform : true_writing</out><out>hieroglyph : true_writing</out></tam-cmd>
+  <tam-cmd match="grep writing stages.txt" hint="Careful: the word writing is also inside proto_writing."><out>clay token : proto_writing</out><out>token impression : proto_writing</out><out>tally notches : proto_writing</out><out>pictogram : true_writing</out><out>ideogram : true_writing</out><out>logogram : true_writing</out><out>rebus : true_writing</out><out>determinative : true_writing</out><out>cuneiform : true_writing</out><out>hieroglyph : true_writing</out></tam-cmd>
+  <tam-cmd match="grep true_writing stages.txt" goal="true" hint="Search for the whole category name, not the loose word."><out>pictogram : true_writing</out><out>ideogram : true_writing</out><out>logogram : true_writing</out><out>rebus : true_writing</out><out>determinative : true_writing</out><out>cuneiform : true_writing</out><out>hieroglyph : true_writing</out></tam-cmd>
+  <tam-init>Try: cat stages.txt, then grep writing stages.txt, then grep true_writing stages.txt</tam-init>
+  <tam-hint after="1">The category is the text after the colon.</tam-hint>
+  <tam-hint after="2">A broad search catches proto_writing too. Match the full category name.</tam-hint>
+  <tam-fallback>Try grep true_writing stages.txt (or type help).</tam-fallback>
+</tam-sandbox>
+
+<h3>What the filter showed</h3>
+<p>The first three rows are counts. A clay token pressed into clay, or a notch on a bone, can say "this many" without saying any word. The remaining rows use a mark to stand for a word, an idea or a sound. That is the difference the filter is teaching.</p>
+<p>The files and output in this sandbox are teaching samples. No real tablet or document is read, and nothing on your machine is changed.</p>
+<h3>Try it</h3>
+<p>Run <code>grep pictogram stages.txt</code>, then <code>grep cuneiform stages.txt</code>. Both land in the true-writing group even though one is a single picture and the other is a whole script. Say why before you read on.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>grep writing</code> printed the count rows too.</dt><dd>The loose word also occurs in proto_writing. Match the exact category name instead.</dd>
+<dt>You expected a pictogram to be a full writing system.</dt><dd>One picture sign is a step toward writing. A full system needs shared rules that let readers form new messages.</dd>
+</dl>
+<aside class="tamlinux">
+<p>This guide explains the history in general terms. On a running desktop, the marks you read are drawn from fonts: Tamlinux's fontconfig configuration strongly assigns generic sans-serif to Liberation Sans, serif to Liberation Serif and monospace to JetBrainsMono Nerd Font. It also prepends Noto Naskh Arabic for Arabic language patterns. The marks on the page and the font that draws them are separate layers.</p>
+</aside>
+<section class="quiz"><h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q"><summary><i>Why is a tally of five sheep not yet writing?</i></summary><p>Because it carries a count but not the words "five sheep". It can remind someone of a fact; it cannot be read back as a sentence in a language. Writing records language, not only information.</p></details>
+<details class="q"><summary><i>What does the rebus principle add to a pictogram?</i></summary><p>It lets a sign stand for a sound rather than only for the thing it pictures. Once signs can spell sounds, a script can write words that were never drawn as pictures.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Boundaries and evidence</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Stage</th><th>What the mark does</th><th>Example</th><th>Records language?</th></tr>
+<tr><td>Token</td><td>Encodes a count or a commodity</td><td>Clay cone for a measure of grain</td><td>No</td></tr>
+<tr><td>Impression</td><td>Preserves the token's shape in clay</td><td>Token pressed into an envelope</td><td>No</td></tr>
+<tr><td><a href="glossary/p/pictogram.html">Pictogram</a></td><td>Picture stands for its subject</td><td>Drawn jar meaning "jar"</td><td>Partly</td></tr>
+<tr><td><a href="glossary/i/ideogram.html">Ideogram</a></td><td>Mark stands for an idea</td><td>Sign for "king" or "city"</td><td>Yes</td></tr>
+<tr><td>Logogram</td><td>One sign stands for one word</td><td>A sign read as a single spoken word</td><td>Yes</td></tr>
+<tr><td>Rebus</td><td>Sign stands for a sound</td><td>Bee plus leaf read as "belief"</td><td>Yes</td></tr>
+<tr><td><a href="glossary/d/determinative.html">Determinative</a></td><td>Silent classifier beside a word</td><td>Sign marking "name of a god"</td><td>Yes, as part of a system</td></tr>
+</table>
+<table>
+<tr><th>Script</th><th>Region</th><th>Medium</th><th>Note</th></tr>
+<tr><td><a href="glossary/c/cuneiform.html">Cuneiform</a></td><td>Mesopotamia</td><td>Pressed wedge marks on clay</td><td>Began with accounting tokens and impressions</td></tr>
+<tr><td><a href="glossary/h/hieroglyph.html">Hieroglyph</a></td><td>Egypt</td><td>Incised and painted signs</td><td>Picture signs plus sound signs plus determinatives</td></tr>
+</table>
+<h3>How it works</h3>
+<p>The token sequence is the part best supported by material evidence. Clay tokens were used to count goods; pressing a token into a clay envelope left an impression, and flattening the envelope into a tablet kept the record. Schmandt-Besserat's account traces that chain from counters to marks on tablets <cite data-ref="schmandt-besserat-writing"><a href="bibliography/schmandt-besserat-writing.html">The Evolution of Writing</a></cite>. Fischer places these developments in a wider history of scripts and stresses that several regions reached writing separately <cite data-ref="fischer-history-writing"><a href="bibliography/fischer-history-writing.html">A History of Writing</a></cite>.</p>
+<p>A <a href="glossary/g/glyph.html">glyph</a> can serve more than one role. The same shape may be read as a pictogram in one place and as a logogram in another. Determinatives are not pronounced: they guide the reader about the class of a neighbouring word, which is why a sign with no sound can still belong to a writing system.</p>
+<p>Reading a sign therefore takes two decisions. First you decide what the mark represents: a thing, an idea, a word or a sound. Then you decide how it works with its neighbours: a determinative modifies a word without adding a sound, while a rebus sign contributes a sound to a different word. A transcription that records only the shape of the mark loses both decisions.</p>
+<p>Egyptian <a href="glossary/h/hieroglyph.html">hieroglyphs</a> make this especially clear. One inscription can combine a word sign, a sound sign and a silent classifier in the same phrase, so calling the whole script picture writing would miss most of how it works. Fischer's survey sets out how such mixed systems arose in more than one region <cite data-ref="fischer-history-writing"><a href="bibliography/fischer-history-writing.html">A History of Writing</a></cite>.</p>
+<p>Early tablets were not books. They were working records made for an accountant or a merchant, and many were discarded once a transaction was settled. Their survival is partly accidental, but it gives historians a direct view of how the first scripts were used.</p>
+<h3>Advanced usage</h3>
+<p>When you inspect a digitised transcription, separate the category of a mark from its shape. These read-only commands work on a local copy of a sample listing and never touch a system font or document:</p>
+<pre data-risk="read-only">grep -c true_writing stages.txt
+sort stages.txt | uniq -c
+cut -d: -f2 stages.txt | sort | uniq -c</pre>
+<p>The first line counts rows in one category. The second counts duplicate rows. The third groups by the category field after the colon, which is how you check that a transcription uses consistent labels.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Proto-writing is a label of convenience. A mark system can carry a message without quoting any spoken words, and scholars may disagree about where to draw the line.</li>
+<li>A rebus reading needs a shared language. The same bee and leaf picture only spells "belief" for readers who speak a language where those sounds join that way.</li>
+<li>Determinatives look like ordinary signs to a newcomer. Reading them as words changes the meaning; reading them as silent guides is the correct interpretation.</li>
+<li>Early scripts were mainly administrative. Literature, letters and law came later, so the oldest tablets can look dull while being historically decisive.</li>
+<li>Impressions can be mistaken for pictograms. An impression is the shape of an object pressed into clay; a pictogram is a drawn likeness made to be read.</li>
+<li>A sign used as a determinative in one inscription may be read as a word in another. Context, not shape alone, decides its role.</li>
+<li>Not every early script descends from the clay-token chain. Several regions developed writing independently.</li>
+<li>Clay survives better than papyrus, so the oldest evidence is biased toward records pressed into durable material.</li>
+<li>Modern fonts draw these ancient signs from encoded characters, a layer far removed from the original marks.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary><i>If a tablet shows only repeated counts, why might a historian still call it important?</i></summary><p>Because it shows a durable, shared record system even before full language is written. The Met's overview of writing's origins treats accounting and administration as a setting in which writing developed, not as a separate curiosity <cite data-ref="met-origins-writing"><a href="bibliography/met-origins-writing.html">The Origins of Writing</a></cite>.</p></details>
+<details class="q open"><summary><i>What breaks if you describe every ancient picture as a "logogram"?</i></summary><p>You erase the sound-using step. A logogram is read as a whole word, while a rebus sign is read for its sound; a pictogram may be read only as its subject. Collapsing them hides how scripts gained the power to write new words.</p></details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="schmandt-besserat-writing"><a href="bibliography/schmandt-besserat-writing.html">Denise Schmandt-Besserat, The Evolution of Writing</a></cite>; <cite data-ref="fischer-history-writing"><a href="bibliography/fischer-history-writing.html">Steven Roger Fischer, A History of Writing</a></cite>; <cite data-ref="met-origins-writing"><a href="bibliography/met-origins-writing.html">Metropolitan Museum, The Origins of Writing</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/typography/writing-systems.html">Writing systems of the world</a> &mdash; see how picture signs led to alphabets, syllabaries and abjads.</li>
+<li><a href="desktop/typography/scribes-and-print.html">Scribes, manuscripts and the printing press</a> &mdash; follow written records into books.</li>
+<li><a href="paths/typography-foundations.html">Typography foundations</a> &mdash; read the subject in order.</li>
+</ul>
+</body></html>

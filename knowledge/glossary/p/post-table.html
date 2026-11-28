@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>post (PostScript Table)</title>
+<meta name="topic" content="glossary-post-table">
+<meta name="summary" content="post: The OpenType table storing PostScript glyph names and hinting data.">
+<meta name="keywords" content="glossary-post-table, post, post table, PostScript Table">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/p/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/p/index.html">Terms beginning with P</a> / post (PostScript Table)</p></nav>
+
+<p>The <code>post</code> table stores PostScript-compatible information for a font, including glyph names and sometimes hinting data.</p>
+<section data-level="novice"><p>Some font data is kept for compatibility with older PostScript software. The <code>post</code> table is one such place: it gives letters their traditional names and a few extra typographic values such as underline position.</p></section>
+<section data-level="learner"><p>Version 2.0 stores glyph names as Pascal strings plus an index; version 3.0 omits names to save space, which is common in modern fonts. The table also records italic angle, underline position and thickness, and a fixed-pitch flag used to identify monospaced fonts.</p></section>
+<section data-level="expert"><p>Format 1.0 includes a 32-byte Type 1 font matrix and standard glyph-name indices and can carry a Type 1 hint program; format 2.0 holds custom names with a maximum of 32,767 entries; format 3.0 has no names. Tools such as TTX show them, but shaping engines work with glyph IDs from <code>cmap</code> and GSUB/GPOS instead.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/typography/index.html">Typography</a></li></ul>
+</body></html>
