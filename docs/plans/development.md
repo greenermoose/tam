@@ -452,6 +452,11 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-28:** Corpus 0.140.1 (patch): expand the SFNT glossary title and
+  breadcrumb to "SFNT (Scalable Font)" and carry the expansion in the summary
+  and keywords so Search finds the full name. RFC 8081 calls SFNT the
+  table-based "scalable font" format; the older "spline font" gloss also
+  appears in font references. Command version 0.72.0 is unchanged.
 - **2026-11-28:** Corpus 0.140.0 (minor): the developer asked for a typography
   series in the knowledge corpus from the first marks to research-level
   practice, with font formats, Linux kernel fonts, foundries, printing history,

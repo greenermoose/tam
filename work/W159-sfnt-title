@@ -1,0 +1,40 @@
+W159 SFNT GLOSSARY TITLE
+
+Date: 2026-11-28
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Continues: W158
+
+GUIDANCE
+
+  Fred: "Include what SFNT stands for in the glossary title for that page."
+
+DONE
+
+  - Changed the SFNT glossary title and breadcrumb to
+    "SFNT (Scalable Font)", following the `Acronym (Meaning)`
+    convention. The summary and keywords carry the expansion so
+    Search also finds the full name; the generated S glossary hub
+    takes the new label from the title.
+  - Checked the expansion against RFC 8081, which calls SFNT the
+    table-based "scalable font" format. Font references also gloss
+    the name as "spline font"; scalable font is the primary sense.
+  - Bumped the corpus to 0.140.1 and updated the roadmap and
+    decision record. Command version stays 0.72.0.
+  - `make corpus`, `make corpus-and-test` and `make check-repo`
+    passed. A pipe spot check renders the expanded breadcrumb.
+
+FAILED
+
+  Nothing.
+
+CHECKED AGAINST
+
+  - `docs/corpus-authoring.md`, `work/README-work`, RFC 8081, and
+    the 0.134.1 GHASH glossary title precedent.
+
+HANDOFF
+
+  - Commit the claimed paths, rerun `make corpus`, then commit only
+    the regenerated indexes. Await Fred's development cycle;
+    Test, Run and Release each need his exact word.

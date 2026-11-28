@@ -4,9 +4,9 @@
 knowledge system, combining an offline HTML/man/info/Arch-Wiki pager with
 a three-level teaching corpus.
 
-- **Current version:** command `0.72.0` / corpus `0.140.0` (branch `dev`)
+- **Current version:** command `0.72.0` / corpus `0.140.1` (branch `dev`)
 - **Current Command Version:** `0.72.0`.
-- **Current Corpus Version:** `0.140.0`.
+- **Current Corpus Version:** `0.140.1`.
 - **Progress:** 3 of 4 phases done (P1–P3 done on `dev`; P4 deferred on
   Fred's word)
 - **Versioning:** Command (`src/version.h`) and corpus
@@ -17,7 +17,7 @@ a three-level teaching corpus.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `dev` | 0.72.0 / 0.140.0 | Active development on `dev`: C17 compile standard, learning-path presentation, `libtam` 0.14.0, derived CLI-aware search, canonical IDs, and expanded curricula including the typography series. |
+| `dev` | 0.72.0 / 0.140.1 | Active development on `dev`: C17 compile standard, learning-path presentation, `libtam` 0.14.0, derived CLI-aware search, canonical IDs, expanded curricula including the typography series, and the expanded SFNT glossary title. |
 
 ## Phase summary
 
@@ -65,6 +65,7 @@ a three-level teaching corpus.
 | **0.72.0 command** | Learning-path presentation: friendly intro, in-page menu, fixed categories, and outcome/prerequisites/time details in `tam:paths` | Done (2026-11-26) |
 | **0.139.1 corpus** | Retarget Tamlinux C compile standard from C11 to C17 across active code and current docs (following 0.139.0 path metadata) | Done (2026-11-26) |
 | **0.140.0 corpus** | Desktop > Typography series from the beginning of writing to research practice: formats, kernel fonts, shaping, foundries, printing history, glossary, sources and three paths | Done (2026-11-28) |
+| **0.140.1 corpus** | Expand the SFNT title and breadcrumb to "SFNT (Scalable Font)" and carry the expansion in the summary and keywords | Done (2026-11-28) |
 
 ### Phase P4: Future horizons (0.73+ / 0.141+) — [P4-future-horizons.md](plans/P4-future-horizons.md)
 
